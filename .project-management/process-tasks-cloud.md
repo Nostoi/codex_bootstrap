@@ -19,6 +19,18 @@ Follow the remaining guidelines below to manage this file.
   1. When you finish a **sub‑task**, immediately mark it as completed by changing `[ ]` to `[x]`.  
   2. If **all** subtasks underneath a parent task are now `[x]`, also mark the **parent task** as completed. 
 
+## Technology Stack Reminders
+When implementing tasks, remember the project uses:
+- **Frontend**: Next.js 14+ with App Router, TypeScript, Tailwind CSS + DaisyUI
+- **State Management**: Zustand for client state, React Query for server state
+- **Backend**: Node.js with NestJS framework
+- **Database**: Prisma ORM with PostgreSQL (SQLite for development)
+- **Real-time**: y-websocket with Yjs CRDT for collaborative features
+- **External APIs**: Microsoft Graph SDK, Google APIs SDK
+- **Testing**: Jest for both frontend and backend
+- Follow Next.js App Router conventions for file structure and routing
+- Use NestJS modules, controllers, and services for backend organization 
+
 ## Task List Maintenance
 
 1. **Update the task list as you work:**

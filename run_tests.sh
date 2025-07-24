@@ -1,24 +1,50 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if ! python -c 'import httpx' 2>/dev/null; then
-  echo "httpx not installed, skipping tests"
-  exit 0
+echo "🧪 Running test suite for Codex Bootstrap (Node.js Full-Stack)"
+
+# Backend tests (NestJS)
+echo "🏗️  Running NestJS backend tests..."
+cd backend
+
+# Ensure dependencies are installed
+if ! npm list @nestjs/testing >/dev/null 2>&1; then
+  echo "Installing missing backend dependencies..."
+  npm install
 fi
 
-echo "Running pytest..."
-export PYTHONPATH="${PYTHONPATH:-}:$(pwd)"
-pytest backend/tests "$@"
-echo "Running vitest..."
+if ! npx jest --version >/dev/null 2>&1; then
+  echo "Jest not installed, skipping backend tests"
+else
+  echo "Running Jest tests for NestJS backend..."
+  npm run test
+  echo "✅ Backend tests completed"
+fi
+
+cd ..
+
+# Frontend tests (Next.js)
+echo "🌐 Running Next.js frontend tests..."
 cd frontend
-# Ensure dependencies are installed before checking vitest
-if ! npm list jsdom >/dev/null 2>&1 || ! npm list eventsource-parser >/dev/null 2>&1; then
+
+# Ensure dependencies are installed before checking Jest
+if ! npm list jest >/dev/null 2>&1; then
   echo "Installing missing frontend dependencies..."
   npm install
 fi
-if ! npx vitest --version >/dev/null 2>&1; then
-  echo "vitest not installed, skipping frontend tests"
+
+if ! npx jest --version >/dev/null 2>&1; then
+  echo "Jest not installed, skipping frontend tests"
 else
-  npx vitest run
+  echo "Running Jest tests for Next.js frontend..."
+  npm run test
+  echo "✅ Frontend tests completed"
 fi
+
 cd ..
+
+echo "🎉 All tests completed!"
+echo ""
+echo "Stack tested:"
+echo "- Backend:  NestJS + Prisma + y-websocket"
+echo "- Frontend: Next.js + TypeScript + React Query"

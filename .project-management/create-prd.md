@@ -44,7 +44,14 @@ The generated PRD should have this structure:
 ## 6.  Design Considerations (Optional)
 - Describe UI/UX requirements, or mention relevant components/styles if applicable. 
 ## 7.  Technical Considerations (Optional)
-- Mention any known technical constraints, dependencies, or suggestions (e.g., "Should integrate with the existing Auth module").
+- Mention any known technical constraints, dependencies, or suggestions. Consider the project's tech stack:
+  - **Frontend**: Next.js 14+ with App Router, TypeScript, Tailwind CSS + DaisyUI components
+  - **State Management**: Zustand for client state, React Query for server state
+  - **Backend**: Node.js with NestJS framework
+  - **Database**: Prisma ORM with PostgreSQL (SQLite for development)
+  - **Real-time Collaboration**: y-websocket with Yjs CRDT for document sync
+  - **External APIs**: Microsoft Graph SDK, Google APIs SDK
+  - Integration requirements (e.g., "Should integrate with existing API endpoints", "Use DaisyUI modal components", "Leverage Prisma models", "Implement real-time collaboration with y-websocket")
 ## 8.  Success Metrics
 - How will the success of this feature be measured? (e.g., "Increase user engagement by 10%", "Reduce support tickets related to X").
 ## 9.  Open Questions

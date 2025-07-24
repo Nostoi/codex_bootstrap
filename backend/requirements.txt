@@ -1,5 +1,3 @@
-fastapi
-uvicorn
-pytest
-flake8
-httpx
+# This project has been migrated from Python/FastAPI to Node.js/NestJS
+# Dependencies are now managed in package.json
+# To install dependencies, run: npm install

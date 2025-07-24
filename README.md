@@ -1,6 +1,6 @@
 # codex-bootstrap
 
-codex-bootstrap is a starter template for a full-stack web application integrating a Python FastAPI backend with a React Vite frontend, with Codex agent task support.
+codex-bootstrap is a starter template for a modern full-stack web application built with Node.js NestJS backend and Next.js TypeScript frontend, featuring real-time collaboration and external API integrations, with Codex agent task support.
 
 ## Features
 
@@ -9,8 +9,10 @@ codex-bootstrap is a starter template for a full-stack web application integrati
 - Agent managed local dev setup and application start up script `dev-init.sh`
 - Agent maintenance of dependencies, Codex environment startup script.
     - Changes to `.codex/install.sh` must be manually propogated to teh Codex environment setup configuration, but required environment changes are saved to this file by the Codex agent.
-- Backend: Python 3, FastAPI, Uvicorn
-- Frontend: React 18, Vite, Tailwind CSS, React Router
+- Backend: Node.js, NestJS, Prisma ORM, y-websocket (CRDT collaboration)
+- Frontend: Next.js 14+ with App Router, TypeScript, Tailwind CSS + DaisyUI, Zustand, React Query
+- Real-time collaboration with y-websocket and Yjs CRDT technology
+- External API integrations: Microsoft Graph SDK, Google APIs SDK
 - Pre-configured linting and testing scripts
 # TaskMaster
 Starting with any description of a feature, this project supplies tooling to automate creation of PRD and Task List files, and then Codex agent (or local IDE agent) will manage work from this list, updating it as needed. There are four phases:
@@ -85,14 +87,55 @@ Starting with any description of a feature, this project supplies tooling to aut
 
 ## Target Technologies
 
-- Python 3.x
-- FastAPI
-- Uvicorn
-- React 18
-- Vite
-- Tailwind CSS
-- React Router
+- Node.js 18+
+- NestJS
+- Prisma ORM
+- PostgreSQL (SQLite for development)
+- y-websocket + Yjs (CRDT collaboration)
+- Microsoft Graph SDK
+- Google APIs SDK
+- Next.js 14+ (App Router)
+- TypeScript
+- Tailwind CSS + DaisyUI
+- Zustand (state management)
+- React Query (data fetching)
 
 ## Codex Environment Setup
 Go to https://chatgpt.com/codex/settings/environments, select or create your github-connected environment then Edit -> Advanced and copy-paste install.sh into the startup script textbox. Save
+
+## Architecture Overview
+
+This project implements a modern full-stack architecture:
+
+### Backend (NestJS)
+- **Framework**: NestJS with TypeScript
+- **Database**: Prisma ORM with PostgreSQL (SQLite for development)
+- **Real-time**: y-websocket server for collaborative document editing
+- **APIs**: Microsoft Graph SDK and Google APIs integration
+- **Testing**: Jest with NestJS testing utilities
+
+### Frontend (Next.js)
+- **Framework**: Next.js 14+ with App Router and TypeScript
+- **Styling**: Tailwind CSS with DaisyUI component library
+- **State**: Zustand for client state, React Query for server state
+- **Real-time**: y-websocket client for collaborative features
+- **Testing**: Jest with React Testing Library
+
+### Development Workflow
+1. Run `./dev_init.sh` to start both servers
+2. Frontend: http://localhost:3000
+3. Backend API: http://localhost:8000
+4. API Documentation: http://localhost:8000/api/docs
+5. Collaboration WebSocket: ws://localhost:8001/collaboration
+
+### Database Setup
+The project uses Prisma with PostgreSQL in production and SQLite for development:
+```bash
+cd backend
+npm install
+npx prisma generate
+npx prisma db push
+npx prisma db seed  # Optional: seed with sample data
+```
+
 *End of document*

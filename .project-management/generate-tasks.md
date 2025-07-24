@@ -42,10 +42,19 @@ The generated task list _must_ follow this structure:
 
 ### Notes
 
+- **Tech Stack Considerations**: Remember the project uses Next.js 14+ with App Router, TypeScript, Tailwind CSS + DaisyUI, Zustand for state management, React Query for data fetching, NestJS backend with Prisma ORM, and y-websocket for real-time collaboration. Tasks should leverage these technologies appropriately.
+- **Component Structure**: For Next.js, components should be placed in `frontend/src/components/` or within app directory structure for page-specific components.
+- **API Routes**: Use Next.js API routes (`frontend/src/app/api/`) for frontend API endpoints that proxy to the NestJS backend.
+- **Backend Structure**: NestJS modules should be organized in `backend/src/` with proper controllers, services, and DTOs.
+- **Database**: Use Prisma ORM for database operations. Update schema in `backend/prisma/schema.prisma` and run migrations.
+- **Real-time Features**: Use y-websocket and Yjs for collaborative document editing and real-time sync.
+- **State Management**: Use Zustand stores for client-side state and React Query for server state management.
+- **Styling**: Use DaisyUI components with Tailwind CSS classes for consistent styling.
+- **External APIs**: Leverage Microsoft Graph and Google APIs SDKs for integration features.
 - Unit tests should typically be placed alongside the code files they are testing (e.g., `MyComponent.tsx` and `MyComponent.test.tsx` in the same directory).
-- `dev_init.sh` - This file is used by the user install dependencies and start backend/frontend for local dev. For tasks that add systems like databases, or third party components that need more nuanced installation above and beyond npm and pip, update this script such that it leads to a full deployment in the local environment.
+- `dev_init.sh` - This file is used by the user install dependencies and start backend/frontend for local dev. For tasks that add systems like databases, or third party components that need more nuanced installation above and beyond npm, update this script such that it leads to a full deployment in the local environment.
 - `.codex/install.sh` - This file stores the environment initialization script that sets up the sandbox environment for the Codex agent.  Generally, if the codex coding agent needs environment with systems like databases (as set up in `dev_init.sh`) that setup can be added here.
-- `frontend/package.json`,`backend/requirements.txt` - For any task that adds new depenencies, update these files.
+- `frontend/package.json`,`backend/package.json` - For any task that adds new dependencies, update these files.
 - Summarize Design and Technology considerations from the PRD not specifically referenced in tasks.
 
 ## Tasks

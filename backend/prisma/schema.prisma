@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Collaboration relationships
+  documents Document[]
+  sessions  CollaborationSession[]
+
+  @@map("users")
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  title       String
+  content     String?
+  yjsState    Bytes?   // Store Yjs document state
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  sessions    CollaborationSession[]
+
+  @@map("documents")
+}
+
+model CollaborationSession {
+  id         String   @id @default(cuid())
+  userId     String
+  documentId String
+  joinedAt   DateTime @default(now())
+  leftAt     DateTime?
+  isActive   Boolean  @default(true)
+
+  // Relationships
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, documentId])
+  @@map("collaboration_sessions")
+}
+
+model IntegrationConfig {
+  id          String   @id @default(cuid())
+  provider    String   // 'microsoft' | 'google'
+  userId      String
+  accessToken String?
+  refreshToken String?
+  expiresAt   DateTime?
+  scopes      String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([provider, userId])
+  @@map("integration_configs")
+}
