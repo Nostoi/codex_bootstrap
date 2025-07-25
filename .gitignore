@@ -11,3 +11,6 @@ npm-debug.log*
 .env.local
 
 backend/uploads/
+backend/node_modules/
+backend/pnpm-lock.yaml
+frontend/pnpm-lock.yaml

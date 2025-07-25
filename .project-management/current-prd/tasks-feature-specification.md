@@ -127,7 +127,7 @@
   - [ ] 3.3 Implement proactive suggestion logic leveraging interaction history
   - [ ] 3.4 Add tests for AI services and stub external API calls
 - [ ] **4.0 Frontend Implementation**
-  - [ ] 4.1 Scaffold dashboard page and task list component with DaisyUI styling
+  - [x] 4.1 Scaffold dashboard page and task list component with DaisyUI styling
   - [ ] 4.2 Connect frontend to backend APIs using React Query hooks
   - [ ] 4.3 Manage client state with Zustand stores
   - [ ] 4.4 Display Today’s Plan with task metadata and status indicators
@@ -136,7 +136,7 @@
   - [ ] 5.1 Implement real-time sync using y-websocket and Yjs
   - [ ] 5.2 Set up WebSocket notifications for task reminders
   - [x] 5.3 Create Dockerfiles and docker-compose configuration for full stack
-  - [ ] 5.4 Document Docker workflow in README and `dev_init.sh`
+  - [x] 5.4 Document Docker workflow in README and `dev_init.sh`
 - [ ] **6.0 Testing & Quality Assurance**
   - [ ] 6.1 Configure Jest and ESLint pre-commit hooks
   - [ ] 6.2 Achieve >80% unit test coverage across frontend and backend
