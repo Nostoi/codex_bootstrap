@@ -3,6 +3,15 @@ set -euo pipefail
 
 echo "🚀 Starting Codex Bootstrap Development Environment (Node.js Full-Stack)"
 
+# Optionally start with Docker
+: "${USE_DOCKER:=false}"
+if [ "$USE_DOCKER" = "true" ] && command -v docker >/dev/null 2>&1; then
+    echo "🐳 Starting services using docker-compose..."
+    docker compose up -d
+    echo "✅ Containers started. Frontend: http://localhost:3000  Backend: http://localhost:8000"
+    exit 0
+fi
+
 # Export optional debug environment variables if provided
 : "${DEBUG:=false}"
 if [ "$DEBUG" = "true" ]; then
@@ -13,6 +22,13 @@ fi
 # CORS allowed origins for the backend (Next.js runs on port 3000)
 : "${ALLOW_ORIGINS:=http://localhost:3000}"
 export CORS_ORIGIN="$ALLOW_ORIGINS"
+
+# Ensure root .env exists
+if [ ! -f .env ]; then
+    echo "📝 Creating .env from template..."
+    cp .env.template .env
+    echo "⚠️  Review .env and update secrets accordingly"
+fi
 
 echo "🛑 Killing existing processes..."
 # Kill existing processes
