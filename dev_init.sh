@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Run with USE_DOCKER=true to start docker-compose containers
+
 set -euo pipefail
 
 echo "🚀 Starting Codex Bootstrap Development Environment (Node.js Full-Stack)"
@@ -8,6 +10,7 @@ echo "🚀 Starting Codex Bootstrap Development Environment (Node.js Full-Stack)
 if [ "$USE_DOCKER" = "true" ] && command -v docker >/dev/null 2>&1; then
     echo "🐳 Starting services using docker-compose..."
     docker compose up -d
+    echo "🛑 Stop containers with: docker compose down"
     echo "✅ Containers started. Frontend: http://localhost:3000  Backend: http://localhost:8000"
     exit 0
 fi

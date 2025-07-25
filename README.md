@@ -139,4 +139,15 @@ npx prisma db push
 npx prisma db seed  # Optional: seed with sample data
 ```
 
+
+### Docker Workflow
+For a containerized setup, ensure Docker is installed and running. Start all services using docker-compose with:
+```bash
+USE_DOCKER=true ./dev_init.sh
+```
+This command builds the images and launches the database, backend, and frontend containers defined in `docker-compose.yml`.
+To stop the containers when finished, run:
+```bash
+docker compose down
+```
 *End of document*
