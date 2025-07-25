@@ -88,6 +88,7 @@
 - `frontend/src/app/dashboard/page.tsx` - Main dashboard view
 - `frontend/src/components/TaskList.tsx` - Task list component
 - `frontend/src/store/tasksStore.ts` - Zustand store for tasks
+- `frontend/src/store/tasksStore.test.ts` - Unit tests for tasks store
 - `docker-compose.yml` - Local development environment
 - `Dockerfile.backend` - Backend container
 - `Dockerfile.frontend` - Frontend container
@@ -100,6 +101,8 @@
 - `backend/prisma/schema.prisma` - Add new tables according to PRD
 - `backend/package.json` - Add dependencies like @nestjs/jwt, @prisma/client
 - `frontend/package.json` - Add Zustand and React Query
+- `frontend/src/app/dashboard/page.tsx` - Integrate tasks store
+- `frontend/src/components/TaskList.tsx` - Toggle tasks via store
 - `README.md` - Update setup instructions
 - `.gitignore` - Ignore local environment files
 - `.project-management/current-prd/tasks-feature-specification.md` - Task list
@@ -129,11 +132,11 @@
 - [ ] **4.0 Frontend Implementation**
   - [x] 4.1 Scaffold dashboard page and task list component with DaisyUI styling
   - [ ] 4.2 Connect frontend to backend APIs using React Query hooks
-  - [ ] 4.3 Manage client state with Zustand stores
+  - [x] 4.3 Manage client state with Zustand stores
   - [ ] 4.4 Display Today’s Plan with task metadata and status indicators
   - [ ] 4.5 Write unit tests for components and stores
 - [ ] **5.0 Sync, Notifications & Docker**
-  - [ ] 5.1 Implement real-time sync using y-websocket and Yjs
+  - [x] 5.1 Implement real-time sync using y-websocket and Yjs
   - [ ] 5.2 Set up WebSocket notifications for task reminders
   - [x] 5.3 Create Dockerfiles and docker-compose configuration for full stack
   - [x] 5.4 Document Docker workflow in README and `dev_init.sh`

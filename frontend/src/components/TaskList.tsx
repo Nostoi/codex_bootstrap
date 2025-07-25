@@ -8,9 +8,10 @@ export interface Task {
 
 interface TaskListProps {
   tasks: Task[]
+  onToggle?: (id: number) => void
 }
 
-export default function TaskList({ tasks }: TaskListProps) {
+export default function TaskList({ tasks, onToggle }: TaskListProps) {
   return (
     <ul className="space-y-2">
       {tasks.map((task) => (
@@ -19,7 +20,7 @@ export default function TaskList({ tasks }: TaskListProps) {
             type="checkbox"
             className="checkbox checkbox-primary"
             checked={task.completed}
-            readOnly
+            onChange={() => onToggle?.(task.id)}
           />
           <span className={task.completed ? 'line-through' : ''}>{task.title}</span>
         </li>
