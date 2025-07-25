@@ -7,6 +7,12 @@ echo "🧪 Running test suite for Codex Bootstrap (Node.js Full-Stack)"
 echo "🏗️  Running NestJS backend tests..."
 cd backend
 
+# Generate Prisma client in case schema has changed
+if [ -f prisma/schema.prisma ]; then
+  echo "⏳ Generating Prisma client..."
+  npx prisma generate > /dev/null
+fi
+
 # Ensure dependencies are installed
 if [ ! -f node_modules/.bin/jest ]; then
   echo "Installing missing backend dependencies..."

@@ -93,12 +93,14 @@
 - `Dockerfile.frontend` - Frontend container
 - `frontend/src/components/TaskList.test.tsx` - Unit tests for `TaskList`
 - `backend/src/tasks/tasks.service.spec.ts` - Tests for task service
+- `.github/workflows/ci.yml` - GitHub Actions pipeline running lint and tests
 ### Existing Files Modified
 - `dev_init.sh` - Include database and services setup commands
 - `backend/prisma/schema.prisma` - Add new tables according to PRD
 - `backend/package.json` - Add dependencies like @nestjs/jwt, @prisma/client
 - `frontend/package.json` - Add Zustand and React Query
 - `README.md` - Update setup instructions
+- `.project-management/current-prd/tasks-feature-specification.md` - Task list
 
 ### Notes
 - **Tech Stack**: Next.js 14+ with App Router, TypeScript, Tailwind CSS + DaisyUI, Zustand state management, React Query for API data, NestJS backend with Prisma ORM, y-websocket for collaboration.
@@ -108,7 +110,7 @@
 
 ## Tasks
 - [ ] **1.0 Infrastructure & Setup**
-  - [ ] 1.1 Initialize frontend and backend repositories with GitHub Actions pipelines
+  - [x] 1.1 Initialize frontend and backend repositories with GitHub Actions pipelines
   - [ ] 1.2 Configure development and staging environments via `dev_init.sh` and docker-compose
   - [ ] 1.3 Establish environment variable templates and secrets management
 - [ ] **2.0 Database & Backend API**
