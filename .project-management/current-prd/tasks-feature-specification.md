@@ -91,6 +91,7 @@
 - `docker-compose.yml` - Local development environment
 - `Dockerfile.backend` - Backend container
 - `Dockerfile.frontend` - Frontend container
+- `.env.template` - Example environment variables
 - `frontend/src/components/TaskList.test.tsx` - Unit tests for `TaskList`
 - `backend/src/tasks/tasks.service.spec.ts` - Tests for task service
 - `.github/workflows/ci.yml` - GitHub Actions pipeline running lint and tests
@@ -100,6 +101,7 @@
 - `backend/package.json` - Add dependencies like @nestjs/jwt, @prisma/client
 - `frontend/package.json` - Add Zustand and React Query
 - `README.md` - Update setup instructions
+- `.gitignore` - Ignore local environment files
 - `.project-management/current-prd/tasks-feature-specification.md` - Task list
 
 ### Notes
@@ -109,10 +111,10 @@
 - **Testing**: Target >80% unit test coverage using Jest for both frontend and backend with pre-commit linting.
 
 ## Tasks
-- [ ] **1.0 Infrastructure & Setup**
+- [x] **1.0 Infrastructure & Setup**
   - [x] 1.1 Initialize frontend and backend repositories with GitHub Actions pipelines
-  - [ ] 1.2 Configure development and staging environments via `dev_init.sh` and docker-compose
-  - [ ] 1.3 Establish environment variable templates and secrets management
+  - [x] 1.2 Configure development and staging environments via `dev_init.sh` and docker-compose
+  - [x] 1.3 Establish environment variable templates and secrets management
 - [ ] **2.0 Database & Backend API**
   - [ ] 2.1 Extend `schema.prisma` to include Users, Projects, Tasks, TaskDependencies, Notifications, InteractionLogs, UserSettings, Tags, and related tables
   - [ ] 2.2 Generate Prisma migrations and update `prisma.service.ts`
@@ -133,7 +135,7 @@
 - [ ] **5.0 Sync, Notifications & Docker**
   - [ ] 5.1 Implement real-time sync using y-websocket and Yjs
   - [ ] 5.2 Set up WebSocket notifications for task reminders
-  - [ ] 5.3 Create Dockerfiles and docker-compose configuration for full stack
+  - [x] 5.3 Create Dockerfiles and docker-compose configuration for full stack
   - [ ] 5.4 Document Docker workflow in README and `dev_init.sh`
 - [ ] **6.0 Testing & Quality Assurance**
   - [ ] 6.1 Configure Jest and ESLint pre-commit hooks

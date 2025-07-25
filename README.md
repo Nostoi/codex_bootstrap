@@ -87,7 +87,7 @@ Starting with any description of a feature, this project supplies tooling to aut
 
 ## Target Technologies
 
-- Node.js 18+
+ - Node.js 20+
 - NestJS
 - Prisma ORM
 - PostgreSQL (SQLite for development)
@@ -122,11 +122,12 @@ This project implements a modern full-stack architecture:
 - **Testing**: Jest with React Testing Library
 
 ### Development Workflow
-1. Run `./dev_init.sh` to start both servers
-2. Frontend: http://localhost:3000
-3. Backend API: http://localhost:8000
-4. API Documentation: http://localhost:8000/api/docs
-5. Collaboration WebSocket: ws://localhost:8001/collaboration
+1. Copy `.env.template` to `.env` and update any secrets
+2. Run `./dev_init.sh` to start both servers (set `USE_DOCKER=true` to use Docker)
+3. Frontend: http://localhost:3000
+4. Backend API: http://localhost:8000
+5. API Documentation: http://localhost:8000/api/docs
+6. Collaboration WebSocket: ws://localhost:8001/collaboration
 
 ### Database Setup
 The project uses Prisma with PostgreSQL in production and SQLite for development:
