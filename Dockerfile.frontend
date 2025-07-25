@@ -1,0 +1,16 @@
+# Frontend Dockerfile for Codex Bootstrap
+FROM node:18-alpine AS builder
+WORKDIR /app
+
+COPY frontend/package*.json ./frontend/
+RUN cd frontend && npm install
+
+COPY frontend ./frontend
+WORKDIR /app/frontend
+RUN npm run build
+
+FROM node:18-alpine
+WORKDIR /app
+COPY --from=builder /app/frontend .
+EXPOSE 3000
+CMD ["npm", "run", "start"]

@@ -4,8 +4,10 @@ __pycache__/
 frontend/node_modules/
 frontend/dist/
 backend/data/
+frontend/.next/
 *.pyc
 npm-debug.log*
 .env
+.env.local
 
 backend/uploads/
