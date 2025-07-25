@@ -45,9 +45,9 @@ describe('Home Page', () => {
 
   it('renders the navigation bar', () => {
     render(<Home />)
-    
-    const navbar = screen.getByText(/codex bootstrap/i)
-    
+
+    const [navbar] = screen.getAllByText(/codex bootstrap/i)
+
     expect(navbar).toBeInTheDocument()
   })
 })

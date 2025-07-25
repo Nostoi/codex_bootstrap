@@ -8,7 +8,7 @@ echo "🏗️  Running NestJS backend tests..."
 cd backend
 
 # Ensure dependencies are installed
-if ! npm list @nestjs/testing >/dev/null 2>&1; then
+if [ ! -f node_modules/.bin/jest ]; then
   echo "Installing missing backend dependencies..."
   npm install
 fi
@@ -28,7 +28,7 @@ echo "🌐 Running Next.js frontend tests..."
 cd frontend
 
 # Ensure dependencies are installed before checking Jest
-if ! npm list jest >/dev/null 2>&1; then
+if [ ! -f node_modules/.bin/jest ]; then
   echo "Installing missing frontend dependencies..."
   npm install
 fi
