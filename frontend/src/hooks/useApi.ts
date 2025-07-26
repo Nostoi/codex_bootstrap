@@ -13,11 +13,19 @@ interface CreateUserInput {
   email: string
 }
 
+export interface ApiTask {
+  id: number
+  title: string
+  completed: boolean
+}
+
 // Query keys
 export const queryKeys = {
   users: ['users'] as const,
   user: (id: string) => ['users', id] as const,
   health: ['health'] as const,
+  tasks: ['tasks'] as const,
+  task: (id: number) => ['tasks', id] as const,
 }
 
 // Health check hook
@@ -77,6 +85,25 @@ export function useDeleteUser() {
     mutationFn: (id: string) => api.delete(`/users/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.users })
+    },
+  })
+}
+
+// Tasks hooks
+export function useTasks() {
+  return useQuery({
+    queryKey: queryKeys.tasks,
+    queryFn: () => api.get<ApiTask[]>('/tasks'),
+  })
+}
+
+export function useToggleTask() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: number) => api.patch<ApiTask>(`/tasks/${id}/toggle`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks })
     },
   })
 }

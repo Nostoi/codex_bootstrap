@@ -8,3 +8,4 @@
 2025-07-25T22:37:38Z Document Docker workflow and scaffold dashboard
 2025-07-25T23:07:46Z Add Zustand tasks store and integrate dashboard
 2025-07-26T00:33:44Z Add Husky pre-commit hooks
+2025-07-26T01:20:25Z Integrate backend tasks API with React Query
