@@ -20,4 +20,9 @@ describe('TasksService', () => {
     const task = service.toggle(1)
     expect(task?.completed).toBe(true)
   })
+
+  it('returns tasks with due dates', () => {
+    const tasks = service.findAll()
+    expect(tasks[0].dueDate).toMatch(/\d{4}-\d{2}-\d{2}/)
+  })
 })

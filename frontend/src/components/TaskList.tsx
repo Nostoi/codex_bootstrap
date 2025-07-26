@@ -4,6 +4,7 @@ export interface Task {
   id: number
   title: string
   completed: boolean
+  dueDate: string
 }
 
 interface TaskListProps {
@@ -23,6 +24,10 @@ export default function TaskList({ tasks, onToggle }: TaskListProps) {
             onChange={() => onToggle?.(task.id)}
           />
           <span className={task.completed ? 'line-through' : ''}>{task.title}</span>
+          <span className="badge badge-ghost badge-sm ml-auto">
+            {task.completed ? 'Done' : 'Pending'}
+          </span>
+          <span className="text-xs text-gray-500">{task.dueDate}</span>
         </li>
       ))}
     </ul>
