@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: codex-backend
+  namespace: codex-bootstrap
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: codex-backend
+  template:
+    metadata:
+      labels:
+        app: codex-backend
+    spec:
+      containers:
+        - name: backend
+          image: codex-backend:latest
+          ports:
+            - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: codex-backend
+  namespace: codex-bootstrap
+spec:
+  selector:
+    app: codex-backend
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+  type: ClusterIP

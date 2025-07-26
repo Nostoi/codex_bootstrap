@@ -154,6 +154,15 @@ To stop the containers when finished, run:
 ```bash
 docker compose down
 ```
+### Kubernetes Deployment
+Apply the manifests in `k8s/` to deploy the application:
+```bash
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/backend-deployment.yaml
+kubectl apply -f k8s/frontend-deployment.yaml
+```
+Expose the `codex-frontend` service with a LoadBalancer or Ingress as needed.
+
 
 ### Authentication
 The backend provides a simple JWT-based authentication module.
