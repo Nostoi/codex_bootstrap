@@ -100,6 +100,8 @@
 - `.env.template` - Example environment variables
 - `frontend/src/components/TaskList.test.tsx` - Unit tests for `TaskList`
 - `backend/src/tasks/tasks.service.spec.ts` - Tests for task service
+- `backend/src/integrations/graph/graph.service.spec.ts` - Tests for Microsoft Graph service
+- `backend/src/integrations/graph/graph.controller.spec.ts` - Tests for Microsoft Graph controller
 - `.github/workflows/ci.yml` - GitHub Actions pipeline running lint and tests
 ### Existing Files Modified
 - `dev_init.sh` - Include database and services setup commands
@@ -137,7 +139,7 @@
   - [x] 2.2 Generate Prisma migrations and update `prisma.service.ts`
   - [x] 2.3 Implement NestJS modules, controllers, and services for Users, Projects, Tasks, and Notifications
   - [x] 2.4 Add JWT authentication and OAuth2 (Google/Microsoft) using `auth` module
-  - [ ] 2.5 Write unit tests for each service and controller
+  - [c] 2.5 Write unit tests for each service and controller
 - [ ] **3.0 AI Integration**
   - [ ] 3.1 Create AI module to interface with ChatGPT API for task generation and summarization
   - [ ] 3.2 Integrate Mem0 for semantic memory storage and retrieval-augmented responses

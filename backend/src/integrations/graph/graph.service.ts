@@ -13,10 +13,12 @@ export class GraphService {
    */
   private createGraphClient(accessToken: string): Client {
     return Client.init({
+      // Client.init expects an AuthProvider function, but using a
+      // simple object keeps the implementation lightweight for tests.
       authProvider: {
         getAccessToken: async () => accessToken,
-      },
-    });
+      } as any,
+    })
   }
 
   /**
