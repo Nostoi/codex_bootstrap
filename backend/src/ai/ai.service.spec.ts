@@ -36,4 +36,14 @@ describe('AiService', () => {
     expect(result).toBe('sum')
     expect(mem0.storeInteraction).toHaveBeenCalledWith('text')
   })
+
+  it('suggests next tasks', async () => {
+    mockFetch.mockResolvedValueOnce({
+      json: () => Promise.resolve({ choices: [{ message: { content: 's1\ns2' } }] }),
+    })
+    const result = await service.getSuggestions('context')
+    expect(result).toEqual(['s1', 's2'])
+    expect(mem0.search).toHaveBeenCalledWith('context')
+    expect(mem0.storeInteraction).toHaveBeenCalledWith('context')
+  })
 })

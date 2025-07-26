@@ -150,10 +150,10 @@
   - [x] 2.3 Implement NestJS modules, controllers, and services for Users, Projects, Tasks, and Notifications
   - [x] 2.4 Add JWT authentication and OAuth2 (Google/Microsoft) using `auth` module
   - [x] 2.5 Write unit tests for each service and controller
-- [ ] **3.0 AI Integration**
+- [x] **3.0 AI Integration**
   - [x] 3.1 Create AI module to interface with ChatGPT API for task generation and summarization
   - [x] 3.2 Integrate Mem0 for semantic memory storage and retrieval-augmented responses
-  - [ ] 3.3 Implement proactive suggestion logic leveraging interaction history
+  - [x] 3.3 Implement proactive suggestion logic leveraging interaction history
   - [x] 3.4 Add tests for AI services and stub external API calls
 - [x] **4.0 Frontend Implementation**
   - [x] 4.1 Scaffold dashboard page and task list component with DaisyUI styling

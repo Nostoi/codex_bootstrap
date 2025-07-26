@@ -16,6 +16,17 @@ export class AiService {
       .filter(Boolean)
   }
 
+  async getSuggestions(context: string): Promise<string[]> {
+    const history = await this.mem0.search(context)
+    const prompt = `Based on the following interaction history:\n${history.join('\n')}\nSuggest next tasks for: ${context}`
+    const res = await this.request(prompt)
+    await this.mem0.storeInteraction(context)
+    return res
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean)
+  }
+
   async summarize(text: string): Promise<string> {
     await this.mem0.storeInteraction(text)
     return this.request(`Summarize the following text:\n${text}`)
