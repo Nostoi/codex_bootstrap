@@ -90,6 +90,11 @@
 - `backend/prisma/migrations/001_init/migration.sql` - Initial schema migration
 - `backend/src/ai/ai.module.ts` - ChatGPT and Mem0 integration
 - `backend/src/ai/ai.service.ts` - AI interaction logic
+- `backend/src/ai/ai.service.spec.ts` - Tests for AI service
+- `backend/src/tasks/tasks.controller.spec.ts` - Tests for tasks controller
+- `backend/src/projects/projects.controller.spec.ts` - Tests for projects controller
+- `backend/src/users/users.controller.spec.ts` - Tests for users controller
+- `backend/src/auth/auth.controller.spec.ts` - Tests for auth controller
 - `frontend/src/app/dashboard/page.tsx` - Main dashboard view
 - `frontend/src/components/TaskList.tsx` - Task list component
 - `frontend/src/store/tasksStore.ts` - Zustand store for tasks
@@ -117,7 +122,7 @@
 - `backend/src/tasks/tasks.service.ts` - Provide tasks with due dates
 - `backend/src/tasks/tasks.service.spec.ts` - Updated tests for due dates
 - `backend/src/tasks/tasks.module.ts` - Inject notifications gateway
- - `backend/src/app.module.ts` - Register TasksModule, ProjectsModule, and AuthModule
+- `backend/src/app.module.ts` - Register TasksModule, ProjectsModule, AuthModule, and AiModule
 - `backend/src/prisma/prisma.service.ts` - Run migrations at startup
 - `README.md` - Update setup instructions
 - `.gitignore` - Ignore local environment files
@@ -134,17 +139,17 @@
   - [x] 1.1 Initialize frontend and backend repositories with GitHub Actions pipelines
   - [x] 1.2 Configure development and staging environments via `dev_init.sh` and docker-compose
   - [x] 1.3 Establish environment variable templates and secrets management
-- [ ] **2.0 Database & Backend API**
+- [x] **2.0 Database & Backend API**
   - [x] 2.1 Extend `schema.prisma` to include Users, Projects, Tasks, TaskDependencies, Notifications, InteractionLogs, UserSettings, Tags, and related tables
   - [x] 2.2 Generate Prisma migrations and update `prisma.service.ts`
   - [x] 2.3 Implement NestJS modules, controllers, and services for Users, Projects, Tasks, and Notifications
   - [x] 2.4 Add JWT authentication and OAuth2 (Google/Microsoft) using `auth` module
-  - [c] 2.5 Write unit tests for each service and controller
+  - [x] 2.5 Write unit tests for each service and controller
 - [ ] **3.0 AI Integration**
-  - [ ] 3.1 Create AI module to interface with ChatGPT API for task generation and summarization
+  - [x] 3.1 Create AI module to interface with ChatGPT API for task generation and summarization
   - [ ] 3.2 Integrate Mem0 for semantic memory storage and retrieval-augmented responses
   - [ ] 3.3 Implement proactive suggestion logic leveraging interaction history
-  - [ ] 3.4 Add tests for AI services and stub external API calls
+  - [x] 3.4 Add tests for AI services and stub external API calls
 - [x] **4.0 Frontend Implementation**
   - [x] 4.1 Scaffold dashboard page and task list component with DaisyUI styling
   - [x] 4.2 Connect frontend to backend APIs using React Query hooks
