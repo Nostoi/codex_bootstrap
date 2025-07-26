@@ -141,7 +141,7 @@
   - [x] 5.3 Create Dockerfiles and docker-compose configuration for full stack
   - [x] 5.4 Document Docker workflow in README and `dev_init.sh`
 - [ ] **6.0 Testing & Quality Assurance**
-  - [ ] 6.1 Configure Jest and ESLint pre-commit hooks
+  - [x] 6.1 Configure Jest and ESLint pre-commit hooks
   - [ ] 6.2 Achieve >80% unit test coverage across frontend and backend
   - [ ] 6.3 Implement end-to-end tests using Playwright or Cypress
 - [ ] **7.0 Deployment & Monitoring**

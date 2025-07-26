@@ -47,6 +47,9 @@ if [ ! -f "backend/.env" ]; then
     echo "⚠️  Please configure your database connection in backend/.env"
 fi
 
+echo "📦 Installing root git hooks..."
+npm install
+
 echo "📦 Installing backend dependencies..."
 # Install backend dependencies
 cd backend

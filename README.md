@@ -128,6 +128,7 @@ This project implements a modern full-stack architecture:
 4. Backend API: http://localhost:8000
 5. API Documentation: http://localhost:8000/api/docs
 6. Collaboration WebSocket: ws://localhost:8001/collaboration
+7. Install git hooks with `npm install` in the project root
 
 ### Database Setup
 The project uses Prisma with PostgreSQL in production and SQLite for development:
@@ -138,6 +139,9 @@ npx prisma generate
 npx prisma db push
 npx prisma db seed  # Optional: seed with sample data
 ```
+### Pre-commit Hooks
+Run `npm install` in the project root to install Husky. The `pre-commit` hook runs ESLint and Jest tests for both backend and frontend.
+
 
 
 ### Docker Workflow
