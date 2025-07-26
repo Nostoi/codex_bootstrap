@@ -25,3 +25,5 @@
 
 2025-07-26T16:00:27Z Add coverage thresholds and scripts for test coverage
 2025-07-26T16:21:32Z Achieve >80% test coverage and mark QA task complete
+2025-07-26T17:46:01Z Add Kubernetes deployment manifests
+2025-07-26T19:03:41Z Add Kubernetes manifests and ensure tests pass

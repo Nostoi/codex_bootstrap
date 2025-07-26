@@ -111,6 +111,9 @@
 - `backend/src/tasks/tasks.service.spec.ts` - Tests for task service
 - `backend/src/integrations/graph/graph.service.spec.ts` - Tests for Microsoft Graph service
 - `backend/src/integrations/graph/graph.controller.spec.ts` - Tests for Microsoft Graph controller
+- `k8s/namespace.yaml` - Namespace definition for Kubernetes deployment
+- `k8s/backend-deployment.yaml` - Deployment and Service for backend container
+- `k8s/frontend-deployment.yaml` - Deployment and Service for frontend container
 - `.github/workflows/ci.yml` - GitHub Actions pipeline running lint and tests
 ### Existing Files Modified
 - `dev_init.sh` - Include database and services setup commands
@@ -178,6 +181,6 @@
   - [x] 6.3 Implement end-to-end tests using Playwright or Cypress
     - [x] 6.3.1 Add initial Playwright configuration and sample home page test
 - [ ] **7.0 Deployment & Monitoring**
-  - [ ] 7.1 Deploy containers to cloud environment (Kubernetes or DO App Platform)
+  - [x] 7.1 Deploy containers to cloud environment (Kubernetes or DO App Platform)
   - [ ] 7.2 Set up OpenTelemetry traces, Prometheus metrics, Grafana dashboards, and Sentry error reporting
   - [ ] 7.3 Monitor user adoption metrics and bug reports
