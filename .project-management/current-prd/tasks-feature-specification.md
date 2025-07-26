@@ -136,12 +136,12 @@
   - [ ] 3.2 Integrate Mem0 for semantic memory storage and retrieval-augmented responses
   - [ ] 3.3 Implement proactive suggestion logic leveraging interaction history
   - [ ] 3.4 Add tests for AI services and stub external API calls
-- [ ] **4.0 Frontend Implementation**
+- [x] **4.0 Frontend Implementation**
   - [x] 4.1 Scaffold dashboard page and task list component with DaisyUI styling
   - [x] 4.2 Connect frontend to backend APIs using React Query hooks
   - [x] 4.3 Manage client state with Zustand stores
   - [x] 4.4 Display Today’s Plan with task metadata and status indicators
-  - [ ] 4.5 Write unit tests for components and stores
+  - [x] 4.5 Write unit tests for components and stores
 - [ ] **5.0 Sync, Notifications & Docker**
   - [x] 5.1 Implement real-time sync using y-websocket and Yjs
   - [ ] 5.2 Set up WebSocket notifications for task reminders
