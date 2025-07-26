@@ -135,6 +135,7 @@
 - `.gitignore` - Ignore local environment files
 - `.project-management/current-prd/tasks-feature-specification.md` - Task list
 - `run_tests.sh` - Test runner script with coverage and e2e support
+- `CHANGELOG.md` - Record of changes for tasks progress
 
 ### Notes
 - **Tech Stack**: Next.js 14+ with App Router, TypeScript, Tailwind CSS + DaisyUI, Zustand state management, React Query for API data, NestJS backend with Prisma ORM, y-websocket for collaboration.
@@ -172,7 +173,7 @@
 - [ ] **6.0 Testing & Quality Assurance**
   - [x] 6.1 Configure Jest and ESLint pre-commit hooks
   - [ ] 6.2 Achieve >80% unit test coverage across frontend and backend
-  - [c] 6.3 Implement end-to-end tests using Playwright or Cypress
+  - [x] 6.3 Implement end-to-end tests using Playwright or Cypress
     - [x] 6.3.1 Add initial Playwright configuration and sample home page test
 - [ ] **7.0 Deployment & Monitoring**
   - [ ] 7.1 Deploy containers to cloud environment (Kubernetes or DO App Platform)
