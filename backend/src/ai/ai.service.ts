@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common'
+import { Mem0Service } from './mem0.service'
 
 @Injectable()
 export class AiService {
-  constructor() {}
+  constructor(private readonly mem0: Mem0Service) {}
 
   async generateTasks(prompt: string): Promise<string[]> {
-    const res = await this.request(prompt)
+    const context = await this.mem0.search(prompt)
+    const res = await this.request(`${context.join('\n')}\n${prompt}`)
+    await this.mem0.storeInteraction(prompt)
     const content = res || ''
     return content
       .split('\n')
@@ -14,6 +17,7 @@ export class AiService {
   }
 
   async summarize(text: string): Promise<string> {
+    await this.mem0.storeInteraction(text)
     return this.request(`Summarize the following text:\n${text}`)
   }
 
