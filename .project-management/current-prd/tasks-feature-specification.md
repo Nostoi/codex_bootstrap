@@ -111,6 +111,10 @@
 - `backend/src/tasks/tasks.service.spec.ts` - Tests for task service
 - `backend/src/integrations/graph/graph.service.spec.ts` - Tests for Microsoft Graph service
 - `backend/src/integrations/graph/graph.controller.spec.ts` - Tests for Microsoft Graph controller
+- `backend/src/metrics/metrics.module.ts` - Module for interaction metrics
+- `backend/src/metrics/metrics.controller.ts` - Endpoints for metrics
+- `backend/src/metrics/metrics.service.ts` - In-memory metrics service
+- `backend/src/metrics/metrics.service.spec.ts` - Tests for metrics service
 - `k8s/namespace.yaml` - Namespace definition for Kubernetes deployment
 - `k8s/backend-deployment.yaml` - Deployment and Service for backend container
 - `k8s/frontend-deployment.yaml` - Deployment and Service for frontend container
@@ -131,6 +135,7 @@
 - `backend/src/tasks/tasks.service.spec.ts` - Updated tests for due dates
 - `backend/src/tasks/tasks.module.ts` - Inject notifications gateway
 - `backend/src/app.module.ts` - Register TasksModule, ProjectsModule, AuthModule, and AiModule
+- `backend/src/app.module.ts` - Register MetricsModule
 - `backend/src/prisma/prisma.service.ts` - Run migrations at startup
 - `backend/src/ai/ai.module.ts` - Register Mem0Service
 - `backend/src/ai/ai.service.ts` - Use Mem0Service for context
@@ -183,4 +188,4 @@
 - [ ] **7.0 Deployment & Monitoring**
   - [x] 7.1 Deploy containers to cloud environment (Kubernetes or DO App Platform)
   - [ ] 7.2 Set up OpenTelemetry traces, Prometheus metrics, Grafana dashboards, and Sentry error reporting
-  - [ ] 7.3 Monitor user adoption metrics and bug reports
+  - [x] 7.3 Monitor user adoption metrics and bug reports

@@ -11,6 +11,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { ProjectsModule } from './projects/projects.module';
 import { AuthModule } from './auth/auth.module';
 import { AiModule } from './ai/ai.module';
+import { MetricsModule } from './metrics/metrics.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AiModule } from './ai/ai.module';
     NotificationsModule,
     AuthModule,
     AiModule,
+    MetricsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
