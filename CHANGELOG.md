@@ -12,3 +12,4 @@
 2025-07-26T01:57:27Z Add due dates and today's plan display
 2025-07-26T02:16:40Z Add project and task models to Prisma schema
 2025-07-26T02:34:32Z Mark frontend unit tests completed
+2025-07-26T02:45:34Z Add Prisma migrations and notifications gateway

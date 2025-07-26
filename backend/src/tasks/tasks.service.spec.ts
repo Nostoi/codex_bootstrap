@@ -1,12 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { TasksService } from './tasks.service'
+import { NotificationsGateway } from '../notifications/notifications.gateway'
 
 describe('TasksService', () => {
   let service: TasksService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [TasksService],
+      providers: [
+        TasksService,
+        {
+          provide: NotificationsGateway,
+          useValue: { sendReminder: jest.fn() },
+        },
+      ],
     }).compile()
 
     service = module.get<TasksService>(TasksService)
