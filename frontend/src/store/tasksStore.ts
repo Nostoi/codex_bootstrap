@@ -11,6 +11,7 @@ interface TasksState {
   addTask: (title: string) => void
   toggleTask: (id: number) => void
   removeTask: (id: number) => void
+  setTasks: (tasks: Task[]) => void
 }
 
 let nextId = 1
@@ -34,4 +35,5 @@ export const useTasksStore = create<TasksState>((set) => ({
     set((state) => ({
       tasks: state.tasks.filter((t) => t.id !== id),
     })),
+  setTasks: (tasks) => set({ tasks }),
 }))

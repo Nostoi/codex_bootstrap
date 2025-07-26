@@ -48,4 +48,18 @@ describe('useTasksStore', () => {
 
     expect(result.current.tasks).toHaveLength(0)
   })
+
+  it('sets tasks', () => {
+    const { result } = renderHook(() => useTasksStore())
+
+    act(() => {
+      result.current.setTasks([
+        { id: 1, title: 'A', completed: false },
+        { id: 2, title: 'B', completed: true },
+      ])
+    })
+
+    expect(result.current.tasks).toHaveLength(2)
+    expect(result.current.tasks[1].completed).toBe(true)
+  })
 })

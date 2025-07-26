@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { CollaborationModule } from './collaboration/collaboration.module';
 import { GraphModule } from './integrations/graph/graph.module';
 import { GoogleModule } from './integrations/google/google.module';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { GoogleModule } from './integrations/google/google.module';
     CollaborationModule,
     GraphModule,
     GoogleModule,
+    TasksModule,
   ],
   controllers: [AppController],
   providers: [AppService],
