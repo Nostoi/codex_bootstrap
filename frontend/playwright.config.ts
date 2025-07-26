@@ -1,6 +1,8 @@
 import { PlaywrightTestConfig } from '@playwright/test'
 
 const config: PlaywrightTestConfig = {
+  testDir: './tests',
+  testMatch: /.*\.e2e\.ts$/,
   webServer: {
     command: 'npm run dev',
     port: 3000,
