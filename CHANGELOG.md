@@ -22,3 +22,5 @@
 2025-07-26T07:36:20Z Add Playwright E2E test scaffolding
 2025-07-26T13:41:21Z Mark E2E tests task complete
 2025-07-26T14:11:10Z Fix Playwright config to run only e2e tests
+
+2025-07-26T16:00:27Z Add coverage thresholds and scripts for test coverage

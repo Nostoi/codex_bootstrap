@@ -117,6 +117,7 @@
 - `backend/prisma/schema.prisma` - Add new tables according to PRD
 - `backend/package.json` - Add dependencies like @nestjs/jwt, @prisma/client
 - `frontend/package.json` - Add Zustand and React Query
+- `frontend/jest.config.js` - Enable coverage thresholds
  - `frontend/src/app/dashboard/page.tsx` - Display today's plan and all tasks
  - `frontend/src/components/TaskList.tsx` - Show due dates and status badges
  - `frontend/src/hooks/useApi.ts` - Add ApiTask dueDate property
@@ -173,7 +174,7 @@
   - [x] 5.4 Document Docker workflow in README and `dev_init.sh`
 - [ ] **6.0 Testing & Quality Assurance**
   - [x] 6.1 Configure Jest and ESLint pre-commit hooks
-  - [ ] 6.2 Achieve >80% unit test coverage across frontend and backend
+  - [c] 6.2 Achieve >80% unit test coverage across frontend and backend
   - [x] 6.3 Implement end-to-end tests using Playwright or Cypress
     - [x] 6.3.1 Add initial Playwright configuration and sample home page test
 - [ ] **7.0 Deployment & Monitoring**
