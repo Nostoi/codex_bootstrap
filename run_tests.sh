@@ -22,8 +22,8 @@ fi
 if ! npx jest --version >/dev/null 2>&1; then
   echo "Jest not installed, skipping backend tests"
 else
-  echo "Running Jest tests for NestJS backend..."
-  npm run test
+  echo "Running Jest tests for NestJS backend with coverage..."
+  npm run test:cov
   echo "✅ Backend tests completed"
 fi
 
@@ -42,8 +42,8 @@ fi
 if ! npx jest --version >/dev/null 2>&1; then
   echo "Jest not installed, skipping frontend tests"
 else
-  echo "Running Jest tests for Next.js frontend..."
-  npm run test
+  echo "Running Jest tests for Next.js frontend with coverage..."
+  npm run test:cov
   echo "✅ Frontend tests completed"
 fi
 
