@@ -106,6 +106,8 @@
 - `Dockerfile.frontend` - Frontend container
 - `.env.template` - Example environment variables
 - `frontend/src/components/TaskList.test.tsx` - Unit tests for `TaskList`
+- `frontend/playwright.config.ts` - Playwright configuration for E2E tests
+- `frontend/tests/home.e2e.ts` - Basic end-to-end test for homepage
 - `backend/src/tasks/tasks.service.spec.ts` - Tests for task service
 - `backend/src/integrations/graph/graph.service.spec.ts` - Tests for Microsoft Graph service
 - `backend/src/integrations/graph/graph.controller.spec.ts` - Tests for Microsoft Graph controller
@@ -132,6 +134,7 @@
 - `README.md` - Update setup instructions
 - `.gitignore` - Ignore local environment files
 - `.project-management/current-prd/tasks-feature-specification.md` - Task list
+- `run_tests.sh` - Test runner script with coverage and e2e support
 
 ### Notes
 - **Tech Stack**: Next.js 14+ with App Router, TypeScript, Tailwind CSS + DaisyUI, Zustand state management, React Query for API data, NestJS backend with Prisma ORM, y-websocket for collaboration.
@@ -169,7 +172,8 @@
 - [ ] **6.0 Testing & Quality Assurance**
   - [x] 6.1 Configure Jest and ESLint pre-commit hooks
   - [ ] 6.2 Achieve >80% unit test coverage across frontend and backend
-  - [ ] 6.3 Implement end-to-end tests using Playwright or Cypress
+  - [c] 6.3 Implement end-to-end tests using Playwright or Cypress
+    - [x] 6.3.1 Add initial Playwright configuration and sample home page test
 - [ ] **7.0 Deployment & Monitoring**
   - [ ] 7.1 Deploy containers to cloud environment (Kubernetes or DO App Platform)
   - [ ] 7.2 Set up OpenTelemetry traces, Prometheus metrics, Grafana dashboards, and Sentry error reporting
