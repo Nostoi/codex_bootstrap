@@ -16,6 +16,7 @@ spec:
       containers:
         - name: backend
           image: codex-backend:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
 ---
