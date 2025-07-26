@@ -15,3 +15,4 @@
 2025-07-26T02:45:34Z Add Prisma migrations and notifications gateway
 2025-07-26T02:54:16Z Add NestJS Projects module with CRUD endpoints
 2025-07-26T03:10:12Z Implement basic JWT auth module
+2025-07-26T03:33:38Z Add Graph service and controller unit tests
