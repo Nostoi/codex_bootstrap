@@ -10,3 +10,4 @@
 2025-07-26T00:33:44Z Add Husky pre-commit hooks
 2025-07-26T01:20:25Z Integrate backend tasks API with React Query
 2025-07-26T01:57:27Z Add due dates and today's plan display
+2025-07-26T02:16:40Z Add project and task models to Prisma schema

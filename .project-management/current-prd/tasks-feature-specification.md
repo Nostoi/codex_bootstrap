@@ -126,7 +126,7 @@
   - [x] 1.2 Configure development and staging environments via `dev_init.sh` and docker-compose
   - [x] 1.3 Establish environment variable templates and secrets management
 - [ ] **2.0 Database & Backend API**
-  - [ ] 2.1 Extend `schema.prisma` to include Users, Projects, Tasks, TaskDependencies, Notifications, InteractionLogs, UserSettings, Tags, and related tables
+  - [x] 2.1 Extend `schema.prisma` to include Users, Projects, Tasks, TaskDependencies, Notifications, InteractionLogs, UserSettings, Tags, and related tables
   - [ ] 2.2 Generate Prisma migrations and update `prisma.service.ts`
   - [ ] 2.3 Implement NestJS modules, controllers, and services for Users, Projects, Tasks, and Notifications
   - [ ] 2.4 Add JWT authentication and OAuth2 (Google/Microsoft) using `auth` module

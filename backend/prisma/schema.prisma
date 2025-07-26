@@ -21,6 +21,11 @@ model User {
   // Collaboration relationships
   documents Document[]
   sessions  CollaborationSession[]
+  projects  Project[]
+  tasks     Task[]
+  notifications Notification[]
+  interactionLogs InteractionLog[]
+  settings  UserSettings?
 
   @@map("users")
 }
@@ -70,4 +75,89 @@ model IntegrationConfig {
 
   @@unique([provider, userId])
   @@map("integration_configs")
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  tasks       Task[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("projects")
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  completed   Boolean  @default(false)
+  dueDate     DateTime?
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  dependencies TaskDependency[] @relation("TaskDependencies")
+  dependents   TaskDependency[] @relation("TaskDependents")
+  tags        Tag[]
+  notifications Notification[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("tasks")
+}
+
+model TaskDependency {
+  id        String @id @default(cuid())
+  taskId    String
+  dependsOn String
+  task      Task   @relation("TaskDependencies", fields: [taskId], references: [id], onDelete: Cascade)
+  depends    Task  @relation("TaskDependents", fields: [dependsOn], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, dependsOn])
+  @@map("task_dependencies")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  message   String
+  read      Boolean  @default(false)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taskId    String?
+  task      Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@map("notifications")
+}
+
+model InteractionLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String
+  createdAt DateTime @default(now())
+
+  @@map("interaction_logs")
+}
+
+model UserSettings {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  theme     String?  @default("light")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user_settings")
+}
+
+model Tag {
+  id    String @id @default(cuid())
+  name  String
+  tasks Task[]
+
+  @@map("tags")
 }
