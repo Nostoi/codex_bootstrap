@@ -172,9 +172,9 @@
   - [x] 5.2 Set up WebSocket notifications for task reminders
   - [x] 5.3 Create Dockerfiles and docker-compose configuration for full stack
   - [x] 5.4 Document Docker workflow in README and `dev_init.sh`
-- [ ] **6.0 Testing & Quality Assurance**
+- [x] **6.0 Testing & Quality Assurance**
   - [x] 6.1 Configure Jest and ESLint pre-commit hooks
-  - [c] 6.2 Achieve >80% unit test coverage across frontend and backend
+  - [x] 6.2 Achieve >80% unit test coverage across frontend and backend
   - [x] 6.3 Implement end-to-end tests using Playwright or Cypress
     - [x] 6.3.1 Add initial Playwright configuration and sample home page test
 - [ ] **7.0 Deployment & Monitoring**

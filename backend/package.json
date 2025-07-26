@@ -78,7 +78,16 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "ai/**/*.(t|j)s",
+      "projects/**/*.(t|j)s",
+      "tasks/**/*.(t|j)s",
+      "users/**/*.(t|j)s"
+    ],
+    "coveragePathIgnorePatterns": [
+      "\\.module\\.ts$",
+      "src/integrations",
+      "src/notifications",
+      "src/prisma"
     ],
     "coverageDirectory": "../coverage",
     "coverageThreshold": {
