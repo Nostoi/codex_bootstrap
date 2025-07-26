@@ -10,6 +10,7 @@ import { TasksModule } from './tasks/tasks.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ProjectsModule } from './projects/projects.module';
 import { AuthModule } from './auth/auth.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AuthModule } from './auth/auth.module';
     TasksModule,
     NotificationsModule,
     AuthModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService],
