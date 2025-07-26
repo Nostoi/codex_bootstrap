@@ -8,6 +8,7 @@ import { GraphModule } from './integrations/graph/graph.module';
 import { GoogleModule } from './integrations/google/google.module';
 import { TasksModule } from './tasks/tasks.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { ProjectsModule } from './projects/projects.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     CollaborationModule,
     GraphModule,
     GoogleModule,
+    ProjectsModule,
     TasksModule,
     NotificationsModule,
   ],

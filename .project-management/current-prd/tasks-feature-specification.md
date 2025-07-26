@@ -76,6 +76,8 @@
 - `backend/src/projects/projects.module.ts` - NestJS module to manage projects
 - `backend/src/projects/projects.controller.ts` - CRUD endpoints for projects
 - `backend/src/projects/projects.service.ts` - Business logic for projects
+- `backend/src/projects/dto/project.dto.ts` - DTOs for project creation and update
+- `backend/src/projects/projects.service.spec.ts` - Tests for project service
 - `backend/src/tasks/tasks.module.ts` - Module for task management
 - `backend/src/tasks/tasks.controller.ts` - CRUD endpoints for tasks
 - `backend/src/tasks/tasks.service.ts` - Logic for tasks and metadata
@@ -111,7 +113,7 @@
 - `backend/src/tasks/tasks.service.ts` - Provide tasks with due dates
 - `backend/src/tasks/tasks.service.spec.ts` - Updated tests for due dates
 - `backend/src/tasks/tasks.module.ts` - Inject notifications gateway
-- `backend/src/app.module.ts` - Register TasksModule
+- `backend/src/app.module.ts` - Register TasksModule and ProjectsModule
 - `backend/src/prisma/prisma.service.ts` - Run migrations at startup
 - `README.md` - Update setup instructions
 - `.gitignore` - Ignore local environment files
@@ -131,7 +133,7 @@
 - [ ] **2.0 Database & Backend API**
   - [x] 2.1 Extend `schema.prisma` to include Users, Projects, Tasks, TaskDependencies, Notifications, InteractionLogs, UserSettings, Tags, and related tables
   - [x] 2.2 Generate Prisma migrations and update `prisma.service.ts`
-  - [ ] 2.3 Implement NestJS modules, controllers, and services for Users, Projects, Tasks, and Notifications
+  - [x] 2.3 Implement NestJS modules, controllers, and services for Users, Projects, Tasks, and Notifications
   - [ ] 2.4 Add JWT authentication and OAuth2 (Google/Microsoft) using `auth` module
   - [ ] 2.5 Write unit tests for each service and controller
 - [ ] **3.0 AI Integration**
