@@ -154,4 +154,10 @@ To stop the containers when finished, run:
 ```bash
 docker compose down
 ```
+
+### Authentication
+The backend provides a simple JWT-based authentication module.
+1. Set `JWT_SECRET` in your `.env` file.
+2. Send a POST request to `/auth/login` with `{ "email": "user@example.com" }` to receive an access token.
+3. Include `Authorization: Bearer <token>` when calling protected routes.
 *End of document*
