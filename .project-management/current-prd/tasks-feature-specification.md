@@ -91,6 +91,8 @@
 - `backend/src/ai/ai.module.ts` - ChatGPT and Mem0 integration
 - `backend/src/ai/ai.service.ts` - AI interaction logic
 - `backend/src/ai/ai.service.spec.ts` - Tests for AI service
+- `backend/src/ai/mem0.service.ts` - Mem0 integration service
+- `backend/src/ai/mem0.service.spec.ts` - Tests for Mem0 service
 - `backend/src/tasks/tasks.controller.spec.ts` - Tests for tasks controller
 - `backend/src/projects/projects.controller.spec.ts` - Tests for projects controller
 - `backend/src/users/users.controller.spec.ts` - Tests for users controller
@@ -124,6 +126,9 @@
 - `backend/src/tasks/tasks.module.ts` - Inject notifications gateway
 - `backend/src/app.module.ts` - Register TasksModule, ProjectsModule, AuthModule, and AiModule
 - `backend/src/prisma/prisma.service.ts` - Run migrations at startup
+- `backend/src/ai/ai.module.ts` - Register Mem0Service
+- `backend/src/ai/ai.service.ts` - Use Mem0Service for context
+- `backend/src/ai/ai.service.spec.ts` - Updated tests for Mem0 integration
 - `README.md` - Update setup instructions
 - `.gitignore` - Ignore local environment files
 - `.project-management/current-prd/tasks-feature-specification.md` - Task list
@@ -147,7 +152,7 @@
   - [x] 2.5 Write unit tests for each service and controller
 - [ ] **3.0 AI Integration**
   - [x] 3.1 Create AI module to interface with ChatGPT API for task generation and summarization
-  - [ ] 3.2 Integrate Mem0 for semantic memory storage and retrieval-augmented responses
+  - [x] 3.2 Integrate Mem0 for semantic memory storage and retrieval-augmented responses
   - [ ] 3.3 Implement proactive suggestion logic leveraging interaction history
   - [x] 3.4 Add tests for AI services and stub external API calls
 - [x] **4.0 Frontend Implementation**
