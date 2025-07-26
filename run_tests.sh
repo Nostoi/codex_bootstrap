@@ -47,6 +47,15 @@ else
   echo "✅ Frontend tests completed"
 fi
 
+# End-to-end tests with Playwright
+if [ -f node_modules/.bin/playwright ]; then
+  echo "🎭 Running Playwright end-to-end tests..."
+  npx playwright install --with-deps >/dev/null 2>&1 || true
+  npm run test:e2e || echo "⚠️  Playwright tests failed"
+else
+  echo "Playwright not installed, skipping e2e tests"
+fi
+
 cd ..
 
 echo "🎉 All tests completed!"
