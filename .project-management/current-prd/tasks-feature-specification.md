@@ -101,11 +101,14 @@
 - `backend/prisma/schema.prisma` - Add new tables according to PRD
 - `backend/package.json` - Add dependencies like @nestjs/jwt, @prisma/client
 - `frontend/package.json` - Add Zustand and React Query
-- `frontend/src/app/dashboard/page.tsx` - Integrate tasks store
-- `frontend/src/components/TaskList.tsx` - Toggle tasks via store
-- `frontend/src/hooks/useApi.ts` - React Query hooks for API access
-- `frontend/src/store/tasksStore.ts` - Update store with setTasks helper
-- `frontend/src/store/tasksStore.test.ts` - Unit tests for tasks store
+ - `frontend/src/app/dashboard/page.tsx` - Display today's plan and all tasks
+ - `frontend/src/components/TaskList.tsx` - Show due dates and status badges
+ - `frontend/src/hooks/useApi.ts` - Add ApiTask dueDate property
+ - `frontend/src/store/tasksStore.ts` - Handle tasks with due dates
+ - `frontend/src/store/tasksStore.test.ts` - Unit tests for tasks store
+ - `frontend/src/components/TaskList.test.tsx` - Tests for TaskList component
+ - `backend/src/tasks/tasks.service.ts` - Provide tasks with due dates
+ - `backend/src/tasks/tasks.service.spec.ts` - Updated tests for due dates
 - `backend/src/app.module.ts` - Register TasksModule
 - `README.md` - Update setup instructions
 - `.gitignore` - Ignore local environment files
@@ -135,9 +138,9 @@
   - [ ] 3.4 Add tests for AI services and stub external API calls
 - [ ] **4.0 Frontend Implementation**
   - [x] 4.1 Scaffold dashboard page and task list component with DaisyUI styling
-  - [c] 4.2 Connect frontend to backend APIs using React Query hooks
+  - [x] 4.2 Connect frontend to backend APIs using React Query hooks
   - [x] 4.3 Manage client state with Zustand stores
-  - [ ] 4.4 Display Today’s Plan with task metadata and status indicators
+  - [x] 4.4 Display Today’s Plan with task metadata and status indicators
   - [ ] 4.5 Write unit tests for components and stores
 - [ ] **5.0 Sync, Notifications & Docker**
   - [x] 5.1 Implement real-time sync using y-websocket and Yjs

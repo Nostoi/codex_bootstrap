@@ -4,6 +4,7 @@ export interface Task {
   id: number
   title: string
   completed: boolean
+  dueDate: string
 }
 
 interface TasksState {
@@ -22,7 +23,12 @@ export const useTasksStore = create<TasksState>((set) => ({
     set((state) => ({
       tasks: [
         ...state.tasks,
-        { id: nextId++, title, completed: false },
+        {
+          id: nextId++,
+          title,
+          completed: false,
+          dueDate: new Date().toISOString().slice(0, 10),
+        },
       ],
     })),
   toggleTask: (id) =>
