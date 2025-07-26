@@ -83,6 +83,7 @@
 - `backend/src/auth/auth.service.ts` - Auth helpers
 - `backend/src/notifications/notifications.module.ts` - Real-time notifications
 - `backend/src/notifications/notifications.gateway.ts` - WebSocket gateway
+- `backend/prisma/migrations/001_init/migration.sql` - Initial schema migration
 - `backend/src/ai/ai.module.ts` - ChatGPT and Mem0 integration
 - `backend/src/ai/ai.service.ts` - AI interaction logic
 - `frontend/src/app/dashboard/page.tsx` - Main dashboard view
@@ -107,9 +108,11 @@
  - `frontend/src/store/tasksStore.ts` - Handle tasks with due dates
  - `frontend/src/store/tasksStore.test.ts` - Unit tests for tasks store
  - `frontend/src/components/TaskList.test.tsx` - Tests for TaskList component
- - `backend/src/tasks/tasks.service.ts` - Provide tasks with due dates
- - `backend/src/tasks/tasks.service.spec.ts` - Updated tests for due dates
+- `backend/src/tasks/tasks.service.ts` - Provide tasks with due dates
+- `backend/src/tasks/tasks.service.spec.ts` - Updated tests for due dates
+- `backend/src/tasks/tasks.module.ts` - Inject notifications gateway
 - `backend/src/app.module.ts` - Register TasksModule
+- `backend/src/prisma/prisma.service.ts` - Run migrations at startup
 - `README.md` - Update setup instructions
 - `.gitignore` - Ignore local environment files
 - `.project-management/current-prd/tasks-feature-specification.md` - Task list
@@ -127,7 +130,7 @@
   - [x] 1.3 Establish environment variable templates and secrets management
 - [ ] **2.0 Database & Backend API**
   - [x] 2.1 Extend `schema.prisma` to include Users, Projects, Tasks, TaskDependencies, Notifications, InteractionLogs, UserSettings, Tags, and related tables
-  - [ ] 2.2 Generate Prisma migrations and update `prisma.service.ts`
+  - [x] 2.2 Generate Prisma migrations and update `prisma.service.ts`
   - [ ] 2.3 Implement NestJS modules, controllers, and services for Users, Projects, Tasks, and Notifications
   - [ ] 2.4 Add JWT authentication and OAuth2 (Google/Microsoft) using `auth` module
   - [ ] 2.5 Write unit tests for each service and controller
@@ -142,9 +145,9 @@
   - [x] 4.3 Manage client state with Zustand stores
   - [x] 4.4 Display Today’s Plan with task metadata and status indicators
   - [x] 4.5 Write unit tests for components and stores
-- [ ] **5.0 Sync, Notifications & Docker**
+- [x] **5.0 Sync, Notifications & Docker**
   - [x] 5.1 Implement real-time sync using y-websocket and Yjs
-  - [ ] 5.2 Set up WebSocket notifications for task reminders
+  - [x] 5.2 Set up WebSocket notifications for task reminders
   - [x] 5.3 Create Dockerfiles and docker-compose configuration for full stack
   - [x] 5.4 Document Docker workflow in README and `dev_init.sh`
 - [ ] **6.0 Testing & Quality Assurance**

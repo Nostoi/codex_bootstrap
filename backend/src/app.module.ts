@@ -7,6 +7,7 @@ import { CollaborationModule } from './collaboration/collaboration.module';
 import { GraphModule } from './integrations/graph/graph.module';
 import { GoogleModule } from './integrations/google/google.module';
 import { TasksModule } from './tasks/tasks.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { TasksModule } from './tasks/tasks.module';
     GraphModule,
     GoogleModule,
     TasksModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
