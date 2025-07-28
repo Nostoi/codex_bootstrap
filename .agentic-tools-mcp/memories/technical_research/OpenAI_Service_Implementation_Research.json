@@ -1,0 +1,8 @@
+{
+  "id": "b8b9bd32-3ef3-4379-b925-23ad728ae1f7",
+  "title": "OpenAI Service Implementation Research",
+  "details": "## OpenAI Service Implementation Research Findings\n\n### Key Dependencies\n- **openai** (official OpenAI npm package): Latest TypeScript/JavaScript API library\n- **@toolsycc/json-schema-gen**: Generate JSON Schema objects compatible with OpenAI Function Calling and JSON Mode (v0.1.2)\n- **ai-validator**: Provides validation for OpenAI completions with schema support\n\n### Production Best Practices\n1. **Rate Limiting & Backoff**\n   - Implement exponential backoff retry logic\n   - Circuit breaker patterns for resilience\n   - Handle rate limit errors (429) gracefully\n\n2. **Error Handling Patterns**\n   - Custom exception classes for different error types\n   - Structured error responses with HTTP status codes\n   - async/await error handling with proper try/catch\n   - Service layer separation of concerns\n\n3. **NestJS Integration**\n   - Use NestJS exception filters for centralized error handling\n   - Implement custom exceptions with HttpStatus\n   - Service layer should handle main logic, controllers handle HTTP concerns\n\n4. **JSON Schema Validation**\n   - Use OpenAI Function Calling with JSON Mode\n   - Validate responses against predefined schemas\n   - Type-safe request/response interfaces\n\n### Implementation Architecture\n- **Service Layer**: Core OpenAI integration logic\n- **Exception Layer**: Custom error classes and filters  \n- **Validation Layer**: JSON schema validation for requests/responses\n- **Retry Layer**: Exponential backoff and circuit breaker logic",
+  "category": "technical_research",
+  "dateCreated": "2025-07-28T07:18:36.284Z",
+  "dateUpdated": "2025-07-28T07:18:36.284Z"
+}

@@ -34,7 +34,7 @@ describe("TasksController", () => {
   });
 
   it("gets tasks", async () => {
-    const mockTasks = [{ id: '1', title: 'Test' }];
+    const mockTasks = [{ id: "1", title: "Test" }];
     mockTasksService.findAll.mockResolvedValue(mockTasks);
 
     const result = await controller.getTasks();
@@ -43,7 +43,7 @@ describe("TasksController", () => {
   });
 
   it("gets tasks with owner filter", async () => {
-    const ownerId = 'user123';
+    const ownerId = "user123";
     mockTasksService.findAll.mockResolvedValue([]);
 
     await controller.getTasks(ownerId);
@@ -51,8 +51,8 @@ describe("TasksController", () => {
   });
 
   it("gets single task", async () => {
-    const taskId = '1';
-    const mockTask = { id: taskId, title: 'Test' };
+    const taskId = "1";
+    const mockTask = { id: taskId, title: "Test" };
     mockTasksService.findOne.mockResolvedValue(mockTask);
 
     const result = await controller.getTask(taskId);
@@ -61,18 +61,21 @@ describe("TasksController", () => {
   });
 
   it("creates task", async () => {
-    const createTaskDto = { title: 'New Task' };
-    const ownerId = 'user123';
-    const mockCreatedTask = { id: '1', ...createTaskDto };
+    const createTaskDto = { title: "New Task" };
+    const ownerId = "user123";
+    const mockCreatedTask = { id: "1", ...createTaskDto };
     mockTasksService.create.mockResolvedValue(mockCreatedTask);
 
     const result = await controller.createTask(createTaskDto as any, ownerId);
     expect(result).toEqual(mockCreatedTask);
-    expect(mockTasksService.create).toHaveBeenCalledWith(createTaskDto, ownerId);
+    expect(mockTasksService.create).toHaveBeenCalledWith(
+      createTaskDto,
+      ownerId,
+    );
   });
 
   it("toggles task", async () => {
-    const taskId = '1';
+    const taskId = "1";
     const mockToggledTask = { id: taskId, completed: true };
     mockTasksService.toggle.mockResolvedValue(mockToggledTask);
 
@@ -109,8 +112,8 @@ describe("UserSettingsController", () => {
   });
 
   it("gets user settings", async () => {
-    const userId = 'user123';
-    const mockSettings = { id: '1', userId };
+    const userId = "user123";
+    const mockSettings = { id: "1", userId };
     mockTasksService.findUserSettings.mockResolvedValue(mockSettings);
 
     const result = await controller.getUserSettings(userId);

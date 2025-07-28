@@ -1,13 +1,17 @@
-import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
-import { PrismaService } from '../prisma/prisma.service';
-import { Task, TaskDependency, UserSettings, Prisma } from '@prisma/client';
-import { 
-  CreateTaskDto, 
-  UpdateTaskDto, 
-  CreateTaskDependencyDto, 
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import { Task, TaskDependency, UserSettings, Prisma } from "@prisma/client";
+import {
+  CreateTaskDto,
+  UpdateTaskDto,
+  CreateTaskDependencyDto,
   CreateUserSettingsDto,
-  UpdateUserSettingsDto 
-} from './dto';
+  UpdateUserSettingsDto,
+} from "./dto";
 
 @Injectable()
 export class TasksService {
@@ -23,31 +27,28 @@ export class TasksService {
       where,
       include: {
         project: {
-          select: { id: true, name: true }
+          select: { id: true, name: true },
         },
         owner: {
-          select: { id: true, name: true, email: true }
+          select: { id: true, name: true, email: true },
         },
         dependencies: {
           include: {
             depends: {
-              select: { id: true, title: true, completed: true }
-            }
-          }
+              select: { id: true, title: true, completed: true },
+            },
+          },
         },
         dependents: {
           include: {
             task: {
-              select: { id: true, title: true, completed: true }
-            }
-          }
+              select: { id: true, title: true, completed: true },
+            },
+          },
         },
-        tags: true
+        tags: true,
       },
-      orderBy: [
-        { priority: 'desc' },
-        { createdAt: 'desc' }
-      ]
+      orderBy: [{ priority: "desc" }, { createdAt: "desc" }],
     });
   }
 
@@ -56,27 +57,27 @@ export class TasksService {
       where: { id },
       include: {
         project: {
-          select: { id: true, name: true }
+          select: { id: true, name: true },
         },
         owner: {
-          select: { id: true, name: true, email: true }
+          select: { id: true, name: true, email: true },
         },
         dependencies: {
           include: {
             depends: {
-              select: { id: true, title: true, completed: true }
-            }
-          }
+              select: { id: true, title: true, completed: true },
+            },
+          },
         },
         dependents: {
           include: {
             task: {
-              select: { id: true, title: true, completed: true }
-            }
-          }
+              select: { id: true, title: true, completed: true },
+            },
+          },
         },
-        tags: true
-      }
+        tags: true,
+      },
     });
 
     if (!task) {
@@ -95,11 +96,15 @@ export class TasksService {
       focusType: createTaskDto.focusType,
       estimatedMinutes: createTaskDto.estimatedMinutes,
       priority: createTaskDto.priority ?? 3,
-      softDeadline: createTaskDto.softDeadline ? new Date(createTaskDto.softDeadline) : null,
-      hardDeadline: createTaskDto.hardDeadline ? new Date(createTaskDto.hardDeadline) : null,
+      softDeadline: createTaskDto.softDeadline
+        ? new Date(createTaskDto.softDeadline)
+        : null,
+      hardDeadline: createTaskDto.hardDeadline
+        ? new Date(createTaskDto.hardDeadline)
+        : null,
       source: createTaskDto.source,
       aiSuggestion: createTaskDto.aiSuggestion,
-      owner: { connect: { id: ownerId } }
+      owner: { connect: { id: ownerId } },
     };
 
     if (createTaskDto.projectId) {
@@ -110,12 +115,12 @@ export class TasksService {
       data,
       include: {
         project: {
-          select: { id: true, name: true }
+          select: { id: true, name: true },
         },
         owner: {
-          select: { id: true, name: true, email: true }
-        }
-      }
+          select: { id: true, name: true, email: true },
+        },
+      },
     });
   }
 
@@ -126,28 +131,43 @@ export class TasksService {
     }
 
     const data: Prisma.TaskUpdateInput = {};
-    
+
     if (updateTaskDto.title !== undefined) data.title = updateTaskDto.title;
-    if (updateTaskDto.description !== undefined) data.description = updateTaskDto.description;
-    if (updateTaskDto.completed !== undefined) data.completed = updateTaskDto.completed;
+    if (updateTaskDto.description !== undefined)
+      data.description = updateTaskDto.description;
+    if (updateTaskDto.completed !== undefined)
+      data.completed = updateTaskDto.completed;
     if (updateTaskDto.status !== undefined) data.status = updateTaskDto.status;
     if (updateTaskDto.dueDate !== undefined) {
-      data.dueDate = updateTaskDto.dueDate ? new Date(updateTaskDto.dueDate) : null;
+      data.dueDate = updateTaskDto.dueDate
+        ? new Date(updateTaskDto.dueDate)
+        : null;
     }
-    if (updateTaskDto.energyLevel !== undefined) data.energyLevel = updateTaskDto.energyLevel;
-    if (updateTaskDto.focusType !== undefined) data.focusType = updateTaskDto.focusType;
-    if (updateTaskDto.estimatedMinutes !== undefined) data.estimatedMinutes = updateTaskDto.estimatedMinutes;
-    if (updateTaskDto.priority !== undefined) data.priority = updateTaskDto.priority;
+    if (updateTaskDto.energyLevel !== undefined)
+      data.energyLevel = updateTaskDto.energyLevel;
+    if (updateTaskDto.focusType !== undefined)
+      data.focusType = updateTaskDto.focusType;
+    if (updateTaskDto.estimatedMinutes !== undefined)
+      data.estimatedMinutes = updateTaskDto.estimatedMinutes;
+    if (updateTaskDto.priority !== undefined)
+      data.priority = updateTaskDto.priority;
     if (updateTaskDto.softDeadline !== undefined) {
-      data.softDeadline = updateTaskDto.softDeadline ? new Date(updateTaskDto.softDeadline) : null;
+      data.softDeadline = updateTaskDto.softDeadline
+        ? new Date(updateTaskDto.softDeadline)
+        : null;
     }
     if (updateTaskDto.hardDeadline !== undefined) {
-      data.hardDeadline = updateTaskDto.hardDeadline ? new Date(updateTaskDto.hardDeadline) : null;
+      data.hardDeadline = updateTaskDto.hardDeadline
+        ? new Date(updateTaskDto.hardDeadline)
+        : null;
     }
     if (updateTaskDto.source !== undefined) data.source = updateTaskDto.source;
-    if (updateTaskDto.aiSuggestion !== undefined) data.aiSuggestion = updateTaskDto.aiSuggestion;
+    if (updateTaskDto.aiSuggestion !== undefined)
+      data.aiSuggestion = updateTaskDto.aiSuggestion;
     if (updateTaskDto.projectId !== undefined) {
-      data.project = updateTaskDto.projectId ? { connect: { id: updateTaskDto.projectId } } : { disconnect: true };
+      data.project = updateTaskDto.projectId
+        ? { connect: { id: updateTaskDto.projectId } }
+        : { disconnect: true };
     }
 
     return this.prisma.task.update({
@@ -155,12 +175,12 @@ export class TasksService {
       data,
       include: {
         project: {
-          select: { id: true, name: true }
+          select: { id: true, name: true },
         },
         owner: {
-          select: { id: true, name: true, email: true }
-        }
-      }
+          select: { id: true, name: true, email: true },
+        },
+      },
     });
   }
 
@@ -184,12 +204,12 @@ export class TasksService {
       data: { completed: !task.completed },
       include: {
         project: {
-          select: { id: true, name: true }
+          select: { id: true, name: true },
         },
         owner: {
-          select: { id: true, name: true, email: true }
-        }
-      }
+          select: { id: true, name: true, email: true },
+        },
+      },
     });
   }
 
@@ -204,92 +224,111 @@ export class TasksService {
       where: { taskId },
       include: {
         depends: {
-          select: { id: true, title: true, completed: true, status: true }
-        }
-      }
+          select: { id: true, title: true, completed: true, status: true },
+        },
+      },
     });
   }
 
-  async createTaskDependency(createDependencyDto: CreateTaskDependencyDto): Promise<TaskDependency> {
+  async createTaskDependency(
+    createDependencyDto: CreateTaskDependencyDto,
+  ): Promise<TaskDependency> {
     const { taskId, dependsOn } = createDependencyDto;
 
     // Verify both tasks exist
     const [task, prerequisiteTask] = await Promise.all([
       this.prisma.task.findUnique({ where: { id: taskId } }),
-      this.prisma.task.findUnique({ where: { id: dependsOn } })
+      this.prisma.task.findUnique({ where: { id: dependsOn } }),
     ]);
 
     if (!task) {
       throw new NotFoundException(`Task with ID ${taskId} not found`);
     }
     if (!prerequisiteTask) {
-      throw new NotFoundException(`Prerequisite task with ID ${dependsOn} not found`);
+      throw new NotFoundException(
+        `Prerequisite task with ID ${dependsOn} not found`,
+      );
     }
 
     // Check for circular dependencies
     const existingDependencies = await this.prisma.taskDependency.findMany({
-      where: { taskId: dependsOn }
+      where: { taskId: dependsOn },
     });
 
-    const wouldCreateCircle = await this.checkCircularDependency(dependsOn, taskId, existingDependencies);
+    const wouldCreateCircle = await this.checkCircularDependency(
+      dependsOn,
+      taskId,
+      existingDependencies,
+    );
     if (wouldCreateCircle) {
-      throw new BadRequestException('Creating this dependency would result in a circular dependency');
+      throw new BadRequestException(
+        "Creating this dependency would result in a circular dependency",
+      );
     }
 
     // Check if dependency already exists
     const existingDependency = await this.prisma.taskDependency.findUnique({
       where: {
-        taskId_dependsOn: { taskId, dependsOn }
-      }
+        taskId_dependsOn: { taskId, dependsOn },
+      },
     });
 
     if (existingDependency) {
-      throw new BadRequestException('Dependency already exists');
+      throw new BadRequestException("Dependency already exists");
     }
 
     return this.prisma.taskDependency.create({
       data: { taskId, dependsOn },
       include: {
         depends: {
-          select: { id: true, title: true, completed: true, status: true }
-        }
-      }
+          select: { id: true, title: true, completed: true, status: true },
+        },
+      },
     });
   }
 
-  async removeTaskDependency(taskId: string, dependencyId: string): Promise<void> {
+  async removeTaskDependency(
+    taskId: string,
+    dependencyId: string,
+  ): Promise<void> {
     const dependency = await this.prisma.taskDependency.findUnique({
-      where: { id: dependencyId }
+      where: { id: dependencyId },
     });
 
     if (!dependency) {
-      throw new NotFoundException(`Dependency with ID ${dependencyId} not found`);
+      throw new NotFoundException(
+        `Dependency with ID ${dependencyId} not found`,
+      );
     }
 
     if (dependency.taskId !== taskId) {
-      throw new BadRequestException('Dependency does not belong to the specified task');
+      throw new BadRequestException(
+        "Dependency does not belong to the specified task",
+      );
     }
 
     await this.prisma.taskDependency.delete({
-      where: { id: dependencyId }
+      where: { id: dependencyId },
     });
   }
 
   private async checkCircularDependency(
-    startTaskId: string, 
-    targetTaskId: string, 
-    dependencies: TaskDependency[]
+    startTaskId: string,
+    targetTaskId: string,
+    dependencies: TaskDependency[],
   ): Promise<boolean> {
     const visited = new Set<string>();
-    
+
     const checkCircle = (currentTaskId: string): boolean => {
       if (currentTaskId === targetTaskId) return true;
       if (visited.has(currentTaskId)) return false;
-      
+
       visited.add(currentTaskId);
-      
-      const taskDependencies = dependencies.filter(dep => dep.taskId === currentTaskId);
-      return taskDependencies.some(dep => checkCircle(dep.dependsOn));
+
+      const taskDependencies = dependencies.filter(
+        (dep) => dep.taskId === currentTaskId,
+      );
+      return taskDependencies.some((dep) => checkCircle(dep.dependsOn));
     };
 
     return checkCircle(startTaskId);
@@ -298,11 +337,14 @@ export class TasksService {
   // User Settings
   async findUserSettings(userId: string): Promise<UserSettings | null> {
     return this.prisma.userSettings.findUnique({
-      where: { userId }
+      where: { userId },
     });
   }
 
-  async createUserSettings(userId: string, createSettingsDto: CreateUserSettingsDto): Promise<UserSettings> {
+  async createUserSettings(
+    userId: string,
+    createSettingsDto: CreateUserSettingsDto,
+  ): Promise<UserSettings> {
     // Check if user exists
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
@@ -311,24 +353,29 @@ export class TasksService {
 
     // Check if settings already exist
     const existingSettings = await this.prisma.userSettings.findUnique({
-      where: { userId }
+      where: { userId },
     });
 
     if (existingSettings) {
-      throw new BadRequestException('User settings already exist. Use update instead.');
+      throw new BadRequestException(
+        "User settings already exist. Use update instead.",
+      );
     }
 
     return this.prisma.userSettings.create({
       data: {
         userId,
-        ...createSettingsDto
-      }
+        ...createSettingsDto,
+      },
     });
   }
 
-  async updateUserSettings(userId: string, updateSettingsDto: UpdateUserSettingsDto): Promise<UserSettings> {
+  async updateUserSettings(
+    userId: string,
+    updateSettingsDto: UpdateUserSettingsDto,
+  ): Promise<UserSettings> {
     const existingSettings = await this.prisma.userSettings.findUnique({
-      where: { userId }
+      where: { userId },
     });
 
     if (!existingSettings) {
@@ -337,13 +384,13 @@ export class TasksService {
 
     return this.prisma.userSettings.update({
       where: { userId },
-      data: updateSettingsDto
+      data: updateSettingsDto,
     });
   }
 
   async removeUserSettings(userId: string): Promise<void> {
     const existingSettings = await this.prisma.userSettings.findUnique({
-      where: { userId }
+      where: { userId },
     });
 
     if (!existingSettings) {
@@ -351,7 +398,7 @@ export class TasksService {
     }
 
     await this.prisma.userSettings.delete({
-      where: { userId }
+      where: { userId },
     });
   }
 }

@@ -107,11 +107,11 @@
       "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
       "completed": false,
       "createdAt": "2025-07-27T21:39:19.491Z",
-      "updatedAt": "2025-07-27T21:39:19.491Z",
+      "updatedAt": "2025-07-28T07:36:09.007Z",
       "dependsOn": [],
       "priority": 8,
       "complexity": 7,
-      "status": "pending",
+      "status": "done",
       "tags": [
         "ai",
         "openai",
@@ -121,7 +121,8 @@
         "source:system"
       ],
       "estimatedHours": 8,
-      "level": 0
+      "level": 0,
+      "actualHours": 2
     },
     {
       "id": "a4cef2af-c0a7-43d3-a78e-e440f20bd201",
