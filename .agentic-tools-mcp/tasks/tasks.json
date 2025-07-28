@@ -14,13 +14,13 @@
       "name": "Enhance Prisma schema with Helmsman metadata fields",
       "details": "Update the existing Prisma schema to support all Helmsman specification requirements including energy levels, focus types, task priorities, deadlines, dependencies, and user settings. This foundational change enables intelligent scheduling and AI-powered task management.\n\nFiles to modify:\n- backend/prisma/schema.prisma: Add new enums (EnergyLevel, FocusType, TaskSource), extend Task model with metadata fields, create UserSettings model, add InteractionLog model for Mem0 integration\n- backend/src/tasks/dto/: Create new DTOs for enhanced task creation/updates with metadata validation\n- backend/src/users/dto/: Add UserSettings DTOs for energy patterns and preferences\n\nKey schema additions:\n- Task.energyLevel (enum: LOW, MEDIUM, HIGH)\n- Task.focusType (enum: CREATIVE, TECHNICAL, ADMINISTRATIVE, SOCIAL) \n- Task.estimatedMinutes (integer, nullable)\n- Task.priority (integer 1-5, default 3)\n- Task.softDeadline and Task.hardDeadline (DateTime, nullable)\n- Task.source (enum: SELF, BOSS, TEAM, AI_GENERATED)\n- Task.aiSuggestion (text, nullable)\n- UserSettings model with morningEnergyLevel, afternoonEnergyLevel, preferredWorkHours\n- InteractionLog model for Mem0 context storage\n\nMigration strategy: Add fields as nullable first, backfill with defaults, then apply constraints. This ensures zero-downtime deployment while maintaining data integrity for existing tasks.",
       "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
-      "completed": false,
+      "completed": true,
       "createdAt": "2025-07-27T21:38:10.884Z",
-      "updatedAt": "2025-07-27T21:38:10.884Z",
+      "updatedAt": "2025-07-28T03:11:06.759Z",
       "dependsOn": [],
       "priority": 10,
       "complexity": 6,
-      "status": "pending",
+      "status": "done",
       "tags": [
         "schema",
         "prisma",
@@ -79,15 +79,15 @@
       "name": "Create data migration to backfill task metadata",
       "details": "Create safe data migration scripts to backfill existing tasks with sensible defaults for the new metadata fields. This ensures all existing user data remains functional while gaining the benefits of enhanced scheduling.\n\nCreate backfill script in backend/prisma/scripts/backfill-task-metadata.ts:\n- Set energyLevel = MEDIUM for all existing tasks (safe neutral default)\n- Set focusType = ADMINISTRATIVE for existing tasks (conservative default)\n- Set priority = 3 for all existing tasks (middle priority)\n- Set source = SELF for all existing tasks (user-created assumption)\n- Leave deadlines and aiSuggestion as null (no assumptions about timing)\n- Preserve all existing task data (title, description, completed, dueDate, etc.)\n\nVerification steps:\n- Count tasks before/after migration to ensure no data loss\n- Verify all non-nullable fields have values\n- Test that existing API endpoints continue to work\n- Create rollback script to remove new fields if needed\n\nRun backfill after schema migration but before applying NOT NULL constraints. Include comprehensive logging and progress tracking for large datasets.",
       "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
-      "completed": false,
+      "completed": true,
       "createdAt": "2025-07-27T21:39:06.498Z",
-      "updatedAt": "2025-07-27T21:39:06.498Z",
+      "updatedAt": "2025-07-28T03:26:07.867Z",
       "dependsOn": [
         "5398815a-4387-4489-bd7a-193ffd100aab"
       ],
       "priority": 9,
       "complexity": 4,
-      "status": "pending",
+      "status": "done",
       "tags": [
         "migration",
         "db",
@@ -97,7 +97,8 @@
         "source:system"
       ],
       "estimatedHours": 4,
-      "level": 0
+      "level": 0,
+      "actualHours": 2
     },
     {
       "id": "ff2682c3-caac-46ed-8026-f2bd4c7b7d77",
@@ -429,6 +430,320 @@
         "energy:low",
         "focus:administrative",
         "source:system"
+      ],
+      "estimatedHours": 4,
+      "level": 0
+    },
+    {
+      "id": "a3d87d2d-1855-493d-bf3c-ad2d26d2bd2e",
+      "name": "Setup Design System Foundation",
+      "details": "✅ COMPLETED: ADHD-friendly design system foundation successfully implemented\n\n## Key Deliverables:\n- CSS design tokens with WCAG 2.2 AA compliance\n- TypeScript token definitions for type safety\n- Tailwind config extended with custom tokens (removed DaisyUI)\n- next-themes integration with accessible theme toggle\n- Energy level color coding (Red/Yellow/Green) for ADHD task management\n- Motion preference support (prefers-reduced-motion)\n- Screen reader optimizations and keyboard navigation\n\n## Files Delivered:\n- src/app/globals.css (comprehensive design tokens)\n- src/lib/design-tokens.ts (TypeScript definitions)\n- tailwind.config.js (custom token integration)\n- src/components/ui/theme-provider.tsx & theme-toggle.tsx\n- Updated layout, providers, and homepage demonstrating system\n\n## Verification:\n- Development server running successfully (localhost:3000)\n- No compilation errors\n- Theme switching functional\n- All accessibility features implemented and tested\n\nReady for component development phase!",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T23:10:00.399Z",
+      "updatedAt": "2025-07-27T23:33:06.588Z",
+      "dependsOn": [],
+      "priority": 9,
+      "complexity": 6,
+      "status": "done",
+      "tags": [
+        "design-system",
+        "accessibility",
+        "ADHD_support",
+        "foundation"
+      ],
+      "estimatedHours": 8,
+      "level": 0,
+      "actualHours": 2
+    },
+    {
+      "id": "7a1e8a7b-0102-40a9-9df6-cecc200731e8",
+      "name": "Implement AppShell Layout Component",
+      "details": "Create the foundational AppShell component providing main layout structure with ADHD-friendly navigation patterns and consistent grid.\n\nFiles to create/modify:\n- frontend/src/components/layout/AppShell.tsx: Main shell component with header, sidebar, content area, AI panel\n- frontend/src/components/layout/AppShell.stories.tsx: Stories for default, collapsed, AI panel open, loading, empty states\n- frontend/src/components/layout/AppShell.test.tsx: Tests for responsive behavior, keyboard nav, focus management\n\nProps: children, sidebarCollapsed, onSidebarToggle, aiPanelOpen, onAIPanelToggle, user\n\nADHD Features: Consistent navigation patterns, clear visual boundaries, predictable interaction zones, keyboard support (Tab/Enter/Escape), focus management, skip links\n\nAccessibility: ARIA landmarks (main, nav, complementary), focus trap in AI panel, keyboard shortcuts, screen reader announcements, high contrast compatibility\n\nTest Coverage: Responsive breakpoints, keyboard navigation paths, focus transitions, screen reader support, theme switching",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T23:10:25.569Z",
+      "updatedAt": "2025-07-27T23:10:25.569Z",
+      "dependsOn": [
+        "a3d87d2d-1855-493d-bf3c-ad2d26d2bd2e"
+      ],
+      "priority": 8,
+      "complexity": 8,
+      "status": "pending",
+      "tags": [
+        "layout",
+        "navigation",
+        "accessibility",
+        "ADHD_support",
+        "responsive"
+      ],
+      "estimatedHours": 10,
+      "level": 0
+    },
+    {
+      "id": "bae99b24-6363-4960-a477-da41ce524088",
+      "name": "Build Enhanced TaskCard Component",
+      "details": "Create enhanced TaskCard component with comprehensive metadata display, energy indicators, and ADHD-optimized information hierarchy.\n\nFiles to create/modify:\n- frontend/src/components/ui/TaskCard.tsx: Enhanced card with metadata badges, energy indicators, priority visuals\n- frontend/src/components/ui/TaskCard.stories.tsx: Stories covering all metadata combinations, loading/error states\n- frontend/src/components/ui/TaskCard.test.tsx: Tests for accessibility, interactions, metadata display\n\nProps: task (with energyLevel, focusType, priority, deadlines), onClick, onStatusChange, onEdit, compact mode, interactive features\n\nMetadata Display: Energy badges (High=red, Medium=yellow, Low=green), focus icons (🎨Creative, ⚙️Technical, 📋Admin, 👥Social), priority indicators (border weight), time estimates, deadline urgency colors\n\nADHD Features: Clear visual hierarchy, predictable layout patterns, progressive disclosure for details, consistent interaction zones, high contrast indicators\n\nAccessibility: ARIA labels with full context, keyboard navigation (Tab/Enter/Space), focus indicators, screen reader friendly metadata\n\nInteractive Elements: Quick actions (Start/Complete/Edit), status dropdown, hover states with additional metadata, click-to-edit title/description",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T23:10:39.396Z",
+      "updatedAt": "2025-07-27T23:10:39.396Z",
+      "dependsOn": [
+        "a3d87d2d-1855-493d-bf3c-ad2d26d2bd2e"
+      ],
+      "priority": 8,
+      "complexity": 7,
+      "status": "pending",
+      "tags": [
+        "components",
+        "task-management",
+        "metadata",
+        "ADHD_support",
+        "accessibility"
+      ],
+      "estimatedHours": 12,
+      "level": 0
+    },
+    {
+      "id": "5c1957de-646b-4011-a736-ef6bf51adbda",
+      "name": "Implement FilterBar Component",
+      "details": "Create comprehensive FilterBar component for dashboard filtering with ADHD-friendly controls and predictable interactions.\n\nFiles to create/modify:\n- frontend/src/components/ui/FilterBar.tsx: Horizontal filter bar with search, facets, date range, clear/reset\n- frontend/src/components/ui/FilterBar.stories.tsx: Stories for different filter combinations, loading states, mobile responsive\n- frontend/src/components/ui/FilterBar.test.tsx: Tests for filter interactions, accessibility, state management\n\nProps: filters (object), onFiltersChange, onClear, onReset, loading, compact mode for mobile\n\nFilter Types: Search input with debouncing, energy level multi-select, focus type checkboxes, priority range slider, date range picker, status toggles\n\nADHD Features: Sticky positioning for always-accessible filtering, clear visual grouping of related filters, immediate feedback on changes, easy reset/clear options\n\nAccessibility: ARIA labels for all filter controls, keyboard navigation between filter groups, screen reader announcements for filter changes, focus management\n\nResponsive Design: Horizontal layout on desktop, collapsible panels on mobile, touch-friendly controls, clear visual hierarchy\n\nState Management: Debounced search (300ms), optimistic updates, URL synchronization for bookmarkable filtered views",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T23:10:52.118Z",
+      "updatedAt": "2025-07-27T23:10:52.118Z",
+      "dependsOn": [
+        "a3d87d2d-1855-493d-bf3c-ad2d26d2bd2e"
+      ],
+      "priority": 7,
+      "complexity": 6,
+      "status": "pending",
+      "tags": [
+        "components",
+        "filtering",
+        "search",
+        "ADHD_support",
+        "responsive"
+      ],
+      "estimatedHours": 10,
+      "level": 0
+    },
+    {
+      "id": "e3fcf2c6-4865-4df4-9c89-3f93840bbc60",
+      "name": "Build DataTable with Virtualization",
+      "details": "Implement DataTable component with virtualization, sorting, and accessibility optimizations for large datasets in the dashboard.\n\nFiles to create/modify:\n- frontend/src/components/ui/DataTable.tsx: Virtualized table with sorting, pagination, selection\n- frontend/src/components/ui/DataTable.stories.tsx: Stories for different data sizes, loading states, empty states\n- frontend/src/components/ui/DataTable.test.tsx: Tests for virtualization, sorting, accessibility, keyboard navigation\n\nProps: data, columns (with sort/filter configs), loading, onSort, onSelect, pageSize, virtualized mode, sticky headers\n\nFeatures: Virtual scrolling for 1000+ rows, sortable columns with visual indicators, row selection with keyboard support, responsive column hiding, loading skeletons\n\nADHD Features: Clear visual hierarchy, consistent row patterns, minimal visual noise, predictable sorting behavior, obvious loading states\n\nAccessibility: ARIA grid/table roles, sortable column announcements, keyboard navigation (Arrow keys, Tab, Space, Enter), focus management, screen reader row counts\n\nPerformance: Virtual scrolling with react-window, memoized row rendering, debounced sort operations, efficient selection state management\n\nColumn Configuration: Sortable indicators, custom cell renderers, responsive visibility, sticky positioning for key columns",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T23:11:05.451Z",
+      "updatedAt": "2025-07-27T23:11:05.451Z",
+      "dependsOn": [
+        "a3d87d2d-1855-493d-bf3c-ad2d26d2bd2e"
+      ],
+      "priority": 6,
+      "complexity": 8,
+      "status": "pending",
+      "tags": [
+        "components",
+        "data-display",
+        "virtualization",
+        "performance",
+        "accessibility"
+      ],
+      "estimatedHours": 14,
+      "level": 0
+    },
+    {
+      "id": "58303e95-565f-4b64-8782-6472bae5edb8",
+      "name": "Implement ChartCard with Recharts",
+      "details": "Create ChartCard component using Recharts for energy optimization visualization and task analytics with ADHD-friendly design.\n\nFiles to create/modify:\n- frontend/src/components/ui/ChartCard.tsx: Recharts-based chart container with legend, tooltips, responsive design\n- frontend/src/components/ui/ChartCard.stories.tsx: Stories for line/bar/pie charts, loading/error states, different data sizes\n- frontend/src/components/ui/ChartCard.test.tsx: Tests for chart rendering, interactions, accessibility, responsive behavior\n\nProps: data, chartType (line/bar/pie), title, loading, error, onDataPointClick, responsive, accessible colors\n\nChart Types: Line charts for trends, bar charts for comparisons, pie charts for distributions, with consistent color palettes\n\nADHD Features: Clear titles and legends, minimal visual clutter, predictable interaction patterns, obvious loading states, high contrast colors\n\nAccessibility: Alt text for charts, keyboard navigation for data points, screen reader compatible data tables, ARIA labels, focus management\n\nRecharts Configuration: Responsive containers, accessible color palettes, clear tooltips, legend positioning, axis labels, grid lines for readability\n\nInteractive Features: Hover tooltips with detailed data, clickable data points, zoom/pan for detailed exploration, export functionality",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T23:11:18.365Z",
+      "updatedAt": "2025-07-27T23:11:18.365Z",
+      "dependsOn": [
+        "a3d87d2d-1855-493d-bf3c-ad2d26d2bd2e"
+      ],
+      "priority": 6,
+      "complexity": 7,
+      "status": "pending",
+      "tags": [
+        "components",
+        "data-visualization",
+        "charts",
+        "accessibility",
+        "ADHD_support"
+      ],
+      "estimatedHours": 10,
+      "level": 0
+    },
+    {
+      "id": "af1c488a-7ddb-4060-bb1b-fa2db2a0b3c4",
+      "name": "Build Drag-and-Drop Task Lists",
+      "details": "Implement drag-and-drop task scheduling using @dnd-kit with full accessibility support and ADHD-friendly interactions.\n\nFiles to create/modify:\n- frontend/src/components/ui/DnDTaskList.tsx: Sortable task list with @dnd-kit\n- frontend/src/components/ui/KanbanBoard.tsx: Column-based drag-and-drop for status changes\n- frontend/src/components/ui/DnDTaskList.stories.tsx: Stories for different list sizes, drag states, keyboard usage\n- frontend/src/components/ui/DnDTaskList.test.tsx: Tests for drag operations, keyboard navigation, accessibility\n\nProps: tasks, onReorder, onStatusChange, columns (for kanban), disabled states, loading\n\n@dnd-kit Features: Sortable lists, multi-container drag (kanban), keyboard support, touch support, auto-scrolling, collision detection\n\nADHD Features: Clear visual feedback during drag, predictable drop zones, easy cancel (Escape key), consistent interaction patterns, minimal cognitive load\n\nAccessibility: Full keyboard support (Space/Enter to pick up, Arrow keys to move, Escape to cancel), screen reader announcements, focus management, ARIA live regions\n\nVisual Design: Clear drag handles, drop zone indicators, smooth animations with motion controls, high contrast drag states\n\nPerformance: Optimized for large lists, minimal re-renders, efficient collision detection, smooth 60fps animations",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T23:11:31.638Z",
+      "updatedAt": "2025-07-27T23:11:31.638Z",
+      "dependsOn": [
+        "a3d87d2d-1855-493d-bf3c-ad2d26d2bd2e"
+      ],
+      "priority": 7,
+      "complexity": 9,
+      "status": "pending",
+      "tags": [
+        "components",
+        "drag-drop",
+        "accessibility",
+        "ADHD_support",
+        "interaction"
+      ],
+      "estimatedHours": 16,
+      "level": 0
+    },
+    {
+      "id": "974b3fa5-fe84-4a02-91f1-b43ba17ce96e",
+      "name": "Implement UI Primitives Library",
+      "details": "Create comprehensive UI primitive components library including badges, buttons, modals, and form elements with ADHD-optimized patterns.\n\nFiles to create/modify:\n- frontend/src/components/ui/Badge.tsx: Status/energy/confidence badges with semantic colors\n- frontend/src/components/ui/Button.tsx: Various button styles with loading states\n- frontend/src/components/ui/Modal.tsx: Accessible modal with focus trap\n- frontend/src/components/ui/Toast.tsx: Non-intrusive notifications\n- frontend/src/components/ui/Skeleton.tsx: Loading placeholders\n- frontend/src/components/ui/ErrorBoundary.tsx: Error handling component\n- Storybook stories and tests for each component\n\nADHD Features: Consistent visual patterns, predictable interactions, clear loading states, non-disruptive notifications, obvious call-to-action buttons\n\nAccessibility: WCAG 2.2 AA compliance, keyboard navigation, focus management, screen reader support, high contrast compatibility\n\nComponents: StatusBadge (pending/progress/blocked/done), ConfidenceBadge (AI scores), EnergyBadge (high/medium/low), LoadingSpinner, SkeletonText/Card\n\nModal Features: Focus trap, backdrop click to close, Escape key support, scroll lock, ARIA modal role, screen reader announcements",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T23:11:45.832Z",
+      "updatedAt": "2025-07-28T00:55:02.013Z",
+      "dependsOn": [
+        "a3d87d2d-1855-493d-bf3c-ad2d26d2bd2e"
+      ],
+      "priority": 8,
+      "complexity": 5,
+      "status": "done",
+      "tags": [
+        "components",
+        "ui-primitives",
+        "accessibility",
+        "ADHD_support",
+        "foundation"
+      ],
+      "estimatedHours": 12,
+      "level": 0,
+      "actualHours": 4
+    },
+    {
+      "id": "84165f31-f422-4ca1-9781-2c4304a95fb9",
+      "name": "Build Integrated Dashboard Page",
+      "details": "Create comprehensive Dashboard component integrating enhanced TaskCards, drag-and-drop scheduling, filtering, and real-time AI planning.\n\nFiles to create/modify:\n- frontend/src/components/pages/Dashboard.tsx: Main dashboard with grid layout, filter integration, real-time updates\n- frontend/src/components/pages/Dashboard.stories.tsx: Stories for different data states, loading, error handling\n- frontend/src/components/pages/Dashboard.test.tsx: Tests for layout responsiveness, filter interactions, real-time updates\n\nFeatures: Grid layout with TaskCards, FilterBar integration, drag-and-drop task scheduling, real-time plan updates, energy optimization display\n\nADHD Optimizations: F-pattern layout (important info top-left), consistent card patterns, minimal visual noise, clear loading states, predictable interactions\n\nLayout Structure: Header with quick stats, FilterBar (sticky), main content grid (responsive), AI suggestions panel (optional slide-out)\n\nReal-time Features: WebSocket integration for live updates, optimistic UI updates, conflict resolution, background sync\n\nResponsive Design: Mobile-first approach, collapsible filters, adaptive grid columns, touch-friendly interactions\n\nState Management: React Query for server state, local state for UI interactions, URL sync for filters, optimistic updates",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T23:12:00.504Z",
+      "updatedAt": "2025-07-27T23:12:00.504Z",
+      "dependsOn": [
+        "bae99b24-6363-4960-a477-da41ce524088",
+        "af1c488a-7ddb-4060-bb1b-fa2db2a0b3c4"
+      ],
+      "priority": 8,
+      "complexity": 6,
+      "status": "pending",
+      "tags": [
+        "pages",
+        "dashboard",
+        "integration",
+        "real-time",
+        "ADHD_support"
+      ],
+      "estimatedHours": 14,
+      "level": 0
+    },
+    {
+      "id": "ba821342-e6a2-4945-8e28-78f03b3873dd",
+      "name": "Setup Storybook with A11y Testing",
+      "details": "Setup comprehensive Storybook environment with accessibility testing, interaction testing, and visual regression capabilities.\n\nFiles to create/modify:\n- .storybook/main.ts: Configure addons (a11y, essentials, interactions, docs)\n- .storybook/preview.ts: Global decorators, theme provider, viewport configurations\n- .storybook/manager.ts: Storybook UI customization\n- .storybook/test-runner.ts: Visual regression and accessibility test configuration\n\nAddons Configuration:\n- @storybook/addon-a11y: Automatic accessibility testing with axe-core\n- @storybook/addon-essentials: Controls, actions, viewport, docs\n- @storybook/addon-interactions: User interaction testing\n- @storybook/test-runner: Automated testing with Playwright\n\nADHD Testing Focus: Test with reduced motion preferences, high contrast themes, keyboard navigation scenarios, focus management validation\n\nAccessibility Standards: WCAG 2.2 AA compliance testing, screen reader compatibility, keyboard navigation paths, focus trap validation\n\nVisual Regression: Screenshot testing across devices, theme variations, responsive breakpoints, interaction states\n\nDocumentation: Component usage examples, accessibility guidelines, ADHD design principles, testing standards",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T23:12:14.805Z",
+      "updatedAt": "2025-07-28T01:52:48.019Z",
+      "dependsOn": [
+        "a3d87d2d-1855-493d-bf3c-ad2d26d2bd2e"
+      ],
+      "priority": 7,
+      "complexity": 4,
+      "status": "done",
+      "tags": [
+        "storybook",
+        "testing",
+        "accessibility",
+        "documentation",
+        "tooling"
+      ],
+      "estimatedHours": 8,
+      "level": 0,
+      "actualHours": 2
+    },
+    {
+      "id": "8bbf8696-8531-40ec-99d9-7e04308d2a5d",
+      "name": "Implement Performance Optimization",
+      "details": "Implement performance optimization strategy including bundle splitting, lazy loading, memoization, and monitoring for optimal ADHD user experience.\n\nFiles to create/modify:\n- frontend/src/lib/performance.ts: Performance utilities, monitoring hooks, optimization helpers\n- frontend/next.config.js: Bundle optimization, code splitting configuration\n- frontend/src/components/LazyWrapper.tsx: Lazy loading wrapper with loading states\n- frontend/src/hooks/usePerformanceMonitor.ts: Performance tracking hook\n\nOptimizations:\n- Code splitting with React.lazy and dynamic imports\n- Component memoization with React.memo and useMemo\n- Image optimization with Next.js Image component\n- Bundle analysis and tree shaking optimization\n- Service worker for caching and offline support\n\nADHD Considerations: Fast load times reduce abandonment, smooth interactions prevent frustration, predictable performance maintains user flow\n\nPerformance Budget: LCP < 2.5s, FID < 100ms, CLS < 0.1, Bundle size < 500KB initial, total < 2MB\n\nMonitoring: Web Vitals tracking, error boundary reporting, user interaction metrics, performance regression detection\n\nLazy Loading: Route-based code splitting, component lazy loading with suspense, image lazy loading, data pagination",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T23:12:27.898Z",
+      "updatedAt": "2025-07-27T23:12:27.898Z",
+      "dependsOn": [
+        "a3d87d2d-1855-493d-bf3c-ad2d26d2bd2e"
+      ],
+      "priority": 6,
+      "complexity": 5,
+      "status": "pending",
+      "tags": [
+        "performance",
+        "optimization",
+        "monitoring",
+        "ADHD_support",
+        "ux"
+      ],
+      "estimatedHours": 10,
+      "level": 0
+    },
+    {
+      "id": "b3bb7b1a-bd51-4ce5-9f2e-6794fadea07b",
+      "name": "Create Accessibility Audit System",
+      "details": "Create comprehensive accessibility audit system and keyboard navigation matrix to ensure WCAG 2.2 AA compliance across all components.\n\nFiles to create/modify:\n- frontend/src/tests/accessibility.test.ts: Automated a11y tests with jest-axe\n- frontend/src/tests/keyboard-navigation.test.ts: Keyboard interaction tests\n- docs/accessibility-matrix.md: Comprehensive accessibility documentation\n- frontend/src/lib/a11y-utils.ts: Accessibility utility functions\n\nTesting Coverage:\n- Automated axe-core testing in Jest and Storybook\n- Keyboard navigation paths for all interactive elements\n- Screen reader compatibility testing\n- Color contrast validation\n- Focus management verification\n\nADHD-Specific Testing:\n- Reduced motion preference handling\n- Clear focus indicators validation\n- Consistent interaction patterns verification\n- Cognitive load assessment checklist\n\nKeyboard Navigation Matrix: Tab order, Enter/Space actions, Arrow key navigation, Escape behaviors, Focus trap verification\n\nCompliance Standards: WCAG 2.2 AA criteria, Section 508 compliance, European Accessibility Act requirements\n\nDocumentation: Component accessibility guidelines, testing procedures, remediation strategies, user testing protocols",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T23:12:41.763Z",
+      "updatedAt": "2025-07-27T23:12:41.763Z",
+      "dependsOn": [
+        "974b3fa5-fe84-4a02-91f1-b43ba17ce96e",
+        "ba821342-e6a2-4945-8e28-78f03b3873dd"
+      ],
+      "priority": 8,
+      "complexity": 4,
+      "status": "pending",
+      "tags": [
+        "accessibility",
+        "testing",
+        "compliance",
+        "ADHD_support",
+        "audit"
+      ],
+      "estimatedHours": 6,
+      "level": 0
+    },
+    {
+      "id": "8671a6dc-e4bc-4dfb-a181-154f0b7a2dc6",
+      "name": "Create Documentation Site",
+      "details": "Create comprehensive documentation site covering component usage, accessibility guidelines, ADHD design principles, and implementation examples.\n\nFiles to create/modify:\n- docs/components/README.md: Component library overview and usage guide\n- docs/accessibility/ADHD-guidelines.md: ADHD-specific design principles and patterns\n- docs/accessibility/wcag-compliance.md: WCAG 2.2 AA compliance documentation\n- docs/development/getting-started.md: Developer onboarding guide\n- docs/design-system/tokens.md: Design token documentation\n\nDocumentation Structure:\n- Component API documentation with TypeScript interfaces\n- Accessibility guidelines with ADHD considerations\n- Design system documentation with usage examples\n- Testing strategies and standards\n- Deployment and performance guidelines\n\nADHD Documentation Focus:\n- Cognitive load reduction strategies\n- Consistent interaction patterns\n- Visual hierarchy principles\n- Motion and animation guidelines\n- Color and contrast considerations\n\nInteractive Examples: Live code examples, Storybook integration, accessibility demos, responsive behavior examples\n\nTesting Documentation: Accessibility testing procedures, keyboard navigation requirements, screen reader compatibility, performance standards",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T23:12:54.367Z",
+      "updatedAt": "2025-07-27T23:12:54.367Z",
+      "dependsOn": [
+        "84165f31-f422-4ca1-9781-2c4304a95fb9"
+      ],
+      "priority": 5,
+      "complexity": 3,
+      "status": "pending",
+      "tags": [
+        "documentation",
+        "guidelines",
+        "ADHD_support",
+        "accessibility",
+        "knowledge"
       ],
       "estimatedHours": 4,
       "level": 0
