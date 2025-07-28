@@ -1,0 +1,30 @@
+import { PrismaService } from '../prisma/prisma.service';
+import { TasksService } from '../tasks/tasks.service';
+import { DailyPlanResponseDto } from './dto';
+export declare class DailyPlannerService {
+    private prisma;
+    private tasksService;
+    private readonly logger;
+    constructor(prisma: PrismaService, tasksService: TasksService);
+    generatePlan(userId: string, date: Date): Promise<DailyPlanResponseDto>;
+    private gatherPlanningData;
+    private filterReadyTasks;
+    private buildDependencyGraph;
+    private detectCircularDependencies;
+    private scoreTasks;
+    private calculateTaskScore;
+    private generateTimeSlots;
+    private getEnergyLevelForTime;
+    private getPreferredFocusTypes;
+    private hasConflictWithCommitments;
+    private getWorkingHours;
+    private assignTasksToSlots;
+    private findBestSlotForTask;
+    private calculateEnergyMatch;
+    private calculateFocusMatch;
+    private calculateDurationFit;
+    private generateSchedulingReasoning;
+    private createScheduleBlocks;
+    private calculateOptimizationMetrics;
+    private transformToDto;
+}

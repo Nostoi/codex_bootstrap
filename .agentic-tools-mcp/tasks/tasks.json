@@ -157,15 +157,15 @@
       "name": "Implement energy-aware daily planning algorithm",
       "details": "Implement the core daily planning algorithm that generates optimized schedules based on task metadata, user energy patterns, dependencies, and time constraints. This is the heart of the Helmsman intelligent scheduling system.\n\nCreate backend/src/planning/daily-planner.service.ts with:\n- Task scoring algorithm considering priority, deadlines, energy match, focus batching\n- Energy-aware scheduling that matches high-energy tasks to morning slots\n- Dependency resolution to ensure blocked tasks aren't scheduled\n- Time slot generation based on user preferences and existing commitments\n- Focus type batching for cognitive efficiency (group similar work)\n- Overcommitment detection and task deferral logic\n\nAlgorithm components:\n- calculateTaskScore(task, timeSlot, userSettings): scoring function\n- resolveTaskDependencies(tasks): filter out blocked tasks\n- generateTimeSlots(date, userSettings, commitments): available time windows\n- assignTasksToSlots(tasks, slots): greedy assignment with optimization\n- OptimizationResult with energyOptimization and focusOptimization scores\n\nAPI endpoint: GET /api/plans/today?date=YYYY-MM-DD\nReturns DailyPlan with scheduleBlocks, unscheduledTasks, optimization metrics\n\nInclude comprehensive unit tests with various scenarios: normal day, overcommitted, all tasks blocked, empty schedule, user with different energy patterns.",
       "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
-      "completed": false,
+      "completed": true,
       "createdAt": "2025-07-27T21:39:53.448Z",
-      "updatedAt": "2025-07-27T21:39:53.448Z",
+      "updatedAt": "2025-07-28T16:40:08.105Z",
       "dependsOn": [
         "133889ac-4e92-48b4-8706-65ef1954fada"
       ],
       "priority": 8,
       "complexity": 8,
-      "status": "pending",
+      "status": "done",
       "tags": [
         "scheduling",
         "algorithm",
@@ -175,7 +175,8 @@
         "source:system"
       ],
       "estimatedHours": 10,
-      "level": 0
+      "level": 0,
+      "actualHours": 4
     },
     {
       "id": "9543d421-958a-4eb8-977b-53a8249a29c5",

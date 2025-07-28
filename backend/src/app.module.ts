@@ -14,6 +14,7 @@ import { AuthModule } from "./auth/auth.module";
 import { AiModule } from "./ai/ai.module";
 import { MetricsModule } from "./metrics/metrics.module";
 import { SecurityModule } from "./security/security.module";
+import { PlanningModule } from "./planning/planning.module";
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { SecurityModule } from "./security/security.module";
     AiModule,
     MetricsModule,
     SecurityModule,
+    PlanningModule,
   ],
   controllers: [AppController],
   providers: [AppService],

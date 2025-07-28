@@ -22,6 +22,8 @@ const projects_module_1 = require("./projects/projects.module");
 const auth_module_1 = require("./auth/auth.module");
 const ai_module_1 = require("./ai/ai.module");
 const metrics_module_1 = require("./metrics/metrics.module");
+const security_module_1 = require("./security/security.module");
+const planning_module_1 = require("./planning/planning.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -42,6 +44,8 @@ exports.AppModule = AppModule = __decorate([
             auth_module_1.AuthModule,
             ai_module_1.AiModule,
             metrics_module_1.MetricsModule,
+            security_module_1.SecurityModule,
+            planning_module_1.PlanningModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
