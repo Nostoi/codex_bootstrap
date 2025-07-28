@@ -1,6 +1,6 @@
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateDocumentDto, UpdateDocumentDto } from './dto/document.dto';
-import { Document } from '@prisma/client';
+import { PrismaService } from "../prisma/prisma.service";
+import { CreateDocumentDto, UpdateDocumentDto } from "./dto/document.dto";
+import { Document } from "@prisma/client";
 export declare class DocumentsService {
     private prisma;
     constructor(prisma: PrismaService);

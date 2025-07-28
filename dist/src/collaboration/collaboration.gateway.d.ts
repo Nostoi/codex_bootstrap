@@ -1,6 +1,6 @@
-import { OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
-import { Server, WebSocket } from 'ws';
-import { CollaborationService } from './collaboration.service';
+import { OnGatewayConnection, OnGatewayDisconnect } from "@nestjs/websockets";
+import { Server, WebSocket } from "ws";
+import { CollaborationService } from "./collaboration.service";
 export declare class CollaborationGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private collaborationService;
     server: Server;

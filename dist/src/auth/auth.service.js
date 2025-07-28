@@ -28,7 +28,7 @@ let AuthService = class AuthService {
         }
         const payload = { sub: user.id, email: user.email };
         return {
-            access_token: (0, jwt_util_1.sign)(payload, process.env.JWT_SECRET || 'changeme'),
+            access_token: (0, jwt_util_1.sign)(payload, process.env.JWT_SECRET || "changeme"),
         };
     }
 };

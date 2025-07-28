@@ -1,5 +1,5 @@
-import { PrismaService } from '../prisma/prisma.service';
-import { WebSocket } from 'ws';
+import { PrismaService } from "../prisma/prisma.service";
+import { WebSocket } from "ws";
 export declare class CollaborationService {
     private prisma;
     private readonly logger;

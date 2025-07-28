@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const testing_1 = require("@nestjs/testing");
 const auth_controller_1 = require("./auth.controller");
 const auth_service_1 = require("./auth.service");
-describe('AuthController', () => {
+describe("AuthController", () => {
     let controller;
     const service = { login: jest.fn() };
     beforeEach(async () => {
@@ -13,12 +13,12 @@ describe('AuthController', () => {
         }).compile();
         controller = module.get(auth_controller_1.AuthController);
     });
-    it('should be defined', () => {
+    it("should be defined", () => {
         expect(controller).toBeDefined();
     });
-    it('delegates login', async () => {
-        await controller.login('test@example.com');
-        expect(service.login).toHaveBeenCalledWith('test@example.com');
+    it("delegates login", async () => {
+        await controller.login("test@example.com");
+        expect(service.login).toHaveBeenCalledWith("test@example.com");
     });
 });
 //# sourceMappingURL=auth.controller.spec.js.map

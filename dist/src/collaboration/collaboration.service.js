@@ -30,7 +30,7 @@ let CollaborationService = CollaborationService_1 = class CollaborationService {
     }
     handleClientDisconnect(client) {
         const documentIds = this.clientConnections.get(client) || [];
-        documentIds.forEach(docId => {
+        documentIds.forEach((docId) => {
             this.logger.log(`Client disconnected from document: ${docId}`);
         });
         this.clientConnections.delete(client);

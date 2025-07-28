@@ -22,36 +22,36 @@ let MetricsController = class MetricsController {
     log(body) {
         return this.metrics.record(body.userId, body.action);
     }
-    adoption(action = 'login') {
+    adoption(action = "login") {
         return { count: this.metrics.countByAction(action) };
     }
     bugs() {
-        return { count: this.metrics.countByAction('bug') };
+        return { count: this.metrics.countByAction("bug") };
     }
 };
 exports.MetricsController = MetricsController;
 __decorate([
-    (0, common_1.Post)('log'),
+    (0, common_1.Post)("log"),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], MetricsController.prototype, "log", null);
 __decorate([
-    (0, common_1.Get)('adoption'),
-    __param(0, (0, common_1.Query)('action')),
+    (0, common_1.Get)("adoption"),
+    __param(0, (0, common_1.Query)("action")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], MetricsController.prototype, "adoption", null);
 __decorate([
-    (0, common_1.Get)('bugs'),
+    (0, common_1.Get)("bugs"),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], MetricsController.prototype, "bugs", null);
 exports.MetricsController = MetricsController = __decorate([
-    (0, common_1.Controller)('metrics'),
+    (0, common_1.Controller)("metrics"),
     __metadata("design:paramtypes", [metrics_service_1.MetricsService])
 ], MetricsController);
 //# sourceMappingURL=metrics.controller.js.map

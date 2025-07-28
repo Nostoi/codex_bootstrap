@@ -16,18 +16,18 @@ class CreateDocumentDto {
 }
 exports.CreateDocumentDto = CreateDocumentDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Document title' }),
+    (0, swagger_1.ApiProperty)({ description: "Document title" }),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateDocumentDto.prototype, "title", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Document content', required: false }),
+    (0, swagger_1.ApiProperty)({ description: "Document content", required: false }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateDocumentDto.prototype, "content", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Owner user ID' }),
+    (0, swagger_1.ApiProperty)({ description: "Owner user ID" }),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateDocumentDto.prototype, "ownerId", void 0);

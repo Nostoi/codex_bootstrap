@@ -11,14 +11,14 @@ const common_1 = require("@nestjs/common");
 let AppService = class AppService {
     getStatus() {
         return {
-            status: 'running',
+            status: "running",
             timestamp: new Date().toISOString(),
-            version: '1.0.0',
+            version: "1.0.0",
         };
     }
     getHealth() {
         return {
-            status: 'healthy',
+            status: "healthy",
             timestamp: new Date().toISOString(),
             uptime: process.uptime(),
         };

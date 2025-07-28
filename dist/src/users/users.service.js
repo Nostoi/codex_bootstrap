@@ -18,7 +18,7 @@ let UsersService = class UsersService {
     }
     async findAll() {
         return this.prisma.user.findMany({
-            orderBy: { createdAt: 'desc' },
+            orderBy: { createdAt: "desc" },
         });
     }
     async findOne(id) {

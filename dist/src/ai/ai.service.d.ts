@@ -1,4 +1,4 @@
-import { Mem0Service } from './mem0.service';
+import { Mem0Service } from "./mem0.service";
 export declare class AiService {
     private readonly mem0;
     constructor(mem0: Mem0Service);

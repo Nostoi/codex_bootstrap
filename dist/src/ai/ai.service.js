@@ -18,21 +18,21 @@ let AiService = class AiService {
     }
     async generateTasks(prompt) {
         const context = await this.mem0.search(prompt);
-        const res = await this.request(`${context.join('\n')}\n${prompt}`);
+        const res = await this.request(`${context.join("\n")}\n${prompt}`);
         await this.mem0.storeInteraction(prompt);
-        const content = res || '';
+        const content = res || "";
         return content
-            .split('\n')
+            .split("\n")
             .map((l) => l.trim())
             .filter(Boolean);
     }
     async getSuggestions(context) {
         const history = await this.mem0.search(context);
-        const prompt = `Based on the following interaction history:\n${history.join('\n')}\nSuggest next tasks for: ${context}`;
+        const prompt = `Based on the following interaction history:\n${history.join("\n")}\nSuggest next tasks for: ${context}`;
         const res = await this.request(prompt);
         await this.mem0.storeInteraction(context);
         return res
-            .split('\n')
+            .split("\n")
             .map((l) => l.trim())
             .filter(Boolean);
     }
@@ -41,19 +41,19 @@ let AiService = class AiService {
         return this.request(`Summarize the following text:\n${text}`);
     }
     async request(prompt) {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
                 Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
             },
             body: JSON.stringify({
-                model: 'gpt-3.5-turbo',
-                messages: [{ role: 'user', content: prompt }],
+                model: "gpt-3.5-turbo",
+                messages: [{ role: "user", content: prompt }],
             }),
         });
         const data = await response.json();
-        return data.choices?.[0]?.message?.content ?? '';
+        return data.choices?.[0]?.message?.content ?? "";
     }
 };
 exports.AiService = AiService;

@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const testing_1 = require("@nestjs/testing");
 const projects_service_1 = require("./projects.service");
 const prisma_service_1 = require("../prisma/prisma.service");
-describe('ProjectsService', () => {
+describe("ProjectsService", () => {
     let service;
     const mockPrisma = {
         project: {
@@ -23,11 +23,11 @@ describe('ProjectsService', () => {
         }).compile();
         service = module.get(projects_service_1.ProjectsService);
     });
-    it('should be defined', () => {
+    it("should be defined", () => {
         expect(service).toBeDefined();
     });
-    it('should return all projects', async () => {
-        const projects = [{ id: '1', name: 'Proj' }];
+    it("should return all projects", async () => {
+        const projects = [{ id: "1", name: "Proj" }];
         mockPrisma.project.findMany.mockResolvedValue(projects);
         const result = await service.findAll();
         expect(result).toEqual(projects);

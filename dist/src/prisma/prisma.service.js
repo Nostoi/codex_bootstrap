@@ -14,17 +14,17 @@ let PrismaService = class PrismaService extends client_1.PrismaClient {
     async onModuleInit() {
         await this.$connect();
         try {
-            (0, child_process_1.execSync)('npx prisma migrate deploy', { stdio: 'ignore' });
-            console.log('📜 Database migrations applied');
+            (0, child_process_1.execSync)("npx prisma migrate deploy", { stdio: "ignore" });
+            console.log("📜 Database migrations applied");
         }
         catch (e) {
-            console.error('⚠️  Failed to apply migrations', e);
+            console.error("⚠️  Failed to apply migrations", e);
         }
-        console.log('🗄️  Connected to database');
+        console.log("🗄️  Connected to database");
     }
     async onModuleDestroy() {
         await this.$disconnect();
-        console.log('🔌 Disconnected from database');
+        console.log("🔌 Disconnected from database");
     }
 };
 exports.PrismaService = PrismaService;

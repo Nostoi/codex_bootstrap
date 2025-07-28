@@ -1,6 +1,6 @@
-import { DocumentsService } from './documents.service';
-import { CollaborationService } from './collaboration.service';
-import { CreateDocumentDto, UpdateDocumentDto } from './dto/document.dto';
+import { DocumentsService } from "./documents.service";
+import { CollaborationService } from "./collaboration.service";
+import { CreateDocumentDto, UpdateDocumentDto } from "./dto/document.dto";
 export declare class DocumentsController {
     private readonly documentsService;
     private readonly collaborationService;

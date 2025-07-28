@@ -1,5 +1,5 @@
-import { ProjectsService } from './projects.service';
-import { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
+import { ProjectsService } from "./projects.service";
+import { CreateProjectDto, UpdateProjectDto } from "./dto/project.dto";
 export declare class ProjectsController {
     private readonly projectsService;
     constructor(projectsService: ProjectsService);

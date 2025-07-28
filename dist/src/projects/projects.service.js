@@ -20,7 +20,7 @@ let ProjectsService = class ProjectsService {
         return this.prisma.project.create({ data });
     }
     async findAll() {
-        return this.prisma.project.findMany({ orderBy: { createdAt: 'desc' } });
+        return this.prisma.project.findMany({ orderBy: { createdAt: "desc" } });
     }
     async findOne(id) {
         return this.prisma.project.findUnique({ where: { id } });

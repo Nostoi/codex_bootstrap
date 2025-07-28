@@ -31,20 +31,20 @@ let GraphService = GraphService_1 = class GraphService {
             const config = await this.prisma.integrationConfig.findUnique({
                 where: {
                     provider_userId: {
-                        provider: 'microsoft',
+                        provider: "microsoft",
                         userId,
                     },
                 },
             });
             if (!config?.accessToken) {
-                throw new Error('Microsoft integration not configured for user');
+                throw new Error("Microsoft integration not configured for user");
             }
             const graphClient = this.createGraphClient(config.accessToken);
-            const profile = await graphClient.api('/me').get();
+            const profile = await graphClient.api("/me").get();
             return profile;
         }
         catch (error) {
-            this.logger.error('Error fetching Microsoft Graph profile:', error);
+            this.logger.error("Error fetching Microsoft Graph profile:", error);
             throw error;
         }
     }
@@ -53,23 +53,23 @@ let GraphService = GraphService_1 = class GraphService {
             const config = await this.prisma.integrationConfig.findUnique({
                 where: {
                     provider_userId: {
-                        provider: 'microsoft',
+                        provider: "microsoft",
                         userId,
                     },
                 },
             });
             if (!config?.accessToken) {
-                throw new Error('Microsoft integration not configured for user');
+                throw new Error("Microsoft integration not configured for user");
             }
             const graphClient = this.createGraphClient(config.accessToken);
             const endpoint = folderId
                 ? `/me/drive/items/${folderId}/children`
-                : '/me/drive/root/children';
+                : "/me/drive/root/children";
             const files = await graphClient.api(endpoint).get();
             return files;
         }
         catch (error) {
-            this.logger.error('Error fetching OneDrive files:', error);
+            this.logger.error("Error fetching OneDrive files:", error);
             throw error;
         }
     }
@@ -78,13 +78,13 @@ let GraphService = GraphService_1 = class GraphService {
             const config = await this.prisma.integrationConfig.findUnique({
                 where: {
                     provider_userId: {
-                        provider: 'microsoft',
+                        provider: "microsoft",
                         userId,
                     },
                 },
             });
             if (!config?.accessToken) {
-                throw new Error('Microsoft integration not configured for user');
+                throw new Error("Microsoft integration not configured for user");
             }
             const graphClient = this.createGraphClient(config.accessToken);
             const file = await graphClient
@@ -93,7 +93,7 @@ let GraphService = GraphService_1 = class GraphService {
             return file;
         }
         catch (error) {
-            this.logger.error('Error creating OneDrive file:', error);
+            this.logger.error("Error creating OneDrive file:", error);
             throw error;
         }
     }
@@ -102,20 +102,20 @@ let GraphService = GraphService_1 = class GraphService {
             const config = await this.prisma.integrationConfig.findUnique({
                 where: {
                     provider_userId: {
-                        provider: 'microsoft',
+                        provider: "microsoft",
                         userId,
                     },
                 },
             });
             if (!config?.accessToken) {
-                throw new Error('Microsoft integration not configured for user');
+                throw new Error("Microsoft integration not configured for user");
             }
             const graphClient = this.createGraphClient(config.accessToken);
-            const teams = await graphClient.api('/me/joinedTeams').get();
+            const teams = await graphClient.api("/me/joinedTeams").get();
             return teams;
         }
         catch (error) {
-            this.logger.error('Error fetching Teams:', error);
+            this.logger.error("Error fetching Teams:", error);
             throw error;
         }
     }
@@ -123,7 +123,7 @@ let GraphService = GraphService_1 = class GraphService {
         return this.prisma.integrationConfig.upsert({
             where: {
                 provider_userId: {
-                    provider: 'microsoft',
+                    provider: "microsoft",
                     userId,
                 },
             },
@@ -134,7 +134,7 @@ let GraphService = GraphService_1 = class GraphService {
                 scopes: scopes || [],
             },
             create: {
-                provider: 'microsoft',
+                provider: "microsoft",
                 userId,
                 accessToken,
                 refreshToken,

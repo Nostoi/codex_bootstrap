@@ -1,5 +1,5 @@
-import { UsersService } from './users.service';
-import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
+import { UsersService } from "./users.service";
+import { CreateUserDto, UpdateUserDto } from "./dto/user.dto";
 export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);

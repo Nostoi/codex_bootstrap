@@ -1,4 +1,4 @@
-import { GraphService } from './graph.service';
+import { GraphService } from "./graph.service";
 export declare class GraphController {
     private readonly graphService;
     constructor(graphService: GraphService);

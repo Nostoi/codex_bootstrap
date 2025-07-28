@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const testing_1 = require("@nestjs/testing");
 const users_controller_1 = require("./users.controller");
 const users_service_1 = require("./users.service");
-describe('UsersController', () => {
+describe("UsersController", () => {
     let controller;
     const service = {
         create: jest.fn(),
@@ -19,28 +19,28 @@ describe('UsersController', () => {
         }).compile();
         controller = module.get(users_controller_1.UsersController);
     });
-    it('should be defined', () => {
+    it("should be defined", () => {
         expect(controller).toBeDefined();
     });
-    it('delegates create', () => {
+    it("delegates create", () => {
         controller.create({});
         expect(service.create).toHaveBeenCalled();
     });
-    it('delegates findAll', () => {
+    it("delegates findAll", () => {
         controller.findAll();
         expect(service.findAll).toHaveBeenCalled();
     });
-    it('delegates findOne', () => {
-        controller.findOne('1');
-        expect(service.findOne).toHaveBeenCalledWith('1');
+    it("delegates findOne", () => {
+        controller.findOne("1");
+        expect(service.findOne).toHaveBeenCalledWith("1");
     });
-    it('delegates update', () => {
-        controller.update('1', {});
-        expect(service.update).toHaveBeenCalledWith('1', {});
+    it("delegates update", () => {
+        controller.update("1", {});
+        expect(service.update).toHaveBeenCalledWith("1", {});
     });
-    it('delegates remove', () => {
-        controller.remove('1');
-        expect(service.remove).toHaveBeenCalledWith('1');
+    it("delegates remove", () => {
+        controller.remove("1");
+        expect(service.remove).toHaveBeenCalledWith("1");
     });
 });
 //# sourceMappingURL=users.controller.spec.js.map

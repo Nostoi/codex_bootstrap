@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const testing_1 = require("@nestjs/testing");
 const users_service_1 = require("./users.service");
 const prisma_service_1 = require("../prisma/prisma.service");
-describe('UsersService', () => {
+describe("UsersService", () => {
     let service;
     let prismaService;
     const mockPrismaService = {
@@ -28,27 +28,27 @@ describe('UsersService', () => {
         service = module.get(users_service_1.UsersService);
         prismaService = module.get(prisma_service_1.PrismaService);
     });
-    it('should be defined', () => {
+    it("should be defined", () => {
         expect(service).toBeDefined();
     });
-    it('should find all users', async () => {
+    it("should find all users", async () => {
         const mockUsers = [
-            { id: '1', email: 'test@example.com', name: 'Test User' },
+            { id: "1", email: "test@example.com", name: "Test User" },
         ];
         mockPrismaService.user.findMany.mockResolvedValue(mockUsers);
         const result = await service.findAll();
         expect(result).toEqual(mockUsers);
         expect(mockPrismaService.user.findMany).toHaveBeenCalledWith({
-            orderBy: { createdAt: 'desc' },
+            orderBy: { createdAt: "desc" },
         });
     });
-    it('should find user by email', async () => {
-        const mockUser = { id: '1', email: 'test@example.com', name: 'Test User' };
+    it("should find user by email", async () => {
+        const mockUser = { id: "1", email: "test@example.com", name: "Test User" };
         mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
-        const result = await service.findByEmail('test@example.com');
+        const result = await service.findByEmail("test@example.com");
         expect(result).toEqual(mockUser);
         expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
-            where: { email: 'test@example.com' },
+            where: { email: "test@example.com" },
         });
     });
 });

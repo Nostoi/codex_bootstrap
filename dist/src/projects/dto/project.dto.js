@@ -16,18 +16,18 @@ class CreateProjectDto {
 }
 exports.CreateProjectDto = CreateProjectDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Project name' }),
+    (0, swagger_1.ApiProperty)({ description: "Project name" }),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateProjectDto.prototype, "name", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Project description', required: false }),
+    (0, swagger_1.ApiProperty)({ description: "Project description", required: false }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateProjectDto.prototype, "description", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Owner user ID' }),
+    (0, swagger_1.ApiProperty)({ description: "Owner user ID" }),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateProjectDto.prototype, "ownerId", void 0);

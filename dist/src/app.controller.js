@@ -27,22 +27,22 @@ let AppController = class AppController {
 exports.AppController = AppController;
 __decorate([
     (0, common_1.Get)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Get API status' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'API is running' }),
+    (0, swagger_1.ApiOperation)({ summary: "Get API status" }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "API is running" }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Object)
 ], AppController.prototype, "getStatus", null);
 __decorate([
-    (0, common_1.Get)('health'),
-    (0, swagger_1.ApiOperation)({ summary: 'Health check endpoint' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Service is healthy' }),
+    (0, common_1.Get)("health"),
+    (0, swagger_1.ApiOperation)({ summary: "Health check endpoint" }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "Service is healthy" }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Object)
 ], AppController.prototype, "getHealth", null);
 exports.AppController = AppController = __decorate([
-    (0, swagger_1.ApiTags)('health'),
+    (0, swagger_1.ApiTags)("health"),
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [app_service_1.AppService])
 ], AppController);

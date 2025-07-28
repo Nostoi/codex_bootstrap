@@ -19,7 +19,7 @@ let DocumentsService = class DocumentsService {
     async findAll(ownerId) {
         return this.prisma.document.findMany({
             where: ownerId ? { ownerId } : undefined,
-            orderBy: { updatedAt: 'desc' },
+            orderBy: { updatedAt: "desc" },
             include: {
                 owner: {
                     select: {
@@ -102,7 +102,7 @@ let DocumentsService = class DocumentsService {
     async getCollaborationHistory(documentId) {
         return this.prisma.collaborationSession.findMany({
             where: { documentId },
-            orderBy: { joinedAt: 'desc' },
+            orderBy: { joinedAt: "desc" },
             include: {
                 user: {
                     select: {

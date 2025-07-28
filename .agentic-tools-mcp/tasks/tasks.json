@@ -273,15 +273,15 @@
       "name": "Enhance Tasks API with metadata support",
       "details": "Enhance the existing Tasks API endpoints to support full metadata CRUD operations with validation, error handling, and OpenAPI documentation. This enables frontend components to work with the enhanced task model.\n\nUpdate backend/src/tasks/tasks.controller.ts and tasks.service.ts:\n- Modify POST /api/tasks to accept all metadata fields (energyLevel, focusType, priority, deadlines, etc.)\n- Update GET /api/tasks to return full metadata in responses\n- Enhance PUT/PATCH /api/tasks/:id for metadata updates\n- Add validation using class-validator decorators\n- Include proper error responses (400 for validation, 404 for not found)\n\nCreate new endpoints:\n- GET /api/tasks/:id/dependencies - retrieve task dependencies\n- POST /api/tasks/:id/dependencies - create dependency relationships\n- DELETE /api/tasks/:id/dependencies/:dependencyId - remove dependencies\n- GET /api/users/:id/settings - user energy patterns and preferences\n- PUT /api/users/:id/settings - update user scheduling preferences\n\nDTOs and validation:\n- CreateTaskWithMetadataDto with optional metadata fields\n- UpdateTaskMetadataDto for partial updates\n- TaskDependencyDto for dependency management\n- UserSettingsDto for energy patterns\n\nOpenAPI documentation:\n- Update swagger decorators with new fields and examples\n- Document all enum values and constraints\n- Include response schemas and error codes\n\nAdd comprehensive unit and integration tests covering validation, error cases, and metadata handling.",
       "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
-      "completed": false,
+      "completed": true,
       "createdAt": "2025-07-27T21:41:06.015Z",
-      "updatedAt": "2025-07-27T21:41:06.015Z",
+      "updatedAt": "2025-07-28T04:29:10.855Z",
       "dependsOn": [
         "133889ac-4e92-48b4-8706-65ef1954fada"
       ],
       "priority": 8,
       "complexity": 5,
-      "status": "pending",
+      "status": "done",
       "tags": [
         "api",
         "backend",
@@ -291,7 +291,8 @@
         "source:system"
       ],
       "estimatedHours": 6,
-      "level": 0
+      "level": 0,
+      "actualHours": 3
     },
     {
       "id": "aa8c2b38-621a-474c-bb99-18ca3a8a9e1f",

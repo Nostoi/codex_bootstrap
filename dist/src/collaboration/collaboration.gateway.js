@@ -26,25 +26,26 @@ let CollaborationGateway = CollaborationGateway_1 = class CollaborationGateway {
         this.documents = new Map();
     }
     handleConnection(client, request) {
-        this.logger.log('Client connected to collaboration server');
+        this.logger.log("Client connected to collaboration server");
         const url = new URL(request.url, `http://${request.headers.host}`);
-        const documentId = url.searchParams.get('docId');
+        const documentId = url.searchParams.get("docId");
         if (documentId) {
             (0, utils_1.setupWSConnection)(client, request, { gc: true });
             this.collaborationService.handleClientConnect(documentId, client);
         }
     }
     handleDisconnect(client) {
-        this.logger.log('Client disconnected from collaboration server');
+        this.logger.log("Client disconnected from collaboration server");
         this.collaborationService.handleClientDisconnect(client);
     }
     async handleDocumentSync(data, client) {
         try {
             await this.collaborationService.syncDocument(data.documentId, data.update);
             this.server.clients.forEach((otherClient) => {
-                if (otherClient !== client && otherClient.readyState === ws_1.WebSocket.OPEN) {
+                if (otherClient !== client &&
+                    otherClient.readyState === ws_1.WebSocket.OPEN) {
                     otherClient.send(JSON.stringify({
-                        type: 'document-update',
+                        type: "document-update",
                         documentId: data.documentId,
                         update: Array.from(data.update),
                     }));
@@ -52,7 +53,7 @@ let CollaborationGateway = CollaborationGateway_1 = class CollaborationGateway {
             });
         }
         catch (error) {
-            this.logger.error('Error syncing document:', error);
+            this.logger.error("Error syncing document:", error);
         }
     }
     async handleJoinDocument(data, client) {
@@ -61,14 +62,14 @@ let CollaborationGateway = CollaborationGateway_1 = class CollaborationGateway {
             const documentState = await this.collaborationService.getDocumentState(data.documentId);
             if (documentState) {
                 client.send(JSON.stringify({
-                    type: 'document-state',
+                    type: "document-state",
                     documentId: data.documentId,
                     state: Array.from(documentState),
                 }));
             }
         }
         catch (error) {
-            this.logger.error('Error joining document:', error);
+            this.logger.error("Error joining document:", error);
         }
     }
     async handleLeaveDocument(data) {
@@ -76,7 +77,7 @@ let CollaborationGateway = CollaborationGateway_1 = class CollaborationGateway {
             await this.collaborationService.leaveDocument(data.documentId, data.userId);
         }
         catch (error) {
-            this.logger.error('Error leaving document:', error);
+            this.logger.error("Error leaving document:", error);
         }
     }
 };
@@ -86,7 +87,7 @@ __decorate([
     __metadata("design:type", ws_1.Server)
 ], CollaborationGateway.prototype, "server", void 0);
 __decorate([
-    (0, websockets_1.SubscribeMessage)('sync-document'),
+    (0, websockets_1.SubscribeMessage)("sync-document"),
     __param(0, (0, websockets_1.MessageBody)()),
     __param(1, (0, websockets_1.ConnectedSocket)()),
     __metadata("design:type", Function),
@@ -94,7 +95,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CollaborationGateway.prototype, "handleDocumentSync", null);
 __decorate([
-    (0, websockets_1.SubscribeMessage)('join-document'),
+    (0, websockets_1.SubscribeMessage)("join-document"),
     __param(0, (0, websockets_1.MessageBody)()),
     __param(1, (0, websockets_1.ConnectedSocket)()),
     __metadata("design:type", Function),
@@ -102,7 +103,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CollaborationGateway.prototype, "handleJoinDocument", null);
 __decorate([
-    (0, websockets_1.SubscribeMessage)('leave-document'),
+    (0, websockets_1.SubscribeMessage)("leave-document"),
     __param(0, (0, websockets_1.MessageBody)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -110,7 +111,7 @@ __decorate([
 ], CollaborationGateway.prototype, "handleLeaveDocument", null);
 exports.CollaborationGateway = CollaborationGateway = CollaborationGateway_1 = __decorate([
     (0, websockets_1.WebSocketGateway)({
-        path: '/collaboration',
+        path: "/collaboration",
     }),
     __metadata("design:paramtypes", [collaboration_service_1.CollaborationService])
 ], CollaborationGateway);
