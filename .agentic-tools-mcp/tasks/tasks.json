@@ -707,14 +707,14 @@
       "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
       "completed": false,
       "createdAt": "2025-07-27T23:12:41.763Z",
-      "updatedAt": "2025-07-27T23:12:41.763Z",
+      "updatedAt": "2025-07-28T04:48:03.003Z",
       "dependsOn": [
         "974b3fa5-fe84-4a02-91f1-b43ba17ce96e",
         "ba821342-e6a2-4945-8e28-78f03b3873dd"
       ],
       "priority": 8,
       "complexity": 4,
-      "status": "pending",
+      "status": "done",
       "tags": [
         "accessibility",
         "testing",
@@ -723,7 +723,8 @@
         "audit"
       ],
       "estimatedHours": 6,
-      "level": 0
+      "level": 0,
+      "actualHours": 3
     },
     {
       "id": "8671a6dc-e4bc-4dfb-a181-154f0b7a2dc6",
