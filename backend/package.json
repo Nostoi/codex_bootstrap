@@ -21,7 +21,10 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
-    "db:seed": "ts-node prisma/seed.ts"
+    "db:seed": "ts-node prisma/seed.ts",
+    "migration:backfill-tasks": "ts-node prisma/scripts/backfill-task-metadata.ts",
+    "migration:backfill-tasks:dry-run": "ts-node prisma/scripts/backfill-task-metadata.ts --dry-run",
+    "migration:backfill-tasks:rollback": "ts-node prisma/scripts/backfill-task-metadata.ts --rollback"
   },
   "dependencies": {
     "@microsoft/microsoft-graph-client": "^3.0.0",

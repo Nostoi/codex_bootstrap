@@ -10,6 +10,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Helmsman enums for ADHD-optimized task management
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  BLOCKED
+  DONE
+}
+
+enum EnergyLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum FocusType {
+  CREATIVE
+  TECHNICAL
+  ADMINISTRATIVE
+  SOCIAL
+}
+
+enum TaskSource {
+  SELF
+  BOSS
+  TEAM
+  AI_GENERATED
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -93,8 +121,22 @@ model Project {
 model Task {
   id          String   @id @default(cuid())
   title       String
+  description String?
   completed   Boolean  @default(false)
+  status      TaskStatus @default(TODO)
   dueDate     DateTime?
+  
+  // Helmsman metadata fields for ADHD-optimized scheduling
+  energyLevel     EnergyLevel?
+  focusType      FocusType?
+  estimatedMinutes Int?
+  priority       Int? @default(3)
+  softDeadline   DateTime?
+  hardDeadline   DateTime?
+  source         TaskSource? @default(SELF)
+  aiSuggestion   String?
+  
+  // Relationships
   projectId   String?
   project     Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
   ownerId     String
@@ -137,7 +179,15 @@ model InteractionLog {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  action    String
+  
+  // Enhanced for Mem0 integration and contextual AI
+  action          String   // Legacy field for backward compatibility
+  interactionType String?  // 'task_creation', 'ai_query', 'plan_generation', etc.
+  input          String?  // User input or query
+  output         String?  // AI response or result
+  metadata       Json?    // Additional context for semantic memory
+  confidence     Float?   // AI confidence score (0-1)
+  
   createdAt DateTime @default(now())
 
   @@map("interaction_logs")
@@ -147,7 +197,16 @@ model UserSettings {
   id        String   @id @default(cuid())
   userId    String   @unique
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  theme     String?  @default("light")
+  
+  // ADHD-optimized user preferences
+  theme               String?  @default("light")
+  morningEnergyLevel  EnergyLevel? @default(HIGH)
+  afternoonEnergyLevel EnergyLevel? @default(MEDIUM)
+  workStartTime       String? @default("09:00")
+  workEndTime         String? @default("17:00")
+  focusSessionLength  Int? @default(90) // minutes
+  preferredFocusTypes String[] // JSON array of focus types
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

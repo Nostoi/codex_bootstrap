@@ -1,9 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing'
-import { ProjectsService } from './projects.service'
-import { PrismaService } from '../prisma/prisma.service'
+import { Test, TestingModule } from "@nestjs/testing";
+import { ProjectsService } from "./projects.service";
+import { PrismaService } from "../prisma/prisma.service";
 
-describe('ProjectsService', () => {
-  let service: ProjectsService
+describe("ProjectsService", () => {
+  let service: ProjectsService;
   const mockPrisma = {
     project: {
       create: jest.fn(),
@@ -12,7 +12,7 @@ describe('ProjectsService', () => {
       update: jest.fn(),
       delete: jest.fn(),
     },
-  }
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -20,20 +20,20 @@ describe('ProjectsService', () => {
         ProjectsService,
         { provide: PrismaService, useValue: mockPrisma },
       ],
-    }).compile()
+    }).compile();
 
-    service = module.get<ProjectsService>(ProjectsService)
-  })
+    service = module.get<ProjectsService>(ProjectsService);
+  });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined()
-  })
+  it("should be defined", () => {
+    expect(service).toBeDefined();
+  });
 
-  it('should return all projects', async () => {
-    const projects = [{ id: '1', name: 'Proj' }]
-    mockPrisma.project.findMany.mockResolvedValue(projects)
-    const result = await service.findAll()
-    expect(result).toEqual(projects)
-    expect(mockPrisma.project.findMany).toHaveBeenCalled()
-  })
-})
+  it("should return all projects", async () => {
+    const projects = [{ id: "1", name: "Proj" }];
+    mockPrisma.project.findMany.mockResolvedValue(projects);
+    const result = await service.findAll();
+    expect(result).toEqual(projects);
+    expect(mockPrisma.project.findMany).toHaveBeenCalled();
+  });
+});

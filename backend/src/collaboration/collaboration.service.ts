@@ -1,7 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { WebSocket } from 'ws';
-import * as Y from 'yjs';
+import { Injectable, Logger } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import { WebSocket } from "ws";
+import * as Y from "yjs";
 
 @Injectable()
 export class CollaborationService {
@@ -13,7 +13,7 @@ export class CollaborationService {
 
   async handleClientConnect(documentId: string, client: WebSocket) {
     this.logger.log(`Client connected to document: ${documentId}`);
-    
+
     if (!this.clientConnections.has(client)) {
       this.clientConnections.set(client, []);
     }
@@ -22,7 +22,7 @@ export class CollaborationService {
 
   handleClientDisconnect(client: WebSocket) {
     const documentIds = this.clientConnections.get(client) || [];
-    documentIds.forEach(docId => {
+    documentIds.forEach((docId) => {
       this.logger.log(`Client disconnected from document: ${docId}`);
     });
     this.clientConnections.delete(client);
@@ -35,12 +35,12 @@ export class CollaborationService {
       if (!ydoc) {
         ydoc = new Y.Doc();
         this.documents.set(documentId, ydoc);
-        
+
         // Load existing state from database
         const document = await this.prisma.document.findUnique({
           where: { id: documentId },
         });
-        
+
         if (document?.yjsState) {
           Y.applyUpdate(ydoc, document.yjsState);
         }
@@ -55,7 +55,6 @@ export class CollaborationService {
         where: { id: documentId },
         data: { yjsState: Buffer.from(state) },
       });
-
     } catch (error) {
       this.logger.error(`Error syncing document ${documentId}:`, error);
       throw error;
@@ -80,7 +79,7 @@ export class CollaborationService {
         const newYdoc = new Y.Doc();
         Y.applyUpdate(newYdoc, document.yjsState);
         this.documents.set(documentId, newYdoc);
-        
+
         return document.yjsState;
       }
 

@@ -1,16 +1,16 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable } from "@nestjs/common";
 
 export interface MetricLog {
-  id: number
-  userId: string
-  action: string
-  timestamp: Date
+  id: number;
+  userId: string;
+  action: string;
+  timestamp: Date;
 }
 
 @Injectable()
 export class MetricsService {
-  private logs: MetricLog[] = []
-  private nextId = 1
+  private logs: MetricLog[] = [];
+  private nextId = 1;
 
   record(userId: string, action: string): MetricLog {
     const log: MetricLog = {
@@ -18,16 +18,16 @@ export class MetricsService {
       userId,
       action,
       timestamp: new Date(),
-    }
-    this.logs.push(log)
-    return log
+    };
+    this.logs.push(log);
+    return log;
   }
 
   countByAction(action: string): number {
-    return this.logs.filter((l) => l.action === action).length
+    return this.logs.filter((l) => l.action === action).length;
   }
 
   all(): MetricLog[] {
-    return [...this.logs]
+    return [...this.logs];
   }
 }
