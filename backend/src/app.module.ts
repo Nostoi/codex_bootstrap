@@ -15,6 +15,7 @@ import { AiModule } from "./ai/ai.module";
 import { MetricsModule } from "./metrics/metrics.module";
 import { SecurityModule } from "./security/security.module";
 import { PlanningModule } from "./planning/planning.module";
+import { FeatureFlagsModule } from "./features/feature-flags.module";
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { PlanningModule } from "./planning/planning.module";
     MetricsModule,
     SecurityModule,
     PlanningModule,
+    FeatureFlagsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

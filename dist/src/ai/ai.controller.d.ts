@@ -6,5 +6,11 @@ export declare class AiController {
     generateTasks(dto: TaskGenerationDto): Promise<import("./interfaces/openai.interfaces").OpenAIResponse<import("./interfaces/openai.interfaces").Task[]>>;
     getSuggestions(dto: SuggestionRequestDto): Promise<import("./interfaces/openai.interfaces").OpenAIResponse<import("./interfaces/openai.interfaces").Suggestion[]>>;
     summarize(dto: SummarizationDto): Promise<import("./interfaces/openai.interfaces").OpenAIResponse<import("./interfaces/openai.interfaces").SummaryResponse>>;
+    classifyTask(description: string): Promise<import("./interfaces/openai.interfaces").OpenAIResponse<any>>;
+    healthCheck(): Promise<{
+        status: string;
+        timestamp: Date;
+        version: string;
+    }>;
     chatCompletion(dto: OpenAIChatCompletionDto): Promise<import("./interfaces/openai.interfaces").OpenAIResponse<string>>;
 }

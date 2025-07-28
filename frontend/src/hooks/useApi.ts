@@ -159,12 +159,12 @@ export function useRefreshDailyPlan() {
   return useMutation({
     mutationFn: (date?: string) => {
       const planDate = date || new Date().toISOString().split('T')[0];
-      return api.get<DailyPlanResponse>(`/plans/today${date ? `?date=${date}` : ''}`)
+      return api.get<DailyPlanResponse>(`/plans/today?date=${planDate}`)
     },
     onSuccess: (data, variables) => {
-      const planDate = variables || new Date().toISOString().split('T')[0];
-      queryClient.setQueryData(queryKeys.dailyPlan(planDate), data)
-      queryClient.invalidateQueries({ queryKey: queryKeys.dailyPlan(planDate) })
+      const mutationPlanDate = variables || new Date().toISOString().split('T')[0];
+      queryClient.setQueryData(queryKeys.dailyPlan(mutationPlanDate), data)
+      queryClient.invalidateQueries({ queryKey: queryKeys.dailyPlan(mutationPlanDate) })
     },
   })
 }

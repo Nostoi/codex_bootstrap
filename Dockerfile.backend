@@ -19,9 +19,17 @@ RUN npx prisma generate
 ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /wait-for-it.sh
 RUN chmod +x /wait-for-it.sh
 
+# Build the application
+RUN npm run build
+
 # Set NODE_PATH to ensure module resolution works correctly
 ENV NODE_PATH=/app/node_modules
 
+# Add health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:8000/health || exit 1
+
 EXPOSE 8000
-# Wait for database, push schema, and start development server
-CMD ["/wait-for-it.sh", "db:5432", "--timeout=30", "--", "sh", "-c", "npx prisma db push && NODE_PATH=/app/node_modules npm run start:dev"]
+
+# Production command with proper migrations and feature flags support
+CMD ["/wait-for-it.sh", "db:5432", "--timeout=30", "--", "sh", "-c", "npx prisma migrate deploy && npm run start:prod"]

@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Post,
+  Get,
   ValidationPipe,
   UsePipes,
 } from "@nestjs/common";
@@ -33,6 +34,17 @@ export class AiController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async summarize(@Body() dto: SummarizationDto) {
     return this.aiService.summarize(dto);
+  }
+
+  @Post("tasks/classify")
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async classifyTask(@Body('description') description: string) {
+    return this.aiService.classifyTask(description);
+  }
+
+  @Get("health")
+  async healthCheck() {
+    return this.aiService.healthCheck();
   }
 
   @Post("chat")

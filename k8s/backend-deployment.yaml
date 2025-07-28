@@ -3,8 +3,16 @@ kind: Deployment
 metadata:
   name: codex-backend
   namespace: codex-bootstrap
+  labels:
+    app: codex-backend
+    version: v1.0.0
 spec:
-  replicas: 1
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
   selector:
     matchLabels:
       app: codex-backend
@@ -12,6 +20,7 @@ spec:
     metadata:
       labels:
         app: codex-backend
+        version: v1.0.0
     spec:
       containers:
         - name: backend
@@ -19,12 +28,85 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
+              name: http
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "8000"
+            # Feature Flags Configuration
+            - name: FF_ENHANCED_TASK_METADATA
+              valueFrom:
+                configMapKeyRef:
+                  name: feature-flags-config
+                  key: enhanced-task-metadata
+            - name: FF_AI_TASK_EXTRACTION
+              valueFrom:
+                configMapKeyRef:
+                  name: feature-flags-config
+                  key: ai-task-extraction
+            - name: FF_DAILY_PLANNING
+              valueFrom:
+                configMapKeyRef:
+                  name: feature-flags-config
+                  key: daily-planning
+            - name: FF_MEM0_INTEGRATION
+              valueFrom:
+                configMapKeyRef:
+                  name: feature-flags-config
+                  key: mem0-integration
+            - name: FF_ADVANCED_AI_FEATURES
+              valueFrom:
+                configMapKeyRef:
+                  name: feature-flags-config
+                  key: advanced-ai-features
+            # Database Configuration
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: url
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secret
+                  key: jwt-secret
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: openai-secret
+                  key: api-key
+          resources:
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: codex-backend
   namespace: codex-bootstrap
+  labels:
+    app: codex-backend
 spec:
   selector:
     app: codex-backend
@@ -32,4 +114,5 @@ spec:
     - protocol: TCP
       port: 8000
       targetPort: 8000
+      name: http
   type: ClusterIP

@@ -1,0 +1,75 @@
+# Docker Compose override for production environment
+version: '3.8'
+
+services:
+  backend:
+    environment:
+      - NODE_ENV=production
+      - PORT=8000
+      # Feature flags for production - gradual rollout
+      - FF_ENHANCED_TASK_METADATA=true
+      - FF_AI_TASK_EXTRACTION=true
+      - FF_DAILY_PLANNING=false  # Disabled until thoroughly tested
+      - FF_MEM0_INTEGRATION=false  # Disabled until implemented
+      - FF_ADVANCED_AI_FEATURES=false  # Disabled until dependencies ready
+    volumes:
+      # Mount production environment file
+      - ./backend/.env.production:/app/.env:ro
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    
+  frontend:
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+      - NEXT_PUBLIC_APP_VERSION=0.1.0
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    
+  db:
+    environment:
+      - POSTGRES_DB=helmsman_production
+    volumes:
+      - postgres_production_data:/var/lib/postgresql/data
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  # Production monitoring and backup services
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+    restart: always
+
+volumes:
+  postgres_production_data:
+  prometheus_data:

@@ -1,0 +1,35 @@
+# Docker Compose override for staging environment
+version: '3.8'
+
+services:
+  backend:
+    environment:
+      - NODE_ENV=staging
+      - PORT=8000
+      # Feature flags for staging - conservative approach
+      - FF_ENHANCED_TASK_METADATA=true
+      - FF_AI_TASK_EXTRACTION=true  
+      - FF_DAILY_PLANNING=false
+      - FF_MEM0_INTEGRATION=false
+      - FF_ADVANCED_AI_FEATURES=false
+    volumes:
+      # Mount staging environment file
+      - ./backend/.env.staging:/app/.env:ro
+    restart: unless-stopped
+    
+  frontend:
+    environment:
+      - NODE_ENV=staging
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+      - NEXT_PUBLIC_APP_VERSION=0.1.0-staging
+    restart: unless-stopped
+    
+  db:
+    environment:
+      - POSTGRES_DB=helmsman_staging
+    volumes:
+      - postgres_staging_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_staging_data:

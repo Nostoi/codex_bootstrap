@@ -250,7 +250,7 @@ export const MinimalContent: Story = {
         </h1>
         <p className="text-text-secondary">
           This story demonstrates the AppShell with minimal content to test
-          the layout behavior when there's not much to display.
+          the layout behavior when there&apos;s not much to display.
         </p>
       </div>
     ),

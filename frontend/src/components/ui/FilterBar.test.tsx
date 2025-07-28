@@ -28,6 +28,7 @@ const activeFilters: FilterValues = {
 
 describe('FilterBar', () => {
   let mockOnFiltersChange: ReturnType<typeof vi.fn>;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let mockOnClear: ReturnType<typeof vi.fn>;
   let mockOnReset: ReturnType<typeof vi.fn>;
 
@@ -977,10 +978,6 @@ describe('FilterBar', () => {
       const expandButton = screen.getByLabelText('Expand filters');
       
       // Check initial state - in compact mode, the filter sections should be collapsed
-      const filterContainer = screen.getByTestId?.('filter-sections') || 
-                            screen.getByLabelText('Filter tasks').querySelector('[data-testid="filter-sections"]') ||
-                            screen.getByLabelText('Filter tasks').querySelector('.grid');
-      
       // Initially the grid container should have hidden class or be visually hidden
       // We'll check if the expand button shows 'Expand' initially
       expect(expandButton).toHaveAttribute('aria-label', 'Expand filters');

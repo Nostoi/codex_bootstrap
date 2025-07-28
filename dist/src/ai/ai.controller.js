@@ -29,6 +29,12 @@ let AiController = class AiController {
     async summarize(dto) {
         return this.aiService.summarize(dto);
     }
+    async classifyTask(description) {
+        return this.aiService.classifyTask(description);
+    }
+    async healthCheck() {
+        return this.aiService.healthCheck();
+    }
     async chatCompletion(dto) {
         return this.aiService.chatCompletion({
             messages: dto.messages,
@@ -65,6 +71,20 @@ __decorate([
     __metadata("design:paramtypes", [openai_dto_1.SummarizationDto]),
     __metadata("design:returntype", Promise)
 ], AiController.prototype, "summarize", null);
+__decorate([
+    (0, common_1.Post)("tasks/classify"),
+    (0, common_1.UsePipes)(new common_1.ValidationPipe({ transform: true })),
+    __param(0, (0, common_1.Body)('description')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AiController.prototype, "classifyTask", null);
+__decorate([
+    (0, common_1.Get)("health"),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AiController.prototype, "healthCheck", null);
 __decorate([
     (0, common_1.Post)("chat"),
     (0, common_1.UsePipes)(new common_1.ValidationPipe({ transform: true })),

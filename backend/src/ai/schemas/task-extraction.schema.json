@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TaskExtractionSchema",
+  "type": "object",
+  "properties": {
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "priority": { "type": "integer", "minimum": 1, "maximum": 10 },
+          "estimatedHours": { "type": "number", "minimum": 0.1 },
+          "dependencies": { 
+            "type": "array", 
+            "items": { "type": "string" },
+            "default": []
+          },
+          "tags": { 
+            "type": "array", 
+            "items": { "type": "string" },
+            "default": []
+          }
+        },
+        "required": ["id", "name", "description", "priority", "estimatedHours"]
+      }
+    }
+  },
+  "required": ["tasks"]
+}

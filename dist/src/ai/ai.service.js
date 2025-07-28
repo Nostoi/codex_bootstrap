@@ -17,6 +17,7 @@ const openai_1 = require("openai");
 const mem0_service_1 = require("./mem0.service");
 const retry_service_1 = require("./services/retry.service");
 const openai_exceptions_1 = require("./exceptions/openai.exceptions");
+const validate_1 = require("./schemas/validate");
 let AiService = AiService_1 = class AiService {
     constructor(configService, mem0Service, retryService) {
         this.configService = configService;
@@ -31,6 +32,8 @@ let AiService = AiService_1 = class AiService {
             project: this.config.project,
             timeout: this.config.timeout,
         });
+        this.taskExtractionValidator = (0, validate_1.getTaskExtractionValidator)();
+        this.taskClassificationValidator = (0, validate_1.getTaskClassificationValidator)();
     }
     loadConfig() {
         return {
@@ -83,6 +86,42 @@ let AiService = AiService_1 = class AiService {
         }
         catch (error) {
             this.logger.error("Error generating tasks:", error);
+            throw this.handleError(error);
+        }
+    }
+    async classifyTask(taskDescription) {
+        const prompt = this.buildTaskClassificationPrompt(taskDescription);
+        const messages = [
+            {
+                role: "system",
+                content: "You are a task classification assistant. Analyze the task and predict metadata in valid JSON format.",
+            },
+            {
+                role: "user",
+                content: prompt,
+            },
+        ];
+        try {
+            const startTime = Date.now();
+            const response = await this.chatCompletion({
+                messages,
+                model: this.config.defaultModel,
+                temperature: 0.3,
+                maxTokens: 500,
+                jsonMode: true,
+            });
+            const classification = this.parseTaskClassificationResponse(response.data);
+            await this.mem0Service.storeInteraction(`Task classification for: ${taskDescription}. Predicted metadata.`);
+            return {
+                data: classification,
+                usage: response.usage,
+                model: response.model,
+                requestId: response.requestId,
+                processingTimeMs: Date.now() - startTime,
+            };
+        }
+        catch (error) {
+            this.logger.error("Error classifying task:", error);
             throw this.handleError(error);
         }
     }
@@ -189,6 +228,36 @@ let AiService = AiService_1 = class AiService {
         };
         return this.retryService.executeWithRetry(operation, this.config.retry, "OpenAI Chat Completion");
     }
+    async healthCheck() {
+        try {
+            const testMessages = [
+                {
+                    role: "user",
+                    content: "Respond with 'OK' if you can hear me.",
+                },
+            ];
+            const response = await this.chatCompletion({
+                messages: testMessages,
+                model: this.config.defaultModel,
+                temperature: 0,
+                maxTokens: 10,
+            });
+            const isHealthy = response.data && response.data.trim().toLowerCase().includes('ok');
+            return {
+                status: isHealthy ? 'healthy' : 'degraded',
+                timestamp: new Date(),
+                version: '1.0.0'
+            };
+        }
+        catch (error) {
+            this.logger.error("Health check failed:", error.message);
+            return {
+                status: 'unhealthy',
+                timestamp: new Date(),
+                version: '1.0.0'
+            };
+        }
+    }
     async completion(request) {
         const chatRequest = {
             messages: [{ role: "user", content: request.prompt }],
@@ -287,15 +356,126 @@ Example format:
 }
     `.trim();
     }
+    buildTaskClassificationPrompt(taskDescription) {
+        return `
+Analyze the following task and predict its metadata characteristics:
+
+Task: ${taskDescription}
+
+Based on the task description, predict the following metadata in JSON format:
+- energyLevel: "LOW", "MEDIUM", or "HIGH" (mental energy required)
+- focusType: "CREATIVE", "TECHNICAL", "ADMINISTRATIVE", or "SOCIAL" 
+- estimatedMinutes: estimated time in minutes (number)
+- priority: priority level 1-5 (number, where 5 is highest)
+- softDeadline: suggested deadline if applicable (ISO date string or null)
+- hardDeadline: absolute deadline if applicable (ISO date string or null)
+- source: "SELF", "BOSS", "TEAM", or "AI_GENERATED"
+- aiSuggestion: helpful tip or suggestion for completing this task (string)
+
+Return only valid JSON in this format:
+{
+  "energyLevel": "MEDIUM",
+  "focusType": "TECHNICAL",
+  "estimatedMinutes": 60,
+  "priority": 3,
+  "softDeadline": null,
+  "hardDeadline": null,
+  "source": "AI_GENERATED",
+  "aiSuggestion": "Break this task into smaller chunks for better focus"
+}
+    `.trim();
+    }
+    parseTaskClassificationResponse(response) {
+        try {
+            const parsed = JSON.parse(response);
+            const isValid = this.taskClassificationValidator(parsed);
+            if (!isValid) {
+                this.logger.warn("Task classification response failed schema validation:", this.taskClassificationValidator.errors);
+                return {
+                    energyLevel: "MEDIUM",
+                    focusType: "TECHNICAL",
+                    estimatedMinutes: 60,
+                    priority: 3,
+                    softDeadline: null,
+                    hardDeadline: null,
+                    source: "AI_GENERATED",
+                    aiSuggestion: "Task classification data unavailable"
+                };
+            }
+            return parsed;
+        }
+        catch (error) {
+            this.logger.warn("Failed to parse task classification response as JSON:", error.message);
+            return {
+                energyLevel: "MEDIUM",
+                focusType: "TECHNICAL",
+                estimatedMinutes: 60,
+                priority: 3,
+                softDeadline: null,
+                hardDeadline: null,
+                source: "AI_GENERATED",
+                aiSuggestion: "Task classification data unavailable"
+            };
+        }
+    }
     parseTasksResponse(response) {
         try {
             const parsed = JSON.parse(response);
+            const isValid = this.taskExtractionValidator(parsed);
+            if (!isValid) {
+                this.logger.warn("Task extraction response failed schema validation:", this.taskExtractionValidator.errors);
+                const repairedTasks = this.repairTasksResponse(parsed);
+                if (repairedTasks.length > 0) {
+                    this.logger.log(`Repaired ${repairedTasks.length} tasks from malformed response`);
+                    return repairedTasks;
+                }
+                return [];
+            }
             return parsed.tasks || [];
         }
         catch (error) {
-            this.logger.warn("Failed to parse tasks response as JSON, falling back to text");
+            this.logger.warn("Failed to parse tasks response as JSON:", error.message);
             return [];
         }
+    }
+    repairTasksResponse(parsed) {
+        try {
+            let tasks = parsed.tasks || parsed || [];
+            if (!Array.isArray(tasks)) {
+                tasks = [tasks];
+            }
+            return tasks
+                .map((task) => this.repairSingleTask(task))
+                .filter((task) => task !== null);
+        }
+        catch (error) {
+            this.logger.warn("Failed to repair tasks response:", error.message);
+            return [];
+        }
+    }
+    repairSingleTask(task) {
+        try {
+            if (!task || typeof task !== 'object') {
+                return null;
+            }
+            const repairedTask = {
+                id: task.id || `generated_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                name: task.name || task.title || "Untitled Task",
+                description: task.description || "",
+                priority: this.validatePriority(task.priority) ? task.priority : 3,
+                estimatedHours: typeof task.estimatedHours === 'number' && task.estimatedHours > 0 ? task.estimatedHours : 2,
+                dependencies: Array.isArray(task.dependencies) ? task.dependencies : [],
+                tags: Array.isArray(task.tags) ? task.tags : [],
+            };
+            return repairedTask;
+        }
+        catch (error) {
+            this.logger.warn("Failed to repair single task:", error.message);
+            return null;
+        }
+    }
+    validatePriority(priority) {
+        return typeof priority === 'number' && priority >= 1 && priority <= 5;
     }
     parseSuggestionsResponse(response) {
         try {

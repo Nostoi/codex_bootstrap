@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: feature-flags-config
+  namespace: codex-bootstrap
+  labels:
+    app: helmsman
+    component: feature-flags
+data:
+  # Feature flag configuration for production deployment
+  # These values can be updated without redeploying the application
+  enhanced-task-metadata: "true"
+  ai-task-extraction: "true"
+  daily-planning: "false"
+  mem0-integration: "false"
+  advanced-ai-features: "false"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: database-secret
+  namespace: codex-bootstrap
+  labels:
+    app: helmsman
+    component: database
+type: Opaque
+data:
+  # Base64 encoded database URL
+  # Replace with actual production database URL
+  url: cG9zdGdyZXNxbDovL3VzZXI6cGFzc3dvcmRAbG9jYWxob3N0OjU0MzIvaGVsbXNtYW4=
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: auth-secret
+  namespace: codex-bootstrap
+  labels:
+    app: helmsman
+    component: auth
+type: Opaque
+data:
+  # Base64 encoded JWT secret (generate a strong secret for production)
+  jwt-secret: eW91cl9zdHJvbmdfand0X3NlY3JldF9oZXJlXzY0X2NoYXJhY3RlcnNfbWluaW11bQ==
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: openai-secret
+  namespace: codex-bootstrap
+  labels:
+    app: helmsman
+    component: ai
+type: Opaque
+data:
+  # Base64 encoded OpenAI API key
+  # Replace with actual production API key
+  api-key: eW91cl9vcGVuYWlfYXBpX2tleV9oZXJl
