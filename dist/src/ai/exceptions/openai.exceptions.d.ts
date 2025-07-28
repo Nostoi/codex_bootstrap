@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus } from "@nestjs/common";
 export declare class OpenAIException extends HttpException {
     constructor(message: string, status?: HttpStatus, code?: string, details?: any);
 }

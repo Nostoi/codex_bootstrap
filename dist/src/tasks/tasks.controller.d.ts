@@ -1,6 +1,6 @@
 import { TasksService } from "./tasks.service";
-import { CreateTaskDto, UpdateTaskDto, CreateDependencyRequestDto, CreateUserSettingsDto, UpdateUserSettingsDto } from './dto';
-import { Task, TaskDependency, UserSettings } from '@prisma/client';
+import { CreateTaskDto, UpdateTaskDto, CreateDependencyRequestDto, CreateUserSettingsDto, UpdateUserSettingsDto } from "./dto";
+import { Task, TaskDependency, UserSettings } from "@prisma/client";
 export declare class TasksController {
     private readonly tasksService;
     constructor(tasksService: TasksService);

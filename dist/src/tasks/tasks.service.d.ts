@@ -1,6 +1,6 @@
-import { PrismaService } from '../prisma/prisma.service';
-import { Task, TaskDependency, UserSettings } from '@prisma/client';
-import { CreateTaskDto, UpdateTaskDto, CreateTaskDependencyDto, CreateUserSettingsDto, UpdateUserSettingsDto } from './dto';
+import { PrismaService } from "../prisma/prisma.service";
+import { Task, TaskDependency, UserSettings } from "@prisma/client";
+import { CreateTaskDto, UpdateTaskDto, CreateTaskDependencyDto, CreateUserSettingsDto, UpdateUserSettingsDto } from "./dto";
 export declare class TasksService {
     private prisma;
     constructor(prisma: PrismaService);

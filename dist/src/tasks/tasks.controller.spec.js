@@ -30,37 +30,37 @@ describe("TasksController", () => {
         expect(controller).toBeDefined();
     });
     it("gets tasks", async () => {
-        const mockTasks = [{ id: '1', title: 'Test' }];
+        const mockTasks = [{ id: "1", title: "Test" }];
         mockTasksService.findAll.mockResolvedValue(mockTasks);
         const result = await controller.getTasks();
         expect(result).toEqual(mockTasks);
         expect(mockTasksService.findAll).toHaveBeenCalledWith(undefined);
     });
     it("gets tasks with owner filter", async () => {
-        const ownerId = 'user123';
+        const ownerId = "user123";
         mockTasksService.findAll.mockResolvedValue([]);
         await controller.getTasks(ownerId);
         expect(mockTasksService.findAll).toHaveBeenCalledWith(ownerId);
     });
     it("gets single task", async () => {
-        const taskId = '1';
-        const mockTask = { id: taskId, title: 'Test' };
+        const taskId = "1";
+        const mockTask = { id: taskId, title: "Test" };
         mockTasksService.findOne.mockResolvedValue(mockTask);
         const result = await controller.getTask(taskId);
         expect(result).toEqual(mockTask);
         expect(mockTasksService.findOne).toHaveBeenCalledWith(taskId);
     });
     it("creates task", async () => {
-        const createTaskDto = { title: 'New Task' };
-        const ownerId = 'user123';
-        const mockCreatedTask = { id: '1', ...createTaskDto };
+        const createTaskDto = { title: "New Task" };
+        const ownerId = "user123";
+        const mockCreatedTask = { id: "1", ...createTaskDto };
         mockTasksService.create.mockResolvedValue(mockCreatedTask);
         const result = await controller.createTask(createTaskDto, ownerId);
         expect(result).toEqual(mockCreatedTask);
         expect(mockTasksService.create).toHaveBeenCalledWith(createTaskDto, ownerId);
     });
     it("toggles task", async () => {
-        const taskId = '1';
+        const taskId = "1";
         const mockToggledTask = { id: taskId, completed: true };
         mockTasksService.toggle.mockResolvedValue(mockToggledTask);
         const result = await controller.toggleTask(taskId);
@@ -90,8 +90,8 @@ describe("UserSettingsController", () => {
         expect(controller).toBeDefined();
     });
     it("gets user settings", async () => {
-        const userId = 'user123';
-        const mockSettings = { id: '1', userId };
+        const userId = "user123";
+        const mockSettings = { id: "1", userId };
         mockTasksService.findUserSettings.mockResolvedValue(mockSettings);
         const result = await controller.getUserSettings(userId);
         expect(result).toEqual(mockSettings);

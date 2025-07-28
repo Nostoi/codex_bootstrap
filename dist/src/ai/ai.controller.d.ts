@@ -1,5 +1,5 @@
-import { AiService } from './ai.service';
-import { TaskGenerationDto, SuggestionRequestDto, SummarizationDto, OpenAIChatCompletionDto } from './dto/openai.dto';
+import { AiService } from "./ai.service";
+import { TaskGenerationDto, SuggestionRequestDto, SummarizationDto, OpenAIChatCompletionDto } from "./dto/openai.dto";
 export declare class AiController {
     private readonly aiService;
     constructor(aiService: AiService);

@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const testing_1 = require("@nestjs/testing");
 const retry_service_1 = require("./retry.service");
 const openai_exceptions_1 = require("../exceptions/openai.exceptions");
-describe('RetryService', () => {
+describe("RetryService", () => {
     let service;
     beforeEach(async () => {
         const module = await testing_1.Test.createTestingModule({
@@ -11,12 +11,12 @@ describe('RetryService', () => {
         }).compile();
         service = module.get(retry_service_1.RetryService);
     });
-    it('should be defined', () => {
+    it("should be defined", () => {
         expect(service).toBeDefined();
     });
-    describe('executeWithRetry', () => {
-        it('should succeed on first attempt', async () => {
-            const operation = jest.fn().mockResolvedValue('success');
+    describe("executeWithRetry", () => {
+        it("should succeed on first attempt", async () => {
+            const operation = jest.fn().mockResolvedValue("success");
             const config = {
                 maxRetries: 3,
                 baseDelay: 100,
@@ -25,13 +25,14 @@ describe('RetryService', () => {
                 retryableStatusCodes: [429, 500, 502, 503, 504],
             };
             const result = await service.executeWithRetry(operation, config);
-            expect(result).toBe('success');
+            expect(result).toBe("success");
             expect(operation).toHaveBeenCalledTimes(1);
         });
-        it('should retry on retryable errors', async () => {
-            const operation = jest.fn()
-                .mockRejectedValueOnce(new Error('Retryable error'))
-                .mockResolvedValue('success');
+        it("should retry on retryable errors", async () => {
+            const operation = jest
+                .fn()
+                .mockRejectedValueOnce(new Error("Retryable error"))
+                .mockResolvedValue("success");
             const config = {
                 maxRetries: 3,
                 baseDelay: 10,
@@ -40,11 +41,12 @@ describe('RetryService', () => {
                 retryableStatusCodes: [429, 500, 502, 503, 504],
             };
             const result = await service.executeWithRetry(operation, config);
-            expect(result).toBe('success');
+            expect(result).toBe("success");
             expect(operation).toHaveBeenCalledTimes(2);
         });
-        it('should not retry on non-retryable errors', async () => {
-            const operation = jest.fn()
+        it("should not retry on non-retryable errors", async () => {
+            const operation = jest
+                .fn()
                 .mockRejectedValue(new openai_exceptions_1.OpenAIUnauthorizedException());
             const config = {
                 maxRetries: 3,
@@ -53,12 +55,11 @@ describe('RetryService', () => {
                 backoffMultiplier: 2,
                 retryableStatusCodes: [429, 500, 502, 503, 504],
             };
-            await expect(service.executeWithRetry(operation, config))
-                .rejects.toThrow(openai_exceptions_1.OpenAIUnauthorizedException);
+            await expect(service.executeWithRetry(operation, config)).rejects.toThrow(openai_exceptions_1.OpenAIUnauthorizedException);
             expect(operation).toHaveBeenCalledTimes(1);
         });
-        it('should throw after max retries', async () => {
-            const error = new Error('Persistent error');
+        it("should throw after max retries", async () => {
+            const error = new Error("Persistent error");
             const operation = jest.fn().mockRejectedValue(error);
             const config = {
                 maxRetries: 2,
@@ -67,8 +68,7 @@ describe('RetryService', () => {
                 backoffMultiplier: 2,
                 retryableStatusCodes: [429, 500, 502, 503, 504],
             };
-            await expect(service.executeWithRetry(operation, config))
-                .rejects.toThrow('Persistent error');
+            await expect(service.executeWithRetry(operation, config)).rejects.toThrow("Persistent error");
             expect(operation).toHaveBeenCalledTimes(3);
         });
     });

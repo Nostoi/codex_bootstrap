@@ -13,7 +13,7 @@ exports.SummarizationDto = exports.SuggestionRequestDto = exports.TaskGeneration
 const class_validator_1 = require("class-validator");
 class OpenAICompletionDto {
     constructor() {
-        this.model = 'gpt-4o-mini';
+        this.model = "gpt-4o-mini";
         this.temperature = 0.7;
         this.maxTokens = 1000;
         this.stream = false;
@@ -67,7 +67,7 @@ __decorate([
 ], OpenAIChatMessageDto.prototype, "content", void 0);
 class OpenAIChatCompletionDto {
     constructor() {
-        this.model = 'gpt-4o-mini';
+        this.model = "gpt-4o-mini";
         this.temperature = 0.7;
         this.maxTokens = 1000;
         this.stream = false;
@@ -148,7 +148,7 @@ __decorate([
 class SummarizationDto {
     constructor() {
         this.maxLength = 200;
-        this.format = 'paragraph';
+        this.format = "paragraph";
     }
 }
 exports.SummarizationDto = SummarizationDto;

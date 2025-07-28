@@ -42,7 +42,7 @@ let AiController = class AiController {
 };
 exports.AiController = AiController;
 __decorate([
-    (0, common_1.Post)('tasks/generate'),
+    (0, common_1.Post)("tasks/generate"),
     (0, common_1.UsePipes)(new common_1.ValidationPipe({ transform: true })),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -50,7 +50,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AiController.prototype, "generateTasks", null);
 __decorate([
-    (0, common_1.Post)('suggestions'),
+    (0, common_1.Post)("suggestions"),
     (0, common_1.UsePipes)(new common_1.ValidationPipe({ transform: true })),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -58,7 +58,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AiController.prototype, "getSuggestions", null);
 __decorate([
-    (0, common_1.Post)('summarize'),
+    (0, common_1.Post)("summarize"),
     (0, common_1.UsePipes)(new common_1.ValidationPipe({ transform: true })),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -66,7 +66,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AiController.prototype, "summarize", null);
 __decorate([
-    (0, common_1.Post)('chat'),
+    (0, common_1.Post)("chat"),
     (0, common_1.UsePipes)(new common_1.ValidationPipe({ transform: true })),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -74,7 +74,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AiController.prototype, "chatCompletion", null);
 exports.AiController = AiController = __decorate([
-    (0, common_1.Controller)('ai'),
+    (0, common_1.Controller)("ai"),
     __metadata("design:paramtypes", [ai_service_1.AiService])
 ], AiController);
 //# sourceMappingURL=ai.controller.js.map

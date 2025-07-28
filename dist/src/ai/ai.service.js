@@ -34,18 +34,18 @@ let AiService = AiService_1 = class AiService {
     }
     loadConfig() {
         return {
-            apiKey: this.configService.get('OPENAI_API_KEY'),
-            baseURL: this.configService.get('OPENAI_BASE_URL'),
-            organization: this.configService.get('OPENAI_ORGANIZATION'),
-            project: this.configService.get('OPENAI_PROJECT'),
-            timeout: this.configService.get('OPENAI_TIMEOUT', 30000),
-            maxTokens: this.configService.get('OPENAI_MAX_TOKENS', 4096),
-            defaultModel: this.configService.get('OPENAI_DEFAULT_MODEL', 'gpt-4o-mini'),
+            apiKey: this.configService.get("OPENAI_API_KEY"),
+            baseURL: this.configService.get("OPENAI_BASE_URL"),
+            organization: this.configService.get("OPENAI_ORGANIZATION"),
+            project: this.configService.get("OPENAI_PROJECT"),
+            timeout: this.configService.get("OPENAI_TIMEOUT", 30000),
+            maxTokens: this.configService.get("OPENAI_MAX_TOKENS", 4096),
+            defaultModel: this.configService.get("OPENAI_DEFAULT_MODEL", "gpt-4o-mini"),
             retry: {
-                maxRetries: this.configService.get('OPENAI_MAX_RETRIES', 3),
-                baseDelay: this.configService.get('OPENAI_BASE_DELAY', 1000),
-                maxDelay: this.configService.get('OPENAI_MAX_DELAY', 10000),
-                backoffMultiplier: this.configService.get('OPENAI_BACKOFF_MULTIPLIER', 2),
+                maxRetries: this.configService.get("OPENAI_MAX_RETRIES", 3),
+                baseDelay: this.configService.get("OPENAI_BASE_DELAY", 1000),
+                maxDelay: this.configService.get("OPENAI_MAX_DELAY", 10000),
+                backoffMultiplier: this.configService.get("OPENAI_BACKOFF_MULTIPLIER", 2),
                 retryableStatusCodes: [429, 500, 502, 503, 504],
             },
         };
@@ -54,11 +54,11 @@ let AiService = AiService_1 = class AiService {
         const prompt = this.buildTaskGenerationPrompt(dto);
         const messages = [
             {
-                role: 'system',
-                content: 'You are a project management assistant. Generate actionable tasks in valid JSON format.',
+                role: "system",
+                content: "You are a project management assistant. Generate actionable tasks in valid JSON format.",
             },
             {
-                role: 'user',
+                role: "user",
                 content: prompt,
             },
         ];
@@ -82,7 +82,7 @@ let AiService = AiService_1 = class AiService {
             };
         }
         catch (error) {
-            this.logger.error('Error generating tasks:', error);
+            this.logger.error("Error generating tasks:", error);
             throw this.handleError(error);
         }
     }
@@ -90,11 +90,11 @@ let AiService = AiService_1 = class AiService {
         const prompt = this.buildSuggestionsPrompt(dto);
         const messages = [
             {
-                role: 'system',
-                content: 'You are a technical advisor. Provide actionable suggestions in valid JSON format.',
+                role: "system",
+                content: "You are a technical advisor. Provide actionable suggestions in valid JSON format.",
             },
             {
-                role: 'user',
+                role: "user",
                 content: prompt,
             },
         ];
@@ -117,7 +117,7 @@ let AiService = AiService_1 = class AiService {
             };
         }
         catch (error) {
-            this.logger.error('Error getting suggestions:', error);
+            this.logger.error("Error getting suggestions:", error);
             throw this.handleError(error);
         }
     }
@@ -125,11 +125,11 @@ let AiService = AiService_1 = class AiService {
         const prompt = this.buildSummarizationPrompt(dto);
         const messages = [
             {
-                role: 'system',
-                content: 'You are a summarization expert. Provide concise summaries in the requested format.',
+                role: "system",
+                content: "You are a summarization expert. Provide concise summaries in the requested format.",
             },
             {
-                role: 'user',
+                role: "user",
                 content: prompt,
             },
         ];
@@ -152,7 +152,7 @@ let AiService = AiService_1 = class AiService {
             };
         }
         catch (error) {
-            this.logger.error('Error summarizing text:', error);
+            this.logger.error("Error summarizing text:", error);
             throw this.handleError(error);
         }
     }
@@ -165,12 +165,14 @@ let AiService = AiService_1 = class AiService {
                     temperature: request.temperature || 0.7,
                     max_tokens: request.maxTokens || this.config.maxTokens,
                     stream: false,
-                    response_format: request.jsonMode ? { type: 'json_object' } : undefined,
+                    response_format: request.jsonMode
+                        ? { type: "json_object" }
+                        : undefined,
                     stop: request.stop,
                 });
                 const nonStreamCompletion = completion;
                 return {
-                    data: nonStreamCompletion.choices[0].message.content || '',
+                    data: nonStreamCompletion.choices[0].message.content || "",
                     usage: {
                         promptTokens: nonStreamCompletion.usage?.prompt_tokens || 0,
                         completionTokens: nonStreamCompletion.usage?.completion_tokens || 0,
@@ -185,11 +187,11 @@ let AiService = AiService_1 = class AiService {
                 throw this.handleError(error);
             }
         };
-        return this.retryService.executeWithRetry(operation, this.config.retry, 'OpenAI Chat Completion');
+        return this.retryService.executeWithRetry(operation, this.config.retry, "OpenAI Chat Completion");
     }
     async completion(request) {
         const chatRequest = {
-            messages: [{ role: 'user', content: request.prompt }],
+            messages: [{ role: "user", content: request.prompt }],
             model: request.model,
             temperature: request.temperature,
             maxTokens: request.maxTokens,
@@ -200,10 +202,10 @@ let AiService = AiService_1 = class AiService {
     }
     buildTaskGenerationPrompt(dto) {
         return `
-Based on the following project description${dto.context ? ' and context' : ''}, generate ${dto.maxTasks || 10} actionable tasks:
+Based on the following project description${dto.context ? " and context" : ""}, generate ${dto.maxTasks || 10} actionable tasks:
 
 Project: ${dto.projectDescription}
-${dto.context ? `Context: ${dto.context}` : ''}
+${dto.context ? `Context: ${dto.context}` : ""}
 
 Generate specific, actionable tasks that would help complete this project.
 Return as a JSON object with a "tasks" array containing objects with:
@@ -236,7 +238,7 @@ Example format:
 Based on the following context, provide ${dto.type} suggestions:
 
 Context: ${dto.context}
-${dto.codebase ? `Codebase: ${dto.codebase}` : ''}
+${dto.codebase ? `Codebase: ${dto.codebase}` : ""}
 
 Generate 3-5 specific suggestions for ${dto.type}.
 Return as a JSON object with a "suggestions" array containing objects with:
@@ -264,7 +266,7 @@ Example format:
     }
     buildSummarizationPrompt(dto) {
         return `
-Summarize the following text in ${dto.maxLength || 200} words or less, using ${dto.format || 'paragraph'} format:
+Summarize the following text in ${dto.maxLength || 200} words or less, using ${dto.format || "paragraph"} format:
 
 ${dto.text}
 
@@ -291,7 +293,7 @@ Example format:
             return parsed.tasks || [];
         }
         catch (error) {
-            this.logger.warn('Failed to parse tasks response as JSON, falling back to text');
+            this.logger.warn("Failed to parse tasks response as JSON, falling back to text");
             return [];
         }
     }
@@ -301,7 +303,7 @@ Example format:
             return parsed.suggestions || [];
         }
         catch (error) {
-            this.logger.warn('Failed to parse suggestions response as JSON, falling back to text');
+            this.logger.warn("Failed to parse suggestions response as JSON, falling back to text");
             return [];
         }
     }
@@ -313,11 +315,11 @@ Example format:
                 keyPoints: parsed.keyPoints || [],
                 originalLength: originalText.length,
                 summaryLength: parsed.summary?.length || response.length,
-                compressionRatio: parsed.compressionRatio || (response.length / originalText.length),
+                compressionRatio: parsed.compressionRatio || response.length / originalText.length,
             };
         }
         catch (error) {
-            this.logger.warn('Failed to parse summary response as JSON, falling back to text');
+            this.logger.warn("Failed to parse summary response as JSON, falling back to text");
             return {
                 summary: response,
                 keyPoints: [],
@@ -333,20 +335,20 @@ Example format:
         }
         if (error.type) {
             switch (error.type) {
-                case 'insufficient_quota':
+                case "insufficient_quota":
                     return new openai_exceptions_1.OpenAIQuotaExceededException(error);
-                case 'rate_limit_exceeded':
-                    return new openai_exceptions_1.OpenAIRateLimitException(error.headers?.['retry-after'], error);
-                case 'invalid_request_error':
+                case "rate_limit_exceeded":
+                    return new openai_exceptions_1.OpenAIRateLimitException(error.headers?.["retry-after"], error);
+                case "invalid_request_error":
                     return new openai_exceptions_1.OpenAIInvalidRequestException(error.message, error);
-                case 'authentication_error':
+                case "authentication_error":
                     return new openai_exceptions_1.OpenAIUnauthorizedException(error);
-                case 'server_error':
+                case "server_error":
                     return new openai_exceptions_1.OpenAIServerException(error.message, error);
-                case 'timeout':
+                case "timeout":
                     return new openai_exceptions_1.OpenAITimeoutException(error);
                 default:
-                    return new openai_exceptions_1.OpenAIException(error.message || 'Unknown OpenAI error', undefined, error.type, error);
+                    return new openai_exceptions_1.OpenAIException(error.message || "Unknown OpenAI error", undefined, error.type, error);
             }
         }
         if (error.status) {
@@ -354,7 +356,7 @@ Example format:
                 case 401:
                     return new openai_exceptions_1.OpenAIUnauthorizedException(error);
                 case 429:
-                    return new openai_exceptions_1.OpenAIRateLimitException(error.headers?.['retry-after'], error);
+                    return new openai_exceptions_1.OpenAIRateLimitException(error.headers?.["retry-after"], error);
                 case 402:
                     return new openai_exceptions_1.OpenAIQuotaExceededException(error);
                 case 400:
@@ -366,10 +368,10 @@ Example format:
                 case 504:
                     return new openai_exceptions_1.OpenAIServerException(error.message, error);
                 default:
-                    return new openai_exceptions_1.OpenAIException(error.message || 'HTTP error', undefined, `HTTP_${error.status}`, error);
+                    return new openai_exceptions_1.OpenAIException(error.message || "HTTP error", undefined, `HTTP_${error.status}`, error);
             }
         }
-        return new openai_exceptions_1.OpenAIException(error.message || 'Unknown error', undefined, 'UNKNOWN_ERROR', error);
+        return new openai_exceptions_1.OpenAIException(error.message || "Unknown error", undefined, "UNKNOWN_ERROR", error);
     }
 };
 exports.AiService = AiService;

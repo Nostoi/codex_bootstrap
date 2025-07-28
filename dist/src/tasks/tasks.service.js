@@ -25,31 +25,28 @@ let TasksService = class TasksService {
             where,
             include: {
                 project: {
-                    select: { id: true, name: true }
+                    select: { id: true, name: true },
                 },
                 owner: {
-                    select: { id: true, name: true, email: true }
+                    select: { id: true, name: true, email: true },
                 },
                 dependencies: {
                     include: {
                         depends: {
-                            select: { id: true, title: true, completed: true }
-                        }
-                    }
+                            select: { id: true, title: true, completed: true },
+                        },
+                    },
                 },
                 dependents: {
                     include: {
                         task: {
-                            select: { id: true, title: true, completed: true }
-                        }
-                    }
+                            select: { id: true, title: true, completed: true },
+                        },
+                    },
                 },
-                tags: true
+                tags: true,
             },
-            orderBy: [
-                { priority: 'desc' },
-                { createdAt: 'desc' }
-            ]
+            orderBy: [{ priority: "desc" }, { createdAt: "desc" }],
         });
     }
     async findOne(id) {
@@ -57,27 +54,27 @@ let TasksService = class TasksService {
             where: { id },
             include: {
                 project: {
-                    select: { id: true, name: true }
+                    select: { id: true, name: true },
                 },
                 owner: {
-                    select: { id: true, name: true, email: true }
+                    select: { id: true, name: true, email: true },
                 },
                 dependencies: {
                     include: {
                         depends: {
-                            select: { id: true, title: true, completed: true }
-                        }
-                    }
+                            select: { id: true, title: true, completed: true },
+                        },
+                    },
                 },
                 dependents: {
                     include: {
                         task: {
-                            select: { id: true, title: true, completed: true }
-                        }
-                    }
+                            select: { id: true, title: true, completed: true },
+                        },
+                    },
                 },
-                tags: true
-            }
+                tags: true,
+            },
         });
         if (!task) {
             throw new common_1.NotFoundException(`Task with ID ${id} not found`);
@@ -93,11 +90,15 @@ let TasksService = class TasksService {
             focusType: createTaskDto.focusType,
             estimatedMinutes: createTaskDto.estimatedMinutes,
             priority: createTaskDto.priority ?? 3,
-            softDeadline: createTaskDto.softDeadline ? new Date(createTaskDto.softDeadline) : null,
-            hardDeadline: createTaskDto.hardDeadline ? new Date(createTaskDto.hardDeadline) : null,
+            softDeadline: createTaskDto.softDeadline
+                ? new Date(createTaskDto.softDeadline)
+                : null,
+            hardDeadline: createTaskDto.hardDeadline
+                ? new Date(createTaskDto.hardDeadline)
+                : null,
             source: createTaskDto.source,
             aiSuggestion: createTaskDto.aiSuggestion,
-            owner: { connect: { id: ownerId } }
+            owner: { connect: { id: ownerId } },
         };
         if (createTaskDto.projectId) {
             data.project = { connect: { id: createTaskDto.projectId } };
@@ -106,12 +107,12 @@ let TasksService = class TasksService {
             data,
             include: {
                 project: {
-                    select: { id: true, name: true }
+                    select: { id: true, name: true },
                 },
                 owner: {
-                    select: { id: true, name: true, email: true }
-                }
-            }
+                    select: { id: true, name: true, email: true },
+                },
+            },
         });
     }
     async update(id, updateTaskDto) {
@@ -129,7 +130,9 @@ let TasksService = class TasksService {
         if (updateTaskDto.status !== undefined)
             data.status = updateTaskDto.status;
         if (updateTaskDto.dueDate !== undefined) {
-            data.dueDate = updateTaskDto.dueDate ? new Date(updateTaskDto.dueDate) : null;
+            data.dueDate = updateTaskDto.dueDate
+                ? new Date(updateTaskDto.dueDate)
+                : null;
         }
         if (updateTaskDto.energyLevel !== undefined)
             data.energyLevel = updateTaskDto.energyLevel;
@@ -140,29 +143,35 @@ let TasksService = class TasksService {
         if (updateTaskDto.priority !== undefined)
             data.priority = updateTaskDto.priority;
         if (updateTaskDto.softDeadline !== undefined) {
-            data.softDeadline = updateTaskDto.softDeadline ? new Date(updateTaskDto.softDeadline) : null;
+            data.softDeadline = updateTaskDto.softDeadline
+                ? new Date(updateTaskDto.softDeadline)
+                : null;
         }
         if (updateTaskDto.hardDeadline !== undefined) {
-            data.hardDeadline = updateTaskDto.hardDeadline ? new Date(updateTaskDto.hardDeadline) : null;
+            data.hardDeadline = updateTaskDto.hardDeadline
+                ? new Date(updateTaskDto.hardDeadline)
+                : null;
         }
         if (updateTaskDto.source !== undefined)
             data.source = updateTaskDto.source;
         if (updateTaskDto.aiSuggestion !== undefined)
             data.aiSuggestion = updateTaskDto.aiSuggestion;
         if (updateTaskDto.projectId !== undefined) {
-            data.project = updateTaskDto.projectId ? { connect: { id: updateTaskDto.projectId } } : { disconnect: true };
+            data.project = updateTaskDto.projectId
+                ? { connect: { id: updateTaskDto.projectId } }
+                : { disconnect: true };
         }
         return this.prisma.task.update({
             where: { id },
             data,
             include: {
                 project: {
-                    select: { id: true, name: true }
+                    select: { id: true, name: true },
                 },
                 owner: {
-                    select: { id: true, name: true, email: true }
-                }
-            }
+                    select: { id: true, name: true, email: true },
+                },
+            },
         });
     }
     async remove(id) {
@@ -182,12 +191,12 @@ let TasksService = class TasksService {
             data: { completed: !task.completed },
             include: {
                 project: {
-                    select: { id: true, name: true }
+                    select: { id: true, name: true },
                 },
                 owner: {
-                    select: { id: true, name: true, email: true }
-                }
-            }
+                    select: { id: true, name: true, email: true },
+                },
+            },
         });
     }
     async findTaskDependencies(taskId) {
@@ -199,16 +208,16 @@ let TasksService = class TasksService {
             where: { taskId },
             include: {
                 depends: {
-                    select: { id: true, title: true, completed: true, status: true }
-                }
-            }
+                    select: { id: true, title: true, completed: true, status: true },
+                },
+            },
         });
     }
     async createTaskDependency(createDependencyDto) {
         const { taskId, dependsOn } = createDependencyDto;
         const [task, prerequisiteTask] = await Promise.all([
             this.prisma.task.findUnique({ where: { id: taskId } }),
-            this.prisma.task.findUnique({ where: { id: dependsOn } })
+            this.prisma.task.findUnique({ where: { id: dependsOn } }),
         ]);
         if (!task) {
             throw new common_1.NotFoundException(`Task with ID ${taskId} not found`);
@@ -217,41 +226,41 @@ let TasksService = class TasksService {
             throw new common_1.NotFoundException(`Prerequisite task with ID ${dependsOn} not found`);
         }
         const existingDependencies = await this.prisma.taskDependency.findMany({
-            where: { taskId: dependsOn }
+            where: { taskId: dependsOn },
         });
         const wouldCreateCircle = await this.checkCircularDependency(dependsOn, taskId, existingDependencies);
         if (wouldCreateCircle) {
-            throw new common_1.BadRequestException('Creating this dependency would result in a circular dependency');
+            throw new common_1.BadRequestException("Creating this dependency would result in a circular dependency");
         }
         const existingDependency = await this.prisma.taskDependency.findUnique({
             where: {
-                taskId_dependsOn: { taskId, dependsOn }
-            }
+                taskId_dependsOn: { taskId, dependsOn },
+            },
         });
         if (existingDependency) {
-            throw new common_1.BadRequestException('Dependency already exists');
+            throw new common_1.BadRequestException("Dependency already exists");
         }
         return this.prisma.taskDependency.create({
             data: { taskId, dependsOn },
             include: {
                 depends: {
-                    select: { id: true, title: true, completed: true, status: true }
-                }
-            }
+                    select: { id: true, title: true, completed: true, status: true },
+                },
+            },
         });
     }
     async removeTaskDependency(taskId, dependencyId) {
         const dependency = await this.prisma.taskDependency.findUnique({
-            where: { id: dependencyId }
+            where: { id: dependencyId },
         });
         if (!dependency) {
             throw new common_1.NotFoundException(`Dependency with ID ${dependencyId} not found`);
         }
         if (dependency.taskId !== taskId) {
-            throw new common_1.BadRequestException('Dependency does not belong to the specified task');
+            throw new common_1.BadRequestException("Dependency does not belong to the specified task");
         }
         await this.prisma.taskDependency.delete({
-            where: { id: dependencyId }
+            where: { id: dependencyId },
         });
     }
     async checkCircularDependency(startTaskId, targetTaskId, dependencies) {
@@ -262,14 +271,14 @@ let TasksService = class TasksService {
             if (visited.has(currentTaskId))
                 return false;
             visited.add(currentTaskId);
-            const taskDependencies = dependencies.filter(dep => dep.taskId === currentTaskId);
-            return taskDependencies.some(dep => checkCircle(dep.dependsOn));
+            const taskDependencies = dependencies.filter((dep) => dep.taskId === currentTaskId);
+            return taskDependencies.some((dep) => checkCircle(dep.dependsOn));
         };
         return checkCircle(startTaskId);
     }
     async findUserSettings(userId) {
         return this.prisma.userSettings.findUnique({
-            where: { userId }
+            where: { userId },
         });
     }
     async createUserSettings(userId, createSettingsDto) {
@@ -278,39 +287,39 @@ let TasksService = class TasksService {
             throw new common_1.NotFoundException(`User with ID ${userId} not found`);
         }
         const existingSettings = await this.prisma.userSettings.findUnique({
-            where: { userId }
+            where: { userId },
         });
         if (existingSettings) {
-            throw new common_1.BadRequestException('User settings already exist. Use update instead.');
+            throw new common_1.BadRequestException("User settings already exist. Use update instead.");
         }
         return this.prisma.userSettings.create({
             data: {
                 userId,
-                ...createSettingsDto
-            }
+                ...createSettingsDto,
+            },
         });
     }
     async updateUserSettings(userId, updateSettingsDto) {
         const existingSettings = await this.prisma.userSettings.findUnique({
-            where: { userId }
+            where: { userId },
         });
         if (!existingSettings) {
             throw new common_1.NotFoundException(`User settings for user ${userId} not found`);
         }
         return this.prisma.userSettings.update({
             where: { userId },
-            data: updateSettingsDto
+            data: updateSettingsDto,
         });
     }
     async removeUserSettings(userId) {
         const existingSettings = await this.prisma.userSettings.findUnique({
-            where: { userId }
+            where: { userId },
         });
         if (!existingSettings) {
             throw new common_1.NotFoundException(`User settings for user ${userId} not found`);
         }
         await this.prisma.userSettings.delete({
-            where: { userId }
+            where: { userId },
         });
     }
 };

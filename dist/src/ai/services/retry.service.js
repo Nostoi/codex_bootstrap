@@ -14,7 +14,7 @@ let RetryService = RetryService_1 = class RetryService {
     constructor() {
         this.logger = new common_1.Logger(RetryService_1.name);
     }
-    async executeWithRetry(operation, config, context = 'Operation') {
+    async executeWithRetry(operation, config, context = "Operation") {
         let lastError;
         for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
             try {
@@ -59,7 +59,7 @@ let RetryService = RetryService_1 = class RetryService {
         return Math.floor(delay);
     }
     sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+        return new Promise((resolve) => setTimeout(resolve, ms));
     }
 };
 exports.RetryService = RetryService;

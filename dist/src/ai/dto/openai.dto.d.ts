@@ -7,7 +7,7 @@ export declare class OpenAICompletionDto {
     stream?: boolean;
 }
 export declare class OpenAIChatMessageDto {
-    role: 'system' | 'user' | 'assistant';
+    role: "system" | "user" | "assistant";
     content: string;
 }
 export declare class OpenAIChatCompletionDto {
@@ -25,11 +25,11 @@ export declare class TaskGenerationDto {
 }
 export declare class SuggestionRequestDto {
     context: string;
-    type: 'improvement' | 'feature' | 'optimization' | 'bug-fix';
+    type: "improvement" | "feature" | "optimization" | "bug-fix";
     codebase?: string;
 }
 export declare class SummarizationDto {
     text: string;
     maxLength?: number;
-    format?: 'paragraph' | 'bullet-points' | 'key-points';
+    format?: "paragraph" | "bullet-points" | "key-points";
 }

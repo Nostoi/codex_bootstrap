@@ -1,8 +1,8 @@
-import { ConfigService } from '@nestjs/config';
-import { Mem0Service } from './mem0.service';
-import { RetryService } from './services/retry.service';
-import { OpenAIResponse, ChatCompletionRequest, CompletionRequest, Task, Suggestion, SummaryResponse } from './interfaces/openai.interfaces';
-import { TaskGenerationDto, SuggestionRequestDto, SummarizationDto } from './dto/openai.dto';
+import { ConfigService } from "@nestjs/config";
+import { Mem0Service } from "./mem0.service";
+import { RetryService } from "./services/retry.service";
+import { OpenAIResponse, ChatCompletionRequest, CompletionRequest, Task, Suggestion, SummaryResponse } from "./interfaces/openai.interfaces";
+import { TaskGenerationDto, SuggestionRequestDto, SummarizationDto } from "./dto/openai.dto";
 export declare class AiService {
     private configService;
     private mem0Service;

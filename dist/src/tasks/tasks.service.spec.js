@@ -50,12 +50,12 @@ describe("TasksService", () => {
     it("should be defined", () => {
         expect(service).toBeDefined();
     });
-    describe('findAll', () => {
+    describe("findAll", () => {
         it("should return all tasks", async () => {
             const mockTasks = [
                 {
-                    id: '1',
-                    title: 'Test Task',
+                    id: "1",
+                    title: "Test Task",
                     completed: false,
                     dueDate: new Date(),
                     createdAt: new Date(),
@@ -68,32 +68,26 @@ describe("TasksService", () => {
             expect(mockPrismaService.task.findMany).toHaveBeenCalledWith({
                 where: {},
                 include: expect.any(Object),
-                orderBy: [
-                    { priority: 'desc' },
-                    { createdAt: 'desc' }
-                ]
+                orderBy: [{ priority: "desc" }, { createdAt: "desc" }],
             });
         });
         it("should filter tasks by owner ID", async () => {
-            const ownerId = 'user123';
+            const ownerId = "user123";
             mockPrismaService.task.findMany.mockResolvedValue([]);
             await service.findAll(ownerId);
             expect(mockPrismaService.task.findMany).toHaveBeenCalledWith({
                 where: { ownerId },
                 include: expect.any(Object),
-                orderBy: [
-                    { priority: 'desc' },
-                    { createdAt: 'desc' }
-                ]
+                orderBy: [{ priority: "desc" }, { createdAt: "desc" }],
             });
         });
     });
-    describe('toggle', () => {
+    describe("toggle", () => {
         it("should toggle task completion", async () => {
-            const taskId = '1';
+            const taskId = "1";
             const mockTask = {
                 id: taskId,
-                title: 'Test Task',
+                title: "Test Task",
                 completed: false,
                 createdAt: new Date(),
                 updatedAt: new Date(),
@@ -106,27 +100,27 @@ describe("TasksService", () => {
             expect(mockPrismaService.task.update).toHaveBeenCalledWith({
                 where: { id: taskId },
                 data: { completed: true },
-                include: expect.any(Object)
+                include: expect.any(Object),
             });
         });
         it("should throw NotFoundException for non-existent task", async () => {
-            const taskId = '999';
+            const taskId = "999";
             mockPrismaService.task.findUnique.mockResolvedValue(null);
             await expect(service.toggle(taskId)).rejects.toThrow(common_1.NotFoundException);
         });
     });
-    describe('create', () => {
+    describe("create", () => {
         it("should create a task with metadata", async () => {
             const createTaskDto = {
-                title: 'New Task',
-                description: 'Task description',
-                energyLevel: 'MEDIUM',
-                focusType: 'TECHNICAL',
+                title: "New Task",
+                description: "Task description",
+                energyLevel: "MEDIUM",
+                focusType: "TECHNICAL",
                 priority: 5,
             };
-            const ownerId = 'user123';
+            const ownerId = "user123";
             const mockCreatedTask = {
-                id: '1',
+                id: "1",
                 ...createTaskDto,
                 completed: false,
                 ownerId,
@@ -143,9 +137,9 @@ describe("TasksService", () => {
                     energyLevel: createTaskDto.energyLevel,
                     focusType: createTaskDto.focusType,
                     priority: createTaskDto.priority,
-                    owner: { connect: { id: ownerId } }
+                    owner: { connect: { id: ownerId } },
                 }),
-                include: expect.any(Object)
+                include: expect.any(Object),
             });
         });
     });
