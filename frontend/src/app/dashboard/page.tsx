@@ -20,11 +20,10 @@ export default function DashboardPage() {
   const convertedTasks = tasks.map(task => ({
     id: task.id.toString(),
     title: task.title,
-    status: task.completed ? 'done' as const : 'todo' as const,
+    status: task.completed ? 'DONE' as const : 'TODO' as const,
     dueDate: task.dueDate,
-    priority: 'medium' as const, // Default priority
+    priority: 3, // Default priority (medium)
     estimatedMinutes: 30, // Default estimate
-    project: 'General' // Default project
   }))
 
   return (

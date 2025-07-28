@@ -1,15 +1,8 @@
 import React, { useState } from "react";
 import TaskCard from "./TaskCard";
 
-export interface Task {
-  id: string;
-  title: string;
-  status: "todo" | "in-progress" | "done";
-  dueDate?: string;
-  priority: "high" | "medium" | "low";
-  estimatedMinutes?: number;
-  aiSuggestion?: string;
-}
+// Import the enhanced Task interface from TaskCard
+import { EnhancedTask as Task } from "./TaskCard";
 
 export interface FocusViewProps {
   todaysTasks: Task[];
@@ -22,16 +15,20 @@ export interface FocusViewProps {
   isLoadingAI?: boolean;
 }
 
-const priorityColors = {
-  high: "bg-error",
-  medium: "bg-warning", 
-  low: "bg-success",
+const priorityColors: Record<number, string> = {
+  1: "bg-success",
+  2: "bg-success", 
+  3: "bg-warning",
+  4: "bg-error",
+  5: "bg-error",
 };
 
-const priorityIcons = {
-  high: "🔥",
-  medium: "⚡",
-  low: "✨",
+const priorityIcons: Record<number, string> = {
+  1: "✨",
+  2: "✨", 
+  3: "⚡",
+  4: "🔥",
+  5: "🔥",
 };
 
 export default function FocusView({
@@ -46,12 +43,12 @@ export default function FocusView({
   const [localFocusGoal, setLocalFocusGoal] = useState(focusGoal);
   
   // Calculate time and priority metrics
-  const completedTasks = todaysTasks.filter(task => task.status === "done");
-  const inProgressTasks = todaysTasks.filter(task => task.status === "in-progress");
-  const highPriorityTasks = todaysTasks.filter(task => task.priority === "high");
+  const completedTasks = todaysTasks.filter(task => task.status === "DONE");
+  const inProgressTasks = todaysTasks.filter(task => task.status === "IN_PROGRESS");
+  const highPriorityTasks = todaysTasks.filter(task => (task.priority || 0) >= 4);
   
   const totalEstimatedMinutes = todaysTasks
-    .filter(task => task.status !== "done")
+    .filter(task => task.status !== "DONE")
     .reduce((total, task) => total + (task.estimatedMinutes || 30), 0);
   
   const completionPercentage = todaysTasks.length > 0 
@@ -66,11 +63,12 @@ export default function FocusView({
 
   const sortedTasks = [...todaysTasks].sort((a, b) => {
     // Sort by priority (high -> medium -> low), then by status (in-progress -> todo -> done)
-    const priorityOrder = { high: 0, medium: 1, low: 2 };
-    const statusOrder = { "in-progress": 0, todo: 1, done: 2 };
+    const priorityA = a.priority || 0;
+    const priorityB = b.priority || 0;
+    const statusOrder = { "IN_PROGRESS": 0, "TODO": 1, "BLOCKED": 2, "DONE": 3 };
     
-    if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
-      return priorityOrder[a.priority] - priorityOrder[b.priority];
+    if (priorityA !== priorityB) {
+      return priorityB - priorityA; // Higher priority first
     }
     return statusOrder[a.status] - statusOrder[b.status];
   });
@@ -195,19 +193,20 @@ export default function FocusView({
               {sortedTasks.map((task) => (
                 <div key={task.id} className="relative">
                   {/* Priority Badge */}
-                  <div className={`absolute -left-2 top-2 w-4 h-4 rounded-full ${priorityColors[task.priority]} flex items-center justify-center z-10`}>
-                    <span className="text-xs text-white" title={`${task.priority} priority`}>
-                      {priorityIcons[task.priority]}
+                  <div className={`absolute -left-2 top-2 w-4 h-4 rounded-full ${priorityColors[task.priority || 1]} flex items-center justify-center z-10`}>
+                    <span className="text-xs text-white" title={`Priority ${task.priority || 1}`}>
+                      {priorityIcons[task.priority || 1]}
                     </span>
                   </div>
                   
                   {/* Task Card */}
                   <div className="ml-4">
                     <TaskCard
-                      id={task.id}
-                      title={task.title}
-                      status={task.status}
-                      dueDate={task.dueDate}
+                      task={task}
+                      onStatusChange={(newStatus) => {
+                        // Handle status change if needed - could integrate with parent component
+                        console.log(`Task ${task.id} status changed to ${newStatus}`);
+                      }}
                       onClick={() => onTaskClick?.(task.id)}
                     />
                     

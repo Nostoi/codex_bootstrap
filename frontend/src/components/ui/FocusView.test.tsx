@@ -1,21 +1,22 @@
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import FocusView, { Task } from './FocusView';
+import FocusView from './FocusView';
+import { EnhancedTask as Task } from './TaskCard';
 
 const mockTasks: Task[] = [
   {
     id: '1',
     title: 'Test task',
-    status: 'todo',
-    priority: 'high',
+    status: 'TODO',
+    priority: 5,
     estimatedMinutes: 60,
   },
   {
     id: '2',
     title: 'Completed task',
-    status: 'done',
-    priority: 'medium',
+    status: 'DONE',
+    priority: 3,
     estimatedMinutes: 30,
   },
 ];
@@ -114,10 +115,10 @@ describe('FocusView', () => {
 
   it('sorts tasks by priority and status', () => {
     const tasks: Task[] = [
-      { id: '1', title: 'Low priority todo', status: 'todo', priority: 'low' },
-      { id: '2', title: 'High priority done', status: 'done', priority: 'high' },
-      { id: '3', title: 'High priority in-progress', status: 'in-progress', priority: 'high' },
-      { id: '4', title: 'Medium priority todo', status: 'todo', priority: 'medium' },
+      { id: '1', title: 'Low priority todo', status: 'TODO', priority: 2 },
+      { id: '2', title: 'High priority done', status: 'DONE', priority: 5 },
+      { id: '3', title: 'High priority in-progress', status: 'IN_PROGRESS', priority: 5 },
+      { id: '4', title: 'Medium priority todo', status: 'TODO', priority: 3 },
     ];
     
     render(<FocusView todaysTasks={tasks} />);

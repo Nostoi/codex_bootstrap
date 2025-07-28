@@ -3,15 +3,18 @@
 import { Task } from '@/components/ui/Dashboard';
 
 export const TASK_PRIORITIES = {
-  high: { label: 'High', color: 'error', weight: 3 },
-  medium: { label: 'Medium', color: 'warning', weight: 2 },
-  low: { label: 'Low', color: 'info', weight: 1 },
+  1: { label: 'Very Low', color: 'info', weight: 1 },
+  2: { label: 'Low', color: 'info', weight: 2 },
+  3: { label: 'Medium', color: 'warning', weight: 3 },
+  4: { label: 'High', color: 'error', weight: 4 },
+  5: { label: 'Very High', color: 'error', weight: 5 },
 } as const;
 
 export const TASK_STATUSES = {
-  todo: { label: 'To Do', color: 'neutral' },
-  'in-progress': { label: 'In Progress', color: 'primary' },
-  done: { label: 'Done', color: 'success' },
+  TODO: { label: 'To Do', color: 'neutral' },
+  IN_PROGRESS: { label: 'In Progress', color: 'primary' },
+  BLOCKED: { label: 'Blocked', color: 'warning' },
+  DONE: { label: 'Done', color: 'success' },
 } as const;
 
 /**
@@ -19,8 +22,10 @@ export const TASK_STATUSES = {
  */
 export function sortTasksByPriority(tasks: Task[]): Task[] {
   return [...tasks].sort((a, b) => {
-    // First sort by priority (high -> medium -> low)
-    const priorityDiff = TASK_PRIORITIES[b.priority].weight - TASK_PRIORITIES[a.priority].weight;
+    // First sort by priority (higher number = higher priority)
+    const priorityA = a.priority || 3;
+    const priorityB = b.priority || 3;
+    const priorityDiff = (TASK_PRIORITIES[priorityB as keyof typeof TASK_PRIORITIES]?.weight || 0) - (TASK_PRIORITIES[priorityA as keyof typeof TASK_PRIORITIES]?.weight || 0);
     if (priorityDiff !== 0) return priorityDiff;
 
     // Then by due date (earliest first)
@@ -69,8 +74,8 @@ export function calculateTaskProgress(tasks: Task[]): {
   percentage: number;
 } {
   const total = tasks.length;
-  const completed = tasks.filter(task => task.status === 'done').length;
-  const inProgress = tasks.filter(task => task.status === 'in-progress').length;
+  const completed = tasks.filter(task => task.status === 'DONE').length;
+  const inProgress = tasks.filter(task => task.status === 'IN_PROGRESS').length;
   const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
 
   return { total, completed, inProgress, percentage };
@@ -81,7 +86,7 @@ export function calculateTaskProgress(tasks: Task[]): {
  */
 export function estimateRemainingTime(tasks: Task[]): number {
   return tasks
-    .filter(task => task.status !== 'done')
+    .filter(task => task.status !== 'DONE')
     .reduce((total, task) => total + (task.estimatedMinutes || 0), 0);
 }
 
@@ -134,11 +139,11 @@ export function validateTask(task: Partial<Task>): { isValid: boolean; errors: s
     errors.push('Title must be less than 200 characters');
   }
 
-  if (task.priority && !Object.keys(TASK_PRIORITIES).includes(task.priority)) {
+  if (task.priority && !(task.priority in TASK_PRIORITIES)) {
     errors.push('Invalid priority value');
   }
 
-  if (task.status && !Object.keys(TASK_STATUSES).includes(task.status)) {
+  if (task.status && !(task.status in TASK_STATUSES)) {
     errors.push('Invalid status value');
   }
 
@@ -166,8 +171,8 @@ export function createDefaultTask(overrides: Partial<Task> = {}): Task {
   return {
     id: generateTaskId(),
     title: '',
-    status: 'todo',
-    priority: 'medium',
+    status: 'TODO',
+    priority: 3,
     estimatedMinutes: 30,
     ...overrides,
   };
@@ -195,8 +200,7 @@ export function filterTasks(tasks: Task[], query: string): Task[] {
   const lowercaseQuery = query.toLowerCase();
   return tasks.filter(task => 
     task.title.toLowerCase().includes(lowercaseQuery) ||
-    task.aiSuggestion?.toLowerCase().includes(lowercaseQuery) ||
-    task.project?.toLowerCase().includes(lowercaseQuery)
+    task.aiSuggestion?.toLowerCase().includes(lowercaseQuery)
   );
 }
 
@@ -204,7 +208,7 @@ export function filterTasks(tasks: Task[], query: string): Task[] {
  * Gets color class for priority
  */
 export function getPriorityColor(priority: Task['priority']): string {
-  return TASK_PRIORITIES[priority].color;
+  return TASK_PRIORITIES[(priority || 3) as keyof typeof TASK_PRIORITIES]?.color || 'info';
 }
 
 /**

@@ -60,44 +60,39 @@ const sampleTasks: Task[] = [
   {
     id: "task-1",
     title: "Complete quarterly business review",
-    status: "in-progress",
-    priority: "high",
+    status: "IN_PROGRESS",
+    priority: 5,
     dueDate: "2025-07-28",
     estimatedMinutes: 180,
-    project: "Business Operations",
   },
   {
     id: "task-2",
     title: "Review AI integration proposal",
-    status: "todo",
-    priority: "high",
+    status: "TODO",
+    priority: 5,
     dueDate: "2025-07-27",
     estimatedMinutes: 90,
-    project: "AI Initiative",
   },
   {
     id: "task-3",
     title: "Update team on project progress",
-    status: "todo",
-    priority: "medium",
+    status: "TODO",
+    priority: 3,
     estimatedMinutes: 30,
-    project: "Team Management",
   },
   {
     id: "task-4",
     title: "Research competitor analysis",
-    status: "todo",
-    priority: "medium",
+    status: "TODO",
+    priority: 3,
     estimatedMinutes: 120,
-    project: "Market Research",
   },
   {
     id: "task-5",
     title: "Organize workspace documentation",
-    status: "done",
-    priority: "low",
+    status: "DONE",
+    priority: 2,
     estimatedMinutes: 45,
-    project: "Housekeeping",
   },
 ];
 
@@ -108,36 +103,32 @@ const largeTasks: Task[] = [
   {
     id: "task-6",
     title: "Prepare client presentation",
-    status: "todo",
-    priority: "high",
+    status: "TODO",
+    priority: 5,
     dueDate: "2025-07-29",
     estimatedMinutes: 150,
-    project: "Client Work",
   },
   {
     id: "task-7",
     title: "Code review for new features",
-    status: "in-progress",
-    priority: "medium",
+    status: "IN_PROGRESS",
+    priority: 3,
     estimatedMinutes: 60,
-    project: "Development",
   },
   {
     id: "task-8",
     title: "Budget planning for next quarter",
-    status: "todo",
-    priority: "high",
+    status: "TODO",
+    priority: 5,
     dueDate: "2025-07-30",
     estimatedMinutes: 120,
-    project: "Finance",
   },
   {
     id: "task-9",
     title: "Team retrospective meeting",
-    status: "todo",
-    priority: "low",
+    status: "TODO",
+    priority: 2,
     estimatedMinutes: 60,
-    project: "Team Management",
   },
 ];
 
@@ -231,7 +222,7 @@ export const HighPriorityFocus: Story = {
   args: {
     initialTasks: sampleTasks.map(task => ({ 
       ...task, 
-      priority: task.priority === "high" ? "high" : "low" as const 
+      priority: (task.priority || 3) >= 4 ? 5 : 2
     })),
     layout: "horizontal",
     chatPosition: "right",
@@ -250,7 +241,7 @@ export const CompletedTasksView: Story = {
   args: {
     initialTasks: sampleTasks.map(task => ({ 
       ...task, 
-      status: Math.random() > 0.3 ? ("done" as const) : task.status
+      status: Math.random() > 0.3 ? ("DONE" as const) : task.status
     })),
     layout: "horizontal",
     chatPosition: "right",

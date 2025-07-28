@@ -20,6 +20,37 @@ export interface ApiTask {
   dueDate: string
 }
 
+// Planning API types
+export interface DailyPlanResponse {
+  date: string;
+  scheduleBlocks: ScheduleBlock[];
+  unscheduledTasks: TaskSummary[];
+  totalEstimatedMinutes: number;
+  energyOptimization: number;
+  focusOptimization: number;
+  deadlineRisk: number;
+}
+
+export interface ScheduleBlock {
+  startTime: string;
+  endTime: string;
+  task: TaskSummary;
+  energyMatch: number;
+  focusMatch: number;
+  reasoning: string;
+}
+
+export interface TaskSummary {
+  id: string;
+  title: string;
+  description?: string;
+  energyLevel?: 'LOW' | 'MEDIUM' | 'HIGH';
+  focusType?: 'CREATIVE' | 'TECHNICAL' | 'ADMINISTRATIVE' | 'SOCIAL';
+  estimatedMinutes?: number;
+  priority?: number;
+  hardDeadline?: string;
+}
+
 // Query keys
 export const queryKeys = {
   users: ['users'] as const,
@@ -27,6 +58,7 @@ export const queryKeys = {
   health: ['health'] as const,
   tasks: ['tasks'] as const,
   task: (id: number) => ['tasks', id] as const,
+  dailyPlan: (date: string) => ['planning', 'daily', date] as const,
 }
 
 // Health check hook
@@ -105,6 +137,34 @@ export function useToggleTask() {
     mutationFn: (id: number) => api.patch<ApiTask>(`/tasks/${id}/toggle`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks })
+    },
+  })
+}
+
+// Planning hooks
+export function useDailyPlan(date?: string) {
+  const planDate = date || new Date().toISOString().split('T')[0];
+  
+  return useQuery({
+    queryKey: queryKeys.dailyPlan(planDate),
+    queryFn: () => api.get<DailyPlanResponse>(`/plans/today${date ? `?date=${date}` : ''}`),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 2,
+  })
+}
+
+export function useRefreshDailyPlan() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: (date?: string) => {
+      const planDate = date || new Date().toISOString().split('T')[0];
+      return api.get<DailyPlanResponse>(`/plans/today${date ? `?date=${date}` : ''}`)
+    },
+    onSuccess: (data, variables) => {
+      const planDate = variables || new Date().toISOString().split('T')[0];
+      queryClient.setQueryData(queryKeys.dailyPlan(planDate), data)
+      queryClient.invalidateQueries({ queryKey: queryKeys.dailyPlan(planDate) })
     },
   })
 }

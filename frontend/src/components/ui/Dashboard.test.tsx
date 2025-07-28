@@ -24,7 +24,7 @@ vi.mock('./FocusView', () => ({
         <div key={task.id} data-testid={`task-${task.id}`}>
           <span>{task.title}</span>
           <button 
-            onClick={() => onTaskStatusChange(task.id, 'done')}
+            onClick={() => onTaskStatusChange(task.id, 'DONE')}
             data-testid={`complete-${task.id}`}
           >
             Complete
@@ -61,15 +61,15 @@ const mockTasks: Task[] = [
   {
     id: '1',
     title: 'Test Task 1',
-    status: 'todo',
-    priority: 'high',
+    status: 'TODO',
+    priority: 5,
     estimatedMinutes: 30,
   },
   {
     id: '2',
     title: 'Test Task 2',
-    status: 'in-progress',
-    priority: 'medium',
+    status: 'IN_PROGRESS',
+    priority: 3,
     estimatedMinutes: 45,
   },
 ];

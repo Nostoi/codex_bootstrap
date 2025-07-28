@@ -1,5 +1,6 @@
 import { Meta, StoryObj } from "@storybook/react";
-import FocusView, { Task } from "./FocusView";
+import FocusView from "./FocusView";
+import { EnhancedTask as Task } from "./TaskCard";
 
 const meta: Meta<typeof FocusView> = {
   title: "UI/FocusView",
@@ -37,8 +38,8 @@ const sampleTasks: Task[] = [
   {
     id: "1",
     title: "Complete user onboarding flow design",
-    status: "in-progress",
-    priority: "high",
+    status: "IN_PROGRESS",
+    priority: 5,
     dueDate: "2025-07-27",
     estimatedMinutes: 120,
     aiSuggestion: "Break this into smaller UI components for better testability"
@@ -46,30 +47,30 @@ const sampleTasks: Task[] = [
   {
     id: "2",
     title: "Review AI integration specs",
-    status: "todo",
-    priority: "high",
+    status: "TODO",
+    priority: 5,
     estimatedMinutes: 45,
     aiSuggestion: "Focus on the ChatGPT API integration first"
   },
   {
     id: "3",
     title: "Update project documentation",
-    status: "todo",
-    priority: "medium",
+    status: "TODO",
+    priority: 3,
     estimatedMinutes: 60
   },
   {
     id: "4",
     title: "Team standup meeting",
-    status: "done",
-    priority: "medium",
+    status: "DONE",
+    priority: 3,
     estimatedMinutes: 30
   },
   {
     id: "5",
     title: "Fix accessibility issues in TaskCard",
-    status: "todo",
-    priority: "low",
+    status: "TODO",
+    priority: 2,
     estimatedMinutes: 90
   }
 ];
@@ -105,23 +106,23 @@ export const HighWorkload: Story = {
       {
         id: "6",
         title: "Code review for authentication module",
-        status: "todo",
-        priority: "high",
+        status: "TODO",
+        priority: 5,
         estimatedMinutes: 75,
         aiSuggestion: "This is urgent - authentication is needed for user testing"
       },
       {
         id: "7",
         title: "Database migration testing",
-        status: "in-progress",
-        priority: "high",
+        status: "IN_PROGRESS",
+        priority: 5,
         estimatedMinutes: 180
       },
       {
         id: "8",
         title: "Update API documentation",
-        status: "todo",
-        priority: "medium",
+        status: "TODO",
+        priority: 3,
         estimatedMinutes: 45
       }
     ],
@@ -133,15 +134,15 @@ export const HighWorkload: Story = {
 export const MostlyCompleted: Story = {
   args: {
     todaysTasks: [
-      { ...sampleTasks[0], status: "done" },
-      { ...sampleTasks[1], status: "done" },
-      { ...sampleTasks[2], status: "done" },
-      { ...sampleTasks[3], status: "done" },
+      { ...sampleTasks[0], status: "DONE" },
+      { ...sampleTasks[1], status: "DONE" },
+      { ...sampleTasks[2], status: "DONE" },
+      { ...sampleTasks[3], status: "DONE" },
       {
         id: "9",
         title: "Final review and deployment",
-        status: "in-progress",
-        priority: "medium",
+        status: "IN_PROGRESS",
+        priority: 3,
         estimatedMinutes: 30
       }
     ],

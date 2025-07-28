@@ -1,16 +1,28 @@
 import React, { useState, useCallback } from "react";
 import FocusView from "./FocusView";
 import ChatGPTIntegration, { ChatMessage, ExtractedTask } from "./ChatGPTIntegration";
+import { useDailyPlan, useRefreshDailyPlan } from "../../hooks/useApi";
 
+// Enhanced Task interface matching TaskCard component
 export interface Task {
   id: string;
   title: string;
-  status: "todo" | "in-progress" | "done";
+  description?: string;
+  status: "TODO" | "IN_PROGRESS" | "BLOCKED" | "DONE";
   dueDate?: string;
-  priority: "high" | "medium" | "low";
+  // Enhanced metadata fields
+  energyLevel?: "LOW" | "MEDIUM" | "HIGH";
+  focusType?: "CREATIVE" | "TECHNICAL" | "ADMINISTRATIVE" | "SOCIAL";
+  priority?: number; // 1-5 scale
   estimatedMinutes?: number;
+  softDeadline?: string;
+  hardDeadline?: string;
+  source?: "SELF" | "BOSS" | "TEAM" | "AI_GENERATED";
   aiSuggestion?: string;
-  project?: string;
+  // Computed fields
+  isOverdue?: boolean;
+  isBlocked?: boolean;
+  dependencyCount?: number;
 }
 
 export interface AIRecommendation {
@@ -31,30 +43,7 @@ export interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({
-  initialTasks = [
-    {
-      id: "sample-1",
-      title: "Complete project proposal",
-      status: "in-progress",
-      priority: "high",
-      dueDate: "2025-07-28",
-      estimatedMinutes: 120,
-    },
-    {
-      id: "sample-2", 
-      title: "Review team feedback",
-      status: "todo",
-      priority: "medium",
-      estimatedMinutes: 45,
-    },
-    {
-      id: "sample-3",
-      title: "Update documentation",
-      status: "todo", 
-      priority: "low",
-      estimatedMinutes: 30,
-    },
-  ],
+  initialTasks = [],
   onTaskUpdate,
   onTaskAdd,
   onTaskDelete,
@@ -67,7 +56,70 @@ const Dashboard: React.FC<DashboardProps> = ({
   // onTaskDelete callback reserved for future delete functionality
   console.debug('Task delete handler available:', !!onTaskDelete);
   
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  // Use planning API for real data
+  const { data: dailyPlan, isLoading: isPlanLoading, error: planError } = useDailyPlan();
+  const refreshPlanMutation = useRefreshDailyPlan();
+  
+  // Convert planning API data to Task format
+  const tasksFromAPI: Task[] = React.useMemo(() => {
+    if (!dailyPlan) return [];
+    
+    const allTasks: Task[] = [];
+    
+    // Add tasks from schedule blocks
+    dailyPlan.scheduleBlocks.forEach(block => {
+      allTasks.push({
+        id: block.task.id,
+        title: block.task.title,
+        description: block.task.description,
+        status: "TODO", // Default status since TaskSummary doesn't include status
+        dueDate: block.task.hardDeadline,
+        priority: block.task.priority,
+        estimatedMinutes: block.task.estimatedMinutes,
+        energyLevel: block.task.energyLevel as Task["energyLevel"],
+        focusType: block.task.focusType as Task["focusType"],
+        hardDeadline: block.task.hardDeadline,
+        // Default values for fields not in TaskSummary
+        source: "AI_GENERATED",
+        isOverdue: false,
+        isBlocked: false,
+        dependencyCount: 0,
+      });
+    });
+    
+    // Add unscheduled tasks
+    dailyPlan.unscheduledTasks.forEach(task => {
+      allTasks.push({
+        id: task.id,
+        title: task.title,
+        description: task.description,
+        status: "TODO", // Default status since TaskSummary doesn't include status
+        dueDate: task.hardDeadline,
+        priority: task.priority,
+        estimatedMinutes: task.estimatedMinutes,
+        energyLevel: task.energyLevel as Task["energyLevel"],
+        focusType: task.focusType as Task["focusType"],
+        hardDeadline: task.hardDeadline,
+        // Default values for fields not in TaskSummary
+        source: "AI_GENERATED",
+        isOverdue: false,
+        isBlocked: false,
+        dependencyCount: 0,
+      });
+    });
+    
+    return allTasks;
+  }, [dailyPlan]);
+  
+  // Use API data if available, otherwise fall back to initial tasks
+  const [tasks, setTasks] = useState<Task[]>(tasksFromAPI.length > 0 ? tasksFromAPI : initialTasks);
+  
+  // Update tasks when API data changes
+  React.useEffect(() => {
+    if (tasksFromAPI.length > 0) {
+      setTasks(tasksFromAPI);
+    }
+  }, [tasksFromAPI]);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "welcome",
@@ -106,7 +158,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     onTaskUpdate?.(taskId, updates);
 
     // Add AI suggestion based on task completion
-    if (updates.status === "done") {
+    if (updates.status === "DONE") {
       const completedTask = tasks.find(t => t.id === taskId);
       if (completedTask) {
         setAiRecommendations(prev => [...prev, {
@@ -122,8 +174,8 @@ const Dashboard: React.FC<DashboardProps> = ({
   const handleTaskClick = useCallback((taskId: string) => {
     const task = tasks.find(t => t.id === taskId);
     if (task) {
-      const nextStatus = task.status === "todo" ? "in-progress" : 
-                        task.status === "in-progress" ? "done" : "todo";
+      const nextStatus = task.status === "TODO" ? "IN_PROGRESS" : 
+                        task.status === "IN_PROGRESS" ? "DONE" : "TODO";
       handleTaskUpdate(taskId, { status: nextStatus });
     }
   }, [tasks, handleTaskUpdate]);
@@ -133,7 +185,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     setIsAiLoading(true);
     
     setTimeout(() => {
-      const todoTasks = tasks.filter(t => t.status === "todo");
+      const todoTasks = tasks.filter(t => t.status === "TODO");
       const newRecommendations: AIRecommendation[] = [];
 
       if (todoTasks.length > 3) {
@@ -209,16 +261,24 @@ const Dashboard: React.FC<DashboardProps> = ({
     }, 1000 + Math.random() * 1000);
   }, [tasks]);
 
+  // Helper function to convert priority
+  const convertPriority = (priority: "high" | "medium" | "low"): number => {
+    const priorityMap = { high: 5, medium: 3, low: 1 };
+    return priorityMap[priority];
+  };
+
   // Handle task extraction from chat
   const handleExtractTasks = useCallback((extractedTasks: ExtractedTask[]) => {
     const newTasks: Task[] = extractedTasks.map(extracted => ({
       id: generateTaskId(),
       title: extracted.title,
-      status: "todo" as const,
+      status: "TODO" as const,
       dueDate: extracted.dueDate,
-      priority: extracted.priority,
-      project: extracted.project,
+      priority: extracted.priority ? convertPriority(extracted.priority) : 3,
       estimatedMinutes: extracted.estimatedDuration,
+      energyLevel: "MEDIUM", // Default values
+      focusType: "ADMINISTRATIVE",
+      source: "AI_GENERATED",
     }));
 
     setTasks(prev => [...prev, ...newTasks]);
@@ -262,24 +322,38 @@ const Dashboard: React.FC<DashboardProps> = ({
           <h1 className="text-3xl font-bold text-base-content">Helmsman Dashboard</h1>
           <p className="text-base-content/70 mt-1">
             AI-powered productivity workspace
+            {dailyPlan && (
+              <span className="ml-2 text-sm">
+                • Plan for {new Date(dailyPlan.date).toLocaleDateString()}
+              </span>
+            )}
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {/* Refresh Plan Button */}
+          <button 
+            className={`btn btn-outline btn-sm ${refreshPlanMutation.isPending ? 'loading' : ''}`}
+            onClick={() => refreshPlanMutation.mutate(undefined)}
+            disabled={refreshPlanMutation.isPending}
+          >
+            {refreshPlanMutation.isPending ? 'Refreshing...' : '🔄 Refresh Plan'}
+          </button>
+          
           <div className="stats stats-horizontal shadow">
             <div className="stat">
               <div className="stat-title">Tasks</div>
               <div className="stat-value text-lg">{tasks.length}</div>
             </div>
             <div className="stat">
-              <div className="stat-title">Today</div>
+              <div className="stat-title">Scheduled</div>
               <div className="stat-value text-lg">
-                {tasks.filter(t => t.dueDate === new Date().toISOString().split('T')[0]).length}
+                {dailyPlan?.scheduleBlocks?.length || 0}
               </div>
             </div>
             <div className="stat">
               <div className="stat-title">Done</div>
               <div className="stat-value text-lg text-success">
-                {tasks.filter(t => t.status === "done").length}
+                {tasks.filter(t => t.status === "DONE").length}
               </div>
             </div>
           </div>
@@ -289,6 +363,57 @@ const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Loading State */}
+      {isPlanLoading && (
+        <div className="alert alert-info mb-6">
+          <span className="loading loading-spinner loading-sm"></span>
+          Loading your daily plan...
+        </div>
+      )}
+
+      {/* Error State */}
+      {planError && (
+        <div className="alert alert-warning mb-6">
+          <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+          </svg>
+          <span>Could not load daily plan. Using fallback data.</span>
+          <button 
+            className="btn btn-sm btn-outline"
+            onClick={() => refreshPlanMutation.mutate(undefined)}
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      {/* Planning Optimization Info */}
+      {dailyPlan && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="stat bg-base-200 rounded-lg">
+            <div className="stat-title">Energy Optimization</div>
+            <div className="stat-value text-lg">
+              {Math.round(dailyPlan.energyOptimization * 100)}%
+            </div>
+            <div className="stat-desc">Task-energy alignment</div>
+          </div>
+          <div className="stat bg-base-200 rounded-lg">
+            <div className="stat-title">Focus Optimization</div>
+            <div className="stat-value text-lg">
+              {Math.round(dailyPlan.focusOptimization * 100)}%
+            </div>
+            <div className="stat-desc">Task-focus alignment</div>
+          </div>
+          <div className="stat bg-base-200 rounded-lg">
+            <div className="stat-title">Deadline Risk</div>
+            <div className={`stat-value text-lg ${dailyPlan.deadlineRisk > 0.7 ? 'text-error' : dailyPlan.deadlineRisk > 0.4 ? 'text-warning' : 'text-success'}`}>
+              {Math.round(dailyPlan.deadlineRisk * 100)}%
+            </div>
+            <div className="stat-desc">Risk of missing deadlines</div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="flex flex-col lg:flex-row gap-6">
