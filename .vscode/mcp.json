@@ -1,0 +1,20 @@
+{
+	"servers": {
+		"agentic-tools": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"-y",
+				"@pimzino/agentic-tools-mcp@1.8.1"
+			],
+			"cwd": "${input:cwd}"
+		}
+	},
+	"inputs": [
+		{
+			"id": "cwd",
+			"type": "promptString",
+			"description": "What working directory should the MCP server use for project-specific storage?"
+		}
+	]
+}

@@ -1,0 +1,8 @@
+{
+  "id": "945fecec-9d99-4523-ac5f-8912017e42b7",
+  "title": "AI Integration Architecture & Targets",
+  "details": "AI service integration decisions for Helmsman:\n\nOPENAI INTEGRATION:\n- GPT-4 for task extraction and classification\n- Structured prompts with examples for consistency\n- Fallback to GPT-3.5-turbo for cost optimization\n- Rate limiting: 10 req/min for extractions, 20 req/min for classification\n\nPROMPT ENGINEERING STRATEGY:\n- Task extraction: Focus on actionable items with metadata inference\n- Classification: Predict energy/focus/priority from title/description\n- Context preservation: Include user patterns and preferences\n- Error handling: Graceful degradation to manual entry\n\nMEM0 SEMANTIC MEMORY:\n- Vector embeddings for task/project context\n- RAG queries for contextual AI responses\n- User interaction logging for learning\n- Privacy-first: local vector storage option\n\nACCURACY TARGETS:\n- Task extraction: >85% correctly identified tasks\n- Classification: >80% correct metadata prediction\n- User satisfaction: >75% rated suggestions as helpful",
+  "category": "ai_integration",
+  "dateCreated": "2025-07-27T21:25:59.806Z",
+  "dateUpdated": "2025-07-27T21:25:59.806Z"
+}

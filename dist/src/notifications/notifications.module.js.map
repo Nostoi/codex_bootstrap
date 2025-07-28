@@ -1,0 +1,1 @@
+{"version":3,"file":"notifications.module.js","sourceRoot":"","sources":["../../../backend/src/notifications/notifications.module.ts"],"names":[],"mappings":";;;;;;;;;AAAA,2CAAuC;AAMhC,IAAM,mBAAmB,GAAzB,MAAM,mBAAmB;CAAG,CAAA;AAAtB,kDAAmB;8BAAnB,mBAAmB;IAJ/B,IAAA,eAAM,EAAC;QACN,SAAS,EAAE,EAAE;QACb,OAAO,EAAE,EAAE;KACZ,CAAC;GACW,mBAAmB,CAAG"}

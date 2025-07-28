@@ -2,16 +2,26 @@
 FROM node:20-alpine
 WORKDIR /app
 
-# Install dependencies
-COPY backend/package*.json ./backend/
-RUN cd backend && npm install
+# Install OpenSSL and other dependencies
+RUN apk add --no-cache openssl bash
 
-# Copy source
-COPY backend ./backend
-WORKDIR /app/backend
+# Install dependencies
+COPY backend/package*.json ./
+RUN npm install
+
+# Copy source files to current directory
+COPY backend/ ./
 
 # Generate Prisma client
 RUN npx prisma generate
 
+# Install wait-for-it for database readiness
+ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /wait-for-it.sh
+RUN chmod +x /wait-for-it.sh
+
+# Set NODE_PATH to ensure module resolution works correctly
+ENV NODE_PATH=/app/node_modules
+
 EXPOSE 8000
-CMD ["npm", "run", "start:dev"]
+# Wait for database, push schema, and start development server
+CMD ["/wait-for-it.sh", "db:5432", "--timeout=30", "--", "sh", "-c", "npx prisma db push && NODE_PATH=/app/node_modules npm run start:dev"]

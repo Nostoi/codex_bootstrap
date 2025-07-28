@@ -5,12 +5,20 @@ WORKDIR /app
 COPY frontend/package*.json ./frontend/
 RUN cd frontend && npm install
 
-COPY frontend ./frontend
+COPY ./frontend ./frontend
 WORKDIR /app/frontend
 RUN npm run build
 
 FROM node:20-alpine
 WORKDIR /app
-COPY --from=builder /app/frontend .
-EXPOSE 3000
+
+# Copy package.json and install production dependencies
+COPY --from=builder /app/frontend/package*.json ./
+RUN npm install --omit=dev
+
+# Copy built application and configuration files
+COPY --from=builder /app/frontend/.next ./.next
+COPY --from=builder /app/frontend/next.config.js ./
+
+EXPOSE 3333
 CMD ["npm", "run", "start"]

@@ -24,23 +24,23 @@
     "db:seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
+    "@microsoft/microsoft-graph-client": "^3.0.0",
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/platform-ws": "^10.0.0",
-    "@nestjs/websockets": "^10.0.0",
     "@nestjs/swagger": "^7.0.0",
+    "@nestjs/websockets": "^10.0.0",
     "@prisma/client": "^5.9.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0",
+    "googleapis": "^126.0.0",
     "prisma": "^5.9.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
+    "ws": "^8.16.0",
     "y-websocket": "^1.5.0",
-    "yjs": "^13.6.0",
-    "@microsoft/microsoft-graph-client": "^3.0.0",
-    "googleapis": "^126.0.0",
-    "class-validator": "^0.14.0",
-    "class-transformer": "^0.5.1",
-    "ws": "^8.16.0"
+    "yjs": "^13.6.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
@@ -99,5 +99,14 @@
       }
     },
     "testEnvironment": "node"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "@prisma/client",
+      "@prisma/engines",
+      "leveldown",
+      "prisma"
+    ]
   }
 }

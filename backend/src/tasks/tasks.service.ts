@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common'
-import { NotificationsGateway } from '../notifications/notifications.gateway'
 
 export interface Task {
   id: number
@@ -10,8 +9,6 @@ export interface Task {
 
 @Injectable()
 export class TasksService {
-  constructor(private readonly notifications: NotificationsGateway) {}
-
   private tasks: Task[] = [
     {
       id: 1,
@@ -42,9 +39,10 @@ export class TasksService {
     const task = this.tasks.find((t) => t.id === id)
     if (task) {
       task.completed = !task.completed
-      this.notifications.sendReminder(
-        `Task "${task.title}" marked ${task.completed ? 'complete' : 'pending'}`,
-      )
+      // TODO: Re-enable notifications when WebSocket gateway is properly configured
+      // this.notifications.sendReminder(
+      //   `Task "${task.title}" marked ${task.completed ? 'complete' : 'pending'}`,
+      // )
     }
     return task
   }

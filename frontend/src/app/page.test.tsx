@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react'
+import { vi, describe, it, expect } from 'vitest'
 import Home from '@/app/page'
 
 // Mock Next.js router
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', () => ({
   useRouter() {
     return {
       route: '/',

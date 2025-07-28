@@ -1,0 +1,443 @@
+{
+  "projects": [
+    {
+      "id": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "name": "Helmsman AI-Augmented Task Management",
+      "description": "Transform the basic task management system into a sophisticated AI-powered personal command center with energy-aware scheduling, intelligent task extraction, dependency management, and contextual assistance. Implements the complete Helmsman specification with enhanced Prisma schema, OpenAI integration, daily planning algorithm, and accessibility-compliant UI components.",
+      "createdAt": "2025-07-27T21:37:55.310Z",
+      "updatedAt": "2025-07-27T21:37:55.310Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "5398815a-4387-4489-bd7a-193ffd100aab",
+      "name": "Enhance Prisma schema with Helmsman metadata fields",
+      "details": "Update the existing Prisma schema to support all Helmsman specification requirements including energy levels, focus types, task priorities, deadlines, dependencies, and user settings. This foundational change enables intelligent scheduling and AI-powered task management.\n\nFiles to modify:\n- backend/prisma/schema.prisma: Add new enums (EnergyLevel, FocusType, TaskSource), extend Task model with metadata fields, create UserSettings model, add InteractionLog model for Mem0 integration\n- backend/src/tasks/dto/: Create new DTOs for enhanced task creation/updates with metadata validation\n- backend/src/users/dto/: Add UserSettings DTOs for energy patterns and preferences\n\nKey schema additions:\n- Task.energyLevel (enum: LOW, MEDIUM, HIGH)\n- Task.focusType (enum: CREATIVE, TECHNICAL, ADMINISTRATIVE, SOCIAL) \n- Task.estimatedMinutes (integer, nullable)\n- Task.priority (integer 1-5, default 3)\n- Task.softDeadline and Task.hardDeadline (DateTime, nullable)\n- Task.source (enum: SELF, BOSS, TEAM, AI_GENERATED)\n- Task.aiSuggestion (text, nullable)\n- UserSettings model with morningEnergyLevel, afternoonEnergyLevel, preferredWorkHours\n- InteractionLog model for Mem0 context storage\n\nMigration strategy: Add fields as nullable first, backfill with defaults, then apply constraints. This ensures zero-downtime deployment while maintaining data integrity for existing tasks.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T21:38:10.884Z",
+      "updatedAt": "2025-07-27T21:38:10.884Z",
+      "dependsOn": [],
+      "priority": 10,
+      "complexity": 6,
+      "status": "pending",
+      "tags": [
+        "schema",
+        "prisma",
+        "migration",
+        "energy:medium",
+        "focus:technical",
+        "source:system"
+      ],
+      "estimatedHours": 6,
+      "level": 0
+    },
+    {
+      "id": "2bf83d50-8d46-4485-a29c-082430b44a1c",
+      "name": "Add nullable metadata columns to Task model",
+      "details": "Create Prisma migration files to add new enum types and nullable columns to the tasks table. This is the first phase of the schema enhancement that ensures zero-downtime deployment.\n\nAdd the following enums to schema.prisma:\n- EnergyLevel: LOW, MEDIUM, HIGH\n- FocusType: CREATIVE, TECHNICAL, ADMINISTRATIVE, SOCIAL  \n- TaskSource: SELF, BOSS, TEAM, AI_GENERATED\n\nAdd nullable columns to Task model:\n- energyLevel EnergyLevel?\n- focusType FocusType?\n- estimatedMinutes Int?\n- priority Int? @default(3)\n- softDeadline DateTime?\n- hardDeadline DateTime?\n- source TaskSource? @default(SELF)\n- aiSuggestion String?\n\nGenerate migration with: npx prisma migrate dev --name add_task_metadata_fields\nTest migration runs cleanly on existing data without errors or data loss.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "5398815a-4387-4489-bd7a-193ffd100aab",
+      "completed": false,
+      "createdAt": "2025-07-27T21:38:20.800Z",
+      "updatedAt": "2025-07-27T21:38:20.800Z",
+      "priority": 5,
+      "complexity": 3,
+      "status": "pending",
+      "level": 1
+    },
+    {
+      "id": "f2683569-684f-4508-bcdd-1f70b0db9020",
+      "name": "Create UserSettings and InteractionLog models",
+      "details": "Create UserSettings and InteractionLog models in Prisma schema to support user energy patterns and Mem0 integration.\n\nUserSettings model: userId, morningEnergyLevel, afternoonEnergyLevel, preferredWorkHours, focusSessionLength, workStartTime, workEndTime, timestamps.\n\nInteractionLog model: id, userId, interactionType, input, output, metadata Json, timestamp for Mem0 semantic memory.\n\nGenerate migration: npx prisma migrate dev --name add_user_settings_and_interaction_logs\nTest both models can be created and queried without foreign key constraint issues.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "5398815a-4387-4489-bd7a-193ffd100aab",
+      "completed": false,
+      "createdAt": "2025-07-27T21:38:42.020Z",
+      "updatedAt": "2025-07-27T21:38:42.020Z",
+      "priority": 5,
+      "complexity": 3,
+      "status": "pending",
+      "level": 1
+    },
+    {
+      "id": "4c2e8aa0-6bfc-418b-b32b-ea44537f7532",
+      "name": "Update TypeScript DTOs for enhanced schema",
+      "details": "Update TypeScript interfaces and DTOs to match the enhanced Prisma schema. This ensures type safety throughout the application.\n\nFiles to update:\n- backend/src/tasks/dto/create-task.dto.ts: Add optional energyLevel, focusType, estimatedMinutes, priority, deadlines, source\n- backend/src/tasks/dto/update-task.dto.ts: Add same optional fields as create\n- backend/src/users/dto/: Create user-settings.dto.ts with UserSettings interface\n- Any existing Task interfaces in frontend/src/types/ or shared types\n\nAdd validation decorators (@IsEnum, @IsOptional, @IsInt, @IsDateString) to ensure data integrity.\nGenerate fresh Prisma client types and verify no TypeScript compilation errors.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "5398815a-4387-4489-bd7a-193ffd100aab",
+      "completed": false,
+      "createdAt": "2025-07-27T21:38:51.624Z",
+      "updatedAt": "2025-07-27T21:38:51.624Z",
+      "priority": 5,
+      "complexity": 3,
+      "status": "pending",
+      "level": 1
+    },
+    {
+      "id": "133889ac-4e92-48b4-8706-65ef1954fada",
+      "name": "Create data migration to backfill task metadata",
+      "details": "Create safe data migration scripts to backfill existing tasks with sensible defaults for the new metadata fields. This ensures all existing user data remains functional while gaining the benefits of enhanced scheduling.\n\nCreate backfill script in backend/prisma/scripts/backfill-task-metadata.ts:\n- Set energyLevel = MEDIUM for all existing tasks (safe neutral default)\n- Set focusType = ADMINISTRATIVE for existing tasks (conservative default)\n- Set priority = 3 for all existing tasks (middle priority)\n- Set source = SELF for all existing tasks (user-created assumption)\n- Leave deadlines and aiSuggestion as null (no assumptions about timing)\n- Preserve all existing task data (title, description, completed, dueDate, etc.)\n\nVerification steps:\n- Count tasks before/after migration to ensure no data loss\n- Verify all non-nullable fields have values\n- Test that existing API endpoints continue to work\n- Create rollback script to remove new fields if needed\n\nRun backfill after schema migration but before applying NOT NULL constraints. Include comprehensive logging and progress tracking for large datasets.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T21:39:06.498Z",
+      "updatedAt": "2025-07-27T21:39:06.498Z",
+      "dependsOn": [
+        "5398815a-4387-4489-bd7a-193ffd100aab"
+      ],
+      "priority": 9,
+      "complexity": 4,
+      "status": "pending",
+      "tags": [
+        "migration",
+        "db",
+        "data",
+        "energy:low",
+        "focus:technical",
+        "source:system"
+      ],
+      "estimatedHours": 4,
+      "level": 0
+    },
+    {
+      "id": "ff2682c3-caac-46ed-8026-f2bd4c7b7d77",
+      "name": "Implement OpenAI service wrapper with JSON schemas",
+      "details": "Implement a production-ready OpenAI service wrapper that handles task extraction, classification, and contextual responses with proper error handling, rate limiting, and validation.\n\nCreate backend/src/ai/openai.service.ts with:\n- OpenAI client configuration with API key management\n- Task extraction method with structured JSON schema validation\n- Task classification method for metadata prediction\n- Error handling with exponential backoff and circuit breaker pattern\n- Request/response logging for debugging and monitoring\n- Cost tracking and rate limiting to prevent API abuse\n\nJSON schemas for structured outputs:\n- TaskExtractionSchema: array of tasks with title, description, metadata predictions\n- TaskClassificationSchema: energyLevel, focusType, estimatedMinutes, priority predictions\n- Validation and repair logic for malformed AI responses\n\nIntegration points:\n- POST /api/ai/extract-tasks endpoint\n- POST /api/ai/classify-task endpoint  \n- Error fallbacks to simple defaults when AI fails\n- Metrics collection for accuracy tracking\n\nEnvironment variables: OPENAI_API_KEY, OPENAI_MODEL (default: gpt-4), OPENAI_MAX_TOKENS\nInclude comprehensive unit tests with mocked OpenAI responses and error scenarios.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T21:39:19.491Z",
+      "updatedAt": "2025-07-27T21:39:19.491Z",
+      "dependsOn": [],
+      "priority": 8,
+      "complexity": 7,
+      "status": "pending",
+      "tags": [
+        "ai",
+        "openai",
+        "api",
+        "energy:high",
+        "focus:technical",
+        "source:system"
+      ],
+      "estimatedHours": 8,
+      "level": 0
+    },
+    {
+      "id": "a4cef2af-c0a7-43d3-a78e-e440f20bd201",
+      "name": "Create OpenAI service class with error handling",
+      "details": "Create the core OpenAI service class with proper configuration, error handling, and logging. This is the foundation for all AI functionality.\n\nImplement in backend/src/ai/openai.service.ts:\n- Injectable class with OpenAI client instance\n- Configuration from environment variables\n- Rate limiting with token bucket algorithm\n- Circuit breaker pattern for API failures\n- Request/response logging with sanitized data\n- Cost tracking per request\n- Health check method for service monitoring\n\nInclude proper TypeScript types, error classes, and dependency injection setup for NestJS.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "ff2682c3-caac-46ed-8026-f2bd4c7b7d77",
+      "completed": false,
+      "createdAt": "2025-07-27T21:39:28.474Z",
+      "updatedAt": "2025-07-27T21:39:28.474Z",
+      "priority": 5,
+      "complexity": 3,
+      "status": "pending",
+      "level": 1
+    },
+    {
+      "id": "970dd791-0367-4e58-8f4c-0cf4a9563c8f",
+      "name": "Define JSON schemas for AI response validation",
+      "details": "Implement JSON schema definitions and validation for structured OpenAI responses. This ensures reliable, type-safe AI interactions.\n\nCreate schemas in backend/src/ai/schemas/:\n- task-extraction.schema.json: Define structure for extracted tasks array\n- task-classification.schema.json: Define metadata prediction structure  \n- Validation functions using Ajv or Zod\n- Response repair logic for common AI output errors\n- Fallback defaults when validation fails\n\nSchemas should match the enhanced Task model and include all metadata fields with proper types and constraints.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "ff2682c3-caac-46ed-8026-f2bd4c7b7d77",
+      "completed": false,
+      "createdAt": "2025-07-27T21:39:37.640Z",
+      "updatedAt": "2025-07-27T21:39:37.640Z",
+      "priority": 5,
+      "complexity": 3,
+      "status": "pending",
+      "level": 1
+    },
+    {
+      "id": "d507c176-8bca-494a-8ed3-8345138e38d9",
+      "name": "Implement energy-aware daily planning algorithm",
+      "details": "Implement the core daily planning algorithm that generates optimized schedules based on task metadata, user energy patterns, dependencies, and time constraints. This is the heart of the Helmsman intelligent scheduling system.\n\nCreate backend/src/planning/daily-planner.service.ts with:\n- Task scoring algorithm considering priority, deadlines, energy match, focus batching\n- Energy-aware scheduling that matches high-energy tasks to morning slots\n- Dependency resolution to ensure blocked tasks aren't scheduled\n- Time slot generation based on user preferences and existing commitments\n- Focus type batching for cognitive efficiency (group similar work)\n- Overcommitment detection and task deferral logic\n\nAlgorithm components:\n- calculateTaskScore(task, timeSlot, userSettings): scoring function\n- resolveTaskDependencies(tasks): filter out blocked tasks\n- generateTimeSlots(date, userSettings, commitments): available time windows\n- assignTasksToSlots(tasks, slots): greedy assignment with optimization\n- OptimizationResult with energyOptimization and focusOptimization scores\n\nAPI endpoint: GET /api/plans/today?date=YYYY-MM-DD\nReturns DailyPlan with scheduleBlocks, unscheduledTasks, optimization metrics\n\nInclude comprehensive unit tests with various scenarios: normal day, overcommitted, all tasks blocked, empty schedule, user with different energy patterns.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T21:39:53.448Z",
+      "updatedAt": "2025-07-27T21:39:53.448Z",
+      "dependsOn": [
+        "133889ac-4e92-48b4-8706-65ef1954fada"
+      ],
+      "priority": 8,
+      "complexity": 8,
+      "status": "pending",
+      "tags": [
+        "scheduling",
+        "algorithm",
+        "planning",
+        "energy:high",
+        "focus:technical",
+        "source:system"
+      ],
+      "estimatedHours": 10,
+      "level": 0
+    },
+    {
+      "id": "9543d421-958a-4eb8-977b-53a8249a29c5",
+      "name": "Implement task scoring algorithm with weighted factors",
+      "details": "Implement the core task scoring algorithm that evaluates how well each task fits into specific time slots.\n\nCreate calculateTaskScore function with weighted factors:\n- Priority weight (40%): priority * 8 points\n- Deadline urgency (30%): higher scores for tasks due soon\n- Energy level match (20%): bonus when task energy matches slot energy\n- Focus type efficiency (10%): bonus for batching similar work types\n\nInclude edge cases: tasks without metadata, impossible deadlines, energy mismatches.\nReturn numeric score 0-100 for ranking tasks within time slots.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "d507c176-8bca-494a-8ed3-8345138e38d9",
+      "completed": false,
+      "createdAt": "2025-07-27T21:40:03.937Z",
+      "updatedAt": "2025-07-27T21:40:03.937Z",
+      "priority": 5,
+      "complexity": 3,
+      "status": "pending",
+      "level": 1
+    },
+    {
+      "id": "93b4cfb6-1650-446f-858d-be5e6f5a860e",
+      "name": "Build dependency resolution engine",
+      "details": "Create dependency resolution logic to identify which tasks are ready to be scheduled versus blocked by prerequisites.\n\nImplement resolveTaskDependencies function:\n- Query TaskDependency relationships from database\n- Build dependency graph to detect cycles\n- Filter out tasks that have incomplete dependencies  \n- Return array of scheduleable tasks and blocked tasks with reasons\n- Handle dependency chains (A depends on B depends on C)\n- Detect and report circular dependencies\n\nInclude error handling for orphaned dependencies and missing tasks.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "d507c176-8bca-494a-8ed3-8345138e38d9",
+      "completed": false,
+      "createdAt": "2025-07-27T21:40:11.379Z",
+      "updatedAt": "2025-07-27T21:40:11.379Z",
+      "priority": 5,
+      "complexity": 3,
+      "status": "pending",
+      "level": 1
+    },
+    {
+      "id": "a7c9f5d0-a41f-4500-a4c6-aa423d48f2e3",
+      "name": "Generate energy-mapped time slots for scheduling",
+      "details": "Create time slot generation logic that maps user energy patterns and preferences to available scheduling windows.\n\nImplement generateTimeSlots function:\n- Parse user work hours (workStartTime to workEndTime)\n- Map energy levels to time periods (morning=HIGH, afternoon=MEDIUM, evening=LOW)\n- Account for existing commitments and meetings\n- Create TimeSlot objects with startTime, endTime, energyLevel, preferredFocusTypes\n- Handle break times and context switching buffers\n- Support different user energy patterns (night owls vs early birds)\n\nReturn array of available time slots for the target date with energy and focus metadata.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "d507c176-8bca-494a-8ed3-8345138e38d9",
+      "completed": false,
+      "createdAt": "2025-07-27T21:40:20.898Z",
+      "updatedAt": "2025-07-27T21:40:20.898Z",
+      "priority": 5,
+      "complexity": 3,
+      "status": "pending",
+      "level": 1
+    },
+    {
+      "id": "f2b4ee90-3fc2-40c7-9ea1-09159fdd71f1",
+      "name": "Enhance TaskCard with full metadata display",
+      "details": "Enhance the existing TaskCard component to display all task metadata with visual indicators, accessibility support, and interactive elements. This transforms the basic task display into a rich information interface.\n\nEnhance frontend/src/components/ui/TaskCard.tsx with:\n- Energy level badges with color coding (HIGH=red, MEDIUM=yellow, LOW=green)\n- Focus type icons and labels (🎨 Creative, ⚙️ Technical, 📋 Administrative, 👥 Social)\n- Priority indicators with visual weight (border colors, background intensity)\n- Estimated time display with clock icon\n- Deadline indicators with urgency colors (red for hard deadlines approaching)\n- Dependency status chips showing blocked/ready states\n- AI suggestion callouts with lightbulb icon\n- Task source attribution (Self, Boss, Team, AI Generated)\n\nAccessibility features:\n- ARIA labels with full task context for screen readers\n- Keyboard navigation support (Tab, Enter, Space, Arrow keys)\n- High contrast mode compatibility\n- Focus indicators and skip links\n\nInteractive elements:\n- Quick action buttons (Start, Complete, Edit, Dependencies)\n- Status change dropdown with confirmation\n- Click-to-edit for title and description\n- Hover states with additional metadata\n\nInclude comprehensive Storybook stories covering all metadata combinations and edge cases.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T21:40:36.352Z",
+      "updatedAt": "2025-07-27T21:40:36.352Z",
+      "dependsOn": [
+        "133889ac-4e92-48b4-8706-65ef1954fada"
+      ],
+      "priority": 7,
+      "complexity": 6,
+      "status": "pending",
+      "tags": [
+        "frontend",
+        "ui",
+        "accessibility",
+        "energy:medium",
+        "focus:creative",
+        "source:system"
+      ],
+      "estimatedHours": 8,
+      "level": 0
+    },
+    {
+      "id": "9acfdef3-f68a-498f-8813-323c83ef7445",
+      "name": "Integrate Dashboard with real daily planning API",
+      "details": "Enhance the existing Dashboard component to integrate with the daily planning algorithm and display optimized schedules in the focus view. This transforms the mock planning into real AI-powered scheduling.\n\nEnhance frontend/src/components/ui/Dashboard.tsx with:\n- Integration with GET /api/plans/today endpoint\n- Focus view displaying scheduled blocks with time slots\n- Energy optimization visualization (charts showing energy utilization)\n- Unscheduled tasks section with reasons (blocked, no time, etc.)\n- Plan regeneration button with loading states\n- Filter controls for energy level, focus type, priority\n- Real-time updates when tasks are completed or modified\n- Drag-and-drop rescheduling capabilities\n\nReplace existing mock data with real API calls:\n- Remove hardcoded task arrays and planning results\n- Add proper error handling for API failures\n- Include loading states and skeleton screens\n- Handle empty states (no tasks, no available time)\n\nPerformance optimizations:\n- Debounced API calls for plan regeneration\n- Memoized components to prevent unnecessary re-renders\n- Lazy loading for task details and dependencies\n\nConnect to task store for real-time synchronization and optimistic updates when tasks change status.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T21:40:50.892Z",
+      "updatedAt": "2025-07-27T21:40:50.892Z",
+      "dependsOn": [
+        "d507c176-8bca-494a-8ed3-8345138e38d9"
+      ],
+      "priority": 7,
+      "complexity": 5,
+      "status": "pending",
+      "tags": [
+        "frontend",
+        "dashboard",
+        "api",
+        "energy:medium",
+        "focus:technical",
+        "source:system"
+      ],
+      "estimatedHours": 6,
+      "level": 0
+    },
+    {
+      "id": "c6f7bcca-70d3-461b-bd41-e3404786ce6b",
+      "name": "Enhance Tasks API with metadata support",
+      "details": "Enhance the existing Tasks API endpoints to support full metadata CRUD operations with validation, error handling, and OpenAPI documentation. This enables frontend components to work with the enhanced task model.\n\nUpdate backend/src/tasks/tasks.controller.ts and tasks.service.ts:\n- Modify POST /api/tasks to accept all metadata fields (energyLevel, focusType, priority, deadlines, etc.)\n- Update GET /api/tasks to return full metadata in responses\n- Enhance PUT/PATCH /api/tasks/:id for metadata updates\n- Add validation using class-validator decorators\n- Include proper error responses (400 for validation, 404 for not found)\n\nCreate new endpoints:\n- GET /api/tasks/:id/dependencies - retrieve task dependencies\n- POST /api/tasks/:id/dependencies - create dependency relationships\n- DELETE /api/tasks/:id/dependencies/:dependencyId - remove dependencies\n- GET /api/users/:id/settings - user energy patterns and preferences\n- PUT /api/users/:id/settings - update user scheduling preferences\n\nDTOs and validation:\n- CreateTaskWithMetadataDto with optional metadata fields\n- UpdateTaskMetadataDto for partial updates\n- TaskDependencyDto for dependency management\n- UserSettingsDto for energy patterns\n\nOpenAPI documentation:\n- Update swagger decorators with new fields and examples\n- Document all enum values and constraints\n- Include response schemas and error codes\n\nAdd comprehensive unit and integration tests covering validation, error cases, and metadata handling.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T21:41:06.015Z",
+      "updatedAt": "2025-07-27T21:41:06.015Z",
+      "dependsOn": [
+        "133889ac-4e92-48b4-8706-65ef1954fada"
+      ],
+      "priority": 8,
+      "complexity": 5,
+      "status": "pending",
+      "tags": [
+        "api",
+        "backend",
+        "validation",
+        "energy:medium",
+        "focus:technical",
+        "source:system"
+      ],
+      "estimatedHours": 6,
+      "level": 0
+    },
+    {
+      "id": "aa8c2b38-621a-474c-bb99-18ca3a8a9e1f",
+      "name": "Connect frontend AI features to real OpenAI service",
+      "details": "Connect the frontend Dashboard and ChatGPT integration components to the real OpenAI service for task extraction and classification. This replaces mock AI responses with actual intelligent task processing.\n\nEnhance frontend/src/components/ui/ChatGPTIntegration.tsx:\n- Replace mock extractTasks function with real API call to POST /api/ai/extract-tasks\n- Add proper error handling for AI service failures with user-friendly messages\n- Include loading states during AI processing with progress indicators\n- Handle malformed AI responses gracefully with fallback options\n- Add retry logic for temporary AI service failures\n\nUpdate task extraction workflow:\n- Send user input text to backend AI service\n- Display extracted tasks in preview mode before creation\n- Allow users to edit AI suggestions before committing\n- Show confidence scores and metadata predictions\n- Handle edge cases (no tasks found, parsing errors, API limits)\n\nIntegrate with task creation:\n- Use enhanced CreateTaskWithMetadataDto for extracted tasks\n- Validate AI-generated metadata before submission\n- Provide feedback to users on extraction accuracy\n- Track extraction success rates for monitoring\n\nUser experience improvements:\n- Show typing indicators during AI processing\n- Add suggestion confidence indicators\n- Include explanations for AI recommendations\n- Provide manual override options for all metadata\n\nReplace all mock data and simulate real production AI interactions with proper error handling and user feedback.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T21:41:22.115Z",
+      "updatedAt": "2025-07-27T21:41:22.115Z",
+      "dependsOn": [
+        "ff2682c3-caac-46ed-8026-f2bd4c7b7d77",
+        "f2b4ee90-3fc2-40c7-9ea1-09159fdd71f1"
+      ],
+      "priority": 6,
+      "complexity": 6,
+      "status": "pending",
+      "tags": [
+        "frontend",
+        "ai",
+        "integration",
+        "energy:medium",
+        "focus:technical",
+        "source:system"
+      ],
+      "estimatedHours": 5,
+      "level": 0
+    },
+    {
+      "id": "187324b2-63f0-4991-924d-47c864778f3c",
+      "name": "Expand E2E test suite for Helmsman features",
+      "details": "Expand the existing Playwright test suite to cover all new Helmsman features including metadata display, AI integration, and daily planning. This ensures comprehensive end-to-end coverage of the enhanced system.\n\nCreate new test files in tests/e2e/:\n- task-metadata.spec.ts: Test creation and display of tasks with all metadata fields\n- daily-planning.spec.ts: Test plan generation, schedule display, and task scheduling\n- ai-integration.spec.ts: Test task extraction, classification, and AI suggestions\n- accessibility.spec.ts: Test keyboard navigation, screen reader support, and WCAG compliance\n- dependency-management.spec.ts: Test task dependency creation, blocking, and resolution\n\nKey test scenarios:\n- Task creation with energy levels, focus types, priorities, and deadlines\n- AI task extraction from various text inputs with error handling\n- Daily plan generation with different user energy patterns\n- Task card metadata display and interactions\n- Dependency blocking and unblocking workflows\n- Accessibility compliance for all new components\n\nPerformance testing:\n- Dashboard load times with 100+ tasks\n- AI response times and timeout handling\n- Plan generation speed with complex schedules\n\nError scenarios:\n- AI service failures and fallback behavior\n- Invalid metadata handling\n- Network failures during planning\n\nInclude test data fixtures for consistent test scenarios and proper cleanup after each test run.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T21:41:37.154Z",
+      "updatedAt": "2025-07-27T21:41:37.154Z",
+      "dependsOn": [],
+      "priority": 6,
+      "complexity": 5,
+      "status": "pending",
+      "tags": [
+        "testing",
+        "e2e",
+        "playwright",
+        "energy:low",
+        "focus:technical",
+        "source:system"
+      ],
+      "estimatedHours": 6,
+      "level": 0
+    },
+    {
+      "id": "dc374802-4c71-405a-8ac0-9ce00f65e9de",
+      "name": "Implement metrics and monitoring for production",
+      "details": "Implement comprehensive metrics collection and monitoring for the Helmsman system to track user engagement, AI accuracy, system performance, and business KPIs. This enables data-driven optimization and production readiness.\n\nCreate backend/src/monitoring/metrics.service.ts with Prometheus metrics:\n- User engagement metrics: daily_active_users, plan_adherence_rate, ai_interaction_rate\n- AI accuracy metrics: task_extraction_accuracy, classification_accuracy, suggestion_relevance\n- System performance metrics: api_response_time, dashboard_load_time, ai_request_latency\n- Business metrics: tasks_created_total, plans_generated_total, ai_suggestions_accepted\n\nMetrics collection points:\n- Task completion tracking with energy level and focus type labels\n- AI accuracy measurement based on user corrections and feedback\n- Plan adherence calculation comparing scheduled vs actual task completion\n- API performance timing with route and status code labels\n- User interaction tracking for engagement analysis\n\nGrafana dashboard configuration:\n- Create helmsman-overview.json with key metric visualizations\n- Plan adherence gauge with red/yellow/green thresholds\n- AI accuracy trends over time by feature\n- API performance heatmap\n- User engagement statistics\n\nAlerting rules:\n- High API error rate (>10% for 2 minutes)\n- AI service downtime\n- Low plan adherence rate (<50%)\n- Database connection failures\n\nInclude health check endpoint for service monitoring and structured logging for debugging and audit trails.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T21:41:51.159Z",
+      "updatedAt": "2025-07-27T21:41:51.159Z",
+      "dependsOn": [],
+      "priority": 5,
+      "complexity": 4,
+      "status": "pending",
+      "tags": [
+        "observability",
+        "metrics",
+        "monitoring",
+        "energy:low",
+        "focus:technical",
+        "source:system"
+      ],
+      "estimatedHours": 5,
+      "level": 0
+    },
+    {
+      "id": "421c7884-528c-430a-93dc-81a4929de983",
+      "name": "Implement security hardening and audit logging",
+      "details": "Implement security hardening measures including rate limiting, audit logging, and data encryption to protect the Helmsman system in production. This ensures safe handling of user data and AI interactions.\n\nCreate backend/src/security/rate-limiting.middleware.ts:\n- Redis-based rate limiting with different limits per endpoint type\n- AI endpoints: 10 requests/minute (expensive operations)\n- Task operations: 60 requests/minute (standard CRUD)\n- Authentication endpoints: 5 requests/minute (prevent brute force)\n- Rate limit headers in responses (X-RateLimit-Limit, X-RateLimit-Remaining)\n\nImplement audit logging in backend/src/security/audit-logger.service.ts:\n- Log all task modifications with user ID, action, and changes\n- Track AI interactions with input/output sanitization\n- Record authentication events and permission changes\n- Structured logging with correlation IDs for tracing\n- Retention policy and log rotation\n\nData encryption service in backend/src/security/encryption.service.ts:\n- Encrypt sensitive data at rest (AI suggestions, user preferences)\n- Use AES-256-GCM with proper key management\n- Environment-based encryption keys with rotation support\n- Encrypt/decrypt methods with proper error handling\n\nSecurity headers middleware:\n- CORS configuration for production domains\n- Content Security Policy headers\n- XSS protection and clickjacking prevention\n- HTTPS enforcement and security headers\n\nInclude security testing with automated vulnerability scanning and penetration testing scenarios.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T21:42:05.441Z",
+      "updatedAt": "2025-07-27T21:42:05.441Z",
+      "dependsOn": [],
+      "priority": 7,
+      "complexity": 4,
+      "status": "pending",
+      "tags": [
+        "security",
+        "audit",
+        "encryption",
+        "energy:medium",
+        "focus:technical",
+        "source:system"
+      ],
+      "estimatedHours": 6,
+      "level": 0
+    },
+    {
+      "id": "37b9261f-7516-4a05-9d81-8382e2de73b2",
+      "name": "Setup feature flags and deployment infrastructure",
+      "details": "Implement feature flags and deployment infrastructure to enable safe, gradual rollout of Helmsman features with rollback capabilities. This ensures zero-downtime deployments and risk mitigation.\n\nCreate backend/src/features/feature-flags.service.ts:\n- Feature flag enum with all major Helmsman features\n- Environment variable configuration for global flags\n- User-specific flag overrides stored in database\n- Flag evaluation methods with default fallbacks\n- Integration with all major feature areas\n\nFeature flags to implement:\n- ENHANCED_TASK_METADATA: New task fields and validation\n- AI_TASK_EXTRACTION: OpenAI integration for task parsing\n- DAILY_PLANNING: Intelligent scheduling algorithm\n- MEM0_INTEGRATION: Semantic memory and context\n- ADVANCED_AI_FEATURES: Proactive suggestions and learning\n\nDeployment checklist automation:\n- Pre-deployment validation scripts (tests, migrations, config)\n- Database migration verification with rollback scripts\n- Feature flag configuration templates\n- Health check validation after deployment\n- Gradual rollout plan (5% → 25% → 50% → 100%)\n\nDocker and Kubernetes configuration:\n- Update Dockerfile.backend and Dockerfile.frontend with new dependencies\n- Environment variable management for feature flags\n- Health check endpoints for container orchestration\n- Resource limits and scaling configuration\n\nInclude deployment documentation with runbooks for common scenarios and troubleshooting guides for rollback procedures.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T21:42:20.778Z",
+      "updatedAt": "2025-07-27T21:42:20.778Z",
+      "dependsOn": [],
+      "priority": 6,
+      "complexity": 3,
+      "status": "pending",
+      "tags": [
+        "deployment",
+        "feature-flags",
+        "infrastructure",
+        "energy:low",
+        "focus:technical",
+        "source:system"
+      ],
+      "estimatedHours": 4,
+      "level": 0
+    },
+    {
+      "id": "a351ff32-8c37-48d3-8f0a-cf946de4b30e",
+      "name": "Create technical documentation and API specs",
+      "details": "Create comprehensive technical documentation covering the Helmsman system architecture, API specifications, deployment procedures, and contributor guidelines. This ensures maintainability and onboarding efficiency.\n\nCreate documentation in docs/:\n- docs/api/openapi.yaml: Complete OpenAPI 3.1 specification with all endpoints, schemas, and examples\n- docs/architecture/system-overview.md: High-level architecture diagram and component descriptions\n- docs/architecture/database-schema.md: Prisma schema documentation with relationships and constraints\n- docs/deployment/README.md: Step-by-step deployment guide with prerequisites and troubleshooting\n- docs/development/contributing.md: Developer setup, coding standards, and contribution workflow\n\nAPI documentation:\n- Document all task metadata fields with validation rules and examples\n- Include authentication requirements and error response formats\n- Provide curl examples for common operations\n- Document rate limiting and usage guidelines\n\nArchitecture documentation:\n- Component interaction diagrams showing frontend → backend → AI service flows\n- Database ERD with relationship explanations\n- AI integration architecture with prompt engineering guidelines\n- Security model and data flow documentation\n\nDeployment runbooks:\n- Production deployment checklist with rollback procedures\n- Environment configuration guide with required variables\n- Monitoring setup and alert configuration\n- Backup and disaster recovery procedures\n\nInclude code comments and inline documentation for complex algorithms and business logic.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-27T21:42:34.562Z",
+      "updatedAt": "2025-07-27T21:42:34.562Z",
+      "dependsOn": [],
+      "priority": 4,
+      "complexity": 3,
+      "status": "pending",
+      "tags": [
+        "documentation",
+        "api",
+        "docs",
+        "energy:low",
+        "focus:administrative",
+        "source:system"
+      ],
+      "estimatedHours": 4,
+      "level": 0
+    }
+  ],
+  "subtasks": [],
+  "migration": {
+    "version": "1.8.1",
+    "migratedAt": "2025-07-27T21:40:36.351Z",
+    "subtasksMigrated": 1
+  }
+}

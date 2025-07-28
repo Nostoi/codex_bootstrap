@@ -1,0 +1,70 @@
+-- Enhanced Task Schema for Helmsman Spec Compliance
+-- This should replace the current Task model in schema.prisma
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  
+  // Status and Progress
+  status      TaskStatus @default(TODO)
+  completed   Boolean    @default(false)
+  
+  // Timing and Deadlines
+  estimatedMinutes Int?
+  softDeadline     DateTime?
+  hardDeadline     DateTime?
+  dueDate          DateTime?  // Keep for backward compatibility
+  
+  // Metadata for AI scheduling
+  energyLevel   EnergyLevel?
+  focusType     FocusType?
+  priority      Int          @default(3)  // 1-5 scale
+  source        TaskSource   @default(SELF)
+  
+  // AI and Context
+  aiSuggestion  String?
+  
+  // Relationships
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  
+  // Dependencies
+  dependencies TaskDependency[] @relation("TaskDependencies")
+  dependents   TaskDependency[] @relation("TaskDependents")
+  tags         Tag[]
+  notifications Notification[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("tasks")
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  BLOCKED
+  DONE
+}
+
+enum EnergyLevel {
+  LOW
+  MEDIUM  
+  HIGH
+}
+
+enum FocusType {
+  CREATIVE
+  ADMINISTRATIVE
+  SOCIAL
+}
+
+enum TaskSource {
+  SELF
+  BOSS
+  TEAM
+  AI_GENERATED
+}

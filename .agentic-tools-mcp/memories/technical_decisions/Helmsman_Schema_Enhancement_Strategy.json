@@ -1,0 +1,8 @@
+{
+  "id": "4fa346fc-d86c-4cd1-9aa6-3cd68b9b1ebc",
+  "title": "Helmsman Schema Enhancement Strategy",
+  "details": "Database migration strategy for Helmsman implementation:\n\nPHASED APPROACH:\n1. Add nullable columns first (safe, non-breaking)\n2. Backfill existing data with sensible defaults (MEDIUM energy, ADMINISTRATIVE focus, priority 3)\n3. Add NOT NULL constraints after backfill (potentially breaking)\n\nKEY DECISIONS:\n- EnergyLevel enum: LOW/MEDIUM/HIGH (maps to user energy patterns)\n- FocusType enum: CREATIVE/TECHNICAL/ADMINISTRATIVE/SOCIAL (aligns with work types)\n- Priority scale: 1-5 (1=lowest, 5=highest priority)\n- Both soft and hard deadlines supported\n- TaskSource tracking: SELF/BOSS/COLLEAGUE/SYSTEM/AI\n\nROLLBACK PLAN:\n- Each migration phase can be rolled back independently\n- Column drops are safe if no dependencies exist\n- Staging environment validation required before production",
+  "category": "technical_decisions",
+  "dateCreated": "2025-07-27T21:25:49.055Z",
+  "dateUpdated": "2025-07-27T21:25:49.055Z"
+}

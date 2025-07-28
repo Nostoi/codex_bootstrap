@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { TasksService } from './tasks.service'
-import { NotificationsGateway } from '../notifications/notifications.gateway'
 
 describe('TasksService', () => {
   let service: TasksService
@@ -9,10 +8,7 @@ describe('TasksService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TasksService,
-        {
-          provide: NotificationsGateway,
-          useValue: { sendReminder: jest.fn() },
-        },
+        // NotificationsGateway temporarily removed
       ],
     }).compile()
 

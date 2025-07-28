@@ -1,0 +1,8 @@
+{
+  "id": "6d01c82f-85d1-46e1-a207-3462f889f995",
+  "title": "Helmsman Task Hierarchy & Dependencies",
+  "details": "Helmsman project task hierarchy and dependency mapping:\n\nCRITICAL PATH:\n1. Backend Schema Enhancement → Enhanced API Development → Daily Planning Algorithm\n2. Basic AI Integration → Advanced AI Features\n3. Frontend Component Enhancement (depends on schema)\n4. Testing & QA (depends on all core features)\n5. Production & Observability (depends on testing)\n\nSPRINT MAPPING:\nSprint 1 (Weeks 1-2): Schema + API + Basic AI\nSprint 2 (Weeks 3-4): Planning Algorithm + Frontend Enhancement  \nSprint 3 (Weeks 5-6): Advanced AI + Testing + Production\n\nCOMPLEXITY DISTRIBUTION:\n- High complexity (8-9): Daily Planning Algorithm, Advanced AI Features\n- Medium complexity (6-7): Enhanced API Development, Frontend Component Enhancement, Testing & QA\n- Lower complexity (3-5): Basic AI Integration, Production & Observability\n\nPARALLEL WORK OPPORTUNITIES:\n- Basic AI Integration can start with schema work\n- Frontend work can proceed after schema is complete\n- Testing can begin incrementally as features are completed\n\nRISK FACTORS:\n- Daily Planning Algorithm is most complex (9/10) - needs extra attention\n- AI features dependent on external APIs - have fallback plans\n- Migration scripts need careful staging validation",
+  "category": "project_management",
+  "dateCreated": "2025-07-27T21:29:16.852Z",
+  "dateUpdated": "2025-07-27T21:29:16.852Z"
+}

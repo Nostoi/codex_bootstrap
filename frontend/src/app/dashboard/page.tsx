@@ -1,16 +1,14 @@
+'use client'
+
 import { useEffect } from 'react'
-import TaskList from '@/components/TaskList'
+import Link from 'next/link'
+import Dashboard from '@/components/ui/Dashboard'
 import { useTasksStore } from '@/store/tasksStore'
-import { useTasks, useToggleTask } from '@/hooks/useApi'
+import { useTasks } from '@/hooks/useApi'
 
 export default function DashboardPage() {
   const { tasks, setTasks } = useTasksStore()
   const { data } = useTasks()
-  const toggleMutation = useToggleTask()
-
-  const today = new Date().toISOString().slice(0, 10)
-
-  const todaysTasks = tasks.filter((t) => t.dueDate === today)
 
   useEffect(() => {
     if (data) {
@@ -18,24 +16,45 @@ export default function DashboardPage() {
     }
   }, [data, setTasks])
 
-  return (
-    <main className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
-      <section>
-        <h2 className="text-xl font-semibold mb-2">Today&apos;s Plan</h2>
-        <TaskList
-          tasks={todaysTasks}
-          onToggle={(id) => toggleMutation.mutate(id)}
-        />
-      </section>
+  // Convert tasks to the format expected by Dashboard component
+  const convertedTasks = tasks.map(task => ({
+    id: task.id.toString(),
+    title: task.title,
+    status: task.completed ? 'done' as const : 'todo' as const,
+    dueDate: task.dueDate,
+    priority: 'medium' as const, // Default priority
+    estimatedMinutes: 30, // Default estimate
+    project: 'General' // Default project
+  }))
 
-      <section>
-        <h2 className="text-xl font-semibold mb-2">All Tasks</h2>
-        <TaskList
-          tasks={tasks}
-          onToggle={(id) => toggleMutation.mutate(id)}
+  return (
+    <main className="min-h-screen bg-base-100">
+      {/* Navigation */}
+      <div className="navbar bg-primary text-primary-content">
+        <div className="flex-1">
+          <Link href="/" className="btn btn-ghost text-xl">
+            Codex Bootstrap
+          </Link>
+        </div>
+        <div className="flex-none">
+          <ul className="menu menu-horizontal px-1">
+            <li><Link href="/dashboard" className="text-accent">Dashboard</Link></li>
+            <li><Link href="/projects">Projects</Link></li>
+            <li><Link href="/reflection">Reflection</Link></li>
+            <li><Link href="/settings">Settings</Link></li>
+          </ul>
+        </div>
+      </div>
+
+      {/* AI-Powered Dashboard */}
+      <div className="container mx-auto px-4 py-8">
+        <Dashboard
+          initialTasks={convertedTasks}
+          onTaskUpdate={(taskId: string, updates) => console.log('Task updated:', taskId, updates)}
+          onTaskAdd={(task) => console.log('Create task:', task)}
+          onTaskDelete={(taskId: string) => console.log('Delete task:', taskId)}
         />
-      </section>
+      </div>
     </main>
   )
 }

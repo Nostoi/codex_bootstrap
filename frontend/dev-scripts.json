@@ -1,0 +1,22 @@
+{
+  "name": "frontend-dev-scripts",
+  "version": "1.0.0",
+  "description": "Development helper scripts for the Helmsman Dashboard",
+  "scripts": {
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "storybook:ci": "start-storybook --ci --quiet",
+    "type-check": "tsc --noEmit",
+    "lint:fix": "next lint --fix",
+    "analyze": "ANALYZE=true next build",
+    "dev:debug": "NODE_OPTIONS='--inspect' next dev",
+    "preview": "next build && next start",
+    "clean": "rm -rf .next out dist coverage",
+    "deps:check": "npx npm-check-updates",
+    "deps:update": "npx npm-check-updates -u && pnpm install"
+  },
+  "devDependencies": {
+    "@next/bundle-analyzer": "^14.0.0",
+    "npm-check-updates": "^16.0.0"
+  }
+}

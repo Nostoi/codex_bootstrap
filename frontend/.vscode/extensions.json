@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "bradlc.vscode-tailwindcss",
+    "esbenp.prettier-vscode",
+    "ms-vscode.vscode-typescript-next",
+    "streetsidesoftware.code-spell-checker",
+    "usernamehw.errorlens",
+    "ms-playwright.playwright",
+    "ms-vscode.test-adapter-converter",
+    "ms-vscode.vscode-json"
+  ]
+}
