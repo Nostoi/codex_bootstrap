@@ -15,12 +15,14 @@ const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const tasks_service_1 = require("../tasks/tasks.service");
 const google_service_1 = require("../integrations/google/google.service");
+const graph_service_1 = require("../integrations/graph/graph.service");
 const client_1 = require("@prisma/client");
 let DailyPlannerService = DailyPlannerService_1 = class DailyPlannerService {
-    constructor(prisma, tasksService, googleService) {
+    constructor(prisma, tasksService, googleService, graphService) {
         this.prisma = prisma;
         this.tasksService = tasksService;
         this.googleService = googleService;
+        this.graphService = graphService;
         this.logger = new common_1.Logger(DailyPlannerService_1.name);
     }
     async generatePlan(userId, date) {
@@ -45,6 +47,31 @@ let DailyPlannerService = DailyPlannerService_1 = class DailyPlannerService {
         catch (error) {
             this.logger.error(`Failed to generate plan: ${error.message}`, error.stack);
             throw new common_1.BadRequestException(`Plan generation failed: ${error.message}`);
+        }
+    }
+    async getCalendarEventsForDate(userId, date) {
+        try {
+            this.logger.log(`Retrieving calendar events for user ${userId} on ${date.toISOString()}`);
+            const timeSlots = await this.getExistingCommitments(userId, date);
+            const calendarEvents = timeSlots
+                .filter(slot => !slot.isAvailable && slot.title)
+                .map(slot => ({
+                id: slot.eventId || `${slot.source}-${slot.startTime.getTime()}`,
+                title: slot.title || 'Untitled Event',
+                description: slot.description,
+                startTime: slot.startTime,
+                endTime: slot.endTime,
+                source: slot.source || 'google',
+                energyLevel: slot.energyLevel,
+                focusType: slot.preferredFocusTypes[0],
+                isAllDay: slot.isAllDay || false,
+            }));
+            this.logger.log(`Retrieved ${calendarEvents.length} calendar events for user ${userId}`);
+            return calendarEvents;
+        }
+        catch (error) {
+            this.logger.error(`Failed to retrieve calendar events for user ${userId}: ${error.message}`, error.stack);
+            throw new common_1.BadRequestException(`Calendar events retrieval failed: ${error.message}`);
         }
     }
     async gatherPlanningData(userId, date) {
@@ -623,60 +650,58 @@ let DailyPlannerService = DailyPlannerService_1 = class DailyPlannerService {
     async getExistingCommitments(userId, date) {
         const startTime = performance.now();
         try {
-            this.logger.debug(`Starting calendar integration for user ${userId} on ${date.toISOString()}`);
+            this.logger.debug(`Starting dual-calendar integration for user ${userId} on ${date.toISOString()}`);
             const startOfDay = new Date(date);
             startOfDay.setHours(0, 0, 0, 0);
             const endOfDay = new Date(date);
             endOfDay.setHours(23, 59, 59, 999);
-            const calendarResponse = await this.getCalendarEventsWithRetry(userId, "primary", startOfDay, endOfDay);
-            const responseTime = performance.now() - startTime;
-            this.logger.log(`Calendar API response received in ${responseTime.toFixed(2)}ms for user ${userId}`);
-            if (!calendarResponse?.items) {
-                this.logger.debug(`No calendar events found for user ${userId} on ${date.toISOString()}`);
-                return [];
+            const [googleEvents, outlookEvents] = await Promise.allSettled([
+                this.getGoogleCommitments(userId, startOfDay, endOfDay),
+                this.getOutlookCommitments(userId, startOfDay, endOfDay),
+            ]);
+            const allTimeSlots = [];
+            let totalEvents = 0;
+            let googleEventCount = 0;
+            let outlookEventCount = 0;
+            if (googleEvents.status === 'fulfilled') {
+                allTimeSlots.push(...googleEvents.value);
+                googleEventCount = googleEvents.value.length;
+                totalEvents += googleEventCount;
+                this.logger.debug(`Successfully fetched ${googleEventCount} Google Calendar events`);
             }
-            const timeSlots = [];
-            let parseSuccessCount = 0;
-            let parseFailureCount = 0;
-            for (const event of calendarResponse.items) {
-                try {
-                    const timeSlot = this.parseCalendarEventToTimeSlot(event);
-                    if (timeSlot) {
-                        timeSlots.push(timeSlot);
-                        parseSuccessCount++;
-                    }
-                }
-                catch (error) {
-                    parseFailureCount++;
-                    this.logger.warn(`Failed to parse calendar event ${event.id || 'unknown'}: ${error.message}`, {
-                        userId,
-                        eventId: event.id,
-                        eventSummary: event.summary,
-                        errorType: error.constructor.name,
-                    });
-                    continue;
-                }
+            else {
+                this.logger.warn(`Google Calendar integration failed: ${googleEvents.reason?.message}`);
             }
+            if (outlookEvents.status === 'fulfilled') {
+                allTimeSlots.push(...outlookEvents.value);
+                outlookEventCount = outlookEvents.value.length;
+                totalEvents += outlookEventCount;
+                this.logger.debug(`Successfully fetched ${outlookEventCount} Outlook Calendar events`);
+            }
+            else {
+                this.logger.warn(`Outlook Calendar integration failed: ${outlookEvents.reason?.message}`);
+            }
+            const deduplicatedTimeSlots = this.deduplicateCalendarEvents(allTimeSlots);
+            const duplicatesRemoved = allTimeSlots.length - deduplicatedTimeSlots.length;
             const totalTime = performance.now() - startTime;
-            this.logger.log(`Calendar integration completed for user ${userId}: ${parseSuccessCount} events parsed, ${parseFailureCount} failed, total time ${totalTime.toFixed(2)}ms`, {
+            this.logger.log(`Multi-calendar integration completed for user ${userId}: Google(${googleEventCount}) + Outlook(${outlookEventCount}) = ${totalEvents} events, ${duplicatesRemoved} duplicates removed, final count: ${deduplicatedTimeSlots.length}, total time ${totalTime.toFixed(2)}ms`, {
                 userId,
                 date: date.toISOString(),
-                totalEvents: calendarResponse.items.length,
-                successfullyParsed: parseSuccessCount,
-                parseFailures: parseFailureCount,
+                googleEventCount,
+                outlookEventCount,
+                totalEvents,
+                duplicatesRemoved,
+                finalEventCount: deduplicatedTimeSlots.length,
                 responseTimeMs: totalTime,
             });
-            return timeSlots;
+            return deduplicatedTimeSlots;
         }
         catch (error) {
             const totalTime = performance.now() - startTime;
-            const errorDetails = this.categorizeCalendarError(error);
-            this.logger.error(`Calendar integration failed for user ${userId}: ${errorDetails.message}`, {
+            this.logger.error(`Multi-calendar integration failed for user ${userId}: ${error.message}`, {
                 userId,
                 date: date.toISOString(),
-                errorType: errorDetails.type,
-                errorCode: errorDetails.code,
-                retryable: errorDetails.retryable,
+                errorType: error.constructor.name,
                 timeElapsed: totalTime,
                 originalError: error.message,
             });
@@ -841,6 +866,11 @@ let DailyPlannerService = DailyPlannerService_1 = class DailyPlannerService {
             energyLevel,
             preferredFocusTypes,
             isAvailable: false,
+            source: 'google',
+            eventId: event.id,
+            title: event.summary || 'Untitled Event',
+            description: event.description || '',
+            isAllDay: !!(event.start.date && event.end.date),
         };
     }
     inferEnergyLevel(event) {
@@ -888,12 +918,354 @@ let DailyPlannerService = DailyPlannerService_1 = class DailyPlannerService {
         }
         return focusTypes;
     }
+    async getGoogleCommitments(userId, startOfDay, endOfDay) {
+        try {
+            this.logger.debug(`Fetching Google Calendar events for user ${userId}`);
+            const calendarResponse = await this.getCalendarEventsWithRetry(userId, "primary", startOfDay, endOfDay);
+            if (!calendarResponse?.items) {
+                this.logger.debug(`No Google Calendar events found for user ${userId}`);
+                return [];
+            }
+            const timeSlots = [];
+            let parseSuccessCount = 0;
+            let parseFailureCount = 0;
+            for (const event of calendarResponse.items) {
+                try {
+                    const timeSlot = this.parseCalendarEventToTimeSlot(event);
+                    if (timeSlot) {
+                        timeSlot.source = 'google';
+                        timeSlots.push(timeSlot);
+                        parseSuccessCount++;
+                    }
+                }
+                catch (error) {
+                    parseFailureCount++;
+                    this.logger.warn(`Failed to parse Google Calendar event ${event.id || 'unknown'}: ${error.message}`, {
+                        userId,
+                        eventId: event.id,
+                        eventSummary: event.summary,
+                        errorType: error.constructor.name,
+                    });
+                    continue;
+                }
+            }
+            this.logger.debug(`Google Calendar integration: ${parseSuccessCount} events parsed, ${parseFailureCount} failed`);
+            return timeSlots;
+        }
+        catch (error) {
+            this.logger.error(`Google Calendar integration failed for user ${userId}: ${error.message}`);
+            throw error;
+        }
+    }
+    async getOutlookCommitments(userId, startOfDay, endOfDay) {
+        try {
+            this.logger.debug(`Fetching Outlook Calendar events for user ${userId}`);
+            const outlookResponse = await this.getOutlookEventsWithRetry(userId, "primary", startOfDay, endOfDay);
+            if (!outlookResponse?.value || outlookResponse.value.length === 0) {
+                this.logger.debug(`No Outlook Calendar events found for user ${userId}`);
+                return [];
+            }
+            const timeSlots = [];
+            let parseSuccessCount = 0;
+            let parseFailureCount = 0;
+            for (const event of outlookResponse.value) {
+                try {
+                    const timeSlot = this.parseOutlookEventToTimeSlot(event);
+                    if (timeSlot) {
+                        timeSlot.source = 'outlook';
+                        timeSlots.push(timeSlot);
+                        parseSuccessCount++;
+                    }
+                }
+                catch (error) {
+                    parseFailureCount++;
+                    this.logger.warn(`Failed to parse Outlook Calendar event ${event.id || 'unknown'}: ${error.message}`, {
+                        userId,
+                        eventId: event.id,
+                        eventSubject: event.subject,
+                        errorType: error.constructor.name,
+                    });
+                    continue;
+                }
+            }
+            this.logger.debug(`Outlook Calendar integration: ${parseSuccessCount} events parsed, ${parseFailureCount} failed`);
+            return timeSlots;
+        }
+        catch (error) {
+            this.logger.error(`Outlook Calendar integration failed for user ${userId}: ${error.message}`);
+            throw error;
+        }
+    }
+    async getOutlookEventsWithRetry(userId, calendarId, timeMin, timeMax, maxRetries = 3) {
+        let lastError;
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                this.logger.debug(`Outlook Calendar API attempt ${attempt}/${maxRetries} for user ${userId}`);
+                const response = await this.graphService.getCalendarEvents(userId, calendarId, timeMin, timeMax);
+                if (attempt > 1) {
+                    this.logger.log(`Outlook Calendar API succeeded on retry attempt ${attempt} for user ${userId}`);
+                }
+                return response;
+            }
+            catch (error) {
+                lastError = error;
+                const errorDetails = this.categorizeOutlookCalendarError(error);
+                this.logger.warn(`Outlook Calendar API attempt ${attempt}/${maxRetries} failed for user ${userId}: ${errorDetails.message}`, {
+                    userId,
+                    attempt,
+                    maxRetries,
+                    errorType: errorDetails.type,
+                    errorCode: errorDetails.code,
+                    retryable: errorDetails.retryable,
+                });
+                if (!errorDetails.retryable) {
+                    this.logger.error(`Non-retryable Outlook error encountered, aborting retry attempts for user ${userId}`, {
+                        userId,
+                        errorType: errorDetails.type,
+                        errorCode: errorDetails.code,
+                    });
+                    throw error;
+                }
+                if (attempt < maxRetries) {
+                    const delayMs = this.calculateRetryDelay(attempt);
+                    this.logger.debug(`Waiting ${delayMs}ms before Outlook retry attempt ${attempt + 1} for user ${userId}`);
+                    await this.sleep(delayMs);
+                }
+            }
+        }
+        this.logger.error(`All ${maxRetries} Outlook Calendar API attempts failed for user ${userId}`, {
+            userId,
+            maxRetries,
+            finalError: lastError.message,
+        });
+        throw lastError;
+    }
+    categorizeOutlookCalendarError(error) {
+        if (error.response?.status || error.code) {
+            const code = error.response?.status || error.code;
+            switch (code) {
+                case 401:
+                    return {
+                        type: 'AUTH_EXPIRED',
+                        code,
+                        message: 'Microsoft Graph authentication token expired or invalid',
+                        retryable: false,
+                    };
+                case 403:
+                    return {
+                        type: 'PERMISSION_DENIED',
+                        code,
+                        message: 'Insufficient permissions to access Outlook calendar',
+                        retryable: false,
+                    };
+                case 429:
+                    return {
+                        type: 'RATE_LIMITED',
+                        code,
+                        message: 'Microsoft Graph API rate limit exceeded',
+                        retryable: true,
+                    };
+                case 500:
+                case 502:
+                case 503:
+                case 504:
+                    return {
+                        type: 'SERVER_ERROR',
+                        code,
+                        message: 'Microsoft Graph API server error',
+                        retryable: true,
+                    };
+                default:
+                    return {
+                        type: 'API_ERROR',
+                        code,
+                        message: error.message || 'Unknown Microsoft Graph API error',
+                        retryable: false,
+                    };
+            }
+        }
+        if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+            return {
+                type: 'NETWORK_ERROR',
+                code: error.code,
+                message: 'Network connectivity issue',
+                retryable: true,
+            };
+        }
+        if (error.code === 'ETIMEDOUT' || error.message?.includes('timeout')) {
+            return {
+                type: 'TIMEOUT',
+                code: error.code || 'TIMEOUT',
+                message: 'Request timeout',
+                retryable: true,
+            };
+        }
+        if (error.message?.includes('integration not configured')) {
+            return {
+                type: 'INTEGRATION_NOT_CONFIGURED',
+                code: 'CONFIG_ERROR',
+                message: 'Microsoft Graph integration not configured for user',
+                retryable: false,
+            };
+        }
+        return {
+            type: 'UNKNOWN_ERROR',
+            code: error.code || 'UNKNOWN',
+            message: error.message || 'Unknown Outlook calendar integration error',
+            retryable: false,
+        };
+    }
+    parseOutlookEventToTimeSlot(event) {
+        if (!event.start || !event.end) {
+            throw new Error("Outlook event missing start or end time");
+        }
+        let startTime;
+        let endTime;
+        if (event.isAllDay) {
+            startTime = new Date(event.start.dateTime || event.start.date);
+            startTime.setHours(0, 0, 0, 0);
+            endTime = new Date(event.end.dateTime || event.end.date);
+            endTime.setHours(23, 59, 59, 999);
+        }
+        else if (event.start.dateTime && event.end.dateTime) {
+            startTime = new Date(event.start.dateTime);
+            endTime = new Date(event.end.dateTime);
+        }
+        else {
+            throw new Error("Outlook event has invalid date/time format");
+        }
+        if (startTime >= endTime) {
+            throw new Error("Outlook event end time must be after start time");
+        }
+        const energyLevel = this.inferOutlookEnergyLevel(event);
+        const preferredFocusTypes = this.inferOutlookPreferredFocusTypes(event);
+        return {
+            startTime,
+            endTime,
+            energyLevel,
+            preferredFocusTypes,
+            isAvailable: false,
+            source: 'outlook',
+            eventId: event.id,
+            title: event.subject || 'Untitled Event',
+            description: event.bodyPreview || event.body?.content || '',
+            isAllDay: !!event.isAllDay,
+        };
+    }
+    inferOutlookEnergyLevel(event) {
+        const subject = (event.subject || "").toLowerCase();
+        const attendeeCount = event.attendees?.length || 0;
+        const importance = event.importance || 'normal';
+        const showAs = event.showAs || 'busy';
+        if (subject.includes("focus") ||
+            subject.includes("deep work") ||
+            subject.includes("coding") ||
+            subject.includes("development") ||
+            importance === 'high' ||
+            showAs === 'workingElsewhere' ||
+            attendeeCount === 0) {
+            return client_1.EnergyLevel.HIGH;
+        }
+        if (attendeeCount > 8 ||
+            subject.includes("all hands") ||
+            subject.includes("town hall") ||
+            subject.includes("large meeting") ||
+            subject.includes("presentation") ||
+            importance === 'low' ||
+            showAs === 'tentative') {
+            return client_1.EnergyLevel.LOW;
+        }
+        return client_1.EnergyLevel.MEDIUM;
+    }
+    inferOutlookPreferredFocusTypes(event) {
+        const subject = (event.subject || "").toLowerCase();
+        const body = (event.body?.content || "").toLowerCase();
+        const categories = event.categories || [];
+        const content = `${subject} ${body} ${categories.join(' ')}`.toLowerCase();
+        const focusTypes = [];
+        if (content.match(/\b(code|tech|review|development|engineering|system|architecture|debug|api|technical)\b/) ||
+            categories.some(cat => cat.toLowerCase().includes('technical'))) {
+            focusTypes.push(client_1.FocusType.TECHNICAL);
+        }
+        if (content.match(/\b(design|creative|brainstorm|ideation|workshop|innovation|strategy)\b/) ||
+            categories.some(cat => cat.toLowerCase().includes('creative'))) {
+            focusTypes.push(client_1.FocusType.CREATIVE);
+        }
+        if (content.match(/\b(admin|expense|report|compliance|hr|legal|budget|planning)\b/) ||
+            categories.some(cat => cat.toLowerCase().includes('admin'))) {
+            focusTypes.push(client_1.FocusType.ADMINISTRATIVE);
+        }
+        if (event.attendees?.length > 0 ||
+            content.match(/\b(meeting|standup|sync|1:1|one-on-one|team)\b/)) {
+            focusTypes.push(client_1.FocusType.SOCIAL);
+        }
+        if (focusTypes.length === 0 && event.attendees?.length > 0) {
+            focusTypes.push(client_1.FocusType.SOCIAL);
+        }
+        if (focusTypes.length === 0) {
+            focusTypes.push(client_1.FocusType.TECHNICAL);
+        }
+        return focusTypes;
+    }
+    deduplicateCalendarEvents(timeSlots) {
+        if (timeSlots.length <= 1) {
+            return timeSlots;
+        }
+        const deduplicated = [];
+        const duplicateCount = { removed: 0 };
+        for (let i = 0; i < timeSlots.length; i++) {
+            const currentSlot = timeSlots[i];
+            let isDuplicate = false;
+            for (const existingSlot of deduplicated) {
+                if (this.areTimeSlotsDuplicates(currentSlot, existingSlot)) {
+                    isDuplicate = true;
+                    duplicateCount.removed++;
+                    this.logger.debug(`Duplicate calendar event detected and removed`, {
+                        existingSource: existingSlot.source,
+                        duplicateSource: currentSlot.source,
+                        startTime: currentSlot.startTime.toISOString(),
+                        endTime: currentSlot.endTime.toISOString(),
+                    });
+                    break;
+                }
+            }
+            if (!isDuplicate) {
+                deduplicated.push(currentSlot);
+            }
+        }
+        if (duplicateCount.removed > 0) {
+            this.logger.log(`Calendar deduplication completed: ${duplicateCount.removed} duplicates removed from ${timeSlots.length} events`);
+        }
+        return deduplicated;
+    }
+    areTimeSlotsDuplicates(slot1, slot2) {
+        if (slot1.source === slot2.source) {
+            return false;
+        }
+        const toleranceMs = 5 * 60 * 1000;
+        const slot1Start = slot1.startTime.getTime();
+        const slot1End = slot1.endTime.getTime();
+        const slot2Start = slot2.startTime.getTime();
+        const slot2End = slot2.endTime.getTime();
+        const startTimeDiff = Math.abs(slot1Start - slot2Start);
+        const endTimeDiff = Math.abs(slot1End - slot2End);
+        const timeMatch = startTimeDiff <= toleranceMs && endTimeDiff <= toleranceMs;
+        if (timeMatch) {
+            this.logger.debug(`Time-based duplicate detected: ${slot1.source} vs ${slot2.source}`, {
+                startTimeDiff: startTimeDiff / 1000 / 60,
+                endTimeDiff: endTimeDiff / 1000 / 60,
+                toleranceMinutes: toleranceMs / 1000 / 60,
+            });
+        }
+        return timeMatch;
+    }
 };
 exports.DailyPlannerService = DailyPlannerService;
 exports.DailyPlannerService = DailyPlannerService = DailyPlannerService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         tasks_service_1.TasksService,
-        google_service_1.GoogleService])
+        google_service_1.GoogleService,
+        graph_service_1.GraphService])
 ], DailyPlannerService);
 //# sourceMappingURL=daily-planner.service.js.map

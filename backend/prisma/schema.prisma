@@ -278,6 +278,7 @@ model CalendarSyncState {
   // Sync state tracking
   lastFullSync      DateTime?
   lastDeltaSync     DateTime?
+  lastSyncTime      DateTime?  // Add lastSyncTime field for tests
   deltaToken        String?   // Microsoft Graph delta token
   syncInProgress    Boolean   @default(false)
   lastSyncStatus    CalendarSyncStatus @default(PENDING)
@@ -290,6 +291,16 @@ model CalendarSyncState {
   syncedEvents      Int       @default(0)
   conflictedEvents  Int       @default(0)
   failedEvents      Int       @default(0)
+  processedEvents   Int       @default(0)  // Add processedEvents field for tests
+  conflictsDetected Int       @default(0)  // Add conflictsDetected field for tests
+  createdEvents     Int       @default(0)  // Add createdEvents field for tests
+  updatedEvents     Int       @default(0)  // Add updatedEvents field for tests
+  
+  // Error tracking
+  error             String?   // Add error field for tests
+  
+  // Relations
+  conflicts         CalendarSyncConflict[]
   
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
@@ -302,13 +313,19 @@ model CalendarSyncConflict {
   id                String    @id @default(cuid())
   
   // Event identification
+  eventId           String?   // Add eventId field for tests
   calendarEventId   String
   calendarEvent     CalendarEvent @relation(fields: [calendarEventId], references: [id], onDelete: Cascade)
+  
+  // Sync state reference for tests
+  syncStateId       String?
+  syncState         CalendarSyncState? @relation(fields: [syncStateId], references: [id], onDelete: Cascade)
   
   // Conflict details
   conflictType      CalendarConflictType
   localVersion      String    // JSON string of local event data
   remoteVersion     String    // JSON string of remote event data
+  conflictData      String?   // Add conflictData field for tests (JSON string)
   resolution        CalendarConflictResolution? @default(PENDING)
   resolvedBy        String?   // User ID who resolved the conflict
   resolvedAt        DateTime?

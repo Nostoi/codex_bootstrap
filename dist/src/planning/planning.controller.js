@@ -29,6 +29,37 @@ let PlanningController = PlanningController_1 = class PlanningController {
         this.logger.log(`Generating plan for user ${userId} on ${date.toISOString()}`);
         return this.plannerService.generatePlan(userId, date);
     }
+    async getCalendarEvents(dateString, req) {
+        const userId = req?.user?.id || "temp-user-id";
+        const date = dateString ? new Date(dateString) : new Date();
+        this.logger.log(`Retrieving calendar events for user ${userId} on ${date.toISOString()}`);
+        try {
+            const calendarEvents = await this.plannerService.getCalendarEventsForDate(userId, date);
+            return {
+                date: date.toISOString().split("T")[0],
+                events: calendarEvents.map(event => ({
+                    id: event.id || `${event.source}-${event.startTime.getTime()}`,
+                    title: event.title,
+                    startTime: event.startTime.toISOString(),
+                    endTime: event.endTime.toISOString(),
+                    source: event.source,
+                    description: event.description,
+                    energyLevel: event.energyLevel,
+                    focusType: event.focusType,
+                    isAllDay: event.isAllDay || false,
+                })),
+                totalEvents: calendarEvents.length,
+                sources: {
+                    google: calendarEvents.filter(e => e.source === 'google').length,
+                    outlook: calendarEvents.filter(e => e.source === 'outlook').length,
+                },
+            };
+        }
+        catch (error) {
+            this.logger.error(`Failed to retrieve calendar events for user ${userId}: ${error.message}`, error.stack);
+            throw error;
+        }
+    }
 };
 exports.PlanningController = PlanningController;
 __decorate([
@@ -58,6 +89,63 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], PlanningController.prototype, "generateTodaysPlan", null);
+__decorate([
+    (0, common_1.Get)("calendar-events"),
+    (0, swagger_1.ApiOperation)({
+        summary: "Get calendar events for a specific date",
+        description: "Retrieves calendar events from integrated sources (Google Calendar, Outlook) for the specified date",
+    }),
+    (0, swagger_1.ApiQuery)({
+        name: "date",
+        required: false,
+        description: "Date for calendar events (YYYY-MM-DD). Defaults to today.",
+        example: "2025-07-29",
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: "Successfully retrieved calendar events",
+        schema: {
+            type: "object",
+            properties: {
+                date: { type: "string", format: "date" },
+                events: {
+                    type: "array",
+                    items: {
+                        type: "object",
+                        properties: {
+                            id: { type: "string" },
+                            title: { type: "string" },
+                            startTime: { type: "string", format: "date-time" },
+                            endTime: { type: "string", format: "date-time" },
+                            source: { type: "string", enum: ["google", "outlook"] },
+                            description: { type: "string" },
+                            energyLevel: { type: "string", enum: ["LOW", "MEDIUM", "HIGH"] },
+                            focusType: { type: "string", enum: ["CREATIVE", "TECHNICAL", "ADMINISTRATIVE", "SOCIAL"] },
+                            isAllDay: { type: "boolean" },
+                        },
+                    },
+                },
+                totalEvents: { type: "number" },
+                sources: {
+                    type: "object",
+                    properties: {
+                        google: { type: "number" },
+                        outlook: { type: "number" },
+                    },
+                },
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: "Invalid date format or calendar access failed",
+    }),
+    __param(0, (0, common_1.Query)("date")),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], PlanningController.prototype, "getCalendarEvents", null);
 exports.PlanningController = PlanningController = PlanningController_1 = __decorate([
     (0, swagger_1.ApiTags)("Planning"),
     (0, common_1.Controller)("plans"),

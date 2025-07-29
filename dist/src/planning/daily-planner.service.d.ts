@@ -1,16 +1,19 @@
 import { PrismaService } from "../prisma/prisma.service";
 import { TasksService } from "../tasks/tasks.service";
 import { GoogleService } from "../integrations/google/google.service";
+import { GraphService } from "../integrations/graph/graph.service";
 import { Task } from "@prisma/client";
-import { DependencyResolutionResult } from "./types";
+import { DependencyResolutionResult, CalendarEvent } from "./types";
 import { DailyPlanResponseDto } from "./dto";
 export declare class DailyPlannerService {
     private prisma;
     private tasksService;
     private googleService;
+    private graphService;
     private readonly logger;
-    constructor(prisma: PrismaService, tasksService: TasksService, googleService: GoogleService);
+    constructor(prisma: PrismaService, tasksService: TasksService, googleService: GoogleService, graphService: GraphService);
     generatePlan(userId: string, date: Date): Promise<DailyPlanResponseDto>;
+    getCalendarEventsForDate(userId: string, date: Date): Promise<CalendarEvent[]>;
     private gatherPlanningData;
     private filterReadyTasks;
     private buildDependencyGraph;
@@ -49,4 +52,13 @@ export declare class DailyPlannerService {
     private parseCalendarEventToTimeSlot;
     private inferEnergyLevel;
     private inferPreferredFocusTypes;
+    private getGoogleCommitments;
+    private getOutlookCommitments;
+    private getOutlookEventsWithRetry;
+    private categorizeOutlookCalendarError;
+    private parseOutlookEventToTimeSlot;
+    private inferOutlookEnergyLevel;
+    private inferOutlookPreferredFocusTypes;
+    private deduplicateCalendarEvents;
+    private areTimeSlotsDuplicates;
 }

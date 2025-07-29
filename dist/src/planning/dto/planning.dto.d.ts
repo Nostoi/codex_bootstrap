@@ -11,14 +11,6 @@ export declare class DailyPlanResponseDto {
     focusOptimization: number;
     deadlineRisk: number;
 }
-export declare class ScheduleBlockDto {
-    startTime: string;
-    endTime: string;
-    task: TaskSummaryDto;
-    energyMatch: number;
-    focusMatch: number;
-    reasoning: string;
-}
 export declare class TaskSummaryDto {
     id: string;
     title: string;
@@ -28,4 +20,12 @@ export declare class TaskSummaryDto {
     estimatedMinutes?: number;
     priority?: number;
     hardDeadline?: string;
+}
+export declare class ScheduleBlockDto {
+    startTime: string;
+    endTime: string;
+    task: TaskSummaryDto;
+    energyMatch: number;
+    focusMatch: number;
+    reasoning: string;
 }

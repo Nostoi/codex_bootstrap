@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const testing_1 = require("@nestjs/testing");
 const graph_service_1 = require("./graph.service");
 const prisma_service_1 = require("../../prisma/prisma.service");
+const graph_auth_service_1 = require("./auth/graph-auth.service");
 describe("GraphService", () => {
     let service;
     const mockPrisma = {
@@ -11,11 +12,16 @@ describe("GraphService", () => {
             upsert: jest.fn(),
         },
     };
+    const mockGraphAuthService = {
+        getValidAccessToken: jest.fn(),
+        isAuthenticated: jest.fn(),
+    };
     beforeEach(async () => {
         const module = await testing_1.Test.createTestingModule({
             providers: [
                 graph_service_1.GraphService,
                 { provide: prisma_service_1.PrismaService, useValue: mockPrisma },
+                { provide: graph_auth_service_1.GraphAuthService, useValue: mockGraphAuthService },
             ],
         }).compile();
         service = module.get(graph_service_1.GraphService);

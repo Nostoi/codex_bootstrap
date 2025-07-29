@@ -11,6 +11,7 @@ const common_1 = require("@nestjs/common");
 const prisma_module_1 = require("../prisma/prisma.module");
 const tasks_module_1 = require("../tasks/tasks.module");
 const google_module_1 = require("../integrations/google/google.module");
+const graph_module_1 = require("../integrations/graph/graph.module");
 const planning_controller_1 = require("./planning.controller");
 const daily_planner_service_1 = require("./daily-planner.service");
 let PlanningModule = class PlanningModule {
@@ -18,7 +19,7 @@ let PlanningModule = class PlanningModule {
 exports.PlanningModule = PlanningModule;
 exports.PlanningModule = PlanningModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule, tasks_module_1.TasksModule, google_module_1.GoogleModule],
+        imports: [prisma_module_1.PrismaModule, tasks_module_1.TasksModule, google_module_1.GoogleModule, graph_module_1.GraphModule],
         controllers: [planning_controller_1.PlanningController],
         providers: [daily_planner_service_1.DailyPlannerService],
         exports: [daily_planner_service_1.DailyPlannerService],

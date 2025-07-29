@@ -5,6 +5,7 @@ const daily_planner_service_1 = require("./daily-planner.service");
 const prisma_service_1 = require("../prisma/prisma.service");
 const tasks_service_1 = require("../tasks/tasks.service");
 const google_service_1 = require("../integrations/google/google.service");
+const graph_service_1 = require("../integrations/graph/graph.service");
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const mockPrismaService = {
@@ -21,6 +22,9 @@ const mockTasksService = {
     findTaskDependencies: jest.fn(),
 };
 const mockGoogleService = {
+    getCalendarEvents: jest.fn(),
+};
+const mockGraphService = {
     getCalendarEvents: jest.fn(),
 };
 describe("DailyPlannerService", () => {
@@ -41,6 +45,10 @@ describe("DailyPlannerService", () => {
                     provide: google_service_1.GoogleService,
                     useValue: mockGoogleService,
                 },
+                {
+                    provide: graph_service_1.GraphService,
+                    useValue: mockGraphService,
+                },
             ],
         }).compile();
         service = module.get(daily_planner_service_1.DailyPlannerService);
@@ -50,6 +58,9 @@ describe("DailyPlannerService", () => {
         mockGoogleService.getCalendarEvents.mockResolvedValue({
             kind: 'calendar#events',
             items: []
+        });
+        mockGraphService.getCalendarEvents.mockResolvedValue({
+            value: []
         });
     });
     describe("generatePlan", () => {

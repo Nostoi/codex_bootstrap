@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TaskSummaryDto = exports.ScheduleBlockDto = exports.DailyPlanResponseDto = exports.GeneratePlanDto = void 0;
+exports.ScheduleBlockDto = exports.TaskSummaryDto = exports.DailyPlanResponseDto = exports.GeneratePlanDto = void 0;
 const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
 class GeneratePlanDto {
@@ -60,33 +60,6 @@ __decorate([
     (0, swagger_1.ApiProperty)({ description: "Deadline risk score (0-1)" }),
     __metadata("design:type", Number)
 ], DailyPlanResponseDto.prototype, "deadlineRisk", void 0);
-class ScheduleBlockDto {
-}
-exports.ScheduleBlockDto = ScheduleBlockDto;
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: "Block start time" }),
-    __metadata("design:type", String)
-], ScheduleBlockDto.prototype, "startTime", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: "Block end time" }),
-    __metadata("design:type", String)
-], ScheduleBlockDto.prototype, "endTime", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: "Scheduled task" }),
-    __metadata("design:type", TaskSummaryDto)
-], ScheduleBlockDto.prototype, "task", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: "Energy match score (0-1)" }),
-    __metadata("design:type", Number)
-], ScheduleBlockDto.prototype, "energyMatch", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: "Focus type match score (0-1)" }),
-    __metadata("design:type", Number)
-], ScheduleBlockDto.prototype, "focusMatch", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: "Reasoning for scheduling decision" }),
-    __metadata("design:type", String)
-], ScheduleBlockDto.prototype, "reasoning", void 0);
 class TaskSummaryDto {
 }
 exports.TaskSummaryDto = TaskSummaryDto;
@@ -122,4 +95,31 @@ __decorate([
     (0, swagger_1.ApiProperty)({ description: "Hard deadline if any" }),
     __metadata("design:type", String)
 ], TaskSummaryDto.prototype, "hardDeadline", void 0);
+class ScheduleBlockDto {
+}
+exports.ScheduleBlockDto = ScheduleBlockDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: "Block start time" }),
+    __metadata("design:type", String)
+], ScheduleBlockDto.prototype, "startTime", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: "Block end time" }),
+    __metadata("design:type", String)
+], ScheduleBlockDto.prototype, "endTime", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: "Scheduled task" }),
+    __metadata("design:type", TaskSummaryDto)
+], ScheduleBlockDto.prototype, "task", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: "Energy match score (0-1)" }),
+    __metadata("design:type", Number)
+], ScheduleBlockDto.prototype, "energyMatch", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: "Focus type match score (0-1)" }),
+    __metadata("design:type", Number)
+], ScheduleBlockDto.prototype, "focusMatch", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: "Reasoning for scheduling decision" }),
+    __metadata("design:type", String)
+], ScheduleBlockDto.prototype, "reasoning", void 0);
 //# sourceMappingURL=planning.dto.js.map

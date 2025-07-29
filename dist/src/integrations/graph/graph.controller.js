@@ -47,7 +47,7 @@ let GraphController = class GraphController {
             maxResults: maxResults ? parseInt(maxResults, 10) : undefined,
             orderBy,
         };
-        return this.graphService.getCalendarEvents(userId, options);
+        return this.graphService.getCalendarEvents(userId, 'primary', startTime ? new Date(startTime) : undefined, endTime ? new Date(endTime) : undefined, options);
     }
     getCalendarEvent(userId, eventId) {
         return this.graphService.getCalendarEvent(userId, eventId);

@@ -30,10 +30,10 @@ export declare class GoogleService {
         createdAt: Date;
         updatedAt: Date;
         userId: string;
+        scopes: string[];
         provider: string;
         accessToken: string | null;
         refreshToken: string | null;
         expiresAt: Date | null;
-        scopes: string[];
     }>;
 }

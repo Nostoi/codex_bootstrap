@@ -13,6 +13,22 @@ export interface TimeSlot {
     energyLevel: EnergyLevel;
     preferredFocusTypes: FocusType[];
     isAvailable: boolean;
+    source?: 'google' | 'outlook' | 'manual';
+    eventId?: string;
+    title?: string;
+    description?: string;
+    isAllDay?: boolean;
+}
+export interface CalendarEvent {
+    id?: string;
+    title: string;
+    description?: string;
+    startTime: Date;
+    endTime: Date;
+    source: 'google' | 'outlook' | 'manual';
+    energyLevel?: EnergyLevel;
+    focusType?: FocusType;
+    isAllDay?: boolean;
 }
 export interface ScoredTask extends Task {
     score: number;

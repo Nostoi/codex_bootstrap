@@ -16,18 +16,22 @@ export declare class GraphController {
         createdAt: Date;
         updatedAt: Date;
         userId: string;
+        scopes: string[];
         provider: string;
         accessToken: string | null;
         refreshToken: string | null;
         expiresAt: Date | null;
-        scopes: string[];
     }>;
     createOneDriveFile(userId: string, fileData: {
         filename: string;
         content: string;
     }): Promise<any>;
     getCalendars(userId: string): Promise<any>;
-    getCalendarEvents(userId: string, startTime?: string, endTime?: string, timeZone?: string, maxResults?: string, orderBy?: "start" | "lastModified"): Promise<any>;
+    getCalendarEvents(userId: string, startTime?: string, endTime?: string, timeZone?: string, maxResults?: string, orderBy?: "start" | "lastModified"): Promise<{
+        value: any;
+        '@odata.nextLink': any;
+        totalCount: any;
+    }>;
     getCalendarEvent(userId: string, eventId: string): Promise<any>;
     createCalendarEvent(userId: string, event: CalendarEvent): Promise<any>;
     updateCalendarEvent(userId: string, eventId: string, updates: Partial<CalendarEvent>): Promise<any>;
