@@ -38,7 +38,7 @@ export class AiController {
 
   @Post("tasks/classify")
   @UsePipes(new ValidationPipe({ transform: true }))
-  async classifyTask(@Body('description') description: string) {
+  async classifyTask(@Body("description") description: string) {
     return this.aiService.classifyTask(description);
   }
 

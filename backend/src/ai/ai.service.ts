@@ -53,7 +53,7 @@ export class AiService {
       project: this.config.project,
       timeout: this.config.timeout,
     });
-    
+
     // Initialize JSON schema validators
     this.taskExtractionValidator = getTaskExtractionValidator();
     this.taskClassificationValidator = getTaskClassificationValidator();
@@ -152,7 +152,9 @@ export class AiService {
         jsonMode: true,
       });
 
-      const classification = this.parseTaskClassificationResponse(response.data);
+      const classification = this.parseTaskClassificationResponse(
+        response.data,
+      );
 
       // Store context in memory
       await this.mem0Service.storeInteraction(
@@ -298,7 +300,11 @@ export class AiService {
     );
   }
 
-  async healthCheck(): Promise<{ status: string; timestamp: Date; version: string }> {
+  async healthCheck(): Promise<{
+    status: string;
+    timestamp: Date;
+    version: string;
+  }> {
     try {
       // Test a simple completion to verify OpenAI connectivity
       const testMessages: ChatMessage[] = [
@@ -315,19 +321,20 @@ export class AiService {
         maxTokens: 10,
       });
 
-      const isHealthy = response.data && response.data.trim().toLowerCase().includes('ok');
-      
+      const isHealthy =
+        response.data && response.data.trim().toLowerCase().includes("ok");
+
       return {
-        status: isHealthy ? 'healthy' : 'degraded',
+        status: isHealthy ? "healthy" : "degraded",
         timestamp: new Date(),
-        version: '1.0.0'
+        version: "1.0.0",
       };
     } catch (error) {
       this.logger.error("Health check failed:", error.message);
       return {
-        status: 'unhealthy',
+        status: "unhealthy",
         timestamp: new Date(),
-        version: '1.0.0'
+        version: "1.0.0",
       };
     }
   }
@@ -471,16 +478,16 @@ Return only valid JSON in this format:
   private parseTaskClassificationResponse(response: string): any {
     try {
       const parsed = JSON.parse(response);
-      
+
       // Validate against JSON schema
       const isValid = this.taskClassificationValidator(parsed);
-      
+
       if (!isValid) {
         this.logger.warn(
           "Task classification response failed schema validation:",
-          this.taskClassificationValidator.errors
+          this.taskClassificationValidator.errors,
         );
-        
+
         // Return defaults if validation fails
         return {
           energyLevel: "MEDIUM",
@@ -490,27 +497,27 @@ Return only valid JSON in this format:
           softDeadline: null,
           hardDeadline: null,
           source: "AI_GENERATED",
-          aiSuggestion: "Task classification data unavailable"
+          aiSuggestion: "Task classification data unavailable",
         };
       }
-      
+
       return parsed;
     } catch (error) {
       this.logger.warn(
         "Failed to parse task classification response as JSON:",
-        error.message
+        error.message,
       );
-      
+
       // Return defaults if parsing fails
       return {
         energyLevel: "MEDIUM",
-        focusType: "TECHNICAL", 
+        focusType: "TECHNICAL",
         estimatedMinutes: 60,
         priority: 3,
         softDeadline: null,
         hardDeadline: null,
         source: "AI_GENERATED",
-        aiSuggestion: "Task classification data unavailable"
+        aiSuggestion: "Task classification data unavailable",
       };
     }
   }
@@ -518,32 +525,34 @@ Return only valid JSON in this format:
   private parseTasksResponse(response: string): Task[] {
     try {
       const parsed = JSON.parse(response);
-      
+
       // Validate against JSON schema
       const isValid = this.taskExtractionValidator(parsed);
-      
+
       if (!isValid) {
         this.logger.warn(
           "Task extraction response failed schema validation:",
-          this.taskExtractionValidator.errors
+          this.taskExtractionValidator.errors,
         );
-        
+
         // Try to repair common issues
         const repairedTasks = this.repairTasksResponse(parsed);
         if (repairedTasks.length > 0) {
-          this.logger.log(`Repaired ${repairedTasks.length} tasks from malformed response`);
+          this.logger.log(
+            `Repaired ${repairedTasks.length} tasks from malformed response`,
+          );
           return repairedTasks;
         }
-        
+
         // Fallback to empty array if repair fails
         return [];
       }
-      
+
       return parsed.tasks || [];
     } catch (error) {
       this.logger.warn(
         "Failed to parse tasks response as JSON:",
-        error.message
+        error.message,
       );
       return [];
     }
@@ -570,17 +579,22 @@ Return only valid JSON in this format:
   private repairSingleTask(task: any): Task | null {
     try {
       // Skip if not an object
-      if (!task || typeof task !== 'object') {
+      if (!task || typeof task !== "object") {
         return null;
       }
 
       // Provide default values for required fields
       const repairedTask: Task = {
-        id: task.id || `generated_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        id:
+          task.id ||
+          `generated_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         name: task.name || task.title || "Untitled Task",
         description: task.description || "",
         priority: this.validatePriority(task.priority) ? task.priority : 3,
-        estimatedHours: typeof task.estimatedHours === 'number' && task.estimatedHours > 0 ? task.estimatedHours : 2,
+        estimatedHours:
+          typeof task.estimatedHours === "number" && task.estimatedHours > 0
+            ? task.estimatedHours
+            : 2,
         dependencies: Array.isArray(task.dependencies) ? task.dependencies : [],
         tags: Array.isArray(task.tags) ? task.tags : [],
       };
@@ -593,7 +607,7 @@ Return only valid JSON in this format:
   }
 
   private validatePriority(priority: any): boolean {
-    return typeof priority === 'number' && priority >= 1 && priority <= 5;
+    return typeof priority === "number" && priority >= 1 && priority <= 5;
   }
 
   private parseSuggestionsResponse(response: string): Suggestion[] {

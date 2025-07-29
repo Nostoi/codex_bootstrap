@@ -1,8 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AuditLoggerService, AuditAction } from './audit-logger.service';
-import { Logger } from '@nestjs/common';
+import { Test, TestingModule } from "@nestjs/testing";
+import { AuditLoggerService, AuditAction } from "./audit-logger.service";
+import { Logger } from "@nestjs/common";
 
-describe('AuditLoggerService', () => {
+describe("AuditLoggerService", () => {
   let service: AuditLoggerService;
   let mockLogger: jest.Mocked<Logger>;
 
@@ -31,22 +31,22 @@ describe('AuditLoggerService', () => {
 
     service = module.get<AuditLoggerService>(AuditLoggerService);
     // Override the private logger instance using object property assignment
-    Object.defineProperty(service, 'logger', {
+    Object.defineProperty(service, "logger", {
       value: mockLogger,
       writable: true,
       configurable: true,
     });
   });
 
-  describe('logSuccess', () => {
-    it('should log successful audit events', async () => {
+  describe("logSuccess", () => {
+    it("should log successful audit events", async () => {
       const action = AuditAction.TASK_CREATE;
-      const resource = 'task';
+      const resource = "task";
       const context = {
-        userId: 'user123',
-        resourceId: 'task456',
-        ipAddress: '192.168.1.1',
-        userAgent: 'test-agent',
+        userId: "user123",
+        resourceId: "task456",
+        ipAddress: "192.168.1.1",
+        userAgent: "test-agent",
       };
 
       await service.logSuccess(action, resource, context);
@@ -66,19 +66,21 @@ describe('AuditLoggerService', () => {
       );
     });
 
-    it('should generate correlation ID if not provided', async () => {
-      await service.logSuccess(AuditAction.TASK_CREATE, 'task');
+    it("should generate correlation ID if not provided", async () => {
+      await service.logSuccess(AuditAction.TASK_CREATE, "task");
 
       const logCall = mockLogger.log.mock.calls[0];
       const logData = logCall[0];
       expect(logData.correlationId).toBeDefined();
-      expect(typeof logData.correlationId).toBe('string');
+      expect(typeof logData.correlationId).toBe("string");
     });
 
-    it('should use provided correlation ID', async () => {
-      const correlationId = 'test-correlation-id';
-      
-      await service.logSuccess(AuditAction.TASK_CREATE, 'task', { correlationId });
+    it("should use provided correlation ID", async () => {
+      const correlationId = "test-correlation-id";
+
+      await service.logSuccess(AuditAction.TASK_CREATE, "task", {
+        correlationId,
+      });
 
       const logCall = mockLogger.log.mock.calls[0];
       const logData = logCall[0];
@@ -86,14 +88,14 @@ describe('AuditLoggerService', () => {
     });
   });
 
-  describe('logFailure', () => {
-    it('should log failed audit events with error message', async () => {
+  describe("logFailure", () => {
+    it("should log failed audit events with error message", async () => {
       const action = AuditAction.LOGIN_FAILED;
-      const resource = 'auth';
-      const error = 'Invalid credentials';
+      const resource = "auth";
+      const error = "Invalid credentials";
       const context = {
-        userId: 'user123',
-        ipAddress: '192.168.1.1',
+        userId: "user123",
+        ipAddress: "192.168.1.1",
       };
 
       await service.logFailure(action, resource, error, context);
@@ -112,91 +114,103 @@ describe('AuditLoggerService', () => {
       );
     });
 
-    it('should handle Error objects', async () => {
-      const error = new Error('Test error message');
-      
-      await service.logFailure(AuditAction.LOGIN_FAILED, 'auth', error);
+    it("should handle Error objects", async () => {
+      const error = new Error("Test error message");
+
+      await service.logFailure(AuditAction.LOGIN_FAILED, "auth", error);
 
       const logCall = mockLogger.error.mock.calls[0];
       const logData = logCall[0];
-      expect(logData.errorMessage).toBe('Test error message');
+      expect(logData.errorMessage).toBe("Test error message");
     });
   });
 
-  describe('logTaskChange', () => {
-    it('should log task changes with sanitized data', async () => {
-      const taskId = 'task123';
+  describe("logTaskChange", () => {
+    it("should log task changes with sanitized data", async () => {
+      const taskId = "task123";
       const changes = {
-        title: { before: 'Old Title', after: 'New Title' },
-        password: { before: 'secret123', after: 'newsecret456' },
-        status: { before: 'TODO', after: 'DONE' },
+        title: { before: "Old Title", after: "New Title" },
+        password: { before: "secret123", after: "newsecret456" },
+        status: { before: "TODO", after: "DONE" },
       };
-      const userId = 'user123';
+      const userId = "user123";
 
-      await service.logTaskChange(AuditAction.TASK_UPDATE, taskId, changes, userId);
+      await service.logTaskChange(
+        AuditAction.TASK_UPDATE,
+        taskId,
+        changes,
+        userId,
+      );
 
       const logCall = mockLogger.log.mock.calls[0];
       const logData = logCall[0];
-      
+
       expect(logData.action).toBe(AuditAction.TASK_UPDATE);
       expect(logData.resourceId).toBe(taskId);
       expect(logData.userId).toBe(userId);
-      expect(logData.changes).toEqual(['title', 'password', 'status']);
+      expect(logData.changes).toEqual(["title", "password", "status"]);
     });
 
-    it('should sanitize sensitive fields in changes', async () => {
+    it("should sanitize sensitive fields in changes", async () => {
       const service_with_access = service as any;
       const changes = {
-        apiKey: { before: 'key123', after: 'key456' },
-        title: { before: 'Old', after: 'New' },
+        apiKey: { before: "key123", after: "key456" },
+        title: { before: "Old", after: "New" },
       };
 
       const sanitized = service_with_access.sanitizeChanges(changes);
 
-      expect(sanitized.apiKey.before).toBe('[REDACTED]');
-      expect(sanitized.apiKey.after).toBe('[REDACTED]');
-      expect(sanitized.title.before).toBe('Old');
-      expect(sanitized.title.after).toBe('New');
+      expect(sanitized.apiKey.before).toBe("[REDACTED]");
+      expect(sanitized.apiKey.after).toBe("[REDACTED]");
+      expect(sanitized.title.before).toBe("Old");
+      expect(sanitized.title.after).toBe("New");
     });
   });
 
-  describe('logAIInteraction', () => {
-    it('should log AI interactions with sanitized input/output', async () => {
+  describe("logAIInteraction", () => {
+    it("should log AI interactions with sanitized input/output", async () => {
       const action = AuditAction.AI_TASK_EXTRACTION;
-      const input = 'Extract tasks from: Call John at john@example.com about project';
-      const output = { tasks: [{ title: 'Call John', email: 'john@example.com' }] };
-      const userId = 'user123';
+      const input =
+        "Extract tasks from: Call John at john@example.com about project";
+      const output = {
+        tasks: [{ title: "Call John", email: "john@example.com" }],
+      };
+      const userId = "user123";
 
       await service.logAIInteraction(action, input, output, userId);
 
       const logCall = mockLogger.log.mock.calls[0];
       const logData = logCall[0];
-      
+
       expect(logData.action).toBe(action);
       expect(logData.userId).toBe(userId);
-      expect(logData.metadata.input).toContain('Call John');
-      expect(logData.metadata.input).toContain('[EMAIL]'); // Should be sanitized
+      expect(logData.metadata.input).toContain("Call John");
+      expect(logData.metadata.input).toContain("[EMAIL]"); // Should be sanitized
       expect(logData.metadata.inputLength).toBe(input.length);
     });
 
-    it('should truncate very long AI inputs', async () => {
-      const longInput = 'a'.repeat(1000);
-      
-      await service.logAIInteraction(AuditAction.AI_TASK_EXTRACTION, longInput, 'output');
+    it("should truncate very long AI inputs", async () => {
+      const longInput = "a".repeat(1000);
+
+      await service.logAIInteraction(
+        AuditAction.AI_TASK_EXTRACTION,
+        longInput,
+        "output",
+      );
 
       const logCall = mockLogger.log.mock.calls[0];
       const logData = logCall[0];
-      
+
       expect(logData.metadata.input.length).toBeLessThanOrEqual(503); // 500 + '...'
-      expect(logData.metadata.input.endsWith('...')).toBe(true);
+      expect(logData.metadata.input.endsWith("...")).toBe(true);
     });
   });
 
-  describe('logAuthEvent', () => {
-    it('should log successful authentication', async () => {
-      const userId = 'user123';
-      const ipAddress = '192.168.1.1';
-      const userAgent = 'Mozilla/5.0';
+  describe("logAuthEvent", () => {
+    it("should log successful authentication", async () => {
+      const userId = "user123";
+      const ipAddress = "192.168.1.1";
+      const userAgent = "Mozilla/5.0";
 
       await service.logAuthEvent(
         AuditAction.LOGIN,
@@ -218,16 +232,16 @@ describe('AuditLoggerService', () => {
       );
     });
 
-    it('should log failed authentication', async () => {
-      const userId = 'user123';
-      const errorMessage = 'Invalid password';
+    it("should log failed authentication", async () => {
+      const userId = "user123";
+      const errorMessage = "Invalid password";
 
       await service.logAuthEvent(
         AuditAction.LOGIN_FAILED,
         userId,
         false,
-        '192.168.1.1',
-        'test-agent',
+        "192.168.1.1",
+        "test-agent",
         errorMessage,
       );
 
@@ -243,70 +257,72 @@ describe('AuditLoggerService', () => {
     });
   });
 
-  describe('generateCorrelationId', () => {
-    it('should generate unique correlation IDs', () => {
+  describe("generateCorrelationId", () => {
+    it("should generate unique correlation IDs", () => {
       const id1 = service.generateCorrelationId();
       const id2 = service.generateCorrelationId();
 
       expect(id1).toBeDefined();
       expect(id2).toBeDefined();
       expect(id1).not.toBe(id2);
-      expect(typeof id1).toBe('string');
-      expect(typeof id2).toBe('string');
+      expect(typeof id1).toBe("string");
+      expect(typeof id2).toBe("string");
     });
   });
 
-  describe('sensitive data sanitization', () => {
-    it('should mask credit card numbers', () => {
+  describe("sensitive data sanitization", () => {
+    it("should mask credit card numbers", () => {
       const service_with_access = service as any;
-      const input = 'Payment with card 4111-1111-1111-1111 failed';
-      
+      const input = "Payment with card 4111-1111-1111-1111 failed";
+
       const sanitized = service_with_access.sanitizeAIInput(input);
-      
-      expect(sanitized).toContain('[CREDIT_CARD]');
-      expect(sanitized).not.toContain('4111-1111-1111-1111');
+
+      expect(sanitized).toContain("[CREDIT_CARD]");
+      expect(sanitized).not.toContain("4111-1111-1111-1111");
     });
 
-    it('should mask email addresses', () => {
+    it("should mask email addresses", () => {
       const service_with_access = service as any;
-      const input = 'Contact user@example.com for details';
-      
+      const input = "Contact user@example.com for details";
+
       const sanitized = service_with_access.sanitizeAIInput(input);
-      
-      expect(sanitized).toContain('[EMAIL]');
-      expect(sanitized).not.toContain('user@example.com');
+
+      expect(sanitized).toContain("[EMAIL]");
+      expect(sanitized).not.toContain("user@example.com");
     });
 
-    it('should mask SSN numbers', () => {
+    it("should mask SSN numbers", () => {
       const service_with_access = service as any;
-      const input = 'SSN: 123-45-6789 on file';
-      
+      const input = "SSN: 123-45-6789 on file";
+
       const sanitized = service_with_access.sanitizeAIInput(input);
-      
-      expect(sanitized).toContain('[SSN]');
-      expect(sanitized).not.toContain('123-45-6789');
+
+      expect(sanitized).toContain("[SSN]");
+      expect(sanitized).not.toContain("123-45-6789");
     });
 
-    it('should identify sensitive fields correctly', () => {
+    it("should identify sensitive fields correctly", () => {
       const service_with_access = service as any;
-      
-      expect(service_with_access.isSensitiveField('password')).toBe(true);
-      expect(service_with_access.isSensitiveField('apiKey')).toBe(true);
-      expect(service_with_access.isSensitiveField('authToken')).toBe(true);
-      expect(service_with_access.isSensitiveField('title')).toBe(false);
-      expect(service_with_access.isSensitiveField('description')).toBe(false);
+
+      expect(service_with_access.isSensitiveField("password")).toBe(true);
+      expect(service_with_access.isSensitiveField("apiKey")).toBe(true);
+      expect(service_with_access.isSensitiveField("authToken")).toBe(true);
+      expect(service_with_access.isSensitiveField("title")).toBe(false);
+      expect(service_with_access.isSensitiveField("description")).toBe(false);
     });
   });
 
-  describe('error handling', () => {
-    it('should not throw when logging fails', async () => {
+  describe("error handling", () => {
+    it("should not throw when logging fails", async () => {
       mockLogger.log.mockImplementation(() => {
-        throw new Error('Logging failed');
+        throw new Error("Logging failed");
       });
 
-      await expect(service.logSuccess(AuditAction.TASK_CREATE, 'task')).resolves.not.toThrow();
+      await expect(
+        service.logSuccess(AuditAction.TASK_CREATE, "task"),
+      ).resolves.not.toThrow();
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'Failed to write audit log',
+        "Failed to write audit log",
         expect.any(String),
       );
     });

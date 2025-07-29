@@ -1,5 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { randomUUID } from 'crypto';
+import { Injectable, Logger } from "@nestjs/common";
+import { randomUUID } from "crypto";
 
 export interface AuditLogEntry {
   id: string;
@@ -19,47 +19,49 @@ export interface AuditLogEntry {
 
 export enum AuditAction {
   // Authentication
-  LOGIN = 'auth.login',
-  LOGOUT = 'auth.logout',
-  LOGIN_FAILED = 'auth.login_failed',
-  TOKEN_REFRESH = 'auth.token_refresh',
-  PERMISSION_DENIED = 'auth.permission_denied',
+  LOGIN = "auth.login",
+  LOGOUT = "auth.logout",
+  LOGIN_FAILED = "auth.login_failed",
+  TOKEN_REFRESH = "auth.token_refresh",
+  PERMISSION_DENIED = "auth.permission_denied",
 
   // Task operations
-  TASK_CREATE = 'task.create',
-  TASK_UPDATE = 'task.update',
-  TASK_DELETE = 'task.delete',
-  TASK_STATUS_CHANGE = 'task.status_change',
-  TASK_DEPENDENCY_ADD = 'task.dependency.add',
-  TASK_DEPENDENCY_REMOVE = 'task.dependency.remove',
+  TASK_CREATE = "task.create",
+  TASK_UPDATE = "task.update",
+  TASK_DELETE = "task.delete",
+  TASK_STATUS_CHANGE = "task.status_change",
+  TASK_DEPENDENCY_ADD = "task.dependency.add",
+  TASK_DEPENDENCY_REMOVE = "task.dependency.remove",
 
   // AI interactions
-  AI_TASK_EXTRACTION = 'ai.task_extraction',
-  AI_TASK_CLASSIFICATION = 'ai.task_classification',
-  AI_SUGGESTION_GENERATED = 'ai.suggestion_generated',
-  AI_SUGGESTION_ACCEPTED = 'ai.suggestion_accepted',
-  AI_SUGGESTION_REJECTED = 'ai.suggestion_rejected',
+  AI_TASK_EXTRACTION = "ai.task_extraction",
+  AI_TASK_CLASSIFICATION = "ai.task_classification",
+  AI_SUGGESTION_GENERATED = "ai.suggestion_generated",
+  AI_SUGGESTION_ACCEPTED = "ai.suggestion_accepted",
+  AI_SUGGESTION_REJECTED = "ai.suggestion_rejected",
 
   // User settings
-  USER_SETTINGS_UPDATE = 'user.settings_update',
-  USER_PROFILE_UPDATE = 'user.profile_update',
+  USER_SETTINGS_UPDATE = "user.settings_update",
+  USER_PROFILE_UPDATE = "user.profile_update",
 
   // Project operations
-  PROJECT_CREATE = 'project.create',
-  PROJECT_UPDATE = 'project.update',
-  PROJECT_DELETE = 'project.delete',
+  PROJECT_CREATE = "project.create",
+  PROJECT_UPDATE = "project.update",
+  PROJECT_DELETE = "project.delete",
 
   // Security events
-  RATE_LIMIT_EXCEEDED = 'security.rate_limit_exceeded',
-  SUSPICIOUS_ACTIVITY = 'security.suspicious_activity',
-  DATA_ENCRYPTION = 'security.data_encryption',
-  DATA_DECRYPTION = 'security.data_decryption',
+  RATE_LIMIT_EXCEEDED = "security.rate_limit_exceeded",
+  SUSPICIOUS_ACTIVITY = "security.suspicious_activity",
+  DATA_ENCRYPTION = "security.data_encryption",
+  DATA_DECRYPTION = "security.data_decryption",
 }
 
 @Injectable()
 export class AuditLoggerService {
   private readonly logger = new Logger(AuditLoggerService.name);
-  private readonly retentionDays = parseInt(process.env.AUDIT_LOG_RETENTION_DAYS || '90');
+  private readonly retentionDays = parseInt(
+    process.env.AUDIT_LOG_RETENTION_DAYS || "90",
+  );
 
   /**
    * Log a successful audit event
@@ -104,7 +106,7 @@ export class AuditLoggerService {
     } = {},
   ): Promise<void> {
     const errorMessage = error instanceof Error ? error.message : error;
-    
+
     const entry = this.createAuditEntry({
       ...context,
       action,
@@ -126,7 +128,7 @@ export class AuditLoggerService {
     userId?: string,
     correlationId?: string,
   ): Promise<void> {
-    await this.logSuccess(action, 'task', {
+    await this.logSuccess(action, "task", {
       userId,
       resourceId: taskId,
       changes: this.sanitizeChanges(changes),
@@ -147,13 +149,13 @@ export class AuditLoggerService {
     const sanitizedInput = this.sanitizeAIInput(input);
     const sanitizedOutput = this.sanitizeAIOutput(output);
 
-    await this.logSuccess(action, 'ai_service', {
+    await this.logSuccess(action, "ai_service", {
       userId,
       metadata: {
         input: sanitizedInput,
         output: sanitizedOutput,
         inputLength: input.length,
-        outputTokens: typeof output === 'string' ? output.split(' ').length : 0,
+        outputTokens: typeof output === "string" ? output.split(" ").length : 0,
       },
       correlationId,
     });
@@ -180,9 +182,9 @@ export class AuditLoggerService {
     };
 
     if (success) {
-      await this.logSuccess(action, 'auth', context);
+      await this.logSuccess(action, "auth", context);
     } else {
-      await this.logFailure(action, 'auth', errorMessage || '', context);
+      await this.logFailure(action, "auth", errorMessage || "", context);
     }
   }
 
@@ -231,7 +233,7 @@ export class AuditLoggerService {
       // Store detailed audit entry (in production: database, secure file, or audit service)
       await this.storeAuditEntry(entry);
     } catch (error) {
-      this.logger.error('Failed to write audit log', error.stack);
+      this.logger.error("Failed to write audit log", error.stack);
       // Don't throw - audit logging failures shouldn't break the application
     }
   }
@@ -243,88 +245,102 @@ export class AuditLoggerService {
     // 2. Secure file storage with rotation
     // 3. External audit service (AWS CloudTrail, Azure Monitor, etc.)
     // 4. SIEM integration
-    
+
     // For development, store in a structured format
-    const auditDir = process.env.AUDIT_LOG_DIR || './logs/audit';
-    const date = entry.timestamp.toISOString().split('T')[0];
+    const auditDir = process.env.AUDIT_LOG_DIR || "./logs/audit";
+    const date = entry.timestamp.toISOString().split("T")[0];
     const filename = `audit-${date}.jsonl`;
-    
+
     // This would write to file in production
-    this.logger.debug(`Would store audit entry to ${auditDir}/${filename}`, { entry });
+    this.logger.debug(`Would store audit entry to ${auditDir}/${filename}`, {
+      entry,
+    });
   }
 
-  private sanitizeChanges(changes: Record<string, { before: any; after: any }>): Record<string, { before: any; after: any }> {
+  private sanitizeChanges(
+    changes: Record<string, { before: any; after: any }>,
+  ): Record<string, { before: any; after: any }> {
     const sanitized: Record<string, { before: any; after: any }> = {};
-    
+
     for (const [field, change] of Object.entries(changes)) {
       // Don't log sensitive fields in full
       if (this.isSensitiveField(field)) {
         sanitized[field] = {
-          before: change.before ? '[REDACTED]' : null,
-          after: change.after ? '[REDACTED]' : null,
+          before: change.before ? "[REDACTED]" : null,
+          after: change.after ? "[REDACTED]" : null,
         };
       } else {
         sanitized[field] = change;
       }
     }
-    
+
     return sanitized;
   }
 
   private sanitizeAIInput(input: string): string {
     // Remove or mask sensitive patterns in AI input
     const maxLength = 500; // Truncate very long inputs
-    let sanitized = input.length > maxLength ? input.substring(0, maxLength) + '...' : input;
-    
+    let sanitized =
+      input.length > maxLength ? input.substring(0, maxLength) + "..." : input;
+
     // Mask potential sensitive patterns
-    sanitized = sanitized.replace(/\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}\b/g, '[CREDIT_CARD]');
-    sanitized = sanitized.replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g, '[EMAIL]');
-    sanitized = sanitized.replace(/\b\d{3}[-.\s]?\d{2}[-.\s]?\d{4}\b/g, '[SSN]');
-    
+    sanitized = sanitized.replace(
+      /\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}\b/g,
+      "[CREDIT_CARD]",
+    );
+    sanitized = sanitized.replace(
+      /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,
+      "[EMAIL]",
+    );
+    sanitized = sanitized.replace(
+      /\b\d{3}[-.\s]?\d{2}[-.\s]?\d{4}\b/g,
+      "[SSN]",
+    );
+
     return sanitized;
   }
 
   private sanitizeAIOutput(output: any): any {
-    if (typeof output === 'string') {
+    if (typeof output === "string") {
       return this.sanitizeAIInput(output);
     }
-    
+
     if (Array.isArray(output)) {
-      return output.map(item => this.sanitizeAIOutput(item));
+      return output.map((item) => this.sanitizeAIOutput(item));
     }
-    
-    if (typeof output === 'object' && output !== null) {
+
+    if (typeof output === "object" && output !== null) {
       const sanitized: any = {};
       for (const [key, value] of Object.entries(output)) {
         if (this.isSensitiveField(key)) {
-          sanitized[key] = '[REDACTED]';
+          sanitized[key] = "[REDACTED]";
         } else {
           sanitized[key] = this.sanitizeAIOutput(value);
         }
       }
       return sanitized;
     }
-    
+
     return output;
   }
 
   private isSensitiveField(fieldName: string): boolean {
     const sensitiveFields = [
-      'password',
-      'secret',
-      'token',
-      'key',
-      'apiKey',
-      'authToken',
-      'refreshToken',
-      'personalData',
-      'ssn',
-      'creditCard',
-      'bankAccount',
+      "password",
+      "secret",
+      "token",
+      "key",
+      "apiKey",
+      "authToken",
+      "refreshToken",
+      "personalData",
+      "ssn",
+      "creditCard",
+      "bankAccount",
     ];
-    
-    return sensitiveFields.some(sensitive => 
-      fieldName.toLowerCase().includes(sensitive.toLowerCase())
+
+    return sensitiveFields.some((sensitive) =>
+      fieldName.toLowerCase().includes(sensitive.toLowerCase()),
     );
   }
 }
