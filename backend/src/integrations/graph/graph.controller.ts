@@ -104,7 +104,13 @@ export class GraphController {
       orderBy,
     };
 
-    return this.graphService.getCalendarEvents(userId, options);
+    return this.graphService.getCalendarEvents(
+      userId, 
+      'primary',
+      startTime ? new Date(startTime) : undefined,
+      endTime ? new Date(endTime) : undefined,
+      options
+    );
   }
 
   @Get("calendar/:userId/events/:eventId")
