@@ -1,4 +1,4 @@
-import { Task, UserSettings, EnergyLevel, FocusType } from '@prisma/client';
+import { Task, UserSettings, EnergyLevel, FocusType } from "@prisma/client";
 export interface PlanningInput {
     userId: string;
     date: Date;
@@ -54,4 +54,21 @@ export interface DependencyGraph {
     nodes: Map<string, Task>;
     edges: Map<string, Set<string>>;
     inDegree: Map<string, number>;
+}
+export interface BlockingReason {
+    type: "incomplete_dependency" | "circular_dependency" | "missing_dependency" | "orphaned_dependency";
+    message: string;
+    dependencyTaskId?: string;
+    dependencyChain?: string[];
+}
+export interface BlockedTask {
+    task: Task;
+    reasons: BlockingReason[];
+}
+export interface DependencyResolutionResult {
+    readyTasks: Task[];
+    blockedTasks: BlockedTask[];
+    totalTasks: number;
+    readyCount: number;
+    blockedCount: number;
 }

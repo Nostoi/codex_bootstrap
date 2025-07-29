@@ -242,19 +242,19 @@ let AiService = AiService_1 = class AiService {
                 temperature: 0,
                 maxTokens: 10,
             });
-            const isHealthy = response.data && response.data.trim().toLowerCase().includes('ok');
+            const isHealthy = response.data && response.data.trim().toLowerCase().includes("ok");
             return {
-                status: isHealthy ? 'healthy' : 'degraded',
+                status: isHealthy ? "healthy" : "degraded",
                 timestamp: new Date(),
-                version: '1.0.0'
+                version: "1.0.0",
             };
         }
         catch (error) {
             this.logger.error("Health check failed:", error.message);
             return {
-                status: 'unhealthy',
+                status: "unhealthy",
                 timestamp: new Date(),
-                version: '1.0.0'
+                version: "1.0.0",
             };
         }
     }
@@ -399,7 +399,7 @@ Return only valid JSON in this format:
                     softDeadline: null,
                     hardDeadline: null,
                     source: "AI_GENERATED",
-                    aiSuggestion: "Task classification data unavailable"
+                    aiSuggestion: "Task classification data unavailable",
                 };
             }
             return parsed;
@@ -414,7 +414,7 @@ Return only valid JSON in this format:
                 softDeadline: null,
                 hardDeadline: null,
                 source: "AI_GENERATED",
-                aiSuggestion: "Task classification data unavailable"
+                aiSuggestion: "Task classification data unavailable",
             };
         }
     }
@@ -455,15 +455,18 @@ Return only valid JSON in this format:
     }
     repairSingleTask(task) {
         try {
-            if (!task || typeof task !== 'object') {
+            if (!task || typeof task !== "object") {
                 return null;
             }
             const repairedTask = {
-                id: task.id || `generated_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                id: task.id ||
+                    `generated_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                 name: task.name || task.title || "Untitled Task",
                 description: task.description || "",
                 priority: this.validatePriority(task.priority) ? task.priority : 3,
-                estimatedHours: typeof task.estimatedHours === 'number' && task.estimatedHours > 0 ? task.estimatedHours : 2,
+                estimatedHours: typeof task.estimatedHours === "number" && task.estimatedHours > 0
+                    ? task.estimatedHours
+                    : 2,
                 dependencies: Array.isArray(task.dependencies) ? task.dependencies : [],
                 tags: Array.isArray(task.tags) ? task.tags : [],
             };
@@ -475,7 +478,7 @@ Return only valid JSON in this format:
         }
     }
     validatePriority(priority) {
-        return typeof priority === 'number' && priority >= 1 && priority <= 5;
+        return typeof priority === "number" && priority >= 1 && priority <= 5;
     }
     parseSuggestionsResponse(response) {
         try {

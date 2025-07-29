@@ -12,7 +12,7 @@ export declare class GoogleController {
     createSheet(userId: string, sheetData: {
         title: string;
     }): Promise<import("googleapis").sheets_v4.Schema$Spreadsheet>;
-    getCalendarEvents(userId: string, calendarId?: string): Promise<import("googleapis").calendar_v3.Schema$Events>;
+    getCalendarEvents(userId: string, calendarId?: string): any;
     createCalendarEvent(userId: string, eventData: {
         summary: string;
         description?: string;

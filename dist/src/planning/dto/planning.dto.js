@@ -16,12 +16,15 @@ class GeneratePlanDto {
 }
 exports.GeneratePlanDto = GeneratePlanDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Date for plan generation (YYYY-MM-DD)', example: '2025-07-28' }),
+    (0, swagger_1.ApiProperty)({
+        description: "Date for plan generation (YYYY-MM-DD)",
+        example: "2025-07-28",
+    }),
     (0, class_validator_1.IsDateString)(),
     __metadata("design:type", String)
 ], GeneratePlanDto.prototype, "date", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'User ID to generate plan for', required: false }),
+    (0, swagger_1.ApiProperty)({ description: "User ID to generate plan for", required: false }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
@@ -30,93 +33,93 @@ class DailyPlanResponseDto {
 }
 exports.DailyPlanResponseDto = DailyPlanResponseDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Date of the plan' }),
+    (0, swagger_1.ApiProperty)({ description: "Date of the plan" }),
     __metadata("design:type", String)
 ], DailyPlanResponseDto.prototype, "date", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Scheduled task blocks' }),
+    (0, swagger_1.ApiProperty)({ description: "Scheduled task blocks" }),
     __metadata("design:type", Array)
 ], DailyPlanResponseDto.prototype, "scheduleBlocks", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Tasks that could not be scheduled' }),
+    (0, swagger_1.ApiProperty)({ description: "Tasks that could not be scheduled" }),
     __metadata("design:type", Array)
 ], DailyPlanResponseDto.prototype, "unscheduledTasks", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Total estimated minutes for scheduled tasks' }),
+    (0, swagger_1.ApiProperty)({ description: "Total estimated minutes for scheduled tasks" }),
     __metadata("design:type", Number)
 ], DailyPlanResponseDto.prototype, "totalEstimatedMinutes", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Energy optimization score (0-1)' }),
+    (0, swagger_1.ApiProperty)({ description: "Energy optimization score (0-1)" }),
     __metadata("design:type", Number)
 ], DailyPlanResponseDto.prototype, "energyOptimization", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Focus optimization score (0-1)' }),
+    (0, swagger_1.ApiProperty)({ description: "Focus optimization score (0-1)" }),
     __metadata("design:type", Number)
 ], DailyPlanResponseDto.prototype, "focusOptimization", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Deadline risk score (0-1)' }),
+    (0, swagger_1.ApiProperty)({ description: "Deadline risk score (0-1)" }),
     __metadata("design:type", Number)
 ], DailyPlanResponseDto.prototype, "deadlineRisk", void 0);
 class ScheduleBlockDto {
 }
 exports.ScheduleBlockDto = ScheduleBlockDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Block start time' }),
+    (0, swagger_1.ApiProperty)({ description: "Block start time" }),
     __metadata("design:type", String)
 ], ScheduleBlockDto.prototype, "startTime", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Block end time' }),
+    (0, swagger_1.ApiProperty)({ description: "Block end time" }),
     __metadata("design:type", String)
 ], ScheduleBlockDto.prototype, "endTime", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Scheduled task' }),
+    (0, swagger_1.ApiProperty)({ description: "Scheduled task" }),
     __metadata("design:type", TaskSummaryDto)
 ], ScheduleBlockDto.prototype, "task", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Energy match score (0-1)' }),
+    (0, swagger_1.ApiProperty)({ description: "Energy match score (0-1)" }),
     __metadata("design:type", Number)
 ], ScheduleBlockDto.prototype, "energyMatch", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Focus type match score (0-1)' }),
+    (0, swagger_1.ApiProperty)({ description: "Focus type match score (0-1)" }),
     __metadata("design:type", Number)
 ], ScheduleBlockDto.prototype, "focusMatch", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Reasoning for scheduling decision' }),
+    (0, swagger_1.ApiProperty)({ description: "Reasoning for scheduling decision" }),
     __metadata("design:type", String)
 ], ScheduleBlockDto.prototype, "reasoning", void 0);
 class TaskSummaryDto {
 }
 exports.TaskSummaryDto = TaskSummaryDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Task ID' }),
+    (0, swagger_1.ApiProperty)({ description: "Task ID" }),
     __metadata("design:type", String)
 ], TaskSummaryDto.prototype, "id", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Task title' }),
+    (0, swagger_1.ApiProperty)({ description: "Task title" }),
     __metadata("design:type", String)
 ], TaskSummaryDto.prototype, "title", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Task description' }),
+    (0, swagger_1.ApiProperty)({ description: "Task description" }),
     __metadata("design:type", String)
 ], TaskSummaryDto.prototype, "description", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Energy level required' }),
+    (0, swagger_1.ApiProperty)({ description: "Energy level required" }),
     __metadata("design:type", String)
 ], TaskSummaryDto.prototype, "energyLevel", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Focus type required' }),
+    (0, swagger_1.ApiProperty)({ description: "Focus type required" }),
     __metadata("design:type", String)
 ], TaskSummaryDto.prototype, "focusType", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Estimated minutes' }),
+    (0, swagger_1.ApiProperty)({ description: "Estimated minutes" }),
     __metadata("design:type", Number)
 ], TaskSummaryDto.prototype, "estimatedMinutes", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Priority (1-5)' }),
+    (0, swagger_1.ApiProperty)({ description: "Priority (1-5)" }),
     __metadata("design:type", Number)
 ], TaskSummaryDto.prototype, "priority", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Hard deadline if any' }),
+    (0, swagger_1.ApiProperty)({ description: "Hard deadline if any" }),
     __metadata("design:type", String)
 ], TaskSummaryDto.prototype, "hardDeadline", void 0);
 //# sourceMappingURL=planning.dto.js.map

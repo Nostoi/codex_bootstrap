@@ -8,8 +8,6 @@ import {
   Body,
   Query,
   ValidationPipe,
-  UseGuards,
-  Request,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -17,7 +15,6 @@ import {
   ApiResponse,
   ApiParam,
   ApiQuery,
-  ApiBearerAuth,
 } from "@nestjs/swagger";
 import { TasksService } from "./tasks.service";
 import {

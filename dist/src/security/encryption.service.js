@@ -15,7 +15,7 @@ const scryptAsync = (0, util_1.promisify)(crypto_1.scrypt);
 let EncryptionService = EncryptionService_1 = class EncryptionService {
     constructor() {
         this.logger = new common_1.Logger(EncryptionService_1.name);
-        this.algorithm = 'aes-256-gcm';
+        this.algorithm = "aes-256-gcm";
         this.keyLength = 32;
         this.ivLength = 16;
         this.tagLength = 16;
@@ -26,10 +26,10 @@ let EncryptionService = EncryptionService_1 = class EncryptionService {
     getEncryptionKey() {
         const key = process.env.ENCRYPTION_KEY;
         if (!key) {
-            throw new Error('ENCRYPTION_KEY environment variable is required');
+            throw new Error("ENCRYPTION_KEY environment variable is required");
         }
         if (key.length < 32) {
-            throw new Error('ENCRYPTION_KEY must be at least 32 characters long');
+            throw new Error("ENCRYPTION_KEY must be at least 32 characters long");
         }
         return key;
     }
@@ -41,51 +41,52 @@ let EncryptionService = EncryptionService_1 = class EncryptionService {
             const key = await this.deriveKey(password, salt);
             const cipher = (0, crypto_1.createCipheriv)(this.algorithm, key, iv);
             if (additionalData) {
-                cipher.setAAD(Buffer.from(additionalData, 'utf8'));
+                cipher.setAAD(Buffer.from(additionalData, "utf8"));
             }
-            let encrypted = cipher.update(text, 'utf8', 'hex');
-            encrypted += cipher.final('hex');
+            let encrypted = cipher.update(text, "utf8", "hex");
+            encrypted += cipher.final("hex");
             const authTag = cipher.getAuthTag();
             return {
-                encrypted: `${salt.toString('hex')}:${encrypted}`,
-                iv: iv.toString('hex'),
-                authTag: authTag.toString('hex'),
+                encrypted: `${salt.toString("hex")}:${encrypted}`,
+                iv: iv.toString("hex"),
+                authTag: authTag.toString("hex"),
             };
         }
         catch (error) {
-            this.logger.error('Failed to encrypt data', error.stack);
-            if (error instanceof Error && error.message.includes('ENCRYPTION_KEY')) {
+            this.logger.error("Failed to encrypt data", error.stack);
+            if (error instanceof Error && error.message.includes("ENCRYPTION_KEY")) {
                 throw error;
             }
-            throw new Error('Encryption failed');
+            throw new Error("Encryption failed");
         }
     }
     async decrypt(encryptionResult, additionalData) {
         try {
             const password = this.getEncryptionKey();
-            const [saltHex, encryptedData] = encryptionResult.encrypted.split(':');
+            const [saltHex, encryptedData] = encryptionResult.encrypted.split(":");
             if (!saltHex || encryptedData === undefined) {
-                throw new Error('Invalid encrypted data format');
+                throw new Error("Invalid encrypted data format");
             }
-            const salt = Buffer.from(saltHex, 'hex');
-            const iv = Buffer.from(encryptionResult.iv, 'hex');
-            const authTag = Buffer.from(encryptionResult.authTag, 'hex');
+            const salt = Buffer.from(saltHex, "hex");
+            const iv = Buffer.from(encryptionResult.iv, "hex");
+            const authTag = Buffer.from(encryptionResult.authTag, "hex");
             const key = await this.deriveKey(password, salt);
             const decipher = (0, crypto_1.createDecipheriv)(this.algorithm, key, iv);
             decipher.setAuthTag(authTag);
             if (additionalData) {
-                decipher.setAAD(Buffer.from(additionalData, 'utf8'));
+                decipher.setAAD(Buffer.from(additionalData, "utf8"));
             }
-            let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
-            decrypted += decipher.final('utf8');
+            let decrypted = decipher.update(encryptedData, "hex", "utf8");
+            decrypted += decipher.final("utf8");
             return decrypted;
         }
         catch (error) {
-            this.logger.error('Failed to decrypt data', error.stack);
-            if (error instanceof Error && error.message.includes('Invalid encrypted data format')) {
+            this.logger.error("Failed to decrypt data", error.stack);
+            if (error instanceof Error &&
+                error.message.includes("Invalid encrypted data format")) {
                 throw error;
             }
-            throw new Error('Decryption failed');
+            throw new Error("Decryption failed");
         }
     }
     async encryptObject(data, additionalData) {
@@ -97,7 +98,7 @@ let EncryptionService = EncryptionService_1 = class EncryptionService {
         return JSON.parse(jsonString);
     }
     generateEncryptionKey() {
-        return (0, crypto_1.randomBytes)(32).toString('hex');
+        return (0, crypto_1.randomBytes)(32).toString("hex");
     }
 };
 exports.EncryptionService = EncryptionService;

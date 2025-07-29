@@ -41,7 +41,7 @@ var AuditAction;
 let AuditLoggerService = AuditLoggerService_1 = class AuditLoggerService {
     constructor() {
         this.logger = new common_1.Logger(AuditLoggerService_1.name);
-        this.retentionDays = parseInt(process.env.AUDIT_LOG_RETENTION_DAYS || '90');
+        this.retentionDays = parseInt(process.env.AUDIT_LOG_RETENTION_DAYS || "90");
     }
     async logSuccess(action, resource, context = {}) {
         const entry = this.createAuditEntry({
@@ -64,7 +64,7 @@ let AuditLoggerService = AuditLoggerService_1 = class AuditLoggerService {
         await this.writeAuditLog(entry);
     }
     async logTaskChange(action, taskId, changes, userId, correlationId) {
-        await this.logSuccess(action, 'task', {
+        await this.logSuccess(action, "task", {
             userId,
             resourceId: taskId,
             changes: this.sanitizeChanges(changes),
@@ -74,13 +74,13 @@ let AuditLoggerService = AuditLoggerService_1 = class AuditLoggerService {
     async logAIInteraction(action, input, output, userId, correlationId) {
         const sanitizedInput = this.sanitizeAIInput(input);
         const sanitizedOutput = this.sanitizeAIOutput(output);
-        await this.logSuccess(action, 'ai_service', {
+        await this.logSuccess(action, "ai_service", {
             userId,
             metadata: {
                 input: sanitizedInput,
                 output: sanitizedOutput,
                 inputLength: input.length,
-                outputTokens: typeof output === 'string' ? output.split(' ').length : 0,
+                outputTokens: typeof output === "string" ? output.split(" ").length : 0,
             },
             correlationId,
         });
@@ -95,10 +95,10 @@ let AuditLoggerService = AuditLoggerService_1 = class AuditLoggerService {
             },
         };
         if (success) {
-            await this.logSuccess(action, 'auth', context);
+            await this.logSuccess(action, "auth", context);
         }
         else {
-            await this.logFailure(action, 'auth', errorMessage || '', context);
+            await this.logFailure(action, "auth", errorMessage || "", context);
         }
     }
     generateCorrelationId() {
@@ -137,22 +137,24 @@ let AuditLoggerService = AuditLoggerService_1 = class AuditLoggerService {
             await this.storeAuditEntry(entry);
         }
         catch (error) {
-            this.logger.error('Failed to write audit log', error.stack);
+            this.logger.error("Failed to write audit log", error.stack);
         }
     }
     async storeAuditEntry(entry) {
-        const auditDir = process.env.AUDIT_LOG_DIR || './logs/audit';
-        const date = entry.timestamp.toISOString().split('T')[0];
+        const auditDir = process.env.AUDIT_LOG_DIR || "./logs/audit";
+        const date = entry.timestamp.toISOString().split("T")[0];
         const filename = `audit-${date}.jsonl`;
-        this.logger.debug(`Would store audit entry to ${auditDir}/${filename}`, { entry });
+        this.logger.debug(`Would store audit entry to ${auditDir}/${filename}`, {
+            entry,
+        });
     }
     sanitizeChanges(changes) {
         const sanitized = {};
         for (const [field, change] of Object.entries(changes)) {
             if (this.isSensitiveField(field)) {
                 sanitized[field] = {
-                    before: change.before ? '[REDACTED]' : null,
-                    after: change.after ? '[REDACTED]' : null,
+                    before: change.before ? "[REDACTED]" : null,
+                    after: change.after ? "[REDACTED]" : null,
                 };
             }
             else {
@@ -163,24 +165,24 @@ let AuditLoggerService = AuditLoggerService_1 = class AuditLoggerService {
     }
     sanitizeAIInput(input) {
         const maxLength = 500;
-        let sanitized = input.length > maxLength ? input.substring(0, maxLength) + '...' : input;
-        sanitized = sanitized.replace(/\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}\b/g, '[CREDIT_CARD]');
-        sanitized = sanitized.replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g, '[EMAIL]');
-        sanitized = sanitized.replace(/\b\d{3}[-.\s]?\d{2}[-.\s]?\d{4}\b/g, '[SSN]');
+        let sanitized = input.length > maxLength ? input.substring(0, maxLength) + "..." : input;
+        sanitized = sanitized.replace(/\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}\b/g, "[CREDIT_CARD]");
+        sanitized = sanitized.replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g, "[EMAIL]");
+        sanitized = sanitized.replace(/\b\d{3}[-.\s]?\d{2}[-.\s]?\d{4}\b/g, "[SSN]");
         return sanitized;
     }
     sanitizeAIOutput(output) {
-        if (typeof output === 'string') {
+        if (typeof output === "string") {
             return this.sanitizeAIInput(output);
         }
         if (Array.isArray(output)) {
-            return output.map(item => this.sanitizeAIOutput(item));
+            return output.map((item) => this.sanitizeAIOutput(item));
         }
-        if (typeof output === 'object' && output !== null) {
+        if (typeof output === "object" && output !== null) {
             const sanitized = {};
             for (const [key, value] of Object.entries(output)) {
                 if (this.isSensitiveField(key)) {
-                    sanitized[key] = '[REDACTED]';
+                    sanitized[key] = "[REDACTED]";
                 }
                 else {
                     sanitized[key] = this.sanitizeAIOutput(value);
@@ -192,19 +194,19 @@ let AuditLoggerService = AuditLoggerService_1 = class AuditLoggerService {
     }
     isSensitiveField(fieldName) {
         const sensitiveFields = [
-            'password',
-            'secret',
-            'token',
-            'key',
-            'apiKey',
-            'authToken',
-            'refreshToken',
-            'personalData',
-            'ssn',
-            'creditCard',
-            'bankAccount',
+            "password",
+            "secret",
+            "token",
+            "key",
+            "apiKey",
+            "authToken",
+            "refreshToken",
+            "personalData",
+            "ssn",
+            "creditCard",
+            "bankAccount",
         ];
-        return sensitiveFields.some(sensitive => fieldName.toLowerCase().includes(sensitive.toLowerCase()));
+        return sensitiveFields.some((sensitive) => fieldName.toLowerCase().includes(sensitive.toLowerCase()));
     }
 };
 exports.AuditLoggerService = AuditLoggerService;

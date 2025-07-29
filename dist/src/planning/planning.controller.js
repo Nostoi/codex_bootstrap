@@ -24,7 +24,7 @@ let PlanningController = PlanningController_1 = class PlanningController {
         this.logger = new common_1.Logger(PlanningController_1.name);
     }
     async generateTodaysPlan(dateString, req) {
-        const userId = req?.user?.id || 'temp-user-id';
+        const userId = req?.user?.id || "temp-user-id";
         const date = dateString ? new Date(dateString) : new Date();
         this.logger.log(`Generating plan for user ${userId} on ${date.toISOString()}`);
         return this.plannerService.generatePlan(userId, date);
@@ -32,35 +32,35 @@ let PlanningController = PlanningController_1 = class PlanningController {
 };
 exports.PlanningController = PlanningController;
 __decorate([
-    (0, common_1.Get)('today'),
+    (0, common_1.Get)("today"),
     (0, swagger_1.ApiOperation)({
-        summary: 'Generate optimized daily plan',
-        description: 'Creates an energy-aware daily schedule based on task metadata, user energy patterns, and dependencies'
+        summary: "Generate optimized daily plan",
+        description: "Creates an energy-aware daily schedule based on task metadata, user energy patterns, and dependencies",
     }),
     (0, swagger_1.ApiQuery)({
-        name: 'date',
+        name: "date",
         required: false,
-        description: 'Date for plan generation (YYYY-MM-DD). Defaults to today.',
-        example: '2025-07-28'
+        description: "Date for plan generation (YYYY-MM-DD). Defaults to today.",
+        example: "2025-07-28",
     }),
     (0, swagger_1.ApiResponse)({
         status: 200,
-        description: 'Successfully generated daily plan',
-        type: planning_dto_1.DailyPlanResponseDto
+        description: "Successfully generated daily plan",
+        type: planning_dto_1.DailyPlanResponseDto,
     }),
     (0, swagger_1.ApiResponse)({
         status: 400,
-        description: 'Invalid date format or plan generation failed'
+        description: "Invalid date format or plan generation failed",
     }),
-    __param(0, (0, common_1.Query)('date')),
+    __param(0, (0, common_1.Query)("date")),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], PlanningController.prototype, "generateTodaysPlan", null);
 exports.PlanningController = PlanningController = PlanningController_1 = __decorate([
-    (0, swagger_1.ApiTags)('Planning'),
-    (0, common_1.Controller)('plans'),
+    (0, swagger_1.ApiTags)("Planning"),
+    (0, common_1.Controller)("plans"),
     __metadata("design:paramtypes", [daily_planner_service_1.DailyPlannerService])
 ], PlanningController);
 //# sourceMappingURL=planning.controller.js.map

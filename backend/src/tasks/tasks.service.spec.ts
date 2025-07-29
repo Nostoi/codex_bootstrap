@@ -5,7 +5,6 @@ import { NotFoundException } from "@nestjs/common";
 
 describe("TasksService", () => {
   let service: TasksService;
-  let prisma: PrismaService;
 
   const mockPrismaService = {
     task: {
@@ -44,7 +43,7 @@ describe("TasksService", () => {
     }).compile();
 
     service = module.get<TasksService>(TasksService);
-    prisma = module.get<PrismaService>(PrismaService);
+    // _prisma = module.get<PrismaService>(PrismaService); // Currently unused
   });
 
   afterEach(() => {

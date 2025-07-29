@@ -1,5 +1,5 @@
-import { PrismaService } from '../prisma/prisma.service';
-import { FeatureFlags, FeatureFlagConfig } from './feature-flags.types';
+import { PrismaService } from "../prisma/prisma.service";
+import { FeatureFlags, FeatureFlagConfig } from "./feature-flags.types";
 export declare class FeatureFlagsService {
     private readonly prisma;
     private readonly logger;

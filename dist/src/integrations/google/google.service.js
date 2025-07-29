@@ -112,21 +112,105 @@ let GoogleService = GoogleService_1 = class GoogleService {
             throw error;
         }
     }
-    async getCalendarEvents(userId, calendarId = "primary") {
+    async getCalendarEvents(userId, calendarId = "primary", timeMin, timeMax) {
+        const startTime = performance.now();
         try {
+            this.logger.debug(`Fetching calendar events for user ${userId}, calendar ${calendarId}`, {
+                userId,
+                calendarId,
+                timeMin: timeMin?.toISOString(),
+                timeMax: timeMax?.toISOString(),
+            });
             const auth = await this.createOAuth2Client(userId);
             const calendar = googleapis_1.google.calendar({ version: "v3", auth });
             const response = await calendar.events.list({
                 calendarId,
-                timeMin: new Date().toISOString(),
+                timeMin: (timeMin || new Date()).toISOString(),
+                timeMax: timeMax?.toISOString(),
                 maxResults: 50,
                 singleEvents: true,
                 orderBy: "startTime",
             });
+            const responseTime = performance.now() - startTime;
+            const eventCount = response.data.items?.length || 0;
+            this.logger.log(`Successfully fetched ${eventCount} calendar events for user ${userId} in ${responseTime.toFixed(2)}ms`, {
+                userId,
+                calendarId,
+                eventCount,
+                responseTimeMs: responseTime,
+            });
             return response.data;
         }
         catch (error) {
-            this.logger.error("Error fetching Google Calendar events:", error);
+            const responseTime = performance.now() - startTime;
+            this.logger.error(`Error fetching Google Calendar events for user ${userId}:`, {
+                userId,
+                calendarId,
+                error: error.message,
+                errorCode: error.response?.status,
+                responseTimeMs: responseTime,
+            });
+            if (error.response?.status === 401) {
+                this.logger.warn(`Authentication token expired for user ${userId}, attempting refresh`, { userId });
+                try {
+                    await this.refreshAccessToken(userId);
+                    this.logger.log(`Token refresh successful for user ${userId}, retrying calendar request`, { userId });
+                    return this.getCalendarEvents(userId, calendarId, timeMin, timeMax);
+                }
+                catch (refreshError) {
+                    this.logger.error(`Token refresh failed for user ${userId}:`, {
+                        userId,
+                        refreshError: refreshError.message,
+                    });
+                    throw new Error(`Google Calendar authentication failed: ${refreshError.message}`);
+                }
+            }
+            if (error.response?.status === 403) {
+                throw new Error('Insufficient permissions to access Google Calendar. Please re-authorize the application.');
+            }
+            if (error.response?.status === 429) {
+                throw new Error('Google Calendar API rate limit exceeded. Please try again later.');
+            }
+            throw error;
+        }
+    }
+    async refreshAccessToken(userId) {
+        try {
+            const config = await this.prisma.integrationConfig.findUnique({
+                where: {
+                    provider_userId: {
+                        provider: "google",
+                        userId,
+                    },
+                },
+            });
+            if (!config?.refreshToken) {
+                throw new Error("No refresh token available for user");
+            }
+            const oauth2Client = new googleapis_1.google.auth.OAuth2(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET);
+            oauth2Client.setCredentials({
+                refresh_token: config.refreshToken,
+            });
+            const { credentials } = await oauth2Client.refreshAccessToken();
+            if (!credentials.access_token) {
+                throw new Error("Failed to obtain new access token");
+            }
+            await this.prisma.integrationConfig.update({
+                where: {
+                    provider_userId: {
+                        provider: "google",
+                        userId,
+                    },
+                },
+                data: {
+                    accessToken: credentials.access_token,
+                    updatedAt: new Date(),
+                },
+            });
+            this.logger.log(`Access token refreshed successfully for user ${userId}`, { userId });
+        }
+        catch (error) {
+            this.logger.error(`Failed to refresh access token for user ${userId}: ${error.message}`, { userId, error: error.message });
             throw error;
         }
     }

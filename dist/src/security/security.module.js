@@ -14,12 +14,8 @@ const rate_limiting_middleware_1 = require("./rate-limiting.middleware");
 const security_headers_middleware_1 = require("./security-headers.middleware");
 let SecurityModule = class SecurityModule {
     configure(consumer) {
-        consumer
-            .apply(security_headers_middleware_1.SecurityHeadersMiddleware)
-            .forRoutes('*');
-        consumer
-            .apply(rate_limiting_middleware_1.RateLimitingMiddleware)
-            .forRoutes('/api/*');
+        consumer.apply(security_headers_middleware_1.SecurityHeadersMiddleware).forRoutes("*");
+        consumer.apply(rate_limiting_middleware_1.RateLimitingMiddleware).forRoutes("/api/*");
     }
 };
 exports.SecurityModule = SecurityModule;

@@ -5,7 +5,7 @@ import { FeatureFlags } from "./feature-flags.types";
 
 describe("FeatureFlagsService", () => {
   let service: FeatureFlagsService;
-  let prismaService: PrismaService;
+  // let _prismaService: PrismaService; // Currently unused
 
   const mockPrismaService = {
     // Mock Prisma methods as needed
@@ -23,7 +23,7 @@ describe("FeatureFlagsService", () => {
     }).compile();
 
     service = module.get<FeatureFlagsService>(FeatureFlagsService);
-    prismaService = module.get<PrismaService>(PrismaService);
+    // _prismaService = module.get<PrismaService>(PrismaService); // Currently unused
   });
 
   it("should be defined", () => {

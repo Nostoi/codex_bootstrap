@@ -1,12 +1,8 @@
 import { Injectable, Logger } from "@nestjs/common";
 import {
-  OpenAIException,
-  OpenAIRateLimitException,
   OpenAIQuotaExceededException,
   OpenAIInvalidRequestException,
   OpenAIUnauthorizedException,
-  OpenAIServerException,
-  OpenAITimeoutException,
 } from "../exceptions/openai.exceptions";
 import { RetryConfig } from "../interfaces/openai.interfaces";
 

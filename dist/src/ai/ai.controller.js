@@ -74,7 +74,7 @@ __decorate([
 __decorate([
     (0, common_1.Post)("tasks/classify"),
     (0, common_1.UsePipes)(new common_1.ValidationPipe({ transform: true })),
-    __param(0, (0, common_1.Body)('description')),
+    __param(0, (0, common_1.Body)("description")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)

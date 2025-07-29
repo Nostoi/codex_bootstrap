@@ -1,5 +1,5 @@
-import { FeatureFlagsService } from './feature-flags.service';
-import { FeatureFlags } from './feature-flags.types';
+import { FeatureFlagsService } from "./feature-flags.service";
+import { FeatureFlags } from "./feature-flags.types";
 export declare class FeatureFlagsController {
     private readonly featureFlagsService;
     constructor(featureFlagsService: FeatureFlagsService);

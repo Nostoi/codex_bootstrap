@@ -1,5 +1,5 @@
-import { NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
+import { NestMiddleware } from "@nestjs/common";
+import { Request, Response, NextFunction } from "express";
 export declare class SecurityHeadersMiddleware implements NestMiddleware {
     private readonly logger;
     private helmetMiddleware;

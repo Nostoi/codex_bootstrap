@@ -8,7 +8,8 @@ export declare class GoogleService {
     createDriveFile(userId: string, filename: string, content: string, mimeType?: string): Promise<import("googleapis").drive_v3.Schema$File>;
     getSheetData(userId: string, spreadsheetId: string, range: string): Promise<import("googleapis").sheets_v4.Schema$ValueRange>;
     createSheet(userId: string, title: string): Promise<import("googleapis").sheets_v4.Schema$Spreadsheet>;
-    getCalendarEvents(userId: string, calendarId?: string): Promise<import("googleapis").calendar_v3.Schema$Events>;
+    getCalendarEvents(userId: string, calendarId?: string, timeMin?: Date, timeMax?: Date): any;
+    private refreshAccessToken;
     createCalendarEvent(userId: string, eventData: {
         summary: string;
         description?: string;

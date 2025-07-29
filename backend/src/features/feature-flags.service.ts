@@ -2,7 +2,6 @@ import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import {
   FeatureFlags,
-  UserFeatureOverride,
   FeatureFlagConfig,
 } from "./feature-flags.types";
 
@@ -138,17 +137,12 @@ export class FeatureFlagsService {
    * @returns true/false if override exists, null if no override
    */
   private async getUserOverride(
-    flag: FeatureFlags,
-    userId: string,
+    _flag: FeatureFlags,
+    _userId: string,
   ): Promise<boolean | null> {
-    try {
-      // For now, return null since we don't have the user overrides table
-      // This would be implemented when we add a UserFeatureOverrides table to Prisma schema
-      return null;
-    } catch (error) {
-      this.logger.error(`Error getting user override for ${flag}:`, error);
-      return null;
-    }
+    // For now, return null since we don't have the user overrides table
+    // This would be implemented when we add a UserFeatureOverrides table to Prisma schema
+    return null;
   }
 
   /**
@@ -162,7 +156,7 @@ export class FeatureFlagsService {
     flag: FeatureFlags,
     userId: string,
     enabled: boolean,
-    expiresAt?: Date,
+    _expiresAt?: Date,
   ): Promise<void> {
     try {
       // This would be implemented when we add a UserFeatureOverrides table

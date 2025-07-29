@@ -1,6 +1,6 @@
-import { NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
-import { AuditLoggerService } from './audit-logger.service';
+import { NestMiddleware } from "@nestjs/common";
+import { Request, Response, NextFunction } from "express";
+import { AuditLoggerService } from "./audit-logger.service";
 interface ExtendedRequest extends Request {
     correlationId?: string;
     user?: {
