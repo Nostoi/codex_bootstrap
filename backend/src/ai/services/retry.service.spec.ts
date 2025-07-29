@@ -1,9 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { RetryService } from "./retry.service";
 import {
-  OpenAIRateLimitException,
   OpenAIUnauthorizedException,
-  OpenAIInvalidRequestException,
 } from "../exceptions/openai.exceptions";
 
 describe("RetryService", () => {

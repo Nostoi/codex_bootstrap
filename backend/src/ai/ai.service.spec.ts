@@ -6,8 +6,8 @@ import { RetryService } from "./services/retry.service";
 
 describe("AiService", () => {
   let service: AiService;
-  let configService: jest.Mocked<ConfigService>;
-  let mem0Service: jest.Mocked<Mem0Service>;
+  let _configService: jest.Mocked<ConfigService>;
+  let _mem0Service: jest.Mocked<Mem0Service>;
   let retryService: jest.Mocked<RetryService>;
 
   beforeEach(async () => {
@@ -49,8 +49,8 @@ describe("AiService", () => {
     }).compile();
 
     service = module.get<AiService>(AiService);
-    configService = module.get(ConfigService);
-    mem0Service = module.get(Mem0Service);
+    _configService = module.get(ConfigService);
+    _mem0Service = module.get(Mem0Service);
     retryService = module.get(RetryService);
   });
 
