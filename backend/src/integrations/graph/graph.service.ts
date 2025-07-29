@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Client } from "@microsoft/microsoft-graph-client";
 import { PrismaService } from "../../prisma/prisma.service";
+import { GraphAuthService } from "./auth/graph-auth.service";
 import { 
   CalendarEvent, 
   CalendarListOptions, 
@@ -12,19 +13,27 @@ import {
 export class GraphService {
   private readonly logger = new Logger(GraphService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private graphAuthService: GraphAuthService,
+  ) {}
 
   /**
    * Create a Microsoft Graph client with user's access token
    */
-  private createGraphClient(accessToken: string): Client {
-    return Client.init({
-      // Client.init expects an AuthProvider function, but using a
-      // simple object keeps the implementation lightweight for tests.
-      authProvider: {
-        getAccessToken: async () => accessToken,
-      } as any,
-    });
+  private async createGraphClient(userId: string): Promise<Client> {
+    try {
+      const accessToken = await this.graphAuthService.getAccessToken(userId);
+      
+      return Client.init({
+        authProvider: {
+          getAccessToken: async () => accessToken,
+        } as any,
+      });
+    } catch (error) {
+      this.logger.error(`Failed to create Graph client for user ${userId}:`, error);
+      throw error;
+    }
   }
 
   /**
@@ -32,20 +41,7 @@ export class GraphService {
    */
   async getUserProfile(userId: string) {
     try {
-      const config = await this.prisma.integrationConfig.findUnique({
-        where: {
-          provider_userId: {
-            provider: "microsoft",
-            userId,
-          },
-        },
-      });
-
-      if (!config?.accessToken) {
-        throw new Error("Microsoft integration not configured for user");
-      }
-
-      const graphClient = this.createGraphClient(config.accessToken);
+      const graphClient = await this.createGraphClient(userId);
       const profile = await graphClient.api("/me").get();
 
       return profile;
@@ -60,20 +56,7 @@ export class GraphService {
    */
   async getOneDriveFiles(userId: string, folderId?: string) {
     try {
-      const config = await this.prisma.integrationConfig.findUnique({
-        where: {
-          provider_userId: {
-            provider: "microsoft",
-            userId,
-          },
-        },
-      });
-
-      if (!config?.accessToken) {
-        throw new Error("Microsoft integration not configured for user");
-      }
-
-      const graphClient = this.createGraphClient(config.accessToken);
+      const graphClient = await this.createGraphClient(userId);
       const endpoint = folderId
         ? `/me/drive/items/${folderId}/children`
         : "/me/drive/root/children";
@@ -92,20 +75,7 @@ export class GraphService {
    */
   async createOneDriveFile(userId: string, filename: string, content: string) {
     try {
-      const config = await this.prisma.integrationConfig.findUnique({
-        where: {
-          provider_userId: {
-            provider: "microsoft",
-            userId,
-          },
-        },
-      });
-
-      if (!config?.accessToken) {
-        throw new Error("Microsoft integration not configured for user");
-      }
-
-      const graphClient = this.createGraphClient(config.accessToken);
+      const graphClient = await this.createGraphClient(userId);
 
       const file = await graphClient
         .api(`/me/drive/root:/${filename}:/content`)
@@ -123,20 +93,7 @@ export class GraphService {
    */
   async getTeams(userId: string) {
     try {
-      const config = await this.prisma.integrationConfig.findUnique({
-        where: {
-          provider_userId: {
-            provider: "microsoft",
-            userId,
-          },
-        },
-      });
-
-      if (!config?.accessToken) {
-        throw new Error("Microsoft integration not configured for user");
-      }
-
-      const graphClient = this.createGraphClient(config.accessToken);
+      const graphClient = await this.createGraphClient(userId);
       const teams = await graphClient.api("/me/joinedTeams").get();
 
       return teams;
@@ -189,20 +146,7 @@ export class GraphService {
    */
   async getCalendars(userId: string) {
     try {
-      const config = await this.prisma.integrationConfig.findUnique({
-        where: {
-          provider_userId: {
-            provider: "microsoft",
-            userId,
-          },
-        },
-      });
-
-      if (!config?.accessToken) {
-        throw new Error("Microsoft integration not configured for user");
-      }
-
-      const graphClient = this.createGraphClient(config.accessToken);
+      const graphClient = await this.createGraphClient(userId);
       const calendars = await graphClient.api(GRAPH_ENDPOINTS.CALENDARS).get();
 
       return calendars;
@@ -217,20 +161,7 @@ export class GraphService {
    */
   async getCalendarEvents(userId: string, options: CalendarListOptions = {}) {
     try {
-      const config = await this.prisma.integrationConfig.findUnique({
-        where: {
-          provider_userId: {
-            provider: "microsoft",
-            userId,
-          },
-        },
-      });
-
-      if (!config?.accessToken) {
-        throw new Error("Microsoft integration not configured for user");
-      }
-
-      const graphClient = this.createGraphClient(config.accessToken);
+      const graphClient = await this.createGraphClient(userId);
       
       // Build query parameters
       const queryParams: string[] = [];
@@ -265,20 +196,7 @@ export class GraphService {
    */
   async getCalendarEvent(userId: string, eventId: string) {
     try {
-      const config = await this.prisma.integrationConfig.findUnique({
-        where: {
-          provider_userId: {
-            provider: "microsoft",
-            userId,
-          },
-        },
-      });
-
-      if (!config?.accessToken) {
-        throw new Error("Microsoft integration not configured for user");
-      }
-
-      const graphClient = this.createGraphClient(config.accessToken);
+      const graphClient = await this.createGraphClient(userId);
       const event = await graphClient.api(GRAPH_ENDPOINTS.EVENT(eventId)).get();
 
       return event;
@@ -293,20 +211,7 @@ export class GraphService {
    */
   async createCalendarEvent(userId: string, event: CalendarEvent) {
     try {
-      const config = await this.prisma.integrationConfig.findUnique({
-        where: {
-          provider_userId: {
-            provider: "microsoft",
-            userId,
-          },
-        },
-      });
-
-      if (!config?.accessToken) {
-        throw new Error("Microsoft integration not configured for user");
-      }
-
-      const graphClient = this.createGraphClient(config.accessToken);
+      const graphClient = await this.createGraphClient(userId);
       
       // Ensure required fields and apply defaults
       const eventData = {
@@ -337,20 +242,7 @@ export class GraphService {
    */
   async updateCalendarEvent(userId: string, eventId: string, updates: Partial<CalendarEvent>) {
     try {
-      const config = await this.prisma.integrationConfig.findUnique({
-        where: {
-          provider_userId: {
-            provider: "microsoft",
-            userId,
-          },
-        },
-      });
-
-      if (!config?.accessToken) {
-        throw new Error("Microsoft integration not configured for user");
-      }
-
-      const graphClient = this.createGraphClient(config.accessToken);
+      const graphClient = await this.createGraphClient(userId);
       const updatedEvent = await graphClient
         .api(GRAPH_ENDPOINTS.EVENT(eventId))
         .patch(updates);
@@ -367,20 +259,7 @@ export class GraphService {
    */
   async deleteCalendarEvent(userId: string, eventId: string) {
     try {
-      const config = await this.prisma.integrationConfig.findUnique({
-        where: {
-          provider_userId: {
-            provider: "microsoft",
-            userId,
-          },
-        },
-      });
-
-      if (!config?.accessToken) {
-        throw new Error("Microsoft integration not configured for user");
-      }
-
-      const graphClient = this.createGraphClient(config.accessToken);
+      const graphClient = await this.createGraphClient(userId);
       await graphClient.api(GRAPH_ENDPOINTS.EVENT(eventId)).delete();
 
       return { success: true, message: "Event deleted successfully" };
@@ -399,20 +278,7 @@ export class GraphService {
     options: CalendarListOptions = {}
   ) {
     try {
-      const config = await this.prisma.integrationConfig.findUnique({
-        where: {
-          provider_userId: {
-            provider: "microsoft",
-            userId,
-          },
-        },
-      });
-
-      if (!config?.accessToken) {
-        throw new Error("Microsoft integration not configured for user");
-      }
-
-      const graphClient = this.createGraphClient(config.accessToken);
+      const graphClient = await this.createGraphClient(userId);
       
       // Build query parameters
       const queryParams: string[] = [];
