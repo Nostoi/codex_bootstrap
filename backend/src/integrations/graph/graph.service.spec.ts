@@ -1,6 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { GraphService } from "./graph.service";
 import { PrismaService } from "../../prisma/prisma.service";
+import { GraphAuthService } from "./auth/graph-auth.service";
 
 describe("GraphService", () => {
   let service: GraphService;
@@ -11,11 +12,17 @@ describe("GraphService", () => {
     },
   };
 
+  const mockGraphAuthService = {
+    getValidAccessToken: jest.fn(),
+    isAuthenticated: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GraphService,
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: GraphAuthService, useValue: mockGraphAuthService },
       ],
     }).compile();
     service = module.get<GraphService>(GraphService);

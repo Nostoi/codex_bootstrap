@@ -5,11 +5,12 @@ import { GraphService } from "./graph.service";
 import { GraphConfigService } from "./config/graph-config.service";
 import { GraphAuthService } from "./auth/graph-auth.service";
 import { GraphAuthController } from "./auth/graph-auth.controller";
+import { CalendarSyncModule } from "./sync/calendar-sync.module";
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, CalendarSyncModule],
   controllers: [GraphController, GraphAuthController],
   providers: [GraphService, GraphConfigService, GraphAuthService],
-  exports: [GraphService, GraphConfigService, GraphAuthService],
+  exports: [GraphService, GraphConfigService, GraphAuthService, CalendarSyncModule],
 })
 export class GraphModule {}

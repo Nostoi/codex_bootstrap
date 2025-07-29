@@ -54,6 +54,10 @@ model User {
   notifications Notification[]
   interactionLogs InteractionLog[]
   settings  UserSettings?
+  
+  // Calendar sync relationships
+  calendarEvents    CalendarEvent[]
+  calendarSyncStates CalendarSyncState[]
 
   @@map("users")
 }
@@ -219,4 +223,130 @@ model Tag {
   tasks Task[]
 
   @@map("tags")
+}
+
+// Calendar Synchronization Models
+
+model CalendarEvent {
+  id                String    @id @default(cuid())
+  
+  // Microsoft Graph identifiers
+  graphId           String?   // Microsoft Graph event ID
+  graphCalendarId   String?   // Microsoft Graph calendar ID
+  graphEtag         String?   // ETag for conflict detection
+  
+  // Event details
+  subject           String
+  description       String?
+  location          String?
+  startTime         DateTime
+  endTime           DateTime
+  timeZone          String?   @default("UTC")
+  isAllDay          Boolean   @default(false)
+  
+  // Recurrence
+  isRecurring       Boolean   @default(false)
+  recurrencePattern String?   // JSON string of recurrence rule
+  
+  // Sync metadata
+  lastSyncedAt      DateTime?
+  locallyModified   Boolean   @default(false)
+  remotelyModified  Boolean   @default(false)
+  syncStatus        CalendarSyncStatus @default(PENDING)
+  conflictData      String?   // JSON string for conflict resolution
+  
+  // Relationships
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conflicts         CalendarSyncConflict[]
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@unique([userId, graphId])
+  @@map("calendar_events")
+}
+
+model CalendarSyncState {
+  id                String    @id @default(cuid())
+  
+  // User and calendar identification
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  calendarId        String?   // Microsoft Graph calendar ID (null for default calendar)
+  
+  // Sync state tracking
+  lastFullSync      DateTime?
+  lastDeltaSync     DateTime?
+  deltaToken        String?   // Microsoft Graph delta token
+  syncInProgress    Boolean   @default(false)
+  lastSyncStatus    CalendarSyncStatus @default(PENDING)
+  lastSyncError     String?
+  
+  // Sync statistics
+  totalEvents       Int       @default(0)
+  syncedEvents      Int       @default(0)
+  conflictedEvents  Int       @default(0)
+  failedEvents      Int       @default(0)
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@unique([userId, calendarId])
+  @@map("calendar_sync_states")
+}
+
+model CalendarSyncConflict {
+  id                String    @id @default(cuid())
+  
+  // Event identification
+  calendarEventId   String
+  calendarEvent     CalendarEvent @relation(fields: [calendarEventId], references: [id], onDelete: Cascade)
+  
+  // Conflict details
+  conflictType      CalendarConflictType
+  localVersion      String    // JSON string of local event data
+  remoteVersion     String    // JSON string of remote event data
+  resolution        CalendarConflictResolution? @default(PENDING)
+  resolvedBy        String?   // User ID who resolved the conflict
+  resolvedAt        DateTime?
+  
+  // Metadata
+  detectedAt        DateTime  @default(now())
+  autoResolvable    Boolean   @default(false)
+  resolutionNotes   String?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("calendar_sync_conflicts")
+}
+
+// Calendar Sync Enums
+
+enum CalendarSyncStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CONFLICT
+}
+
+enum CalendarConflictType {
+  TITLE_MISMATCH
+  TIME_MISMATCH
+  LOCATION_MISMATCH
+  DESCRIPTION_MISMATCH
+  DELETED_REMOTELY
+  DELETED_LOCALLY
+  BOTH_MODIFIED
+}
+
+enum CalendarConflictResolution {
+  PENDING
+  USE_LOCAL
+  USE_REMOTE
+  MERGE
+  MANUAL
+  SKIP
 }
