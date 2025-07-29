@@ -233,6 +233,12 @@ export class RateLimitingMiddleware implements NestMiddleware {
   > {
     const results: any[] = [];
 
+    // Return empty array if Redis is not available
+    if (!this.redis) {
+      this.logger.warn("Redis not available for rate limit status check");
+      return results;
+    }
+
     for (const [category] of this.rateLimiters) {
       try {
         const key = userId
@@ -283,6 +289,12 @@ export class RateLimitingMiddleware implements NestMiddleware {
     ip?: string,
     category?: string,
   ): Promise<void> {
+    // Return early if Redis is not available
+    if (!this.redis) {
+      this.logger.warn("Redis not available for rate limit reset");
+      return;
+    }
+
     try {
       if (category) {
         const key = userId

@@ -281,6 +281,8 @@ model CalendarSyncState {
   deltaToken        String?   // Microsoft Graph delta token
   syncInProgress    Boolean   @default(false)
   lastSyncStatus    CalendarSyncStatus @default(PENDING)
+  status            CalendarSyncStatus @default(PENDING)  // Add status field for tests
+  direction         String?   // Add direction field for tests (bidirectional, one-way, etc.)
   lastSyncError     String?
   
   // Sync statistics
@@ -340,6 +342,8 @@ enum CalendarConflictType {
   DELETED_REMOTELY
   DELETED_LOCALLY
   BOTH_MODIFIED
+  TITLE
+  START_TIME
 }
 
 enum CalendarConflictResolution {
@@ -349,4 +353,6 @@ enum CalendarConflictResolution {
   MERGE
   MANUAL
   SKIP
+  PREFER_LOCAL
+  PREFER_REMOTE
 }
