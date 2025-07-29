@@ -12,6 +12,7 @@ codex-bootstrap is a starter template for a modern full-stack web application bu
 - Backend: Node.js, NestJS, Prisma ORM, y-websocket (CRDT collaboration)
 - Frontend: Next.js 14+ with App Router, TypeScript, Tailwind CSS + DaisyUI, Zustand, React Query
 - Real-time collaboration with y-websocket and Yjs CRDT technology
+- **Microsoft Graph Calendar Synchronization**: Enterprise-grade bidirectional calendar sync with conflict resolution
 - External API integrations: Microsoft Graph SDK, Google APIs SDK
 - Pre-configured linting and testing scripts
 # TaskMaster
@@ -99,6 +100,56 @@ Starting with any description of a feature, this project supplies tooling to aut
 - Tailwind CSS + DaisyUI
 - Zustand (state management)
 - React Query (data fetching)
+
+## Calendar Event Synchronization Service
+
+TaskMaster includes an advanced Calendar Event Synchronization Service that provides bidirectional synchronization between tasks and Microsoft Outlook calendars.
+
+### Features
+
+- **Bidirectional Sync**: Automatic two-way synchronization between TaskMaster tasks and Microsoft Outlook calendar events
+- **Conflict Resolution**: Intelligent handling of conflicts when both task and calendar event are modified
+- **Real-time Updates**: Webhook-based notifications for instant sync when calendar events change
+- **Batch Operations**: Efficient bulk synchronization for initial setup and periodic maintenance
+- **Enterprise Integration**: Full Microsoft Graph API integration with proper authentication and permissions
+
+### API Endpoints
+
+```
+POST   /calendar/sync           - Trigger full synchronization for user
+GET    /calendar/events         - List synchronized calendar events
+POST   /calendar/events/:id/sync - Sync specific calendar event to task
+DELETE /calendar/events/:id     - Remove calendar event synchronization
+POST   /calendar/webhooks       - Microsoft Graph webhook notifications (internal)
+```
+
+### Setup Requirements
+
+1. **Microsoft Graph API Configuration**:
+   - Register application in Azure AD
+   - Configure API permissions: `Calendars.ReadWrite`, `User.Read`
+   - Set up webhook notification URLs
+
+2. **Environment Variables**:
+   ```env
+   MICROSOFT_CLIENT_ID=your_client_id
+   MICROSOFT_CLIENT_SECRET=your_client_secret
+   MICROSOFT_TENANT_ID=your_tenant_id
+   MICROSOFT_REDIRECT_URI=http://localhost:3000/auth/microsoft/callback
+   ```
+
+3. **Database Migration**:
+   ```bash
+   cd backend
+   npx prisma migrate dev
+   ```
+
+### Integration Flow
+
+1. User authenticates with Microsoft account via OAuth2
+2. System requests calendar permissions and establishes webhook subscriptions
+3. Automatic bidirectional sync maintains consistency between tasks and calendar events
+4. Conflict resolution ensures data integrity during simultaneous modifications
 
 ## Codex Environment Setup
 Go to https://chatgpt.com/codex/settings/environments, select or create your github-connected environment then Edit -> Advanced and copy-paste install.sh into the startup script textbox. Save
