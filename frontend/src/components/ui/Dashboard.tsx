@@ -1,29 +1,13 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import FocusView from "./FocusView";
 import ChatGPTIntegration, { ChatMessage, ExtractedTask } from "./ChatGPTIntegration";
+import CalendarEvents from "./CalendarEvents";
+import FilterBar, { FilterValues } from "./FilterBar";
+import TaskCard, { EnhancedTask } from "./TaskCard";
 import { useDailyPlan, useRefreshDailyPlan } from "../../hooks/useApi";
 
 // Enhanced Task interface matching TaskCard component
-export interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  status: "TODO" | "IN_PROGRESS" | "BLOCKED" | "DONE";
-  dueDate?: string;
-  // Enhanced metadata fields
-  energyLevel?: "LOW" | "MEDIUM" | "HIGH";
-  focusType?: "CREATIVE" | "TECHNICAL" | "ADMINISTRATIVE" | "SOCIAL";
-  priority?: number; // 1-5 scale
-  estimatedMinutes?: number;
-  softDeadline?: string;
-  hardDeadline?: string;
-  source?: "SELF" | "BOSS" | "TEAM" | "AI_GENERATED";
-  aiSuggestion?: string;
-  // Computed fields
-  isOverdue?: boolean;
-  isBlocked?: boolean;
-  dependencyCount?: number;
-}
+export interface Task extends EnhancedTask {}
 
 export interface AIRecommendation {
   id: string;
@@ -120,6 +104,73 @@ const Dashboard: React.FC<DashboardProps> = ({
       setTasks(tasksFromAPI);
     }
   }, [tasksFromAPI]);
+
+  // Filter state management
+  const [filters, setFilters] = useState<FilterValues>({
+    search: '',
+    energyLevels: [],
+    focusTypes: [],
+    statuses: [],
+    priorityRange: [1, 5],
+    dateRange: undefined,
+  });
+
+  // View mode state
+  const [viewMode, setViewMode] = useState<'grid' | 'focus'>('grid');
+
+  // Filtered tasks based on current filter state
+  const filteredTasks = useMemo(() => {
+    return tasks.filter(task => {
+      // Search filter
+      if (filters.search && !task.title.toLowerCase().includes(filters.search.toLowerCase()) &&
+          !task.description?.toLowerCase().includes(filters.search.toLowerCase())) {
+        return false;
+      }
+
+      // Energy level filter
+      if (filters.energyLevels.length > 0 && task.energyLevel && 
+          !filters.energyLevels.includes(task.energyLevel)) {
+        return false;
+      }
+
+      // Focus type filter
+      if (filters.focusTypes.length > 0 && task.focusType && 
+          !filters.focusTypes.includes(task.focusType)) {
+        return false;
+      }
+
+      // Status filter
+      if (filters.statuses.length > 0 && !filters.statuses.includes(task.status)) {
+        return false;
+      }
+
+      // Priority range filter
+      const taskPriority = task.priority || 3;
+      if (taskPriority < filters.priorityRange[0] || taskPriority > filters.priorityRange[1]) {
+        return false;
+      }
+
+      // Date range filter (if implemented)
+      // This would require additional logic based on your date field structure
+
+      return true;
+    });
+  }, [tasks, filters]);
+
+  // Sort filtered tasks by priority and status
+  const sortedFilteredTasks = useMemo(() => {
+    return [...filteredTasks].sort((a, b) => {
+      // Sort by priority (high -> low), then by status (in-progress -> todo -> blocked -> done)
+      const priorityA = a.priority || 3;
+      const priorityB = b.priority || 3;
+      const statusOrder = { "IN_PROGRESS": 0, "TODO": 1, "BLOCKED": 2, "DONE": 3 };
+      
+      if (priorityA !== priorityB) {
+        return priorityB - priorityA; // Higher priority first
+      }
+      return statusOrder[a.status] - statusOrder[b.status];
+    });
+  }, [filteredTasks]);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "welcome",
@@ -169,6 +220,11 @@ const Dashboard: React.FC<DashboardProps> = ({
       }
     }
   }, [tasks, onTaskUpdate]);
+
+  // Handle task status change from TaskCard
+  const handleTaskStatusChange = useCallback((taskId: string, status: Task["status"]) => {
+    handleTaskUpdate(taskId, { status });
+  }, [handleTaskUpdate]);
 
   // Handle task click from FocusView
   const handleTaskClick = useCallback((taskId: string) => {
@@ -315,9 +371,9 @@ const Dashboard: React.FC<DashboardProps> = ({
   }, []);
 
   return (
-    <div className={`min-h-screen bg-base-100 p-4 ${className}`}>
+    <div className={`min-h-screen bg-base-100 ${className}`}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between p-6 border-b border-base-300">
         <div>
           <h1 className="text-3xl font-bold text-base-content">Helmsman Dashboard</h1>
           <p className="text-base-content/70 mt-1">
@@ -330,6 +386,22 @@ const Dashboard: React.FC<DashboardProps> = ({
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {/* View Mode Toggle */}
+          <div className="join">
+            <button 
+              className={`btn btn-sm join-item ${viewMode === 'grid' ? 'btn-active' : 'btn-outline'}`}
+              onClick={() => setViewMode('grid')}
+            >
+              📋 Grid
+            </button>
+            <button 
+              className={`btn btn-sm join-item ${viewMode === 'focus' ? 'btn-active' : 'btn-outline'}`}
+              onClick={() => setViewMode('focus')}
+            >
+              🎯 Focus
+            </button>
+          </div>
+
           {/* Refresh Plan Button */}
           <button 
             className={`btn btn-outline btn-sm ${refreshPlanMutation.isPending ? 'loading' : ''}`}
@@ -343,6 +415,10 @@ const Dashboard: React.FC<DashboardProps> = ({
             <div className="stat">
               <div className="stat-title">Tasks</div>
               <div className="stat-value text-lg">{tasks.length}</div>
+            </div>
+            <div className="stat">
+              <div className="stat-title">Filtered</div>
+              <div className="stat-value text-lg text-info">{sortedFilteredTasks.length}</div>
             </div>
             <div className="stat">
               <div className="stat-title">Scheduled</div>
@@ -364,9 +440,32 @@ const Dashboard: React.FC<DashboardProps> = ({
         </div>
       </div>
 
+      {/* FilterBar */}
+      <FilterBar
+        filters={filters}
+        onFiltersChange={setFilters}
+        onClear={() => setFilters({
+          search: '',
+          energyLevels: [],
+          focusTypes: [],
+          statuses: [],
+          priorityRange: [1, 5],
+          dateRange: undefined,
+        })}
+        onReset={() => setFilters({
+          search: '',
+          energyLevels: [],
+          focusTypes: [],
+          statuses: [],
+          priorityRange: [1, 5],
+          dateRange: undefined,
+        })}
+        loading={isPlanLoading}
+      />
+
       {/* Loading State */}
       {isPlanLoading && (
-        <div className="alert alert-info mb-6">
+        <div className="alert alert-info mx-6 mt-6">
           <span className="loading loading-spinner loading-sm"></span>
           Loading your daily plan...
         </div>
@@ -374,7 +473,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 
       {/* Error State */}
       {planError && (
-        <div className="alert alert-warning mb-6">
+        <div className="alert alert-warning mx-6 mt-6">
           <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
           </svg>
@@ -390,7 +489,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 
       {/* Planning Optimization Info */}
       {dailyPlan && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mx-6 mt-6">
           <div className="stat bg-base-200 rounded-lg">
             <div className="stat-title">Energy Optimization</div>
             <div className="stat-value text-lg">
@@ -416,37 +515,171 @@ const Dashboard: React.FC<DashboardProps> = ({
       )}
 
       {/* Main Content */}
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Focus View */}
-        <div className="w-full lg:w-2/3">
-          <FocusView
-            todaysTasks={tasks}
-            focusGoal="AI-optimized daily productivity"
-            aiRecommendation={aiRecommendations[0]?.message}
-            onTaskClick={handleTaskClick}
-            onRefreshAI={handleRequestAISuggestions}
-            isLoadingAI={isAiLoading}
-          />
-        </div>
+      <div className="p-6">
+        {viewMode === 'focus' ? (
+          /* Focus View - Traditional layout */
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-6">
+              <FocusView
+                todaysTasks={sortedFilteredTasks}
+                focusGoal="AI-optimized daily productivity"
+                aiRecommendation={aiRecommendations[0]?.message}
+                onTaskClick={handleTaskClick}
+                onRefreshAI={handleRequestAISuggestions}
+                isLoadingAI={isAiLoading}
+              />
+            </div>
 
-        {/* Chat Integration */}
-        <div className="w-full lg:w-1/3">
-          <ChatGPTIntegration
-            messages={messages}
-            onSendMessage={handleSendMessage}
-            onExtractTasks={handleExtractTasks}
-            onClearChat={handleClearChat}
-            isLoading={isAiLoading}
-            isConnected={isAiConnected}
-            placeholder="Ask AI to help plan your day, extract tasks, or optimize your workflow..."
-            maxHeight="600px"
-            showTaskExtraction={true}
-          />
-        </div>
+            <div className="lg:col-span-3">
+              <CalendarEvents 
+                date={dailyPlan?.date}
+                maxEvents={5}
+                className="h-fit"
+              />
+            </div>
+
+            <div className="lg:col-span-3">
+              <ChatGPTIntegration
+                messages={messages}
+                onSendMessage={handleSendMessage}
+                onExtractTasks={handleExtractTasks}
+                onClearChat={handleClearChat}
+                isLoading={isAiLoading}
+                isConnected={isAiConnected}
+                placeholder="Ask AI to help plan your day, extract tasks, or optimize your workflow..."
+                maxHeight="600px"
+                showTaskExtraction={true}
+              />
+            </div>
+          </div>
+        ) : (
+          /* Grid View - Enhanced layout with TaskCards */
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Main Tasks Grid */}
+            <div className="lg:col-span-8">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-base-content">
+                    Tasks ({sortedFilteredTasks.length})
+                  </h2>
+                  {filters.search || filters.energyLevels.length > 0 || filters.focusTypes.length > 0 || 
+                   filters.statuses.length > 0 || filters.priorityRange[0] > 1 || filters.priorityRange[1] < 5 ? (
+                    <span className="text-sm text-base-content/60">
+                      Filtered from {tasks.length} total tasks
+                    </span>
+                  ) : null}
+                </div>
+
+                {/* Task Grid */}
+                {sortedFilteredTasks.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="text-6xl mb-4">📋</div>
+                    <h3 className="text-xl font-semibold text-base-content mb-2">
+                      {tasks.length === 0 ? 'No tasks yet' : 'No tasks match your filters'}
+                    </h3>
+                    <p className="text-base-content/60 mb-4">
+                      {tasks.length === 0 
+                        ? 'Start by adding some tasks or ask AI to help plan your day.'
+                        : 'Try adjusting your filters to see more tasks.'
+                      }
+                    </p>
+                    {tasks.length > 0 && (
+                      <button 
+                        className="btn btn-outline btn-sm"
+                        onClick={() => setFilters({
+                          search: '',
+                          energyLevels: [],
+                          focusTypes: [],
+                          statuses: [],
+                          priorityRange: [1, 5],
+                          dateRange: undefined,
+                        })}
+                      >
+                        Clear Filters
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {sortedFilteredTasks.map((task) => (
+                      <TaskCard
+                        key={task.id}
+                        task={task}
+                        onClick={() => handleTaskClick(task.id)}
+                        onStatusChange={(status) => handleTaskStatusChange(task.id, status)}
+                        onEdit={() => {
+                          // TODO: Implement edit functionality
+                          console.log('Edit task:', task.id);
+                        }}
+                        interactive={true}
+                        className="h-fit"
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Sidebar */}
+            <div className="lg:col-span-4 space-y-6">
+              {/* Calendar Events */}
+              <CalendarEvents 
+                date={dailyPlan?.date}
+                maxEvents={5}
+                className="h-fit"
+              />
+
+              {/* AI Recommendations */}
+              {aiRecommendations.length > 0 && (
+                <div className="card bg-base-100 shadow-lg">
+                  <div className="card-body">
+                    <h3 className="card-title text-lg">🤖 AI Recommendations</h3>
+                    <div className="space-y-3">
+                      {aiRecommendations.slice(0, 3).map((rec) => (
+                        <div key={rec.id} className="alert alert-info">
+                          <div className="flex-1">
+                            <p className="text-sm">{rec.message}</p>
+                            {rec.action && (
+                              <button className="btn btn-xs btn-primary mt-2">
+                                {rec.action}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="card-actions justify-end">
+                      <button 
+                        className={`btn btn-sm btn-outline ${isAiLoading ? 'loading' : ''}`}
+                        onClick={handleRequestAISuggestions}
+                        disabled={isAiLoading}
+                      >
+                        {isAiLoading ? 'Thinking...' : 'Get More Suggestions'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Chat Integration */}
+              <ChatGPTIntegration
+                messages={messages}
+                onSendMessage={handleSendMessage}
+                onExtractTasks={handleExtractTasks}
+                onClearChat={handleClearChat}
+                isLoading={isAiLoading}
+                isConnected={isAiConnected}
+                placeholder="Ask AI to help plan your day, extract tasks, or optimize your workflow..."
+                maxHeight="400px"
+                showTaskExtraction={true}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Footer */}
-      <div className="mt-6 text-center text-base-content/50 text-sm">
+      <div className="mt-6 text-center text-base-content/50 text-sm pb-6">
         <p>Helmsman AI Productivity Dashboard • Built with React + TypeScript + Tailwind</p>
       </div>
     </div>

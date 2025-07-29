@@ -2,6 +2,7 @@ import { Injectable, BadRequestException, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { TasksService } from "../tasks/tasks.service";
 import { GoogleService } from "../integrations/google/google.service";
+import { GraphService } from "../integrations/graph/graph.service";
 import {
   Task,
   UserSettings,
@@ -21,6 +22,7 @@ import {
   DependencyResolutionResult,
   BlockedTask,
   BlockingReason,
+  CalendarEvent,
 } from "./types";
 import { DailyPlanResponseDto } from "./dto";
 
@@ -32,6 +34,7 @@ export class DailyPlannerService {
     private prisma: PrismaService,
     private tasksService: TasksService,
     private googleService: GoogleService,
+    private graphService: GraphService,
   ) {}
 
   /**
@@ -92,6 +95,52 @@ export class DailyPlannerService {
         error.stack,
       );
       throw new BadRequestException(`Plan generation failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get calendar events for a specific date
+   * Public method to expose calendar data for frontend integration
+   */
+  async getCalendarEventsForDate(
+    userId: string,
+    date: Date,
+  ): Promise<CalendarEvent[]> {
+    try {
+      this.logger.log(
+        `Retrieving calendar events for user ${userId} on ${date.toISOString()}`,
+      );
+
+      const timeSlots = await this.getExistingCommitments(userId, date);
+      
+      // Convert TimeSlot objects to CalendarEvent objects
+      const calendarEvents: CalendarEvent[] = timeSlots
+        .filter(slot => !slot.isAvailable && slot.title) // Only get actual events with titles
+        .map(slot => ({
+          id: slot.eventId || `${slot.source}-${slot.startTime.getTime()}`,
+          title: slot.title || 'Untitled Event',
+          description: slot.description,
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+          source: slot.source || 'google',
+          energyLevel: slot.energyLevel,
+          focusType: slot.preferredFocusTypes[0], // Take first focus type
+          isAllDay: slot.isAllDay || false,
+        }));
+
+      this.logger.log(
+        `Retrieved ${calendarEvents.length} calendar events for user ${userId}`,
+      );
+
+      return calendarEvents;
+    } catch (error) {
+      this.logger.error(
+        `Failed to retrieve calendar events for user ${userId}: ${error.message}`,
+        error.stack,
+      );
+      throw new BadRequestException(
+        `Calendar events retrieval failed: ${error.message}`,
+      );
     }
   }
 
@@ -1043,7 +1092,8 @@ export class DailyPlannerService {
 
   /**
    * Get existing calendar commitments for the specified date
-   * Converts Google Calendar events into TimeSlot format for planning integration
+   * Integrates with both Google Calendar and Microsoft Outlook Calendar
+   * Converts calendar events into TimeSlot format for planning integration
    */
   private async getExistingCommitments(
     userId: string,
@@ -1053,7 +1103,7 @@ export class DailyPlannerService {
     
     try {
       this.logger.debug(
-        `Starting calendar integration for user ${userId} on ${date.toISOString()}`,
+        `Starting dual-calendar integration for user ${userId} on ${date.toISOString()}`,
       );
 
       // Define start and end of day for calendar query
@@ -1063,79 +1113,66 @@ export class DailyPlannerService {
       const endOfDay = new Date(date);
       endOfDay.setHours(23, 59, 59, 999);
 
-      // Fetch calendar events with retry logic
-      const calendarResponse = await this.getCalendarEventsWithRetry(
-        userId,
-        "primary",
-        startOfDay,
-        endOfDay,
-      );
+      // Fetch calendar events from both sources concurrently
+      const [googleEvents, outlookEvents] = await Promise.allSettled([
+        this.getGoogleCommitments(userId, startOfDay, endOfDay),
+        this.getOutlookCommitments(userId, startOfDay, endOfDay),
+      ]);
 
-      const responseTime = performance.now() - startTime;
-      this.logger.log(
-        `Calendar API response received in ${responseTime.toFixed(2)}ms for user ${userId}`,
-      );
+      const allTimeSlots: TimeSlot[] = [];
+      let totalEvents = 0;
+      let googleEventCount = 0;
+      let outlookEventCount = 0;
 
-      if (!calendarResponse?.items) {
-        this.logger.debug(
-          `No calendar events found for user ${userId} on ${date.toISOString()}`,
-        );
-        return [];
+      // Process Google Calendar events
+      if (googleEvents.status === 'fulfilled') {
+        allTimeSlots.push(...googleEvents.value);
+        googleEventCount = googleEvents.value.length;
+        totalEvents += googleEventCount;
+        this.logger.debug(`Successfully fetched ${googleEventCount} Google Calendar events`);
+      } else {
+        this.logger.warn(`Google Calendar integration failed: ${googleEvents.reason?.message}`);
       }
 
-      // Convert calendar events to TimeSlot format
-      const timeSlots: TimeSlot[] = [];
-      let parseSuccessCount = 0;
-      let parseFailureCount = 0;
-
-      for (const event of calendarResponse.items) {
-        try {
-          const timeSlot = this.parseCalendarEventToTimeSlot(event);
-          if (timeSlot) {
-            timeSlots.push(timeSlot);
-            parseSuccessCount++;
-          }
-        } catch (error) {
-          parseFailureCount++;
-          this.logger.warn(
-            `Failed to parse calendar event ${event.id || 'unknown'}: ${error.message}`,
-            {
-              userId,
-              eventId: event.id,
-              eventSummary: event.summary,
-              errorType: error.constructor.name,
-            },
-          );
-          continue;
-        }
+      // Process Outlook Calendar events
+      if (outlookEvents.status === 'fulfilled') {
+        allTimeSlots.push(...outlookEvents.value);
+        outlookEventCount = outlookEvents.value.length;
+        totalEvents += outlookEventCount;
+        this.logger.debug(`Successfully fetched ${outlookEventCount} Outlook Calendar events`);
+      } else {
+        this.logger.warn(`Outlook Calendar integration failed: ${outlookEvents.reason?.message}`);
       }
+
+      // Deduplicate events that might exist in both calendars
+      const deduplicatedTimeSlots = this.deduplicateCalendarEvents(allTimeSlots);
+      const duplicatesRemoved = allTimeSlots.length - deduplicatedTimeSlots.length;
 
       const totalTime = performance.now() - startTime;
       this.logger.log(
-        `Calendar integration completed for user ${userId}: ${parseSuccessCount} events parsed, ${parseFailureCount} failed, total time ${totalTime.toFixed(2)}ms`,
+        `Multi-calendar integration completed for user ${userId}: Google(${googleEventCount}) + Outlook(${outlookEventCount}) = ${totalEvents} events, ${duplicatesRemoved} duplicates removed, final count: ${deduplicatedTimeSlots.length}, total time ${totalTime.toFixed(2)}ms`,
         {
           userId,
           date: date.toISOString(),
-          totalEvents: calendarResponse.items.length,
-          successfullyParsed: parseSuccessCount,
-          parseFailures: parseFailureCount,
+          googleEventCount,
+          outlookEventCount,
+          totalEvents,
+          duplicatesRemoved,
+          finalEventCount: deduplicatedTimeSlots.length,
           responseTimeMs: totalTime,
         },
       );
 
-      return timeSlots;
+      return deduplicatedTimeSlots;
     } catch (error) {
       const totalTime = performance.now() - startTime;
-      const errorDetails = this.categorizeCalendarError(error);
       
       this.logger.error(
-        `Calendar integration failed for user ${userId}: ${errorDetails.message}`,
+        `Multi-calendar integration failed for user ${userId}: ${error.message}`,
         {
           userId,
           date: date.toISOString(),
-          errorType: errorDetails.type,
-          errorCode: errorDetails.code,
-          retryable: errorDetails.retryable,
+          errorType: error.constructor.name,
           timeElapsed: totalTime,
           originalError: error.message,
         },
@@ -1388,6 +1425,11 @@ export class DailyPlannerService {
       energyLevel,
       preferredFocusTypes,
       isAvailable: false, // Calendar events block availability
+      source: 'google', // Track calendar source
+      eventId: event.id,
+      title: event.summary || 'Untitled Event',
+      description: event.description || '',
+      isAllDay: !!(event.start.date && event.end.date),
     };
   }
 
@@ -1480,5 +1522,561 @@ export class DailyPlannerService {
     }
 
     return focusTypes;
+  }
+
+  /**
+   * Get Google Calendar commitments for the specified date range
+   * Extracted from the original getExistingCommitments for multi-calendar support
+   */
+  private async getGoogleCommitments(
+    userId: string,
+    startOfDay: Date,
+    endOfDay: Date,
+  ): Promise<TimeSlot[]> {
+    try {
+      this.logger.debug(`Fetching Google Calendar events for user ${userId}`);
+
+      // Fetch calendar events with retry logic (existing method)
+      const calendarResponse = await this.getCalendarEventsWithRetry(
+        userId,
+        "primary",
+        startOfDay,
+        endOfDay,
+      );
+
+      if (!calendarResponse?.items) {
+        this.logger.debug(`No Google Calendar events found for user ${userId}`);
+        return [];
+      }
+
+      // Convert calendar events to TimeSlot format
+      const timeSlots: TimeSlot[] = [];
+      let parseSuccessCount = 0;
+      let parseFailureCount = 0;
+
+      for (const event of calendarResponse.items) {
+        try {
+          const timeSlot = this.parseCalendarEventToTimeSlot(event);
+          if (timeSlot) {
+            // Add source tracking for multi-calendar support
+            timeSlot.source = 'google';
+            timeSlots.push(timeSlot);
+            parseSuccessCount++;
+          }
+        } catch (error) {
+          parseFailureCount++;
+          this.logger.warn(
+            `Failed to parse Google Calendar event ${event.id || 'unknown'}: ${error.message}`,
+            {
+              userId,
+              eventId: event.id,
+              eventSummary: event.summary,
+              errorType: error.constructor.name,
+            },
+          );
+          continue;
+        }
+      }
+
+      this.logger.debug(
+        `Google Calendar integration: ${parseSuccessCount} events parsed, ${parseFailureCount} failed`,
+      );
+
+      return timeSlots;
+    } catch (error) {
+      this.logger.error(`Google Calendar integration failed for user ${userId}: ${error.message}`);
+      throw error; // Re-throw to be handled by Promise.allSettled
+    }
+  }
+
+  /**
+   * Get Outlook Calendar commitments for the specified date range
+   * Implements Microsoft Graph calendar integration for dual-calendar support
+   */
+  private async getOutlookCommitments(
+    userId: string,
+    startOfDay: Date,
+    endOfDay: Date,
+  ): Promise<TimeSlot[]> {
+    try {
+      this.logger.debug(`Fetching Outlook Calendar events for user ${userId}`);
+
+      // Fetch Outlook calendar events with retry logic
+      const outlookResponse = await this.getOutlookEventsWithRetry(
+        userId,
+        "primary",
+        startOfDay,
+        endOfDay,
+      );
+
+      if (!outlookResponse?.value || outlookResponse.value.length === 0) {
+        this.logger.debug(`No Outlook Calendar events found for user ${userId}`);
+        return [];
+      }
+
+      // Convert Outlook calendar events to TimeSlot format
+      const timeSlots: TimeSlot[] = [];
+      let parseSuccessCount = 0;
+      let parseFailureCount = 0;
+
+      for (const event of outlookResponse.value) {
+        try {
+          const timeSlot = this.parseOutlookEventToTimeSlot(event);
+          if (timeSlot) {
+            // Add source tracking for multi-calendar support
+            timeSlot.source = 'outlook';
+            timeSlots.push(timeSlot);
+            parseSuccessCount++;
+          }
+        } catch (error) {
+          parseFailureCount++;
+          this.logger.warn(
+            `Failed to parse Outlook Calendar event ${event.id || 'unknown'}: ${error.message}`,
+            {
+              userId,
+              eventId: event.id,
+              eventSubject: event.subject,
+              errorType: error.constructor.name,
+            },
+          );
+          continue;
+        }
+      }
+
+      this.logger.debug(
+        `Outlook Calendar integration: ${parseSuccessCount} events parsed, ${parseFailureCount} failed`,
+      );
+
+      return timeSlots;
+    } catch (error) {
+      this.logger.error(`Outlook Calendar integration failed for user ${userId}: ${error.message}`);
+      throw error; // Re-throw to be handled by Promise.allSettled
+    }
+  }
+
+  /**
+   * Enhanced Outlook calendar event fetching with retry logic and error handling
+   * Mirrors the Google Calendar retry logic for consistency
+   */
+  private async getOutlookEventsWithRetry(
+    userId: string,
+    calendarId: string,
+    timeMin: Date,
+    timeMax: Date,
+    maxRetries = 3,
+  ): Promise<any> {
+    let lastError: Error;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        this.logger.debug(
+          `Outlook Calendar API attempt ${attempt}/${maxRetries} for user ${userId}`,
+        );
+
+        const response = await this.graphService.getCalendarEvents(
+          userId,
+          calendarId,
+          timeMin,
+          timeMax,
+        );
+
+        if (attempt > 1) {
+          this.logger.log(
+            `Outlook Calendar API succeeded on retry attempt ${attempt} for user ${userId}`,
+          );
+        }
+
+        return response;
+      } catch (error) {
+        lastError = error;
+        const errorDetails = this.categorizeOutlookCalendarError(error);
+
+        this.logger.warn(
+          `Outlook Calendar API attempt ${attempt}/${maxRetries} failed for user ${userId}: ${errorDetails.message}`,
+          {
+            userId,
+            attempt,
+            maxRetries,
+            errorType: errorDetails.type,
+            errorCode: errorDetails.code,
+            retryable: errorDetails.retryable,
+          },
+        );
+
+        // Don't retry if error is not retryable
+        if (!errorDetails.retryable) {
+          this.logger.error(
+            `Non-retryable Outlook error encountered, aborting retry attempts for user ${userId}`,
+            {
+              userId,
+              errorType: errorDetails.type,
+              errorCode: errorDetails.code,
+            },
+          );
+          throw error;
+        }
+
+        // Don't wait after the last attempt
+        if (attempt < maxRetries) {
+          const delayMs = this.calculateRetryDelay(attempt);
+          this.logger.debug(
+            `Waiting ${delayMs}ms before Outlook retry attempt ${attempt + 1} for user ${userId}`,
+          );
+          await this.sleep(delayMs);
+        }
+      }
+    }
+
+    this.logger.error(
+      `All ${maxRetries} Outlook Calendar API attempts failed for user ${userId}`,
+      {
+        userId,
+        maxRetries,
+        finalError: lastError.message,
+      },
+    );
+
+    throw lastError;
+  }
+
+  /**
+   * Categorize Outlook/Microsoft Graph calendar API errors
+   * Similar to Google Calendar error categorization but adapted for Microsoft Graph API
+   */
+  private categorizeOutlookCalendarError(error: any): {
+    type: string;
+    code: string | number;
+    message: string;
+    retryable: boolean;
+  } {
+    // Handle Microsoft Graph specific errors
+    if (error.response?.status || error.code) {
+      const code = error.response?.status || error.code;
+      
+      switch (code) {
+        case 401:
+          return {
+            type: 'AUTH_EXPIRED',
+            code,
+            message: 'Microsoft Graph authentication token expired or invalid',
+            retryable: false, // Requires token refresh
+          };
+        case 403:
+          return {
+            type: 'PERMISSION_DENIED',
+            code,
+            message: 'Insufficient permissions to access Outlook calendar',
+            retryable: false,
+          };
+        case 429:
+          return {
+            type: 'RATE_LIMITED',
+            code,
+            message: 'Microsoft Graph API rate limit exceeded',
+            retryable: true,
+          };
+        case 500:
+        case 502:
+        case 503:
+        case 504:
+          return {
+            type: 'SERVER_ERROR',
+            code,
+            message: 'Microsoft Graph API server error',
+            retryable: true,
+          };
+        default:
+          return {
+            type: 'API_ERROR',
+            code,
+            message: error.message || 'Unknown Microsoft Graph API error',
+            retryable: false,
+          };
+      }
+    }
+
+    // Handle network and connection errors (same as Google Calendar)
+    if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+      return {
+        type: 'NETWORK_ERROR',
+        code: error.code,
+        message: 'Network connectivity issue',
+        retryable: true,
+      };
+    }
+
+    if (error.code === 'ETIMEDOUT' || error.message?.includes('timeout')) {
+      return {
+        type: 'TIMEOUT',
+        code: error.code || 'TIMEOUT',
+        message: 'Request timeout',
+        retryable: true,
+      };
+    }
+
+    // Handle integration configuration errors
+    if (error.message?.includes('integration not configured')) {
+      return {
+        type: 'INTEGRATION_NOT_CONFIGURED',
+        code: 'CONFIG_ERROR',
+        message: 'Microsoft Graph integration not configured for user',
+        retryable: false,
+      };
+    }
+
+    // Default categorization for unknown errors
+    return {
+      type: 'UNKNOWN_ERROR',
+      code: error.code || 'UNKNOWN',
+      message: error.message || 'Unknown Outlook calendar integration error',
+      retryable: false,
+    };
+  }
+
+  /**
+   * Parse a Microsoft Graph calendar event into a TimeSlot for daily planning
+   * Includes intelligent energy level and focus type inference adapted for Outlook events
+   */
+  private parseOutlookEventToTimeSlot(event: any): TimeSlot | null {
+    // Validate required fields
+    if (!event.start || !event.end) {
+      throw new Error("Outlook event missing start or end time");
+    }
+
+    // Parse start and end times
+    let startTime: Date;
+    let endTime: Date;
+
+    // Handle all-day events
+    if (event.isAllDay) {
+      startTime = new Date(event.start.dateTime || event.start.date);
+      startTime.setHours(0, 0, 0, 0);
+
+      endTime = new Date(event.end.dateTime || event.end.date);
+      endTime.setHours(23, 59, 59, 999);
+    }
+    // Handle timed events
+    else if (event.start.dateTime && event.end.dateTime) {
+      startTime = new Date(event.start.dateTime);
+      endTime = new Date(event.end.dateTime);
+    } else {
+      throw new Error("Outlook event has invalid date/time format");
+    }
+
+    // Validate date logic
+    if (startTime >= endTime) {
+      throw new Error("Outlook event end time must be after start time");
+    }
+
+    // Infer energy level based on Outlook meeting characteristics
+    const energyLevel = this.inferOutlookEnergyLevel(event);
+
+    // Infer preferred focus types based on Outlook event content
+    const preferredFocusTypes = this.inferOutlookPreferredFocusTypes(event);
+
+    return {
+      startTime,
+      endTime,
+      energyLevel,
+      preferredFocusTypes,
+      isAvailable: false, // Calendar events block availability
+      source: 'outlook', // Track calendar source
+      eventId: event.id,
+      title: event.subject || 'Untitled Event',
+      description: event.bodyPreview || event.body?.content || '',
+      isAllDay: !!event.isAllDay,
+    };
+  }
+
+  /**
+   * Intelligently infer energy level based on Outlook calendar event characteristics
+   * Adapted for Microsoft Graph event data structure and Outlook-specific fields
+   */
+  private inferOutlookEnergyLevel(event: any): EnergyLevel {
+    const subject = (event.subject || "").toLowerCase();
+    const attendeeCount = event.attendees?.length || 0;
+    const importance = event.importance || 'normal'; // low, normal, high
+    const showAs = event.showAs || 'busy'; // free, tentative, busy, oof, workingElsewhere
+
+    // High energy indicators - focus time, deep work, high importance
+    if (
+      subject.includes("focus") ||
+      subject.includes("deep work") ||
+      subject.includes("coding") ||
+      subject.includes("development") ||
+      importance === 'high' ||
+      showAs === 'workingElsewhere' ||
+      attendeeCount === 0
+    ) {
+      return EnergyLevel.HIGH;
+    }
+
+    // Low energy indicators - large meetings, all-hands, low importance
+    if (
+      attendeeCount > 8 ||
+      subject.includes("all hands") ||
+      subject.includes("town hall") ||
+      subject.includes("large meeting") ||
+      subject.includes("presentation") ||
+      importance === 'low' ||
+      showAs === 'tentative'
+    ) {
+      return EnergyLevel.LOW;
+    }
+
+    // Default to medium energy for regular meetings
+    return EnergyLevel.MEDIUM;
+  }
+
+  /**
+   * Intelligently infer focus types based on Outlook calendar event content
+   * Adapted for Microsoft Graph event data structure and Outlook categories
+   */
+  private inferOutlookPreferredFocusTypes(event: any): FocusType[] {
+    const subject = (event.subject || "").toLowerCase();
+    const body = (event.body?.content || "").toLowerCase();
+    const categories = event.categories || [];
+    const content = `${subject} ${body} ${categories.join(' ')}`.toLowerCase();
+
+    const focusTypes: FocusType[] = [];
+
+    // Technical focus indicators
+    if (
+      content.match(
+        /\b(code|tech|review|development|engineering|system|architecture|debug|api|technical)\b/,
+      ) ||
+      categories.some(cat => cat.toLowerCase().includes('technical'))
+    ) {
+      focusTypes.push(FocusType.TECHNICAL);
+    }
+
+    // Creative focus indicators
+    if (
+      content.match(
+        /\b(design|creative|brainstorm|ideation|workshop|innovation|strategy)\b/,
+      ) ||
+      categories.some(cat => cat.toLowerCase().includes('creative'))
+    ) {
+      focusTypes.push(FocusType.CREATIVE);
+    }
+
+    // Administrative focus indicators
+    if (
+      content.match(
+        /\b(admin|expense|report|compliance|hr|legal|budget|planning)\b/,
+      ) ||
+      categories.some(cat => cat.toLowerCase().includes('admin'))
+    ) {
+      focusTypes.push(FocusType.ADMINISTRATIVE);
+    }
+
+    // Social focus indicators (meetings with attendees, 1:1s, etc.)
+    if (
+      event.attendees?.length > 0 ||
+      content.match(/\b(meeting|standup|sync|1:1|one-on-one|team)\b/)
+    ) {
+      focusTypes.push(FocusType.SOCIAL);
+    }
+
+    // Default to social if no specific indicators found and has attendees
+    if (focusTypes.length === 0 && event.attendees?.length > 0) {
+      focusTypes.push(FocusType.SOCIAL);
+    }
+
+    // Default to technical if no indicators and no attendees (assume focus time)
+    if (focusTypes.length === 0) {
+      focusTypes.push(FocusType.TECHNICAL);
+    }
+
+    return focusTypes;
+  }
+
+  /**
+   * Deduplicate calendar events that might exist in both Google and Outlook calendars
+   * Uses time overlap and title similarity to identify potential duplicates
+   */
+  private deduplicateCalendarEvents(timeSlots: TimeSlot[]): TimeSlot[] {
+    if (timeSlots.length <= 1) {
+      return timeSlots;
+    }
+
+    const deduplicated: TimeSlot[] = [];
+    const duplicateCount = { removed: 0 };
+
+    for (let i = 0; i < timeSlots.length; i++) {
+      const currentSlot = timeSlots[i];
+      let isDuplicate = false;
+
+      // Check against already processed slots
+      for (const existingSlot of deduplicated) {
+        if (this.areTimeSlotsDuplicates(currentSlot, existingSlot)) {
+          isDuplicate = true;
+          duplicateCount.removed++;
+
+          // Log the duplicate detection for debugging
+          this.logger.debug(
+            `Duplicate calendar event detected and removed`,
+            {
+              existingSource: existingSlot.source,
+              duplicateSource: currentSlot.source,
+              startTime: currentSlot.startTime.toISOString(),
+              endTime: currentSlot.endTime.toISOString(),
+            },
+          );
+          break;
+        }
+      }
+
+      if (!isDuplicate) {
+        deduplicated.push(currentSlot);
+      }
+    }
+
+    if (duplicateCount.removed > 0) {
+      this.logger.log(
+        `Calendar deduplication completed: ${duplicateCount.removed} duplicates removed from ${timeSlots.length} events`,
+      );
+    }
+
+    return deduplicated;
+  }
+
+  /**
+   * Determine if two TimeSlots are likely duplicates based on time overlap
+   * Uses a tolerance window to account for slight time differences between calendar systems
+   */
+  private areTimeSlotsDuplicates(slot1: TimeSlot, slot2: TimeSlot): boolean {
+    // Don't consider events from the same source as duplicates
+    if (slot1.source === slot2.source) {
+      return false;
+    }
+
+    // Check for time overlap with tolerance (5 minutes)
+    const toleranceMs = 5 * 60 * 1000; // 5 minutes in milliseconds
+    
+    const slot1Start = slot1.startTime.getTime();
+    const slot1End = slot1.endTime.getTime();
+    const slot2Start = slot2.startTime.getTime();
+    const slot2End = slot2.endTime.getTime();
+
+    // Check if the start times are within tolerance
+    const startTimeDiff = Math.abs(slot1Start - slot2Start);
+    const endTimeDiff = Math.abs(slot1End - slot2End);
+
+    // Consider duplicate if both start and end times are within tolerance
+    const timeMatch = startTimeDiff <= toleranceMs && endTimeDiff <= toleranceMs;
+
+    if (timeMatch) {
+      this.logger.debug(
+        `Time-based duplicate detected: ${slot1.source} vs ${slot2.source}`,
+        {
+          startTimeDiff: startTimeDiff / 1000 / 60, // minutes
+          endTimeDiff: endTimeDiff / 1000 / 60, // minutes
+          toleranceMinutes: toleranceMs / 1000 / 60,
+        },
+      );
+    }
+
+    return timeMatch;
   }
 }

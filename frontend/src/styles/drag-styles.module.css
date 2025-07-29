@@ -1,0 +1,336 @@
+/* Drag and Drop Styles for Calendar Components */
+
+/* Global drag state */
+.calendar-dragging {
+  user-select: none;
+  cursor: grabbing !important;
+}
+
+.calendar-dragging * {
+  cursor: grabbing !important;
+}
+
+/* Drag wrapper styles */
+.drag-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Draggable calendar event styles */
+.calendar-event {
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.calendar-event:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+.calendar-event:active {
+  transform: translateY(0);
+}
+
+/* Dragging state */
+.calendar-event[aria-pressed="true"] {
+  opacity: 0.5;
+  transform: rotate(3deg) scale(1.05);
+  z-index: 1000;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Time slot styles */
+.time-slot {
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.time-slot:hover:not(.time-slot--full) {
+  background-color: rgba(var(--fallback-b2), 0.5);
+}
+
+/* Drop zone styles */
+.time-slot[aria-dropeffect="move"] {
+  background-color: rgba(var(--fallback-a), 0.1);
+  border-color: rgb(var(--fallback-a));
+  border-style: dashed;
+}
+
+.time-slot[aria-dropeffect="move"]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 25%,
+    rgba(var(--fallback-a), 0.1) 25%,
+    rgba(var(--fallback-a), 0.1) 50%,
+    transparent 50%,
+    transparent 75%,
+    rgba(var(--fallback-a), 0.1) 75%
+  );
+  background-size: 8px 8px;
+  animation: slide 2s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes slide {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 16px 16px;
+  }
+}
+
+/* Drag overlay styles */
+.drag-overlay {
+  pointer-events: none;
+  transform-origin: center;
+  animation: dragPulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes dragPulse {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.02);
+  }
+}
+
+/* ADHD-friendly reduced motion styles */
+@media (prefers-reduced-motion: reduce) {
+  .calendar-event,
+  .time-slot,
+  .drag-overlay {
+    transition: none;
+    animation: none;
+  }
+  
+  .calendar-event:hover {
+    transform: none;
+  }
+  
+  .calendar-event[aria-pressed="true"] {
+    transform: none;
+  }
+  
+  .time-slot[aria-dropeffect="move"]::before {
+    animation: none;
+  }
+  
+  .drag-overlay {
+    animation: none;
+  }
+}
+
+/* High contrast mode adjustments */
+@media (prefers-contrast: high) {
+  .calendar-event {
+    border-width: 2px;
+    border-style: solid;
+  }
+  
+  .time-slot[aria-dropeffect="move"] {
+    border-width: 3px;
+    background-color: rgba(255, 255, 0, 0.3);
+  }
+  
+  .drag-overlay {
+    border: 3px solid currentColor;
+  }
+}
+
+/* Focus styles for keyboard navigation */
+.calendar-event:focus-visible,
+.time-slot:focus-visible {
+  outline: 2px solid rgb(var(--fallback-p));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Energy level specific styles */
+.calendar-event--energy-high {
+  --energy-color: #10b981; /* Green */
+}
+
+.calendar-event--energy-medium {
+  --energy-color: #f59e0b; /* Amber */
+}
+
+.calendar-event--energy-low {
+  --energy-color: #6366f1; /* Indigo */
+}
+
+/* Conflict indicators */
+.calendar-event--conflict {
+  border-left: 4px solid #ef4444; /* Red */
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.time-slot--conflict {
+  background-color: rgba(239, 68, 68, 0.05);
+  border-color: #ef4444;
+}
+
+/* Loading states */
+.time-slot--loading {
+  background: linear-gradient(90deg, transparent, rgba(var(--fallback-bc), 0.1), transparent);
+  background-size: 200% 100%;
+  animation: loading 1.5s ease-in-out infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .calendar-event {
+    font-size: 0.75rem;
+    padding: 0.25rem;
+  }
+  
+  .time-slot {
+    min-height: 40px;
+    padding: 0.25rem;
+  }
+  
+  /* Larger touch targets for mobile */
+  .calendar-event {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Accessibility improvements */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Drag handle styles */
+.drag-handle {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.calendar-event:hover .drag-handle,
+.calendar-event:focus .drag-handle {
+  opacity: 1;
+}
+
+/* All-day event adjustments */
+.calendar-event--all-day {
+  border-radius: 12px;
+  padding: 0.5rem 0.75rem;
+  background: linear-gradient(135deg, currentColor, rgba(255, 255, 255, 0.1));
+}
+
+/* Source indicators */
+.calendar-event--source-google {
+  border-left-color: #4285f4;
+}
+
+.calendar-event--source-outlook {
+  border-left-color: #0078d4;
+}
+
+.calendar-event--source-task {
+  border-left-color: #8b5cf6;
+}
+
+/* Error states */
+.calendar-event--error {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
+  color: #dc2626;
+}
+
+.time-slot--error {
+  background-color: rgba(239, 68, 68, 0.05);
+  border-color: #ef4444;
+}
+
+/* Success states */
+.calendar-event--success {
+  background-color: rgba(34, 197, 94, 0.1);
+  border-color: #22c55e;
+}
+
+.time-slot--success {
+  background-color: rgba(34, 197, 94, 0.05);
+  border-color: #22c55e;
+}
+
+/* Compact mode adjustments */
+.calendar-event--compact {
+  padding: 0.25rem;
+  font-size: 0.75rem;
+  min-height: 24px;
+}
+
+.time-slot--compact {
+  min-height: 30px;
+  padding: 0.25rem;
+}
+
+/* Working hours vs off-hours */
+.time-slot--working-hours {
+  background-color: rgba(var(--fallback-b1), 1);
+}
+
+.time-slot--off-hours {
+  background-color: rgba(var(--fallback-b2), 0.5);
+  opacity: 0.6;
+}
+
+.time-slot--off-hours .calendar-event {
+  opacity: 0.8;
+}
+
+/* Current time indicator */
+.time-slot--current-time {
+  background-color: rgba(var(--fallback-p), 0.05);
+  border-color: rgb(var(--fallback-p));
+}
+
+.time-slot--current-time::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: rgb(var(--fallback-p));
+  z-index: 10;
+}
+
+/* Stacking context for overlapping events */
+.events-container {
+  position: relative;
+  z-index: 1;
+}
+
+.calendar-event {
+  position: relative;
+  z-index: 2;
+}
+
+.calendar-event[aria-pressed="true"] {
+  z-index: 1000;
+}

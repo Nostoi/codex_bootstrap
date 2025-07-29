@@ -3,6 +3,7 @@ import { DailyPlannerService } from "./daily-planner.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { TasksService } from "../tasks/tasks.service";
 import { GoogleService } from "../integrations/google/google.service";
+import { GraphService } from "../integrations/graph/graph.service";
 import { BadRequestException } from "@nestjs/common";
 import { EnergyLevel, FocusType, Task, TaskStatus } from "@prisma/client";
 
@@ -27,6 +28,10 @@ const mockGoogleService = {
   getCalendarEvents: jest.fn(),
 };
 
+const mockGraphService = {
+  getCalendarEvents: jest.fn(),
+};
+
 describe("DailyPlannerService", () => {
   let service: DailyPlannerService;
 
@@ -46,6 +51,10 @@ describe("DailyPlannerService", () => {
           provide: GoogleService,
           useValue: mockGoogleService,
         },
+        {
+          provide: GraphService,
+          useValue: mockGraphService,
+        },
       ],
     }).compile();
 
@@ -55,10 +64,14 @@ describe("DailyPlannerService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     
-    // Set up default calendar mock
+    // Set up default calendar mocks
     mockGoogleService.getCalendarEvents.mockResolvedValue({
       kind: 'calendar#events',
       items: []
+    });
+
+    mockGraphService.getCalendarEvents.mockResolvedValue({
+      value: []
     });
   });
 

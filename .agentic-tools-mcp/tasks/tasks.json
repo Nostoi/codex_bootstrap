@@ -328,11 +328,11 @@
       "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
       "completed": false,
       "createdAt": "2025-07-27T21:41:37.154Z",
-      "updatedAt": "2025-07-27T21:41:37.154Z",
+      "updatedAt": "2025-07-29T22:29:00.831Z",
       "dependsOn": [],
       "priority": 6,
       "complexity": 5,
-      "status": "pending",
+      "status": "done",
       "tags": [
         "testing",
         "e2e",
@@ -342,7 +342,8 @@
         "source:system"
       ],
       "estimatedHours": 6,
-      "level": 0
+      "level": 0,
+      "actualHours": 4
     },
     {
       "id": "dc374802-4c71-405a-8ac0-9ce00f65e9de",
@@ -581,9 +582,9 @@
       "name": "Build Drag-and-Drop Task Lists",
       "details": "Implement drag-and-drop task scheduling using @dnd-kit with full accessibility support and ADHD-friendly interactions.\n\nFiles to create/modify:\n- frontend/src/components/ui/DnDTaskList.tsx: Sortable task list with @dnd-kit\n- frontend/src/components/ui/KanbanBoard.tsx: Column-based drag-and-drop for status changes\n- frontend/src/components/ui/DnDTaskList.stories.tsx: Stories for different list sizes, drag states, keyboard usage\n- frontend/src/components/ui/DnDTaskList.test.tsx: Tests for drag operations, keyboard navigation, accessibility\n\nProps: tasks, onReorder, onStatusChange, columns (for kanban), disabled states, loading\n\n@dnd-kit Features: Sortable lists, multi-container drag (kanban), keyboard support, touch support, auto-scrolling, collision detection\n\nADHD Features: Clear visual feedback during drag, predictable drop zones, easy cancel (Escape key), consistent interaction patterns, minimal cognitive load\n\nAccessibility: Full keyboard support (Space/Enter to pick up, Arrow keys to move, Escape to cancel), screen reader announcements, focus management, ARIA live regions\n\nVisual Design: Clear drag handles, drop zone indicators, smooth animations with motion controls, high contrast drag states\n\nPerformance: Optimized for large lists, minimal re-renders, efficient collision detection, smooth 60fps animations",
       "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
-      "completed": false,
+      "completed": true,
       "createdAt": "2025-07-27T23:11:31.638Z",
-      "updatedAt": "2025-07-27T23:11:31.638Z",
+      "updatedAt": "2025-07-29T21:02:09.396Z",
       "dependsOn": [
         "a3d87d2d-1855-493d-bf3c-ad2d26d2bd2e"
       ],
@@ -632,14 +633,14 @@
       "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
       "completed": false,
       "createdAt": "2025-07-27T23:12:00.504Z",
-      "updatedAt": "2025-07-27T23:12:00.504Z",
+      "updatedAt": "2025-07-29T22:13:16.780Z",
       "dependsOn": [
         "bae99b24-6363-4960-a477-da41ce524088",
         "af1c488a-7ddb-4060-bb1b-fa2db2a0b3c4"
       ],
       "priority": 8,
       "complexity": 6,
-      "status": "pending",
+      "status": "done",
       "tags": [
         "pages",
         "dashboard",
@@ -648,7 +649,8 @@
         "ADHD_support"
       ],
       "estimatedHours": 14,
-      "level": 0
+      "level": 0,
+      "actualHours": 8
     },
     {
       "id": "ba821342-e6a2-4945-8e28-78f03b3873dd",
@@ -802,13 +804,13 @@
       "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
       "completed": false,
       "createdAt": "2025-07-29T01:00:57.218Z",
-      "updatedAt": "2025-07-29T01:00:57.218Z",
+      "updatedAt": "2025-07-29T04:42:55.010Z",
       "dependsOn": [
         "7c0be820-9c03-4042-bfaa-e714a6c0fefb"
       ],
       "priority": 8,
       "complexity": 7,
-      "status": "pending",
+      "status": "done",
       "tags": [
         "integration",
         "outlook-calendar",
@@ -817,7 +819,8 @@
         "backend"
       ],
       "estimatedHours": 10,
-      "level": 0
+      "level": 0,
+      "actualHours": 2
     },
     {
       "id": "cb5f5da1-1344-4f5f-b273-6442d9e6de65",
@@ -868,16 +871,12 @@
       "name": "Connect Calendar Integration to Frontend Dashboard",
       "details": "Connect the calendar integration from daily planning backend to the frontend Dashboard component, replacing mock calendar data with real calendar events. This provides users with accurate, real-time calendar visualization and scheduling information.\n\nUpdate frontend/src/components/pages/Dashboard.tsx:\n- Remove mock calendar data and connect to real calendar API endpoints\n- Implement real-time calendar sync using React Query\n- Add calendar loading states and error handling with ADHD-friendly messaging\n- Display calendar events alongside task scheduling in unified interface\n- Add calendar conflict indicators and visual warnings for scheduling conflicts\n- Implement calendar refresh functionality with proper cache invalidation\n\nADHD-optimized calendar visualization:\n- Clear visual distinction between calendar events and scheduled tasks\n- Color-coded calendar sources (Google vs Outlook) with consistent iconography\n- Minimal cognitive load with progressive disclosure of calendar details\n- Predictable interaction patterns for calendar event exploration\n- High contrast visual indicators for urgent calendar conflicts\n- Consistent loading states that don't cause visual anxiety\n\nCalendar integration features:\n- Display upcoming calendar events in today's plan view\n- Show calendar availability alongside task scheduling recommendations\n- Implement calendar event quick actions (view details, reschedule, create related task)\n- Add calendar sync status indicators with clear success/error states\n- Support multiple calendar source toggle (show/hide Google/Outlook calendars)\n\nError handling and accessibility:\n- Graceful degradation when calendar APIs are unavailable\n- Clear error messages for calendar permission issues\n- Screen reader support for calendar event information\n- Keyboard navigation for calendar interactions\n- Focus management for calendar modal/popup interactions\n\nThis completes the calendar integration user experience.",
       "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
-      "completed": false,
+      "completed": true,
       "createdAt": "2025-07-29T01:01:54.034Z",
-      "updatedAt": "2025-07-29T01:01:54.034Z",
-      "dependsOn": [
-        "d6d49499-dc6d-4756-8765-4ecd0c8f4fed",
-        "2ff625bf-31dd-4cee-8129-1421fae2828e"
-      ],
+      "updatedAt": "2025-07-29T14:49:45.836Z",
       "priority": 8,
       "complexity": 6,
-      "status": "pending",
+      "status": "done",
       "tags": [
         "frontend",
         "calendar-integration",
@@ -961,13 +960,13 @@
       "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
       "completed": false,
       "createdAt": "2025-07-29T01:03:09.810Z",
-      "updatedAt": "2025-07-29T01:03:09.810Z",
+      "updatedAt": "2025-07-29T21:59:39.254Z",
       "dependsOn": [
         "2117493e-2030-41a6-9768-f9c173802ad0"
       ],
       "priority": 7,
       "complexity": 6,
-      "status": "pending",
+      "status": "done",
       "tags": [
         "frontend",
         "calendar-view",
@@ -1265,12 +1264,94 @@
       ],
       "estimatedHours": 4,
       "level": 1
+    },
+    {
+      "id": "9cd3ded5-eb92-41af-9282-7b711d4bebcf",
+      "name": "Design Calendar Architecture and ADHD UX Patterns",
+      "details": "Design comprehensive component architecture for CalendarView with ADHD-optimized UX patterns.\n\nCreate TypeScript interfaces in frontend/src/types/calendar.ts for CalendarEvent, CalendarViewProps, and ADHDCalendarSettings. Define component hierarchy: CalendarView → CalendarHeader/Grid → TimeSlot/CalendarEvent components.\n\nADHD Design Requirements: 3-color maximum per view, 8px spacing, clear visual hierarchy, predictable interactions. Create color system for energy levels (HIGH=green, MEDIUM=amber, LOW=indigo) and conflict states.\n\nDeliverables: TS interfaces, component architecture diagram, ADHD design tokens in frontend/src/styles/calendar-tokens.ts, interaction patterns documentation, accessibility checklist.\n\nSuccess: All interfaces defined, design system documented, component structure planned, WCAG contrast ratios ≥4.5:1 verified.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "ef388a66-739a-4e2c-bf91-8a7c7e0516c7",
+      "completed": true,
+      "createdAt": "2025-07-29T16:13:55.901Z",
+      "updatedAt": "2025-07-29T19:47:53.359Z",
+      "priority": 5,
+      "complexity": 3,
+      "status": "done",
+      "tags": []
+    },
+    {
+      "id": "f04a0163-fc5e-4649-b52a-06d078f3a00d",
+      "name": "Implement Core Calendar Grid and Navigation",
+      "details": "Implement core calendar grid with daily/weekly/monthly views and navigation controls.\n\nCreate CalendarView.tsx (main container), CalendarHeader.tsx (navigation buttons, view switcher), CalendarGrid.tsx (responsive grid layout). \n\nDaily: 24-hour timeline, 30-min slots. Weekly: 7-day grid, hourly precision. Monthly: date cell grid. All views responsive with CSS Grid.\n\nNavigation: prev/next/today buttons, keyboard arrows, smooth view transitions. Use React hooks for currentDate/selectedView state.\n\nFiles: CalendarView.tsx, CalendarHeader.tsx, CalendarGrid.tsx, calendar-grid.module.css. Apply design tokens from architecture subtask.\n\nSuccess: 3 views render correctly, navigation responsive, mobile/desktop compatible, ARIA landmarks, no layout shifts, keyboard accessible.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "ef388a66-739a-4e2c-bf91-8a7c7e0516c7",
+      "completed": true,
+      "createdAt": "2025-07-29T16:14:17.174Z",
+      "updatedAt": "2025-07-29T19:47:45.633Z",
+      "priority": 5,
+      "complexity": 3,
+      "status": "done",
+      "level": 1,
+      "tags": []
+    },
+    {
+      "id": "ddb8e888-2892-4541-a826-75f31f8492da",
+      "name": "Add Calendar Event and Task Display Integration",
+      "details": "Integrate real calendar data with task visualization and energy-level color coding.\n\nCreate CalendarEvent.tsx for displaying events/tasks with title, time, source indicators. Connect to /api/plans/calendar-events endpoint for Google/Outlook data.\n\nApply energy level colors: HIGH=green, MEDIUM=amber, LOW=indigo. Visual differentiation between calendar events vs scheduled tasks.\n\nBuild TimeSlot.tsx for time blocks with conflict detection. Handle multiple events per slot with stacking/overflow.\n\nAPI integration: useCalendarData.ts hook, loading states, error boundaries. Map backend CalendarEvent to frontend format.\n\nFiles: CalendarEvent.tsx, TimeSlot.tsx, useCalendarData.ts. Update CalendarGrid to render events.\n\nSuccess: Real data displays, energy colors applied, events/tasks distinct, loading works, conflicts highlighted, responsive rendering.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "ef388a66-739a-4e2c-bf91-8a7c7e0516c7",
+      "completed": false,
+      "createdAt": "2025-07-29T16:14:37.521Z",
+      "updatedAt": "2025-07-29T21:59:32.779Z",
+      "priority": 5,
+      "complexity": 3,
+      "status": "done",
+      "level": 1
+    },
+    {
+      "id": "600f591c-f3c3-457c-bd24-3c7012750604",
+      "name": "Implement Drag-and-Drop Task Scheduling",
+      "details": "Implement drag-and-drop task scheduling with @dnd-kit library and visual feedback.\n\nInstall @dnd-kit/core, @dnd-kit/sortable, @dnd-kit/utilities. Create DragWrapper component for draggable events/tasks.\n\nDrag functionality: 300ms delay to prevent accidental drags, visual feedback during drag (ghost element, drop zones). Drop validation: prevent conflicts, time slot availability checking.\n\nADHD-friendly features: Clear drag handles, obvious drop zones, confirmation dialog for significant time changes, smooth animations with respect for reduced motion.\n\nIntegration: Update CalendarEvent and TimeSlot components with drag capabilities. Connect to backend API for persisting schedule changes.\n\nFiles: DragWrapper.tsx, useDragAndDrop.ts hook, drag-styles.module.css. Update existing components for drag support.\n\nSuccess: Smooth dragging, clear feedback, drop validation works, no accidental drags, animations respect motion preferences, schedule updates persist.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "ef388a66-739a-4e2c-bf91-8a7c7e0516c7",
+      "completed": false,
+      "createdAt": "2025-07-29T16:14:48.704Z",
+      "updatedAt": "2025-07-29T16:14:48.704Z",
+      "priority": 5,
+      "complexity": 3,
+      "status": "pending"
+    },
+    {
+      "id": "554644da-ec11-4c95-bfc2-17a4c582598e",
+      "name": "Add Accessibility and Keyboard Navigation",
+      "details": "Implement WCAG 2.2 AA compliance with keyboard navigation and screen reader support.\n\nKeyboard: Tab order, Arrow keys navigation, Enter/Space activation, Escape cancellation. Focus management with visible indicators.\n\nARIA: calendar role, grid structure, live regions, proper labels. Screen reader semantic markup.\n\nAccessibility: High contrast mode, reduced motion respect, focus traps, skip links. Color alternatives for colorblind users.\n\nTesting: jest-axe test suite, keyboard navigation tests, screen reader compatibility.\n\nFiles: calendar-a11y.ts utilities, accessibility tests, ARIA constants. Update all components with a11y attributes.\n\nSuccess: WCAG 2.2 AA verified, full keyboard navigation, screen reader compatible, focus management, high contrast support, axe tests pass.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "ef388a66-739a-4e2c-bf91-8a7c7e0516c7",
+      "completed": false,
+      "createdAt": "2025-07-29T16:15:08.392Z",
+      "updatedAt": "2025-07-29T16:15:08.392Z",
+      "priority": 5,
+      "complexity": 3,
+      "status": "pending"
+    },
+    {
+      "id": "230bb776-2ff8-4971-8d3d-a71e018b4afb",
+      "name": "Create Comprehensive E2E Tests for Calendar",
+      "details": "Build comprehensive Playwright E2E test suite for calendar interactions and responsive behavior.\n\nTest scenarios: view switching (day/week/month), navigation (prev/next/today), event display, drag-drop, keyboard navigation, mobile responsiveness.\n\nCross-browser: Chrome, Firefox, Safari. Devices: desktop, tablet, mobile viewports. Performance: large datasets, smooth animations.\n\nAccessibility: screen reader navigation, keyboard-only usage, high contrast, reduced motion.\n\nTest files: calendar-view.e2e.ts, calendar-navigation.e2e.ts, calendar-drag-drop.e2e.ts, calendar-accessibility.e2e.ts.\n\nMock data: realistic calendar events, tasks, user preferences for consistent testing.\n\nFiles: E2E tests in frontend/tests/calendar/, fixtures, page object models.\n\nSuccess: All interactions tested, cross-browser verified, responsive validated, accessibility confirmed, performance benchmarks met.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "ef388a66-739a-4e2c-bf91-8a7c7e0516c7",
+      "completed": false,
+      "createdAt": "2025-07-29T16:15:26.561Z",
+      "updatedAt": "2025-07-29T16:15:26.561Z",
+      "priority": 5,
+      "complexity": 3,
+      "status": "pending"
     }
   ],
   "subtasks": [],
   "migration": {
     "version": "1.8.1",
-    "migratedAt": "2025-07-27T21:40:36.351Z",
+    "migratedAt": "2025-07-29T16:48:17.270Z",
     "subtasksMigrated": 1
   }
 }

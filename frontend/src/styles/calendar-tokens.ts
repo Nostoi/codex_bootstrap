@@ -289,3 +289,24 @@ export const colorUtils = {
       : '#FFFFFF';
   }
 } as const;
+
+// Main export for easy access in components
+export const calendarTokens = {
+  ...ADHD_CALENDAR_TOKENS,
+  colors: ADHD_CALENDAR_COLORS,
+  spacing: ADHD_SPACING,
+  motion: ADHD_MOTION,
+  typography: ADHD_TYPOGRAPHY,
+  radius: ADHD_RADIUS,
+  shadows: ADHD_SHADOWS,
+  zIndex: ADHD_Z_INDEX,
+  breakpoints: ADHD_BREAKPOINTS,
+  sizing: {
+    slotHeight: ADHD_CALENDAR_TOKENS.timeSlot.height,
+  },
+  accessibility: {
+    focusRing: {
+      width: ADHD_CALENDAR_TOKENS.focus.outlineWidth,
+    },
+  },
+};

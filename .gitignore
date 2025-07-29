@@ -18,3 +18,7 @@ frontend/pnpm-lock.yaml
 
 *storybook.log
 storybook-static
+dist/
+test-results/
+frontend/test-results/
+*.tsbuildinfo

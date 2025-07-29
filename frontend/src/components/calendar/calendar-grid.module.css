@@ -1,0 +1,346 @@
+/* Calendar Grid Styles - ADHD-Optimized Design */
+
+/* CSS Variables for Dynamic Theming */
+.calendar-view {
+  /* Motion preferences */
+  --calendar-motion-duration: var(--calendar-motion-duration, 200ms);
+  --calendar-motion-easing: var(--calendar-motion-easing, cubic-bezier(0.4, 0.0, 0.2, 1));
+  
+  /* Color constraints for ADHD */
+  --calendar-max-colors: var(--calendar-max-colors, 3);
+  
+  /* Focus indicators */
+  --calendar-focus-ring: var(--calendar-focus-ring, 2px);
+  
+  /* Reduced motion support */
+  --calendar-reduce-motion: var(--calendar-reduce-motion, 0);
+  
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .calendar-view {
+    --calendar-motion-duration: 0ms;
+    --calendar-reduce-motion: 1;
+  }
+}
+
+/* Calendar Header Styles */
+.calendar-header {
+  background: var(--color-base-100);
+  border-bottom: 1px solid var(--color-base-300);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.calendar-header .btn {
+  transition: all var(--calendar-motion-duration) var(--calendar-motion-easing);
+}
+
+.calendar-header .btn:focus-visible {
+  outline: var(--calendar-focus-ring) solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Calendar Grid Base Styles */
+.calendar-grid {
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.calendar-grid[aria-busy="true"] {
+  pointer-events: none;
+}
+
+/* Daily Grid Styles */
+.daily-grid {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.time-slot {
+  transition: background-color var(--calendar-motion-duration) var(--calendar-motion-easing);
+  border-bottom: 1px solid var(--color-base-200);
+}
+
+.time-slot:hover {
+  background-color: var(--color-base-50);
+}
+
+.time-label {
+  background: var(--color-base-100);
+  border-right: 1px solid var(--color-base-200);
+  font-size: 0.875rem;
+  color: var(--color-base-content-70);
+  min-width: 4rem;
+  flex-shrink: 0;
+}
+
+.events-container {
+  flex: 1;
+  position: relative;
+  padding: 0.5rem;
+}
+
+.event-item {
+  transition: all var(--calendar-motion-duration) var(--calendar-motion-easing);
+  cursor: pointer;
+  border-radius: 0.375rem;
+  position: relative;
+}
+
+.event-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Only apply transform when motion is not reduced */
+.calendar-view:not([style*="--calendar-reduce-motion: 1"]) .event-item:hover {
+  transform: translateY(-1px);
+}
+
+.event-item:focus-visible {
+  outline: var(--calendar-focus-ring) solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Weekly Grid Styles */
+.weekly-grid {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.week-header {
+  background: var(--color-base-100);
+  border-bottom: 1px solid var(--color-base-300);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.week-header .grid {
+  min-height: 4rem;
+}
+
+.day-slot {
+  transition: background-color var(--calendar-motion-duration) var(--calendar-motion-easing);
+  min-height: 3rem;
+  position: relative;
+}
+
+.day-slot:hover {
+  background-color: var(--color-base-50);
+}
+
+.all-day-row {
+  background: var(--color-base-50);
+  border-bottom: 1px solid var(--color-base-300);
+  min-height: 3rem;
+}
+
+/* Monthly Grid Styles */
+.monthly-grid {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.month-header {
+  background: var(--color-base-100);
+  border-bottom: 1px solid var(--color-base-300);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.day-headers {
+  background: var(--color-base-50);
+  border-bottom: 1px solid var(--color-base-300);
+  position: sticky;
+  top: 0;
+  z-index: 9;
+}
+
+.calendar-grid {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.week-row {
+  min-height: 120px;
+}
+
+.day-cell {
+  transition: all var(--calendar-motion-duration) var(--calendar-motion-easing);
+  cursor: pointer;
+  position: relative;
+}
+
+.day-cell:hover {
+  background-color: var(--color-base-50);
+}
+
+.day-cell:focus-visible {
+  outline: var(--calendar-focus-ring) solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+/* Current time indicator */
+.current-time-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-primary);
+  z-index: 5;
+}
+
+/* ADHD-Specific Optimizations */
+
+/* Reduce visual complexity when max colors is set */
+.calendar-view[style*="--calendar-max-colors: 1"] .event-item {
+  background-color: var(--color-primary-20) !important;
+  border-left-color: var(--color-primary) !important;
+}
+
+.calendar-view[style*="--calendar-max-colors: 2"] .event-item:nth-child(even) {
+  background-color: var(--color-secondary-20) !important;
+  border-left-color: var(--color-secondary) !important;
+}
+
+/* Enhanced focus indicators for ADHD users */
+.calendar-view[style*="--calendar-enhance-focus: 1"] .event-item:focus-visible,
+.calendar-view[style*="--calendar-enhance-focus: 1"] .day-cell:focus-visible,
+.calendar-view[style*="--calendar-enhance-focus: 1"] .time-slot:focus-visible {
+  outline-width: 3px;
+  outline-style: solid;
+  outline-color: var(--color-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px rgba(var(--color-primary-rgb), 0.2);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .event-item {
+    border: 2px solid var(--color-base-content);
+  }
+  
+  .time-slot,
+  .day-cell {
+    border-color: var(--color-base-content);
+  }
+}
+
+/* Loading states */
+.calendar-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(var(--color-base-100-rgb), 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  backdrop-filter: blur(2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .calendar-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .time-label {
+    min-width: 3rem;
+    font-size: 0.75rem;
+  }
+  
+  .event-item {
+    font-size: 0.75rem;
+    padding: 0.25rem;
+  }
+  
+  .day-cell {
+    min-height: 80px;
+    padding: 0.25rem;
+  }
+  
+  /* Stack view selector vertically on mobile */
+  .calendar-header .join {
+    width: 100%;
+  }
+  
+  .calendar-header .join .btn {
+    flex: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .week-row {
+    min-height: 80px;
+  }
+  
+  .day-cell {
+    min-height: 60px;
+    font-size: 0.75rem;
+  }
+  
+  .time-label {
+    min-width: 2.5rem;
+    font-size: 0.625rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  .calendar-view {
+    height: auto;
+    overflow: visible;
+  }
+  
+  .calendar-header .btn,
+  .calendar-loading-overlay {
+    display: none;
+  }
+  
+  .event-item {
+    background: white !important;
+    border: 1px solid black !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Animation for smooth transitions */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.calendar-grid:not([aria-busy="true"]) .event-item {
+  animation: fadeIn var(--calendar-motion-duration) var(--calendar-motion-easing);
+}
+
+/* Disable animations when reduce motion is enabled */
+.calendar-view[style*="--calendar-reduce-motion: 1"] .event-item,
+.calendar-view[style*="--calendar-reduce-motion: 1"] .day-cell,
+.calendar-view[style*="--calendar-reduce-motion: 1"] .time-slot {
+  transition: none;
+  animation: none;
+  transform: none !important;
+}

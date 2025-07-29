@@ -51,6 +51,29 @@ export interface TaskSummary {
   hardDeadline?: string;
 }
 
+// Calendar Event types
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  startTime: string;
+  endTime: string;
+  source: 'google' | 'outlook';
+  description?: string;
+  energyLevel?: 'LOW' | 'MEDIUM' | 'HIGH';
+  focusType?: 'CREATIVE' | 'TECHNICAL' | 'ADMINISTRATIVE' | 'SOCIAL';
+  isAllDay: boolean;
+}
+
+export interface CalendarEventsResponse {
+  date: string;
+  events: CalendarEvent[];
+  totalEvents: number;
+  sources: {
+    google: number;
+    outlook: number;
+  };
+}
+
 // Query keys
 export const queryKeys = {
   users: ['users'] as const,
@@ -59,6 +82,7 @@ export const queryKeys = {
   tasks: ['tasks'] as const,
   task: (id: number) => ['tasks', id] as const,
   dailyPlan: (date: string) => ['planning', 'daily', date] as const,
+  calendarEvents: (date: string) => ['planning', 'calendar-events', date] as const,
 }
 
 // Health check hook
@@ -165,6 +189,34 @@ export function useRefreshDailyPlan() {
       const mutationPlanDate = variables || new Date().toISOString().split('T')[0];
       queryClient.setQueryData(queryKeys.dailyPlan(mutationPlanDate), data)
       queryClient.invalidateQueries({ queryKey: queryKeys.dailyPlan(mutationPlanDate) })
+    },
+  })
+}
+
+// Calendar Events hooks
+export function useCalendarEvents(date?: string) {
+  const eventDate = date || new Date().toISOString().split('T')[0];
+  
+  return useQuery({
+    queryKey: queryKeys.calendarEvents(eventDate),
+    queryFn: () => api.get<CalendarEventsResponse>(`/plans/calendar-events${date ? `?date=${date}` : ''}`),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 2,
+  })
+}
+
+export function useRefreshCalendarEvents() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: (date?: string) => {
+      const eventDate = date || new Date().toISOString().split('T')[0];
+      return api.get<CalendarEventsResponse>(`/plans/calendar-events?date=${eventDate}`)
+    },
+    onSuccess: (data, variables) => {
+      const mutationEventDate = variables || new Date().toISOString().split('T')[0];
+      queryClient.setQueryData(queryKeys.calendarEvents(mutationEventDate), data)
+      queryClient.invalidateQueries({ queryKey: queryKeys.calendarEvents(mutationEventDate) })
     },
   })
 }

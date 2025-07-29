@@ -10,7 +10,7 @@ export type EnergyLevel = 'HIGH' | 'MEDIUM' | 'LOW';
 export type FocusType = 'CREATIVE' | 'TECHNICAL' | 'ADMINISTRATIVE' | 'SOCIAL';
 
 // Calendar view modes
-export type CalendarViewMode = 'day' | 'week' | 'month';
+export type CalendarViewMode = 'daily' | 'weekly' | 'monthly';
 
 // Calendar data sources
 export type CalendarSource = 'google' | 'outlook' | 'task';
@@ -185,4 +185,30 @@ export interface CalendarState {
   settings: ADHDCalendarSettings;
   loading: boolean;
   error?: string;
+}
+
+// Type aliases for compatibility with component implementations
+export type CalendarViewType = CalendarViewMode;
+
+// Simple date interface for navigation
+export interface CalendarDate {
+  year: number;
+  month: number; // 1-12
+  day: number;
+}
+
+// Updated CalendarViewProps for our implemented component
+export interface CalendarViewComponentProps {
+  initialView?: CalendarViewType;
+  initialDate?: CalendarDate;
+  className?: string;
+  showNavigation?: boolean;
+  showViewSelector?: boolean;
+  onDateChange?: (date: CalendarDate) => void;
+  onViewChange?: (view: CalendarViewType) => void;
+  onEventClick?: (event: import('../hooks/useApi').CalendarEvent) => void;
+  disableNavigation?: boolean;
+  maxEventsPerSlot?: number;
+  enableDragAndDrop?: boolean;
+  adhdSettings?: ADHDCalendarSettings;
 }

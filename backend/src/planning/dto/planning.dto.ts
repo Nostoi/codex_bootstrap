@@ -38,26 +38,6 @@ export class DailyPlanResponseDto {
   deadlineRisk: number;
 }
 
-export class ScheduleBlockDto {
-  @ApiProperty({ description: "Block start time" })
-  startTime: string;
-
-  @ApiProperty({ description: "Block end time" })
-  endTime: string;
-
-  @ApiProperty({ description: "Scheduled task" })
-  task: TaskSummaryDto;
-
-  @ApiProperty({ description: "Energy match score (0-1)" })
-  energyMatch: number;
-
-  @ApiProperty({ description: "Focus type match score (0-1)" })
-  focusMatch: number;
-
-  @ApiProperty({ description: "Reasoning for scheduling decision" })
-  reasoning: string;
-}
-
 export class TaskSummaryDto {
   @ApiProperty({ description: "Task ID" })
   id: string;
@@ -82,4 +62,24 @@ export class TaskSummaryDto {
 
   @ApiProperty({ description: "Hard deadline if any" })
   hardDeadline?: string;
+}
+
+export class ScheduleBlockDto {
+  @ApiProperty({ description: "Block start time" })
+  startTime: string;
+
+  @ApiProperty({ description: "Block end time" })
+  endTime: string;
+
+  @ApiProperty({ description: "Scheduled task" })
+  task: TaskSummaryDto;
+
+  @ApiProperty({ description: "Energy match score (0-1)" })
+  energyMatch: number;
+
+  @ApiProperty({ description: "Focus type match score (0-1)" })
+  focusMatch: number;
+
+  @ApiProperty({ description: "Reasoning for scheduling decision" })
+  reasoning: string;
 }
