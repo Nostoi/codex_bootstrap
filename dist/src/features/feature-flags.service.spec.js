@@ -6,7 +6,6 @@ const prisma_service_1 = require("../prisma/prisma.service");
 const feature_flags_types_1 = require("./feature-flags.types");
 describe("FeatureFlagsService", () => {
     let service;
-    let prismaService;
     const mockPrismaService = {};
     beforeEach(async () => {
         const module = await testing_1.Test.createTestingModule({
@@ -19,7 +18,6 @@ describe("FeatureFlagsService", () => {
             ],
         }).compile();
         service = module.get(feature_flags_service_1.FeatureFlagsService);
-        prismaService = module.get(prisma_service_1.PrismaService);
     });
     it("should be defined", () => {
         expect(service).toBeDefined();

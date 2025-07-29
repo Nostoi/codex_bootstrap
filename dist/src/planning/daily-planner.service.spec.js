@@ -543,5 +543,398 @@ describe("DailyPlannerService", () => {
             }
         });
     });
+    describe("Google Calendar Integration", () => {
+        const testDate = new Date("2025-07-28T10:00:00Z");
+        const userId = "test-user-1";
+        beforeEach(() => {
+            mockPrismaService.userSettings.findUnique.mockResolvedValue({
+                userId,
+                morningEnergyLevel: client_1.EnergyLevel.HIGH,
+                afternoonEnergyLevel: client_1.EnergyLevel.MEDIUM,
+                workStartTime: "09:00",
+                workEndTime: "17:00",
+                focusSessionLength: 90,
+                preferredFocusTypes: [],
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            });
+            mockTasksService.findAll.mockResolvedValue([]);
+            mockTasksService.findTaskDependencies.mockResolvedValue([]);
+        });
+        describe("Calendar Event Parsing", () => {
+            it("should parse Google Calendar events into TimeSlots correctly", async () => {
+                const mockCalendarEvents = {
+                    kind: "calendar#events",
+                    items: [
+                        {
+                            id: "event-1",
+                            summary: "Team Standup",
+                            description: "Daily team sync meeting",
+                            start: {
+                                dateTime: "2025-07-28T09:00:00-07:00",
+                                timeZone: "America/Los_Angeles",
+                            },
+                            end: {
+                                dateTime: "2025-07-28T09:30:00-07:00",
+                                timeZone: "America/Los_Angeles",
+                            },
+                            attendees: [
+                                { email: "user1@example.com", responseStatus: "accepted" },
+                                { email: "user2@example.com", responseStatus: "accepted" },
+                            ],
+                        },
+                        {
+                            id: "event-2",
+                            summary: "Focus Work - Deep Coding",
+                            description: "Dedicated coding time",
+                            start: {
+                                dateTime: "2025-07-28T10:00:00-07:00",
+                                timeZone: "America/Los_Angeles",
+                            },
+                            end: {
+                                dateTime: "2025-07-28T12:00:00-07:00",
+                                timeZone: "America/Los_Angeles",
+                            },
+                            attendees: [],
+                        },
+                        {
+                            id: "event-3",
+                            summary: "All Hands Meeting",
+                            description: "Company-wide meeting",
+                            start: {
+                                dateTime: "2025-07-28T14:00:00-07:00",
+                                timeZone: "America/Los_Angeles",
+                            },
+                            end: {
+                                dateTime: "2025-07-28T15:00:00-07:00",
+                                timeZone: "America/Los_Angeles",
+                            },
+                            attendees: Array(15).fill({ email: "user@example.com", responseStatus: "accepted" }),
+                        },
+                    ],
+                };
+                mockGoogleService.getCalendarEvents.mockResolvedValue(mockCalendarEvents);
+                const result = await service.generatePlan(userId, testDate);
+                expect(mockGoogleService.getCalendarEvents).toHaveBeenCalledWith(userId, "primary", expect.any(Date), expect.any(Date));
+                expect(result).toBeDefined();
+                expect(result.scheduleBlocks).toBeDefined();
+            });
+            it("should handle all-day events correctly", async () => {
+                const mockCalendarEvents = {
+                    kind: "calendar#events",
+                    items: [
+                        {
+                            id: "all-day-event",
+                            summary: "Conference Day",
+                            start: {
+                                date: "2025-07-28",
+                            },
+                            end: {
+                                date: "2025-07-29",
+                            },
+                        },
+                    ],
+                };
+                mockGoogleService.getCalendarEvents.mockResolvedValue(mockCalendarEvents);
+                const result = await service.generatePlan(userId, testDate);
+                expect(result).toBeDefined();
+                expect(mockGoogleService.getCalendarEvents).toHaveBeenCalled();
+            });
+            it("should infer energy levels correctly based on event characteristics", async () => {
+                const mockCalendarEvents = {
+                    kind: "calendar#events",
+                    items: [
+                        {
+                            id: "focus-time",
+                            summary: "Focus Work Session",
+                            start: { dateTime: "2025-07-28T09:00:00-07:00" },
+                            end: { dateTime: "2025-07-28T10:30:00-07:00" },
+                            attendees: [],
+                        },
+                        {
+                            id: "small-meeting",
+                            summary: "1:1 with Manager",
+                            start: { dateTime: "2025-07-28T11:00:00-07:00" },
+                            end: { dateTime: "2025-07-28T11:30:00-07:00" },
+                            attendees: [
+                                { email: "manager@example.com", responseStatus: "accepted" },
+                            ],
+                        },
+                        {
+                            id: "large-meeting",
+                            summary: "All Hands Meeting",
+                            start: { dateTime: "2025-07-28T14:00:00-07:00" },
+                            end: { dateTime: "2025-07-28T15:00:00-07:00" },
+                            attendees: Array(10).fill({ email: "user@example.com" }),
+                        },
+                    ],
+                };
+                mockGoogleService.getCalendarEvents.mockResolvedValue(mockCalendarEvents);
+                const result = await service.generatePlan(userId, testDate);
+                expect(result).toBeDefined();
+                expect(mockGoogleService.getCalendarEvents).toHaveBeenCalled();
+            });
+            it("should infer focus types correctly based on event content", async () => {
+                const mockCalendarEvents = {
+                    kind: "calendar#events",
+                    items: [
+                        {
+                            id: "tech-review",
+                            summary: "Code Review Session",
+                            description: "Review API changes and system architecture",
+                            start: { dateTime: "2025-07-28T09:00:00-07:00" },
+                            end: { dateTime: "2025-07-28T10:00:00-07:00" },
+                        },
+                        {
+                            id: "design-workshop",
+                            summary: "Design Workshop",
+                            description: "Creative brainstorming for new features",
+                            start: { dateTime: "2025-07-28T11:00:00-07:00" },
+                            end: { dateTime: "2025-07-28T12:00:00-07:00" },
+                        },
+                        {
+                            id: "admin-task",
+                            summary: "Budget Planning",
+                            description: "Quarterly budget review and expense reports",
+                            start: { dateTime: "2025-07-28T14:00:00-07:00" },
+                            end: { dateTime: "2025-07-28T15:00:00-07:00" },
+                        },
+                    ],
+                };
+                mockGoogleService.getCalendarEvents.mockResolvedValue(mockCalendarEvents);
+                const result = await service.generatePlan(userId, testDate);
+                expect(result).toBeDefined();
+                expect(mockGoogleService.getCalendarEvents).toHaveBeenCalled();
+            });
+        });
+        describe("Calendar Error Handling", () => {
+            it("should handle Google Calendar API failures gracefully", async () => {
+                mockGoogleService.getCalendarEvents.mockRejectedValue(new Error("Google Calendar API unavailable"));
+                const result = await service.generatePlan(userId, testDate);
+                expect(result).toBeDefined();
+                expect(result.scheduleBlocks).toBeDefined();
+                expect(mockGoogleService.getCalendarEvents).toHaveBeenCalled();
+            });
+            it("should handle authentication errors with retry logic", async () => {
+                const authError = new Error("Authentication failed");
+                authError.response = { status: 401 };
+                mockGoogleService.getCalendarEvents
+                    .mockRejectedValueOnce(authError)
+                    .mockResolvedValueOnce({
+                    kind: "calendar#events",
+                    items: [],
+                });
+                const result = await service.generatePlan(userId, testDate);
+                expect(result).toBeDefined();
+            });
+            it("should handle rate limiting with exponential backoff", async () => {
+                const rateLimitError = new Error("Rate limit exceeded");
+                rateLimitError.response = { status: 429 };
+                mockGoogleService.getCalendarEvents.mockRejectedValue(rateLimitError);
+                const result = await service.generatePlan(userId, testDate);
+                expect(result).toBeDefined();
+                expect(mockGoogleService.getCalendarEvents).toHaveBeenCalled();
+            });
+            it("should handle malformed calendar event data", async () => {
+                const mockMalformedEvents = {
+                    kind: "calendar#events",
+                    items: [
+                        {
+                            id: "malformed-event",
+                            summary: "Test Event",
+                        },
+                        {
+                            id: "invalid-dates",
+                            summary: "Invalid Event",
+                            start: { dateTime: "invalid-date" },
+                            end: { dateTime: "invalid-date" },
+                        },
+                        {
+                            id: "valid-event",
+                            summary: "Valid Event",
+                            start: { dateTime: "2025-07-28T10:00:00-07:00" },
+                            end: { dateTime: "2025-07-28T11:00:00-07:00" },
+                        },
+                    ],
+                };
+                mockGoogleService.getCalendarEvents.mockResolvedValue(mockMalformedEvents);
+                const result = await service.generatePlan(userId, testDate);
+                expect(result).toBeDefined();
+                expect(mockGoogleService.getCalendarEvents).toHaveBeenCalled();
+            });
+        });
+        describe("Calendar Integration Performance", () => {
+            it("should handle large calendar datasets efficiently", async () => {
+                const largeEventsList = Array(150).fill(null).map((_, index) => ({
+                    id: `event-${index}`,
+                    summary: `Meeting ${index}`,
+                    start: {
+                        dateTime: `2025-07-28T${String(9 + (index % 8)).padStart(2, '0')}:${String((index * 30) % 60).padStart(2, '0')}:00-07:00`,
+                    },
+                    end: {
+                        dateTime: `2025-07-28T${String(9 + (index % 8)).padStart(2, '0')}:${String(((index * 30) % 60) + 30).padStart(2, '0')}:00-07:00`,
+                    },
+                    attendees: [{ email: "user@example.com", responseStatus: "accepted" }],
+                }));
+                const mockLargeCalendarEvents = {
+                    kind: "calendar#events",
+                    items: largeEventsList,
+                };
+                mockGoogleService.getCalendarEvents.mockResolvedValue(mockLargeCalendarEvents);
+                const startTime = performance.now();
+                const result = await service.generatePlan(userId, testDate);
+                const endTime = performance.now();
+                expect(result).toBeDefined();
+                expect(endTime - startTime).toBeLessThan(5000);
+                expect(mockGoogleService.getCalendarEvents).toHaveBeenCalled();
+            });
+            it("should not block planning when calendar API is slow", async () => {
+                mockGoogleService.getCalendarEvents.mockImplementation(() => new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve({
+                            kind: "calendar#events",
+                            items: [
+                                {
+                                    id: "slow-event",
+                                    summary: "Slow Event",
+                                    start: { dateTime: "2025-07-28T10:00:00-07:00" },
+                                    end: { dateTime: "2025-07-28T11:00:00-07:00" },
+                                },
+                            ],
+                        });
+                    }, 100);
+                }));
+                const startTime = performance.now();
+                const result = await service.generatePlan(userId, testDate);
+                const endTime = performance.now();
+                expect(result).toBeDefined();
+                expect(endTime - startTime).toBeGreaterThan(100);
+                expect(mockGoogleService.getCalendarEvents).toHaveBeenCalled();
+            });
+        });
+        describe("Calendar Event Conflict Detection", () => {
+            it("should prevent task scheduling during calendar events", async () => {
+                const mockCalendarEvents = {
+                    kind: "calendar#events",
+                    items: [
+                        {
+                            id: "blocking-meeting",
+                            summary: "Important Meeting",
+                            start: { dateTime: "2025-07-28T10:00:00-07:00" },
+                            end: { dateTime: "2025-07-28T11:00:00-07:00" },
+                            attendees: [{ email: "user@example.com", responseStatus: "accepted" }],
+                        },
+                    ],
+                };
+                const mockTask = {
+                    id: "task-1",
+                    title: "Complete project",
+                    description: "Work on the project",
+                    status: client_1.TaskStatus.TODO,
+                    userId,
+                    projectId: "project-1",
+                    estimatedMinutes: 60,
+                    priority: 5,
+                    energyLevel: client_1.EnergyLevel.MEDIUM,
+                    focusType: client_1.FocusType.TECHNICAL,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    completedAt: null,
+                    dueDate: null,
+                    source: null,
+                    aiSuggestion: null,
+                    softDeadline: null,
+                    hardDeadline: null,
+                    parentId: null,
+                    sortOrder: 0,
+                };
+                mockGoogleService.getCalendarEvents.mockResolvedValue(mockCalendarEvents);
+                mockTasksService.findAll.mockResolvedValue([mockTask]);
+                const result = await service.generatePlan(userId, testDate);
+                expect(result).toBeDefined();
+                const conflictingBlocks = result.scheduleBlocks.filter(block => {
+                    const blockStart = new Date(block.startTime);
+                    const blockEnd = new Date(block.endTime);
+                    const eventStart = new Date("2025-07-28T10:00:00-07:00");
+                    const eventEnd = new Date("2025-07-28T11:00:00-07:00");
+                    return blockStart < eventEnd && blockEnd > eventStart;
+                });
+                expect(conflictingBlocks).toHaveLength(0);
+            });
+            it("should handle overlapping calendar events correctly", async () => {
+                const mockCalendarEvents = {
+                    kind: "calendar#events",
+                    items: [
+                        {
+                            id: "event-1",
+                            summary: "Meeting 1",
+                            start: { dateTime: "2025-07-28T10:00:00-07:00" },
+                            end: { dateTime: "2025-07-28T11:00:00-07:00" },
+                        },
+                        {
+                            id: "event-2",
+                            summary: "Meeting 2",
+                            start: { dateTime: "2025-07-28T10:30:00-07:00" },
+                            end: { dateTime: "2025-07-28T11:30:00-07:00" },
+                        },
+                    ],
+                };
+                mockGoogleService.getCalendarEvents.mockResolvedValue(mockCalendarEvents);
+                const result = await service.generatePlan(userId, testDate);
+                expect(result).toBeDefined();
+                expect(mockGoogleService.getCalendarEvents).toHaveBeenCalled();
+            });
+        });
+        describe("Calendar Integration Edge Cases", () => {
+            it("should handle empty calendar response", async () => {
+                mockGoogleService.getCalendarEvents.mockResolvedValue({
+                    kind: "calendar#events",
+                    items: [],
+                });
+                const result = await service.generatePlan(userId, testDate);
+                expect(result).toBeDefined();
+                expect(mockGoogleService.getCalendarEvents).toHaveBeenCalled();
+            });
+            it("should handle null calendar response", async () => {
+                mockGoogleService.getCalendarEvents.mockResolvedValue(null);
+                const result = await service.generatePlan(userId, testDate);
+                expect(result).toBeDefined();
+                expect(mockGoogleService.getCalendarEvents).toHaveBeenCalled();
+            });
+            it("should handle calendar events without attendees", async () => {
+                const mockCalendarEvents = {
+                    kind: "calendar#events",
+                    items: [
+                        {
+                            id: "solo-event",
+                            summary: "Personal Task",
+                            start: { dateTime: "2025-07-28T10:00:00-07:00" },
+                            end: { dateTime: "2025-07-28T11:00:00-07:00" },
+                        },
+                    ],
+                };
+                mockGoogleService.getCalendarEvents.mockResolvedValue(mockCalendarEvents);
+                const result = await service.generatePlan(userId, testDate);
+                expect(result).toBeDefined();
+                expect(mockGoogleService.getCalendarEvents).toHaveBeenCalled();
+            });
+            it("should handle events with missing summary", async () => {
+                const mockCalendarEvents = {
+                    kind: "calendar#events",
+                    items: [
+                        {
+                            id: "no-summary-event",
+                            start: { dateTime: "2025-07-28T10:00:00-07:00" },
+                            end: { dateTime: "2025-07-28T11:00:00-07:00" },
+                        },
+                    ],
+                };
+                mockGoogleService.getCalendarEvents.mockResolvedValue(mockCalendarEvents);
+                const result = await service.generatePlan(userId, testDate);
+                expect(result).toBeDefined();
+                expect(mockGoogleService.getCalendarEvents).toHaveBeenCalled();
+            });
+        });
+    });
 });
 //# sourceMappingURL=daily-planner.service.spec.js.map

@@ -7,8 +7,6 @@ const mem0_service_1 = require("./mem0.service");
 const retry_service_1 = require("./services/retry.service");
 describe("AiService", () => {
     let service;
-    let configService;
-    let mem0Service;
     let retryService;
     beforeEach(async () => {
         const mockConfigService = {
@@ -44,8 +42,6 @@ describe("AiService", () => {
             ],
         }).compile();
         service = module.get(ai_service_1.AiService);
-        configService = module.get(config_1.ConfigService);
-        mem0Service = module.get(mem0_service_1.Mem0Service);
         retryService = module.get(retry_service_1.RetryService);
     });
     it("should be defined", () => {

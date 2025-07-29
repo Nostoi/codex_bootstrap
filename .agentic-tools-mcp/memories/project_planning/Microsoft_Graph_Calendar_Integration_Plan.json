@@ -1,0 +1,8 @@
+{
+  "id": "575e6eff-26a5-4119-8e4a-455178dcc0c9",
+  "title": "Microsoft Graph Calendar Integration Plan",
+  "details": "Comprehensive plan for implementing Microsoft Graph Outlook Calendar integration to complement the existing Google Calendar integration.\n\nTECHNICAL ARCHITECTURE:\n- Service Layer: Create MicrosoftGraphService similar to GoogleCalendarService\n- Authentication: Microsoft Graph OAuth 2.0 with Azure AD\n- API Integration: Microsoft Graph Calendar API v1.0\n- Data Models: Create TypeScript interfaces for Outlook events\n- Error Handling: Comprehensive error management with retry logic\n- Testing: Unit tests, integration tests, and E2E tests\n\nREQUIRED DEPENDENCIES:\n- @azure/msal-node for authentication\n- @microsoft/microsoft-graph-client for API calls\n- @microsoft/microsoft-graph-types for TypeScript types\n\nCOMPLEXITY FACTORS:\n- OAuth 2.0 flow implementation\n- Microsoft Graph API learning curve\n- Calendar event mapping and normalization\n- Time zone handling consistency\n- Concurrent calendar source management\n- Comprehensive error handling and rate limiting\n\nESTIMATED EFFORT: 12-15 hours (High complexity)\n\nINTEGRATION POINTS:\n- CalendarIntegrationService for unified calendar access\n- Daily planner service for scheduling optimization\n- Task planning with calendar awareness\n- User preferences for calendar source selection",
+  "category": "project_planning",
+  "dateCreated": "2025-07-29T02:02:11.697Z",
+  "dateUpdated": "2025-07-29T02:02:11.697Z"
+}

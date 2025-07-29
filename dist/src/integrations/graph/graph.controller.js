@@ -36,6 +36,41 @@ let GraphController = class GraphController {
     createOneDriveFile(userId, fileData) {
         return this.graphService.createOneDriveFile(userId, fileData.filename, fileData.content);
     }
+    getCalendars(userId) {
+        return this.graphService.getCalendars(userId);
+    }
+    getCalendarEvents(userId, startTime, endTime, timeZone, maxResults, orderBy) {
+        const options = {
+            startTime,
+            endTime,
+            timeZone,
+            maxResults: maxResults ? parseInt(maxResults, 10) : undefined,
+            orderBy,
+        };
+        return this.graphService.getCalendarEvents(userId, options);
+    }
+    getCalendarEvent(userId, eventId) {
+        return this.graphService.getCalendarEvent(userId, eventId);
+    }
+    createCalendarEvent(userId, event) {
+        return this.graphService.createCalendarEvent(userId, event);
+    }
+    updateCalendarEvent(userId, eventId, updates) {
+        return this.graphService.updateCalendarEvent(userId, eventId, updates);
+    }
+    deleteCalendarEvent(userId, eventId) {
+        return this.graphService.deleteCalendarEvent(userId, eventId);
+    }
+    getCalendarEventsByCalendarId(userId, calendarId, startTime, endTime, timeZone, maxResults, orderBy) {
+        const options = {
+            startTime,
+            endTime,
+            timeZone,
+            maxResults: maxResults ? parseInt(maxResults, 10) : undefined,
+            orderBy,
+        };
+        return this.graphService.getCalendarEventsByCalendarId(userId, calendarId, options);
+    }
 };
 exports.GraphController = GraphController;
 __decorate([
@@ -86,6 +121,100 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], GraphController.prototype, "createOneDriveFile", null);
+__decorate([
+    (0, common_1.Get)("calendars/:userId"),
+    (0, swagger_1.ApiOperation)({ summary: "Get user's calendars" }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "Calendars retrieved successfully" }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: "Integration not configured" }),
+    __param(0, (0, common_1.Param)("userId")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], GraphController.prototype, "getCalendars", null);
+__decorate([
+    (0, common_1.Get)("calendar/:userId/events"),
+    (0, swagger_1.ApiOperation)({ summary: "Get calendar events with optional filtering" }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "Calendar events retrieved successfully" }),
+    (0, swagger_1.ApiQuery)({ name: "startTime", required: false, description: "Start time filter (ISO 8601)" }),
+    (0, swagger_1.ApiQuery)({ name: "endTime", required: false, description: "End time filter (ISO 8601)" }),
+    (0, swagger_1.ApiQuery)({ name: "timeZone", required: false, description: "Time zone for the query" }),
+    (0, swagger_1.ApiQuery)({ name: "maxResults", required: false, description: "Maximum number of results" }),
+    (0, swagger_1.ApiQuery)({ name: "orderBy", required: false, description: "Order by: start or lastModified" }),
+    __param(0, (0, common_1.Param)("userId")),
+    __param(1, (0, common_1.Query)("startTime")),
+    __param(2, (0, common_1.Query)("endTime")),
+    __param(3, (0, common_1.Query)("timeZone")),
+    __param(4, (0, common_1.Query)("maxResults")),
+    __param(5, (0, common_1.Query)("orderBy")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, String, String, String]),
+    __metadata("design:returntype", void 0)
+], GraphController.prototype, "getCalendarEvents", null);
+__decorate([
+    (0, common_1.Get)("calendar/:userId/events/:eventId"),
+    (0, swagger_1.ApiOperation)({ summary: "Get a specific calendar event" }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "Calendar event retrieved successfully" }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: "Event not found" }),
+    __param(0, (0, common_1.Param)("userId")),
+    __param(1, (0, common_1.Param)("eventId")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], GraphController.prototype, "getCalendarEvent", null);
+__decorate([
+    (0, common_1.Post)("calendar/:userId/events"),
+    (0, swagger_1.ApiOperation)({ summary: "Create a new calendar event" }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: "Calendar event created successfully" }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: "Invalid event data" }),
+    __param(0, (0, common_1.Param)("userId")),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], GraphController.prototype, "createCalendarEvent", null);
+__decorate([
+    (0, common_1.Put)("calendar/:userId/events/:eventId"),
+    (0, swagger_1.ApiOperation)({ summary: "Update an existing calendar event" }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "Calendar event updated successfully" }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: "Event not found" }),
+    __param(0, (0, common_1.Param)("userId")),
+    __param(1, (0, common_1.Param)("eventId")),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:returntype", void 0)
+], GraphController.prototype, "updateCalendarEvent", null);
+__decorate([
+    (0, common_1.Delete)("calendar/:userId/events/:eventId"),
+    (0, swagger_1.ApiOperation)({ summary: "Delete a calendar event" }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "Calendar event deleted successfully" }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: "Event not found" }),
+    __param(0, (0, common_1.Param)("userId")),
+    __param(1, (0, common_1.Param)("eventId")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], GraphController.prototype, "deleteCalendarEvent", null);
+__decorate([
+    (0, common_1.Get)("calendar/:userId/calendars/:calendarId/events"),
+    (0, swagger_1.ApiOperation)({ summary: "Get events from a specific calendar" }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: "Calendar events retrieved successfully" }),
+    (0, swagger_1.ApiQuery)({ name: "startTime", required: false, description: "Start time filter (ISO 8601)" }),
+    (0, swagger_1.ApiQuery)({ name: "endTime", required: false, description: "End time filter (ISO 8601)" }),
+    (0, swagger_1.ApiQuery)({ name: "timeZone", required: false, description: "Time zone for the query" }),
+    (0, swagger_1.ApiQuery)({ name: "maxResults", required: false, description: "Maximum number of results" }),
+    (0, swagger_1.ApiQuery)({ name: "orderBy", required: false, description: "Order by: start or lastModified" }),
+    __param(0, (0, common_1.Param)("userId")),
+    __param(1, (0, common_1.Param)("calendarId")),
+    __param(2, (0, common_1.Query)("startTime")),
+    __param(3, (0, common_1.Query)("endTime")),
+    __param(4, (0, common_1.Query)("timeZone")),
+    __param(5, (0, common_1.Query)("maxResults")),
+    __param(6, (0, common_1.Query)("orderBy")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, String, String, String, String]),
+    __metadata("design:returntype", void 0)
+], GraphController.prototype, "getCalendarEventsByCalendarId", null);
 exports.GraphController = GraphController = __decorate([
     (0, swagger_1.ApiTags)("integrations"),
     (0, common_1.Controller)("integrations/microsoft"),

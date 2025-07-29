@@ -100,16 +100,10 @@ let FeatureFlagsService = FeatureFlagsService_1 = class FeatureFlagsService {
             return false;
         }
     }
-    async getUserOverride(flag, userId) {
-        try {
-            return null;
-        }
-        catch (error) {
-            this.logger.error(`Error getting user override for ${flag}:`, error);
-            return null;
-        }
+    async getUserOverride(_flag, _userId) {
+        return null;
     }
-    async setUserOverride(flag, userId, enabled, expiresAt) {
+    async setUserOverride(flag, userId, enabled, _expiresAt) {
         try {
             this.logger.log(`Would set user override: ${flag} = ${enabled} for user ${userId}`);
         }

@@ -8,16 +8,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GraphModule = void 0;
 const common_1 = require("@nestjs/common");
+const config_1 = require("@nestjs/config");
 const graph_controller_1 = require("./graph.controller");
 const graph_service_1 = require("./graph.service");
+const graph_config_service_1 = require("./config/graph-config.service");
 let GraphModule = class GraphModule {
 };
 exports.GraphModule = GraphModule;
 exports.GraphModule = GraphModule = __decorate([
     (0, common_1.Module)({
+        imports: [config_1.ConfigModule],
         controllers: [graph_controller_1.GraphController],
-        providers: [graph_service_1.GraphService],
-        exports: [graph_service_1.GraphService],
+        providers: [graph_service_1.GraphService, graph_config_service_1.GraphConfigService],
+        exports: [graph_service_1.GraphService, graph_config_service_1.GraphConfigService],
     })
 ], GraphModule);
 //# sourceMappingURL=graph.module.js.map

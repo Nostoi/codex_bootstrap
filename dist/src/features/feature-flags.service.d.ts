@@ -7,7 +7,7 @@ export declare class FeatureFlagsService {
     constructor(prisma: PrismaService);
     isEnabled(flag: FeatureFlags, userId?: string, userHash?: number): Promise<boolean>;
     private getUserOverride;
-    setUserOverride(flag: FeatureFlags, userId: string, enabled: boolean, expiresAt?: Date): Promise<void>;
+    setUserOverride(flag: FeatureFlags, userId: string, enabled: boolean, _expiresAt?: Date): Promise<void>;
     getAllConfigs(): Record<FeatureFlags, FeatureFlagConfig>;
     getAllFlags(userId?: string, userHash?: number): Promise<Record<FeatureFlags, boolean>>;
     static createUserHash(userId: string): number;

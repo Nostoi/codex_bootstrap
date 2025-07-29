@@ -14,6 +14,7 @@ exports.GraphService = void 0;
 const common_1 = require("@nestjs/common");
 const microsoft_graph_client_1 = require("@microsoft/microsoft-graph-client");
 const prisma_service_1 = require("../../prisma/prisma.service");
+const calendar_types_1 = require("./types/calendar.types");
 let GraphService = GraphService_1 = class GraphService {
     constructor(prisma) {
         this.prisma = prisma;
@@ -142,6 +143,201 @@ let GraphService = GraphService_1 = class GraphService {
                 scopes: scopes || [],
             },
         });
+    }
+    async getCalendars(userId) {
+        try {
+            const config = await this.prisma.integrationConfig.findUnique({
+                where: {
+                    provider_userId: {
+                        provider: "microsoft",
+                        userId,
+                    },
+                },
+            });
+            if (!config?.accessToken) {
+                throw new Error("Microsoft integration not configured for user");
+            }
+            const graphClient = this.createGraphClient(config.accessToken);
+            const calendars = await graphClient.api(calendar_types_1.GRAPH_ENDPOINTS.CALENDARS).get();
+            return calendars;
+        }
+        catch (error) {
+            this.logger.error("Error fetching calendars:", error);
+            throw error;
+        }
+    }
+    async getCalendarEvents(userId, options = {}) {
+        try {
+            const config = await this.prisma.integrationConfig.findUnique({
+                where: {
+                    provider_userId: {
+                        provider: "microsoft",
+                        userId,
+                    },
+                },
+            });
+            if (!config?.accessToken) {
+                throw new Error("Microsoft integration not configured for user");
+            }
+            const graphClient = this.createGraphClient(config.accessToken);
+            const queryParams = [];
+            if (options.startTime && options.endTime) {
+                queryParams.push(`$filter=start/dateTime ge '${options.startTime}' and end/dateTime le '${options.endTime}'`);
+            }
+            if (options.orderBy) {
+                queryParams.push(`$orderby=${options.orderBy === 'start' ? 'start/dateTime' : 'lastModifiedDateTime'}`);
+            }
+            if (options.maxResults) {
+                queryParams.push(`$top=${options.maxResults}`);
+            }
+            const endpoint = queryParams.length > 0
+                ? `${calendar_types_1.GRAPH_ENDPOINTS.EVENTS}?${queryParams.join('&')}`
+                : calendar_types_1.GRAPH_ENDPOINTS.EVENTS;
+            const events = await graphClient.api(endpoint).get();
+            return events;
+        }
+        catch (error) {
+            this.logger.error("Error fetching calendar events:", error);
+            throw error;
+        }
+    }
+    async getCalendarEvent(userId, eventId) {
+        try {
+            const config = await this.prisma.integrationConfig.findUnique({
+                where: {
+                    provider_userId: {
+                        provider: "microsoft",
+                        userId,
+                    },
+                },
+            });
+            if (!config?.accessToken) {
+                throw new Error("Microsoft integration not configured for user");
+            }
+            const graphClient = this.createGraphClient(config.accessToken);
+            const event = await graphClient.api(calendar_types_1.GRAPH_ENDPOINTS.EVENT(eventId)).get();
+            return event;
+        }
+        catch (error) {
+            this.logger.error("Error fetching calendar event:", error);
+            throw error;
+        }
+    }
+    async createCalendarEvent(userId, event) {
+        try {
+            const config = await this.prisma.integrationConfig.findUnique({
+                where: {
+                    provider_userId: {
+                        provider: "microsoft",
+                        userId,
+                    },
+                },
+            });
+            if (!config?.accessToken) {
+                throw new Error("Microsoft integration not configured for user");
+            }
+            const graphClient = this.createGraphClient(config.accessToken);
+            const eventData = {
+                ...event,
+                start: {
+                    ...event.start,
+                    timeZone: event.start.timeZone || calendar_types_1.DEFAULT_CONFIG.timeZone,
+                },
+                end: {
+                    ...event.end,
+                    timeZone: event.end.timeZone || calendar_types_1.DEFAULT_CONFIG.timeZone,
+                },
+            };
+            const createdEvent = await graphClient
+                .api(calendar_types_1.GRAPH_ENDPOINTS.EVENTS)
+                .post(eventData);
+            return createdEvent;
+        }
+        catch (error) {
+            this.logger.error("Error creating calendar event:", error);
+            throw error;
+        }
+    }
+    async updateCalendarEvent(userId, eventId, updates) {
+        try {
+            const config = await this.prisma.integrationConfig.findUnique({
+                where: {
+                    provider_userId: {
+                        provider: "microsoft",
+                        userId,
+                    },
+                },
+            });
+            if (!config?.accessToken) {
+                throw new Error("Microsoft integration not configured for user");
+            }
+            const graphClient = this.createGraphClient(config.accessToken);
+            const updatedEvent = await graphClient
+                .api(calendar_types_1.GRAPH_ENDPOINTS.EVENT(eventId))
+                .patch(updates);
+            return updatedEvent;
+        }
+        catch (error) {
+            this.logger.error("Error updating calendar event:", error);
+            throw error;
+        }
+    }
+    async deleteCalendarEvent(userId, eventId) {
+        try {
+            const config = await this.prisma.integrationConfig.findUnique({
+                where: {
+                    provider_userId: {
+                        provider: "microsoft",
+                        userId,
+                    },
+                },
+            });
+            if (!config?.accessToken) {
+                throw new Error("Microsoft integration not configured for user");
+            }
+            const graphClient = this.createGraphClient(config.accessToken);
+            await graphClient.api(calendar_types_1.GRAPH_ENDPOINTS.EVENT(eventId)).delete();
+            return { success: true, message: "Event deleted successfully" };
+        }
+        catch (error) {
+            this.logger.error("Error deleting calendar event:", error);
+            throw error;
+        }
+    }
+    async getCalendarEventsByCalendarId(userId, calendarId, options = {}) {
+        try {
+            const config = await this.prisma.integrationConfig.findUnique({
+                where: {
+                    provider_userId: {
+                        provider: "microsoft",
+                        userId,
+                    },
+                },
+            });
+            if (!config?.accessToken) {
+                throw new Error("Microsoft integration not configured for user");
+            }
+            const graphClient = this.createGraphClient(config.accessToken);
+            const queryParams = [];
+            if (options.startTime && options.endTime) {
+                queryParams.push(`$filter=start/dateTime ge '${options.startTime}' and end/dateTime le '${options.endTime}'`);
+            }
+            if (options.orderBy) {
+                queryParams.push(`$orderby=${options.orderBy === 'start' ? 'start/dateTime' : 'lastModifiedDateTime'}`);
+            }
+            if (options.maxResults) {
+                queryParams.push(`$top=${options.maxResults}`);
+            }
+            const endpoint = queryParams.length > 0
+                ? `${calendar_types_1.GRAPH_ENDPOINTS.CALENDAR_EVENTS(calendarId)}?${queryParams.join('&')}`
+                : calendar_types_1.GRAPH_ENDPOINTS.CALENDAR_EVENTS(calendarId);
+            const events = await graphClient.api(endpoint).get();
+            return events;
+        }
+        catch (error) {
+            this.logger.error("Error fetching calendar events by calendar ID:", error);
+            throw error;
+        }
     }
 };
 exports.GraphService = GraphService;

@@ -5,7 +5,6 @@ const users_service_1 = require("./users.service");
 const prisma_service_1 = require("../prisma/prisma.service");
 describe("UsersService", () => {
     let service;
-    let prismaService;
     const mockPrismaService = {
         user: {
             findMany: jest.fn(),
@@ -26,7 +25,6 @@ describe("UsersService", () => {
             ],
         }).compile();
         service = module.get(users_service_1.UsersService);
-        prismaService = module.get(prisma_service_1.PrismaService);
     });
     it("should be defined", () => {
         expect(service).toBeDefined();

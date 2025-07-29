@@ -1113,6 +1113,169 @@
       "estimatedHours": 4,
       "level": 1,
       "actualHours": 1.5
+    },
+    {
+      "id": "d57b65d4-2a9e-456a-80a1-da65ffe0f16a",
+      "name": "Microsoft Graph Outlook Calendar Integration",
+      "details": "Implement comprehensive Microsoft Graph Outlook Calendar integration to complement the existing Google Calendar functionality. This involves creating authentication flows, API integration, data modeling, and ensuring seamless interoperability with the current calendar-aware scheduling system.\n\nThe integration should support:\n- OAuth 2.0 authentication with Azure AD\n- Calendar event fetching and management\n- Time zone handling consistency\n- Unified calendar service abstraction\n- Comprehensive error handling and retry logic\n- Full test coverage\n\nThis is a high-complexity task requiring deep understanding of Microsoft Graph APIs, OAuth flows, and integration patterns.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-29T02:02:34.669Z",
+      "updatedAt": "2025-07-29T02:02:34.669Z",
+      "dependsOn": [],
+      "priority": 8,
+      "complexity": 9,
+      "status": "pending",
+      "tags": [
+        "calendar",
+        "microsoft-graph",
+        "oauth",
+        "integration",
+        "high-priority"
+      ],
+      "estimatedHours": 15,
+      "level": 0
+    },
+    {
+      "id": "0fc6ee17-6b66-4ed6-9e9a-8fa8303e53ea",
+      "name": "1. Setup Microsoft Graph Dependencies and Configuration",
+      "details": "Research and implement the foundational setup for Microsoft Graph integration:\n\n1. Install and configure required dependencies:\n   - @azure/msal-node for authentication\n   - @microsoft/microsoft-graph-client for API access\n   - @microsoft/microsoft-graph-types for TypeScript types\n\n2. Set up Azure AD app registration with proper permissions:\n   - Calendars.Read\n   - Calendars.ReadWrite\n   - User.Read\n\n3. Create basic configuration structure for Microsoft Graph settings\n\n4. Research Microsoft Graph Calendar API endpoints and authentication flows\n\nThis task establishes the foundation for all subsequent development work.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "d57b65d4-2a9e-456a-80a1-da65ffe0f16a",
+      "completed": false,
+      "createdAt": "2025-07-29T02:02:46.250Z",
+      "updatedAt": "2025-07-29T02:05:56.876Z",
+      "dependsOn": [],
+      "priority": 9,
+      "complexity": 7,
+      "status": "in-progress",
+      "tags": [
+        "setup",
+        "dependencies",
+        "azure-ad",
+        "configuration"
+      ],
+      "estimatedHours": 3,
+      "level": 1
+    },
+    {
+      "id": "baf4be4d-3f17-4809-93be-bda56c622551",
+      "name": "2. Implement Microsoft Graph Authentication Service",
+      "details": "Implement the authentication layer for Microsoft Graph integration:\n\n1. Create MicrosoftGraphAuthService with MSAL configuration\n2. Implement OAuth 2.0 authorization code flow\n3. Handle token acquisition and refresh\n4. Create secure token storage mechanism\n5. Implement user consent and permission handling\n6. Add proper error handling for authentication failures\n7. Create authentication middleware for Graph API calls\n\nThis service should mirror the patterns used in GoogleCalendarService for consistency while adapting to Microsoft Graph's authentication requirements.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "d57b65d4-2a9e-456a-80a1-da65ffe0f16a",
+      "completed": false,
+      "createdAt": "2025-07-29T02:02:57.567Z",
+      "updatedAt": "2025-07-29T02:02:57.567Z",
+      "dependsOn": [
+        "0fc6ee17-6b66-4ed6-9e9a-8fa8303e53ea"
+      ],
+      "priority": 8,
+      "complexity": 8,
+      "status": "pending",
+      "tags": [
+        "authentication",
+        "oauth",
+        "msal",
+        "security"
+      ],
+      "estimatedHours": 4,
+      "level": 1
+    },
+    {
+      "id": "52233223-0311-41b2-960f-e4eaddc216ec",
+      "name": "3. Create Microsoft Graph Data Models and Types",
+      "details": "Create TypeScript data models and interfaces for Microsoft Graph calendar integration:\n\n1. Define OutlookEvent interface compatible with Microsoft Graph Event type\n2. Create OutlookCalendar interface for calendar metadata\n3. Implement CalendarEventMapper for normalizing Outlook events to common format\n4. Create OutlookTimeZone handling utilities\n5. Define error types specific to Microsoft Graph operations\n6. Create type guards and validation functions\n7. Ensure compatibility with existing CalendarEvent interface\n\nFocus on creating a clean abstraction layer that allows the calendar integration service to work seamlessly with both Google and Outlook calendar data.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "d57b65d4-2a9e-456a-80a1-da65ffe0f16a",
+      "completed": false,
+      "createdAt": "2025-07-29T02:03:07.632Z",
+      "updatedAt": "2025-07-29T02:03:07.632Z",
+      "dependsOn": [
+        "baf4be4d-3f17-4809-93be-bda56c622551"
+      ],
+      "priority": 7,
+      "complexity": 6,
+      "status": "pending",
+      "tags": [
+        "typescript",
+        "data-models",
+        "types",
+        "mapping"
+      ],
+      "estimatedHours": 2,
+      "level": 1
+    },
+    {
+      "id": "78eb7ab8-5ea1-43d1-bb3a-ad70d369cb35",
+      "name": "4. Implement Microsoft Graph Calendar Service",
+      "details": "Implement the core Microsoft Graph Calendar service with full API integration:\n\n1. Create MicrosoftGraphCalendarService class\n2. Implement calendar event fetching with proper date ranges\n3. Add calendar listing and selection functionality  \n4. Implement event creation and modification capabilities\n5. Add comprehensive error handling and retry logic\n6. Implement rate limiting and quota management\n7. Create proper logging and monitoring\n8. Handle Microsoft Graph API pagination\n9. Implement timezone conversion and handling\n10. Add support for recurring events and exceptions\n\nThis service should provide feature parity with GoogleCalendarService while leveraging Microsoft Graph's unique capabilities.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "d57b65d4-2a9e-456a-80a1-da65ffe0f16a",
+      "completed": false,
+      "createdAt": "2025-07-29T02:03:19.317Z",
+      "updatedAt": "2025-07-29T02:03:19.317Z",
+      "dependsOn": [
+        "52233223-0311-41b2-960f-e4eaddc216ec"
+      ],
+      "priority": 8,
+      "complexity": 8,
+      "status": "pending",
+      "tags": [
+        "service-implementation",
+        "api-integration",
+        "calendar-management"
+      ],
+      "estimatedHours": 4,
+      "level": 1
+    },
+    {
+      "id": "c7726c30-8bc6-4ae6-a371-03c9b0938774",
+      "name": "5. Update Calendar Integration Service for Multi-Provider Support",
+      "details": "Enhance the existing CalendarIntegrationService to support multiple calendar providers:\n\n1. Refactor CalendarIntegrationService to support provider abstraction\n2. Create unified calendar provider interface\n3. Add provider registration and selection logic\n4. Implement concurrent calendar fetching from multiple providers\n5. Add calendar source identification and prioritization\n6. Update calendar event merging and deduplication logic\n7. Implement provider-specific error handling\n8. Add user preference management for calendar sources\n9. Update time slot calculation to consider all calendar sources\n10. Ensure backward compatibility with existing Google Calendar integration\n\nThis creates a pluggable architecture for future calendar integrations.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "d57b65d4-2a9e-456a-80a1-da65ffe0f16a",
+      "completed": false,
+      "createdAt": "2025-07-29T02:03:30.037Z",
+      "updatedAt": "2025-07-29T02:03:30.037Z",
+      "dependsOn": [
+        "78eb7ab8-5ea1-43d1-bb3a-ad70d369cb35"
+      ],
+      "priority": 7,
+      "complexity": 6,
+      "status": "pending",
+      "tags": [
+        "architecture",
+        "multi-provider",
+        "refactoring",
+        "integration"
+      ],
+      "estimatedHours": 3,
+      "level": 1
+    },
+    {
+      "id": "d1300a4e-5719-42ea-97e4-53f613391b48",
+      "name": "6. Comprehensive Testing Implementation",
+      "details": "Create comprehensive test coverage for Microsoft Graph integration:\n\n1. Unit tests for MicrosoftGraphAuthService\n2. Unit tests for MicrosoftGraphCalendarService\n3. Unit tests for data models and type converters\n4. Integration tests for Microsoft Graph API calls\n5. Mock Microsoft Graph API responses for testing\n6. End-to-end tests for calendar integration workflows\n7. Test calendar event synchronization and conflict resolution\n8. Test multi-provider calendar scenarios\n9. Performance tests for concurrent calendar fetching\n10. Error handling and edge case testing\n11. Authentication flow testing\n12. Rate limiting and quota management tests\n\nAim for >90% test coverage to ensure reliability and maintainability.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "d57b65d4-2a9e-456a-80a1-da65ffe0f16a",
+      "completed": false,
+      "createdAt": "2025-07-29T02:03:40.570Z",
+      "updatedAt": "2025-07-29T02:03:40.570Z",
+      "dependsOn": [
+        "c7726c30-8bc6-4ae6-a371-03c9b0938774"
+      ],
+      "priority": 8,
+      "complexity": 7,
+      "status": "pending",
+      "tags": [
+        "testing",
+        "unit-tests",
+        "integration-tests",
+        "quality-assurance"
+      ],
+      "estimatedHours": 4,
+      "level": 1
     }
   ],
   "subtasks": [],
