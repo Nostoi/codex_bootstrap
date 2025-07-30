@@ -684,13 +684,13 @@
       "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
       "completed": false,
       "createdAt": "2025-07-27T23:12:27.898Z",
-      "updatedAt": "2025-07-30T00:17:38.532Z",
+      "updatedAt": "2025-07-30T00:36:24.131Z",
       "dependsOn": [
         "a3d87d2d-1855-493d-bf3c-ad2d26d2bd2e"
       ],
       "priority": 6,
       "complexity": 5,
-      "status": "in-progress",
+      "status": "done",
       "tags": [
         "performance",
         "optimization",
@@ -699,7 +699,8 @@
         "ux"
       ],
       "estimatedHours": 10,
-      "level": 0
+      "level": 0,
+      "actualHours": 8
     },
     {
       "id": "b3bb7b1a-bd51-4ce5-9f2e-6794fadea07b",
@@ -734,13 +735,13 @@
       "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
       "completed": false,
       "createdAt": "2025-07-27T23:12:54.367Z",
-      "updatedAt": "2025-07-27T23:12:54.367Z",
+      "updatedAt": "2025-07-30T00:48:46.913Z",
       "dependsOn": [
         "84165f31-f422-4ca1-9781-2c4304a95fb9"
       ],
       "priority": 5,
       "complexity": 3,
-      "status": "pending",
+      "status": "done",
       "tags": [
         "documentation",
         "guidelines",
@@ -749,7 +750,8 @@
         "knowledge"
       ],
       "estimatedHours": 4,
-      "level": 0
+      "level": 0,
+      "actualHours": 4
     },
     {
       "id": "d6d49499-dc6d-4756-8765-4ecd0c8f4fed",
