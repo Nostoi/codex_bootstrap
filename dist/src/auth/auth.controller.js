@@ -91,18 +91,14 @@ let AuthController = AuthController_1 = class AuthController {
             if (!storedState || storedState !== state) {
                 throw new common_1.HttpException('Invalid state parameter', common_1.HttpStatus.BAD_REQUEST);
             }
-            let userProfile;
+            let authResult;
             if (provider === 'microsoft') {
-                const authResult = await this.microsoftAuthService.handleCallback('microsoft', code, state);
-                userProfile = authResult.user;
+                authResult = await this.microsoftAuthService.handleCallback('microsoft', code, state);
             }
             else {
                 throw new common_1.HttpException('Unsupported provider', common_1.HttpStatus.BAD_REQUEST);
             }
-            const sessionTokens = await this.sessionManager.createSession(userProfile, {
-                userAgent: req?.headers['user-agent'],
-                ipAddress: req?.ip || req?.connection?.remoteAddress,
-            });
+            const sessionTokens = authResult.tokens;
             res?.clearCookie('oauth_state');
             const frontendUrl = this.configService.get('FRONTEND_URL') || 'http://localhost:3000';
             const redirectUrl = `${frontendUrl}?token=${sessionTokens.accessToken}&refresh=${sessionTokens.refreshToken}`;

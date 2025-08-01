@@ -1360,13 +1360,13 @@
       "name": "Connect Frontend AI Components to Backend Services",
       "details": "Objective: Replace mock AI responses in frontend components with real OpenAI service integration. The backend AI service (725+ lines) is fully implemented but frontend still uses hardcoded responses.\n\nCross-links: /docs/CHATGPT_INTEGRATION_COMPLETE.md, /docs/frontend-implementation-specs.md, /implementation-plan.md, /docs/NEXT_STEPS.md\n\nOutcomes / Acceptance Criteria:\n* Frontend ChatGPT component calls real /api/ai/extract-tasks endpoint\n* Task extraction displays actual AI-processed results instead of mock data\n* Loading states and error handling implemented for AI service calls\n* Task classification connects to real /api/ai/classify-task endpoint\n* AI suggestion tooltips use real contextual data\n* Real-time API integration with proper authentication headers",
       "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
-      "completed": false,
+      "completed": true,
       "createdAt": "2025-07-30T03:02:32.605Z",
-      "updatedAt": "2025-07-30T03:15:38.201Z",
+      "updatedAt": "2025-08-01T04:00:06.306Z",
       "dependsOn": [],
       "priority": 10,
       "complexity": 7,
-      "status": "pending",
+      "status": "done",
       "tags": [
         "frontend",
         "ai-integration",
@@ -1374,7 +1374,8 @@
         "production-readiness"
       ],
       "estimatedHours": 16,
-      "level": 0
+      "level": 0,
+      "actualHours": 1
     },
     {
       "id": "04e429e8-c53b-43ce-b0c3-62997629d9d1",

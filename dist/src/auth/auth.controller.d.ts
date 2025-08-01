@@ -35,7 +35,7 @@ export declare class AuthController {
     logoutAll(user: UserWithProvider): Promise<{
         success: boolean;
         message: string;
-        revokedSessions: any;
+        revokedSessions: number;
     }>;
     getProfile(user: UserWithProvider): Promise<{
         id: string;
