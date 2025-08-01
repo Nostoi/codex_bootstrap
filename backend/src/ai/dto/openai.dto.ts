@@ -101,6 +101,17 @@ export class SuggestionRequestDto {
   codebase?: string;
 }
 
+export class TaskExtractionDto {
+  @IsString()
+  text: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  @Max(20)
+  maxTasks?: number = 10;
+}
+
 export class SummarizationDto {
   @IsString()
   text: string;

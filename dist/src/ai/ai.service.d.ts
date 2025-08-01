@@ -2,7 +2,7 @@ import { ConfigService } from "@nestjs/config";
 import { Mem0Service } from "./mem0.service";
 import { RetryService } from "./services/retry.service";
 import { OpenAIResponse, ChatCompletionRequest, CompletionRequest, Task, Suggestion, SummaryResponse } from "./interfaces/openai.interfaces";
-import { TaskGenerationDto, SuggestionRequestDto, SummarizationDto } from "./dto/openai.dto";
+import { TaskGenerationDto, TaskExtractionDto, SuggestionRequestDto, SummarizationDto } from "./dto/openai.dto";
 export declare class AiService {
     private configService;
     private mem0Service;
@@ -15,6 +15,7 @@ export declare class AiService {
     constructor(configService: ConfigService, mem0Service: Mem0Service, retryService: RetryService);
     private loadConfig;
     generateTasks(dto: TaskGenerationDto): Promise<OpenAIResponse<Task[]>>;
+    extractTasks(dto: TaskExtractionDto): Promise<OpenAIResponse<Task[]>>;
     classifyTask(taskDescription: string): Promise<OpenAIResponse<any>>;
     getSuggestions(dto: SuggestionRequestDto): Promise<OpenAIResponse<Suggestion[]>>;
     summarize(dto: SummarizationDto): Promise<OpenAIResponse<SummaryResponse>>;
@@ -26,6 +27,7 @@ export declare class AiService {
     }>;
     completion(request: CompletionRequest): Promise<OpenAIResponse<string>>;
     private buildTaskGenerationPrompt;
+    private buildTaskExtractionPrompt;
     private buildSuggestionsPrompt;
     private buildSummarizationPrompt;
     private buildTaskClassificationPrompt;

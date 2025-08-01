@@ -1,4 +1,8 @@
+
 # Helmsman Dashboard - Complete Implementation Plan
+
+> **Note (July 2025):**
+> This document contains both implementation specifications and forward-looking plans. Status tables and completion markers may not reflect the actual codebase. For a reality-based audit of what is truly implemented, see `/docs/IMPLEMENTATION_STATUS_AUDIT.md`.
 
 ## Table of Contents
 1. [Spec Crosswalk](#1-spec-crosswalk)

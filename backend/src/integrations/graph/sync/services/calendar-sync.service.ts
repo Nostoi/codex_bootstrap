@@ -48,7 +48,7 @@ export class CalendarSyncService {
     }
 
     // Verify authentication
-    const isAuthenticated = await this.graphAuthService.isAuthenticated(userId);
+    const isAuthenticated = await this.graphAuthService.isUserAuthenticated(userId);
     if (!isAuthenticated) {
       throw new BadRequestException('User not authenticated with Microsoft Graph');
     }
@@ -214,7 +214,7 @@ export class CalendarSyncService {
     
     const syncState = await this.getSyncState(job.userId);
     const options: DeltaSyncOptions = {
-      calendarId: job.calendarIds?.[0],
+      calendarId: job.calendarId,
       maxResults: 1000,
     };
 
@@ -234,7 +234,8 @@ export class CalendarSyncService {
 
       if (needsFullSync) {
         this.logger.log('Performing full sync');
-        events = await this.graphService.getCalendarEvents(job.userId);
+        const eventsResponse = await this.graphService.getCalendarEvents(job.userId);
+        events = eventsResponse.value || [];
         job.progress = 30;
       } else {
         this.logger.log('Performing delta sync');
@@ -264,7 +265,7 @@ export class CalendarSyncService {
 
           if (localEvent) {
             // Update existing event
-            const conflictResult = await this.conflictResolver.detectConflict(
+            const conflictResult = await this.conflictResolver.detectConflicts(
               localEvent,
               this.convertGraphEventToLocal(graphEvent)
             );

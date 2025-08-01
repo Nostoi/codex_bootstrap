@@ -7,14 +7,8 @@
 				"-y",
 				"@pimzino/agentic-tools-mcp@1.8.1"
 			],
-			"cwd": "${input:cwd}"
+			"env": {}
 		}
 	},
-	"inputs": [
-		{
-			"id": "cwd",
-			"type": "promptString",
-			"description": "What working directory should the MCP server use for project-specific storage?"
-		}
-	]
+	"inputs": []
 }

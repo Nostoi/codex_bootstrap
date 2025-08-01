@@ -8,18 +8,62 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthModule = void 0;
 const common_1 = require("@nestjs/common");
+const jwt_1 = require("@nestjs/jwt");
+const passport_1 = require("@nestjs/passport");
+const config_1 = require("@nestjs/config");
 const users_module_1 = require("../users/users.module");
+const database_module_1 = require("../database/database.module");
+const graph_module_1 = require("../integrations/graph/graph.module");
 const auth_service_1 = require("./auth.service");
 const auth_controller_1 = require("./auth.controller");
+const microsoft_auth_service_1 = require("./services/microsoft-auth.service");
+const microsoft_auth_controller_1 = require("./controllers/microsoft-auth.controller");
+const microsoft_strategy_1 = require("./strategies/microsoft.strategy");
+const token_manager_service_1 = require("./services/token-manager.service");
+const session_manager_service_1 = require("./services/session-manager.service");
+const jwt_auth_guard_1 = require("./guards/jwt-auth.guard");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
 exports.AuthModule = AuthModule = __decorate([
     (0, common_1.Module)({
-        imports: [users_module_1.UsersModule],
-        controllers: [auth_controller_1.AuthController],
-        providers: [auth_service_1.AuthService],
-        exports: [auth_service_1.AuthService],
+        imports: [
+            users_module_1.UsersModule,
+            database_module_1.DatabaseModule,
+            graph_module_1.GraphModule,
+            passport_1.PassportModule,
+            config_1.ConfigModule,
+            jwt_1.JwtModule.registerAsync({
+                imports: [config_1.ConfigModule],
+                useFactory: async (configService) => ({
+                    secret: configService.get('JWT_SECRET'),
+                    signOptions: {
+                        expiresIn: '15m',
+                        algorithm: 'HS256',
+                    },
+                }),
+                inject: [config_1.ConfigService],
+            }),
+        ],
+        controllers: [
+            auth_controller_1.AuthController,
+            microsoft_auth_controller_1.MicrosoftAuthController
+        ],
+        providers: [
+            auth_service_1.AuthService,
+            microsoft_auth_service_1.MicrosoftAuthService,
+            microsoft_strategy_1.MicrosoftStrategy,
+            token_manager_service_1.TokenManagerService,
+            session_manager_service_1.SessionManagerService,
+            jwt_auth_guard_1.JwtAuthGuard
+        ],
+        exports: [
+            auth_service_1.AuthService,
+            microsoft_auth_service_1.MicrosoftAuthService,
+            token_manager_service_1.TokenManagerService,
+            session_manager_service_1.SessionManagerService,
+            jwt_auth_guard_1.JwtAuthGuard
+        ],
     })
 ], AuthModule);
 //# sourceMappingURL=auth.module.js.map

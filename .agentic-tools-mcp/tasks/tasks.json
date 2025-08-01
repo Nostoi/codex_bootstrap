@@ -186,7 +186,7 @@
       "details": "Enhanced the calculateTaskScore function in daily-planner.service.ts with comprehensive weighted factor implementation and robust edge case handling.\n\n**Implementation Summary:**\n✅ **Weighted Factor Algorithm**: Implemented 4-factor scoring system with correct weights:\n- Priority weight (40%): priority * 8 points (max 40)\n- Deadline urgency (30%): up to 30 points, higher for tasks due soon/overdue\n- Energy level match (20%): HIGH=20pts, MEDIUM=15pts, LOW=10pts  \n- Focus type efficiency (10%): CREATIVE/TECHNICAL=8pts, ADMINISTRATIVE=6pts, SOCIAL=10pts\n\n✅ **Score Normalization**: Ensures return values stay within 0-100 range as specified\n\n✅ **Comprehensive Edge Case Handling**:\n- Null/undefined task protection with graceful fallback\n- Invalid priority validation (1-5 range) with default medium priority\n- Invalid/missing deadline handling with proper date validation\n- Overdue task handling (past deadlines get maximum urgency score)\n- Missing/invalid energy level with fallback to MEDIUM default\n- Missing/invalid focus type with fallback to ADMINISTRATIVE default\n\n✅ **Backward Compatibility**: Maintained existing function signature and return structure used by scoreTasks method\n\n✅ **Quality Validation**:\n- ESLint compliance confirmed (no new lint errors in modified file)\n- All 9 DailyPlannerService tests passing including edge case scenarios\n- Enhanced JSDoc documentation explaining weighted factors and edge cases\n\n**Technical Details:**\n- File: `backend/src/planning/daily-planner.service.ts`\n- Function: `calculateTaskScore(task: Task, targetDate: Date, userSettings: UserSettings)`\n- Return: Object with total score (0-100) and component breakdowns\n- Edge Cases: Handles invalid data, missing metadata, past deadlines, circular dependencies\n\nThe implementation provides robust task scoring for the Helmsman AI scheduling algorithm with proper error handling and performance optimization.",
       "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
       "parentId": "d507c176-8bca-494a-8ed3-8345138e38d9",
-      "completed": false,
+      "completed": true,
       "createdAt": "2025-07-27T21:40:03.937Z",
       "updatedAt": "2025-07-28T23:00:04.162Z",
       "priority": 5,
@@ -300,16 +300,16 @@
       "name": "Connect frontend AI features to real OpenAI service",
       "details": "Connect the frontend Dashboard and ChatGPT integration components to the real OpenAI service for task extraction and classification. This replaces mock AI responses with actual intelligent task processing.\n\nEnhance frontend/src/components/ui/ChatGPTIntegration.tsx:\n- Replace mock extractTasks function with real API call to POST /api/ai/extract-tasks\n- Add proper error handling for AI service failures with user-friendly messages\n- Include loading states during AI processing with progress indicators\n- Handle malformed AI responses gracefully with fallback options\n- Add retry logic for temporary AI service failures\n\nUpdate task extraction workflow:\n- Send user input text to backend AI service\n- Display extracted tasks in preview mode before creation\n- Allow users to edit AI suggestions before committing\n- Show confidence scores and metadata predictions\n- Handle edge cases (no tasks found, parsing errors, API limits)\n\nIntegrate with task creation:\n- Use enhanced CreateTaskWithMetadataDto for extracted tasks\n- Validate AI-generated metadata before submission\n- Provide feedback to users on extraction accuracy\n- Track extraction success rates for monitoring\n\nUser experience improvements:\n- Show typing indicators during AI processing\n- Add suggestion confidence indicators\n- Include explanations for AI recommendations\n- Provide manual override options for all metadata\n\nReplace all mock data and simulate real production AI interactions with proper error handling and user feedback.",
       "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
-      "completed": false,
+      "completed": true,
       "createdAt": "2025-07-27T21:41:22.115Z",
-      "updatedAt": "2025-07-27T21:41:22.115Z",
+      "updatedAt": "2025-07-31T23:56:42.681Z",
       "dependsOn": [
         "ff2682c3-caac-46ed-8026-f2bd4c7b7d77",
         "f2b4ee90-3fc2-40c7-9ea1-09159fdd71f1"
       ],
       "priority": 6,
       "complexity": 6,
-      "status": "pending",
+      "status": "done",
       "tags": [
         "frontend",
         "ai",
@@ -319,7 +319,8 @@
         "source:system"
       ],
       "estimatedHours": 5,
-      "level": 0
+      "level": 0,
+      "actualHours": 4
     },
     {
       "id": "187324b2-63f0-4991-924d-47c864778f3c",
@@ -352,7 +353,7 @@
       "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
       "completed": false,
       "createdAt": "2025-07-27T21:41:51.159Z",
-      "updatedAt": "2025-07-27T21:41:51.159Z",
+      "updatedAt": "2025-07-31T17:53:35.933Z",
       "dependsOn": [],
       "priority": 5,
       "complexity": 4,
@@ -423,7 +424,7 @@
       "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
       "completed": false,
       "createdAt": "2025-07-27T21:42:34.562Z",
-      "updatedAt": "2025-07-27T21:42:34.562Z",
+      "updatedAt": "2025-07-31T17:53:35.933Z",
       "dependsOn": [],
       "priority": 4,
       "complexity": 3,
@@ -705,11 +706,11 @@
     {
       "id": "b3bb7b1a-bd51-4ce5-9f2e-6794fadea07b",
       "name": "Create Accessibility Audit System",
-      "details": "Create comprehensive accessibility audit system and keyboard navigation matrix to ensure WCAG 2.2 AA compliance across all components.\n\nFiles to create/modify:\n- frontend/src/tests/accessibility.test.ts: Automated a11y tests with jest-axe\n- frontend/src/tests/keyboard-navigation.test.ts: Keyboard interaction tests\n- docs/accessibility-matrix.md: Comprehensive accessibility documentation\n- frontend/src/lib/a11y-utils.ts: Accessibility utility functions\n\nTesting Coverage:\n- Automated axe-core testing in Jest and Storybook\n- Keyboard navigation paths for all interactive elements\n- Screen reader compatibility testing\n- Color contrast validation\n- Focus management verification\n\nADHD-Specific Testing:\n- Reduced motion preference handling\n- Clear focus indicators validation\n- Consistent interaction patterns verification\n- Cognitive load assessment checklist\n\nKeyboard Navigation Matrix: Tab order, Enter/Space actions, Arrow key navigation, Escape behaviors, Focus trap verification\n\nCompliance Standards: WCAG 2.2 AA criteria, Section 508 compliance, European Accessibility Act requirements\n\nDocumentation: Component accessibility guidelines, testing procedures, remediation strategies, user testing protocols",
+      "details": "✅ COMPLETED: Comprehensive accessibility infrastructure implemented\n\n## Key Deliverables (6 files, 4,000+ lines of accessibility code):\n\n**Core Libraries:**\n- frontend/src/lib/accessibility.ts: FocusTrap, LiveAnnouncer, KeyboardNavigator classes with React hooks\n- frontend/src/lib/aria-constants.ts: Complete ARIA patterns and ADHD-specific constants\n- frontend/src/lib/keyboard-navigation.ts: Advanced navigation management with grid/tree/menu support\n- frontend/src/lib/accessibility-testing.ts: WCAG 2.2 AA compliance testing framework\n\n**React Components:**\n- frontend/src/components/accessibility/AccessibilityComponents.tsx: Complete component library with provider, buttons, inputs, modals, progress indicators\n- frontend/src/components/accessibility/AccessibleCalendar.tsx: Full keyboard navigation calendar with screen reader support\n- frontend/src/components/accessibility/README.md: Comprehensive implementation documentation\n\n## Features Implemented:\n- WCAG 2.2 AA compliance with color contrast, keyboard navigation, screen reader support\n- ADHD-optimized patterns: energy indicators, reduced cognitive load, predictable interactions\n- Complete accessibility testing framework with automated compliance checking\n- Production-ready component library with comprehensive error handling\n\n## Technical Validation:\n- TypeScript compliance with proper type definitions\n- React best practices with hooks and context patterns\n- Comprehensive edge case handling and fallback mechanisms\n- Ready for integration with existing application components\n\nThe accessibility foundation is complete and provides comprehensive infrastructure for all future development.",
       "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
       "completed": false,
       "createdAt": "2025-07-27T23:12:41.763Z",
-      "updatedAt": "2025-07-28T04:48:03.003Z",
+      "updatedAt": "2025-07-30T01:12:55.432Z",
       "dependsOn": [
         "974b3fa5-fe84-4a02-91f1-b43ba17ce96e",
         "ba821342-e6a2-4945-8e28-78f03b3873dd"
@@ -726,7 +727,7 @@
       ],
       "estimatedHours": 6,
       "level": 0,
-      "actualHours": 3
+      "actualHours": 10
     },
     {
       "id": "8671a6dc-e4bc-4dfb-a181-154f0b7a2dc6",
@@ -1280,7 +1281,8 @@
       "priority": 5,
       "complexity": 3,
       "status": "done",
-      "tags": []
+      "tags": [],
+      "level": 1
     },
     {
       "id": "f04a0163-fc5e-4649-b52a-06d078f3a00d",
@@ -1322,7 +1324,8 @@
       "updatedAt": "2025-07-29T16:14:48.704Z",
       "priority": 5,
       "complexity": 3,
-      "status": "pending"
+      "status": "pending",
+      "level": 1
     },
     {
       "id": "554644da-ec11-4c95-bfc2-17a4c582598e",
@@ -1332,10 +1335,11 @@
       "parentId": "ef388a66-739a-4e2c-bf91-8a7c7e0516c7",
       "completed": false,
       "createdAt": "2025-07-29T16:15:08.392Z",
-      "updatedAt": "2025-07-29T16:15:08.392Z",
+      "updatedAt": "2025-07-30T01:13:45.345Z",
       "priority": 5,
       "complexity": 3,
-      "status": "pending"
+      "status": "in-progress",
+      "level": 1
     },
     {
       "id": "230bb776-2ff8-4971-8d3d-a71e018b4afb",
@@ -1348,13 +1352,673 @@
       "updatedAt": "2025-07-29T16:15:26.561Z",
       "priority": 5,
       "complexity": 3,
-      "status": "pending"
+      "status": "pending",
+      "level": 1
+    },
+    {
+      "id": "498af0bf-15e6-4d20-8a13-2e707e1e5085",
+      "name": "Connect Frontend AI Components to Backend Services",
+      "details": "Objective: Replace mock AI responses in frontend components with real OpenAI service integration. The backend AI service (725+ lines) is fully implemented but frontend still uses hardcoded responses.\n\nCross-links: /docs/CHATGPT_INTEGRATION_COMPLETE.md, /docs/frontend-implementation-specs.md, /implementation-plan.md, /docs/NEXT_STEPS.md\n\nOutcomes / Acceptance Criteria:\n* Frontend ChatGPT component calls real /api/ai/extract-tasks endpoint\n* Task extraction displays actual AI-processed results instead of mock data\n* Loading states and error handling implemented for AI service calls\n* Task classification connects to real /api/ai/classify-task endpoint\n* AI suggestion tooltips use real contextual data\n* Real-time API integration with proper authentication headers",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:02:32.605Z",
+      "updatedAt": "2025-07-30T03:15:38.201Z",
+      "dependsOn": [],
+      "priority": 10,
+      "complexity": 7,
+      "status": "pending",
+      "tags": [
+        "frontend",
+        "ai-integration",
+        "critical-path",
+        "production-readiness"
+      ],
+      "estimatedHours": 16,
+      "level": 0
+    },
+    {
+      "id": "04e429e8-c53b-43ce-b0c3-62997629d9d1",
+      "name": "Fix Task Completion Status Tracking Discrepancy",
+      "details": "Objective: Audit and correct optimistic task completion claims. Current tracking shows 55/87 tasks complete but analysis reveals significant implementation gaps between documented vs actual status.\n\nCross-links: /docs/IMPLEMENTATION_STATUS_AUDIT.md, /.agentic-tools-mcp/tasks/tasks.json, /docs/helmsman-implementation-plan.md\n\nOutcomes / Acceptance Criteria:\n* Accurate task completion percentages reflecting actual implementation status\n* Updated documentation status markers based on code analysis\n* Corrected implementation claims in /docs/ files\n* Realistic project completion timeline based on actual progress\n* Alignment between agentic-tools tracking and implementation reality",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": true,
+      "createdAt": "2025-07-30T03:02:40.248Z",
+      "updatedAt": "2025-07-31T23:15:36.791Z",
+      "dependsOn": [],
+      "priority": 9,
+      "complexity": 5,
+      "status": "done",
+      "tags": [
+        "project-management",
+        "accuracy",
+        "high-priority",
+        "documentation"
+      ],
+      "estimatedHours": 8,
+      "level": 0,
+      "actualHours": 6
+    },
+    {
+      "id": "e1ab7f1d-c868-4289-97be-4f4b78eb9f4c",
+      "name": "Implement Production Authentication System",
+      "details": "Objective: Implement OAuth2 authentication system for production deployment. Microsoft Graph authentication infrastructure exists but needs integration with user management system.\n\n**📚 Complete Architecture:** [OAuth2 Architecture Documentation](/docs/auth/oauth2-architecture.md)\n\n**Documentation Suite:**\n- [OAuth2 Architecture](/docs/auth/oauth2-architecture.md) - System design, flows, security patterns\n- [API Endpoints](/docs/auth/api-endpoints.md) - Complete REST API specifications  \n- [Integration Guide](/docs/auth/integration-guide.md) - Step-by-step implementation\n- [Security Checklist](/docs/auth/security-audit-checklist.md) - 120-point security validation\n- [Environment Config](/docs/auth/environment-config.md) - Setup for all environments\n\n**Cross-links:** /docs/helmsman-implementation-plan.md, /docs/development/getting-started.md, /docs/deployment-guide.md, /backend/src/integrations/graph/auth/\n\n**Outcomes / Acceptance Criteria:**\n* OAuth2 implementation for Google and Microsoft authentication\n* User session management and token refresh\n* Protected API routes with proper authorization\n* User onboarding flow with calendar permissions\n* Secure environment variable management\n* Frontend authentication state management integration\n\n**🔄 Implementation Notes:** Follow the complete design framework. Update documentation if implementation deviates from architectural patterns.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:02:46.404Z",
+      "updatedAt": "2025-08-01T00:16:46.173Z",
+      "dependsOn": [],
+      "priority": 10,
+      "complexity": 8,
+      "status": "pending",
+      "tags": [
+        "authentication",
+        "security",
+        "production-readiness",
+        "oauth"
+      ],
+      "estimatedHours": 24,
+      "level": 0
+    },
+    {
+      "id": "6f23784c-b722-4598-be3b-18fdd2540300",
+      "name": "Complete WebSocket Real-time Integration",
+      "details": "Objective: Implement WebSocket-based real-time updates for task synchronization, plan updates, and notifications. Currently relies on manual refresh for data consistency.\n\nCross-links: /docs/helmsman-implementation-plan.md, /docs/frontend-implementation-specs.md, /backend/src/notifications/\n\nOutcomes / Acceptance Criteria:\n* WebSocket gateway for real-time task updates\n* Live calendar sync across user sessions\n* Real-time plan regeneration when tasks change\n* Notification system for deadlines and reminders\n* Conflict resolution for concurrent edits\n* Offline notification queueing and delivery",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:02:53.926Z",
+      "updatedAt": "2025-07-30T03:15:38.951Z",
+      "dependsOn": [
+        "e1ab7f1d-c868-4289-97be-4f4b78eb9f4c"
+      ],
+      "priority": 8,
+      "complexity": 7,
+      "status": "pending",
+      "tags": [
+        "real-time",
+        "websockets",
+        "user-experience",
+        "notifications"
+      ],
+      "estimatedHours": 20,
+      "level": 0
+    },
+    {
+      "id": "809dc5c6-bbcb-46fd-9e8e-4c7b8dddc2e1",
+      "name": "Production Deployment Infrastructure",
+      "details": "Objective: Create complete production deployment infrastructure with monitoring, security, and scalability. Current Docker setup is development-focused.\n\nCross-links: /docs/deployment-guide.md, /k8s/, /docker-compose.yml, /docs/helmsman-implementation-plan.md\n\nOutcomes / Acceptance Criteria:\n* Production-ready Docker containers with optimization\n* Kubernetes deployment manifests with scaling\n* Environment variable management and secrets\n* Monitoring and logging infrastructure (Prometheus, Grafana)\n* Backup and disaster recovery procedures\n* Load balancing and high availability setup",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:06:13.710Z",
+      "updatedAt": "2025-07-30T03:06:13.710Z",
+      "dependsOn": [],
+      "priority": 8,
+      "complexity": 7,
+      "status": "pending",
+      "tags": [
+        "devops",
+        "deployment",
+        "production",
+        "kubernetes",
+        "monitoring"
+      ],
+      "estimatedHours": 20,
+      "level": 0
+    },
+    {
+      "id": "3c63ed4c-b5ba-4835-9468-6c8c49f06c4f",
+      "name": "Complete Mem0 Semantic Memory Integration",
+      "details": "Objective: Complete the Mem0 semantic memory integration for contextual AI responses. Service infrastructure exists but not connected to main AI workflows.\n\nCross-links: /docs/helmsman-implementation-plan.md, /backend/src/ai/mem0.service.ts, /backend/src/ai/ai.service.ts\n\nOutcomes / Acceptance Criteria:\n* Vector store implementation with user interaction history\n* RAG pipeline for contextual AI responses\n* User preference learning and adaptation\n* Semantic search across task and project context\n* Memory cleanup and retention policies\n* Context-aware task suggestions and recommendations",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:06:13.933Z",
+      "updatedAt": "2025-07-30T03:06:13.933Z",
+      "dependsOn": [],
+      "priority": 7,
+      "complexity": 7,
+      "status": "pending",
+      "tags": [
+        "ai",
+        "semantic-memory",
+        "advanced-features",
+        "rag",
+        "personalization"
+      ],
+      "estimatedHours": 16,
+      "level": 0
+    },
+    {
+      "id": "09147fe5-eaac-4360-8763-9f2cbafcc80a",
+      "name": "Advanced Calendar Drag-and-Drop Scheduling",
+      "details": "Objective: Implement @dnd-kit drag-and-drop scheduling within calendar views. Calendar display is implemented but drag-and-drop scheduling is pending.\n\nCross-links: /docs/calendar-component-design.md, /docs/calendar-interaction-patterns.md, /docs/accessibility/ADHD-guidelines.md\n\nOutcomes / Acceptance Criteria:\n* Draggable tasks within calendar time slots\n* Visual feedback during drag operations\n* Conflict detection and prevention\n* Accessibility-compliant keyboard drag support\n* Confirmation dialogs for significant schedule changes\n* ADHD-friendly drag interaction patterns with clear affordances",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:07:58.393Z",
+      "updatedAt": "2025-07-30T03:07:58.393Z",
+      "dependsOn": [],
+      "priority": 8,
+      "complexity": 6,
+      "status": "pending",
+      "tags": [
+        "frontend",
+        "calendar",
+        "drag-drop",
+        "user-experience",
+        "accessibility"
+      ],
+      "estimatedHours": 14,
+      "level": 0
+    },
+    {
+      "id": "26c53161-b883-4926-9d3a-f9f7db67f294",
+      "name": "Multi-User Support and Permissions",
+      "details": "Objective: Extend single-user system to support team collaboration with proper permissions. Current implementation assumes single-user context.\n\nCross-links: /docs/helmsman-implementation-plan.md, /backend/prisma/schema.prisma\n\nOutcomes / Acceptance Criteria:\n* User role and permission system\n* Project sharing and collaboration features\n* Task delegation and assignment\n* Team calendar visibility and permissions\n* Activity logging and audit trails",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:07:58.640Z",
+      "updatedAt": "2025-07-30T03:07:58.640Z",
+      "dependsOn": [],
+      "priority": 7,
+      "complexity": 7,
+      "status": "pending",
+      "tags": [
+        "backend",
+        "multi-user",
+        "permissions",
+        "collaboration"
+      ],
+      "estimatedHours": 16,
+      "level": 0
+    },
+    {
+      "id": "9ce82f67-f44d-43b2-8ded-42134bda1016",
+      "name": "Advanced Performance Optimization",
+      "details": "Objective: Implement comprehensive performance optimization including bundle splitting, virtualization, and caching strategies for optimal ADHD user experience.\n\nCross-links: /docs/calendar-integration-performance-strategy.md, /docs/frontend-implementation-specs.md\n\nOutcomes / Acceptance Criteria:\n* Bundle size under 500KB initial load\n* Virtual scrolling for large task lists\n* Service worker caching for offline support\n* Image optimization and lazy loading\n* Performance monitoring and regression detection",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:07:58.899Z",
+      "updatedAt": "2025-07-30T03:07:58.899Z",
+      "dependsOn": [],
+      "priority": 5,
+      "complexity": 6,
+      "status": "pending",
+      "tags": [
+        "performance",
+        "optimization",
+        "user-experience"
+      ],
+      "estimatedHours": 12,
+      "level": 0
+    },
+    {
+      "id": "4d09c003-4da0-4d77-8edd-1a738df66fa0",
+      "name": "Comprehensive End-to-End Testing Suite",
+      "details": "Objective: Expand Playwright test suite to cover all Helmsman features with comprehensive scenarios including accessibility, performance, and cross-browser compatibility.\n\nCross-links: /docs/calendar-integration-testing-strategy.md, /frontend/tests/\n\nOutcomes / Acceptance Criteria:\n* E2E tests for all major user workflows\n* Accessibility testing automation with axe-core\n* Cross-browser compatibility validation\n* Performance regression testing\n* Visual regression testing for UI components",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:07:59.188Z",
+      "updatedAt": "2025-07-30T03:07:59.188Z",
+      "dependsOn": [],
+      "priority": 8,
+      "complexity": 7,
+      "status": "pending",
+      "tags": [
+        "testing",
+        "quality-assurance",
+        "e2e"
+      ],
+      "estimatedHours": 16,
+      "level": 0
+    },
+    {
+      "id": "f3d7cf68-dc59-4ff7-86a0-cfe8dbdca2a5",
+      "name": "Documentation Accuracy and Completion Audit",
+      "details": "Objective: Conduct comprehensive audit of all documentation files to ensure accuracy against actual implementation status and remove optimistic completion claims.\n\nCross-links: All /docs/ files\n\nOutcomes / Acceptance Criteria:\n* All documentation status markers reflect actual code implementation\n* Removed references to non-existent features\n* Updated implementation percentages based on code analysis\n* Consistent terminology and status indicators across all docs\n* Clear distinction between specifications and completed features",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:08:13.720Z",
+      "updatedAt": "2025-07-30T03:08:13.720Z",
+      "dependsOn": [],
+      "priority": 7,
+      "complexity": 5,
+      "status": "pending",
+      "tags": [
+        "documentation",
+        "accuracy",
+        "maintenance"
+      ],
+      "estimatedHours": 10,
+      "level": 0
+    },
+    {
+      "id": "af2784e2-9b03-4537-a058-c488a29608a6",
+      "name": "Mobile-Responsive Calendar Interface",
+      "details": "Objective: Enhance calendar components for optimal mobile experience with touch-friendly interactions and ADHD-friendly mobile patterns.\n\nCross-links: /docs/calendar-component-design.md, /docs/accessibility/ADHD-guidelines.md\n\nOutcomes / Acceptance Criteria:\n* Touch-optimized calendar navigation\n* Mobile-specific interaction patterns\n* Responsive time slot sizing\n* Gesture support for calendar operations\n* Mobile accessibility compliance",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:08:13.955Z",
+      "updatedAt": "2025-07-30T03:08:13.955Z",
+      "dependsOn": [],
+      "priority": 5,
+      "complexity": 6,
+      "status": "pending",
+      "tags": [
+        "frontend",
+        "mobile",
+        "responsive",
+        "accessibility"
+      ],
+      "estimatedHours": 12,
+      "level": 0
+    },
+    {
+      "id": "58f5b9f2-8dee-4e6a-840c-b1eda6cd9688",
+      "name": "Advanced AI Prompt Engineering and Optimization",
+      "details": "Objective: Optimize AI prompts and responses for improved task extraction accuracy and contextual understanding based on user feedback and usage patterns.\n\nCross-links: /docs/helmsman-implementation-plan.md, /backend/src/ai/ai.service.ts\n\nOutcomes / Acceptance Criteria:\n* Improved task extraction accuracy metrics\n* Context-aware prompt engineering\n* A/B testing framework for prompt optimization\n* User feedback integration for AI improvement\n* Cost optimization for OpenAI API usage",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:08:14.177Z",
+      "updatedAt": "2025-07-30T03:08:14.177Z",
+      "dependsOn": [],
+      "priority": 6,
+      "complexity": 6,
+      "status": "pending",
+      "tags": [
+        "ai",
+        "optimization",
+        "accuracy"
+      ],
+      "estimatedHours": 12,
+      "level": 0
+    },
+    {
+      "id": "32d735af-6ac2-466c-bcdf-b62f747895ee",
+      "name": "Security Audit and Hardening",
+      "details": "Objective: Conduct comprehensive security audit and implement hardening measures for production deployment including rate limiting, input validation, and data encryption.\n\nCross-links: /docs/helmsman-implementation-plan.md\n\nOutcomes / Acceptance Criteria:\n* Security vulnerability assessment and remediation\n* Rate limiting implementation for all API endpoints\n* Input validation and sanitization\n* Data encryption at rest and in transit\n* Security headers and CORS configuration",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:08:14.391Z",
+      "updatedAt": "2025-07-30T03:08:14.391Z",
+      "dependsOn": [],
+      "priority": 8,
+      "complexity": 7,
+      "status": "pending",
+      "tags": [
+        "security",
+        "audit",
+        "production-readiness"
+      ],
+      "estimatedHours": 14,
+      "level": 0
+    },
+    {
+      "id": "80175818-1e7f-4681-af10-6333c8333f6f",
+      "name": "User Onboarding and Help System",
+      "details": "Objective: Create comprehensive user onboarding flow and contextual help system designed for ADHD users with clear guidance and progressive disclosure.\n\nCross-links: /docs/accessibility/ADHD-guidelines.md, /docs/components/README.md\n\nOutcomes / Acceptance Criteria:\n* Interactive onboarding tour for new users\n* Contextual help system with searchable content\n* ADHD-friendly tutorial progression\n* Calendar permission setup guidance\n* Feature discovery and usage tips",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:08:24.346Z",
+      "updatedAt": "2025-07-30T03:08:24.346Z",
+      "dependsOn": [],
+      "priority": 5,
+      "complexity": 5,
+      "status": "pending",
+      "tags": [
+        "user-experience",
+        "onboarding",
+        "help"
+      ],
+      "estimatedHours": 10,
+      "level": 0
+    },
+    {
+      "id": "5be6e471-d0da-400b-bf17-fe26f40912d1",
+      "name": "Implement Production User Management and OAuth System",
+      "details": "Objective: Complete the production user management system with full OAuth integration for Google and Microsoft accounts. The Microsoft Graph authentication infrastructure exists but needs integration with a complete user management system and frontend authentication flow.\n\nCross-links: /docs/deployment-guide.md, /docs/NEXT_STEPS.md, /backend/src/integrations/graph/auth/\n\nOutcomes / Acceptance Criteria:\n* Complete OAuth2 flows for Google and Microsoft authentication\n* User registration and profile management system\n* JWT token management with refresh capabilities\n* Frontend authentication state management\n* Protected routes and API endpoint authorization\n* User onboarding flow with calendar permission setup\n* Session management with automatic token refresh",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:08:24.579Z",
+      "updatedAt": "2025-07-30T03:08:24.579Z",
+      "dependsOn": [],
+      "priority": 9,
+      "complexity": 8,
+      "status": "pending",
+      "tags": [
+        "authentication",
+        "oauth",
+        "production-readiness",
+        "user-management"
+      ],
+      "estimatedHours": 20,
+      "level": 0
+    },
+    {
+      "id": "17b90ad9-ef6e-4323-a048-1729870a167e",
+      "name": "Implement Multi-User Support and Data Isolation",
+      "details": "Objective: Extend the current single-user system to support multiple users with proper data isolation, permissions, and collaborative features. Current system assumes single-user context throughout.\n\nCross-links: /docs/helmsman-implementation-plan.md, /backend/prisma/schema.prisma\n\nOutcomes / Acceptance Criteria:\n* User-scoped data access with proper isolation\n* Role and permission system (admin, user, guest)\n* Project sharing and collaboration features\n* Team workspace and task delegation\n* User preference and settings management\n* Audit logging for user actions\n* Multi-tenant data architecture",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:08:24.815Z",
+      "updatedAt": "2025-07-30T03:08:24.815Z",
+      "dependsOn": [],
+      "priority": 8,
+      "complexity": 8,
+      "status": "pending",
+      "tags": [
+        "multi-user",
+        "data-isolation",
+        "permissions",
+        "scalability"
+      ],
+      "estimatedHours": 18,
+      "level": 0
+    },
+    {
+      "id": "ee4af3e4-556b-41fe-a851-1106f1f932dc",
+      "name": "Complete Real-Time WebSocket Notification System",
+      "details": "Objective: Implement comprehensive real-time notification system using WebSockets for task updates, calendar sync, deadline reminders, and collaborative features. Infrastructure partially exists but needs completion.\n\nCross-links: /docs/helmsman-implementation-plan.md, /docs/frontend-implementation-specs.md\n\nOutcomes / Acceptance Criteria:\n* WebSocket gateway for real-time communication\n* Task update notifications across user sessions\n* Calendar sync notifications and conflict alerts\n* Deadline and reminder notifications\n* Collaborative editing notifications\n* Offline notification queueing and delivery\n* User notification preferences and settings",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:08:25.030Z",
+      "updatedAt": "2025-07-30T03:08:25.030Z",
+      "dependsOn": [],
+      "priority": 8,
+      "complexity": 7,
+      "status": "pending",
+      "tags": [
+        "real-time",
+        "websockets",
+        "notifications",
+        "user-experience"
+      ],
+      "estimatedHours": 16,
+      "level": 0
+    },
+    {
+      "id": "6f3ad02f-5954-42bd-b6e3-01578b132dca",
+      "name": "Complete Semantic Memory (Mem0) Integration and Context Pipeline",
+      "details": "Objective: Complete the Mem0 semantic memory integration for contextual AI responses and intelligent task suggestions. Service infrastructure exists but RAG pipeline and context utilization needs implementation.\n\nCross-links: /docs/helmsman-implementation-plan.md, /backend/src/ai/mem0.service.ts\n\nOutcomes / Acceptance Criteria:\n* Vector store implementation with user interaction history\n* RAG pipeline for contextual AI responses\n* User preference learning and pattern recognition\n* Semantic search across task and project context\n* Memory cleanup and retention policies\n* Context-aware task suggestions and recommendations\n* Personalized AI responses based on user history",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:08:34.506Z",
+      "updatedAt": "2025-07-30T03:08:34.506Z",
+      "dependsOn": [],
+      "priority": 7,
+      "complexity": 7,
+      "status": "pending",
+      "tags": [
+        "ai",
+        "semantic-memory",
+        "rag",
+        "personalization"
+      ],
+      "estimatedHours": 16,
+      "level": 0
+    },
+    {
+      "id": "d364c250-2c79-4722-8447-e794459c3c4d",
+      "name": "Production Deployment Infrastructure and DevOps Pipeline",
+      "details": "Objective: Complete production deployment infrastructure with automated CI/CD, monitoring, and scalability. Deployment guide exists but infrastructure needs implementation and testing.\n\nCross-links: /docs/deployment-guide.md, /k8s/, /docker-compose.yml\n\nOutcomes / Acceptance Criteria:\n* Production-ready Docker containers with optimization\n* Kubernetes deployment manifests with auto-scaling\n* CI/CD pipeline with automated testing and deployment\n* Environment variable management and secrets handling\n* Monitoring and alerting infrastructure (Prometheus, Grafana)\n* Backup and disaster recovery procedures\n* Load balancing and high availability setup",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:08:34.769Z",
+      "updatedAt": "2025-07-30T03:08:34.769Z",
+      "dependsOn": [],
+      "priority": 8,
+      "complexity": 8,
+      "status": "pending",
+      "tags": [
+        "devops",
+        "deployment",
+        "infrastructure",
+        "production"
+      ],
+      "estimatedHours": 20,
+      "level": 0
+    },
+    {
+      "id": "63221f57-5461-4820-97d4-9d569a08c4e5",
+      "name": "Complete Email Integration (Gmail/Outlook) for AI Task Extraction",
+      "details": "Objective: Implement email integration to extract tasks and context from Gmail and Outlook emails for AI-powered task suggestions. Calendar integration exists but email integration is missing.\n\nCross-links: /docs/helmsman-implementation-plan.md, /backend/src/integrations/\n\nOutcomes / Acceptance Criteria:\n* Gmail and Outlook email access with proper permissions\n* Email content parsing and task extraction pipeline\n* AI-powered task suggestions from email content\n* Email-to-task conversion with context preservation\n* Privacy-compliant email processing and data handling\n* Email thread and conversation context understanding\n* Integration with calendar events and meeting requests",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:08:35.044Z",
+      "updatedAt": "2025-07-30T03:08:35.044Z",
+      "dependsOn": [],
+      "priority": 7,
+      "complexity": 7,
+      "status": "pending",
+      "tags": [
+        "integration",
+        "email",
+        "ai-context",
+        "task-extraction"
+      ],
+      "estimatedHours": 16,
+      "level": 0
+    },
+    {
+      "id": "0f3f6020-fa13-4c7f-bd6e-d3f9c78451ca",
+      "name": "Advanced Performance Optimization and Monitoring",
+      "details": "Objective: Implement comprehensive performance optimization including bundle splitting, caching, and real-time monitoring for optimal ADHD user experience. Performance budget defined but needs implementation.\n\nCross-links: /docs/frontend-implementation-specs.md, /docs/deployment-guide.md\n\nOutcomes / Acceptance Criteria:\n* Bundle optimization with code splitting and tree shaking\n* Service worker implementation for offline support\n* Database query optimization and connection pooling\n* CDN implementation for static assets\n* Real-time performance monitoring and alerting\n* User experience metrics tracking (Core Web Vitals)\n* Performance regression detection and automated testing",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:08:35.282Z",
+      "updatedAt": "2025-07-30T03:08:35.282Z",
+      "dependsOn": [],
+      "priority": 6,
+      "complexity": 7,
+      "status": "pending",
+      "tags": [
+        "performance",
+        "optimization",
+        "monitoring",
+        "user-experience"
+      ],
+      "estimatedHours": 14,
+      "level": 0
+    },
+    {
+      "id": "6f3b3785-2ff1-482a-a86e-32928d91de50",
+      "name": "Complete Security Hardening and Compliance",
+      "details": "Objective: Complete security hardening implementation including comprehensive audit logging, data encryption, and compliance measures. Security infrastructure partially exists but needs completion and testing.\n\nCross-links: /docs/helmsman-implementation-plan.md, /backend/src/security/\n\nOutcomes / Acceptance Criteria:\n* Complete audit logging for all user actions\n* Data encryption at rest and in transit\n* Security vulnerability scanning and remediation\n* Penetration testing and security audit completion\n* GDPR/privacy compliance implementation\n* Rate limiting and DDoS protection\n* Security incident response procedures",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:10:14.024Z",
+      "updatedAt": "2025-07-30T03:10:14.024Z",
+      "dependsOn": [],
+      "priority": 8,
+      "complexity": 8,
+      "status": "pending",
+      "tags": [
+        "security",
+        "compliance",
+        "audit",
+        "production-readiness"
+      ],
+      "estimatedHours": 16,
+      "level": 0
+    },
+    {
+      "id": "52a748a5-898b-4760-8ead-2a4fba69bfdf",
+      "name": "Comprehensive End-to-End Testing and Quality Assurance",
+      "details": "Objective: Expand testing coverage to include comprehensive end-to-end scenarios, accessibility testing, and cross-browser compatibility. Current testing is component-focused but needs integration testing.\n\nCross-links: /docs/calendar-integration-testing-strategy.md, /frontend/tests/\n\nOutcomes / Acceptance Criteria:\n* Complete E2E test coverage for all user workflows\n* Cross-browser compatibility testing automation\n* Accessibility testing with automated compliance checking\n* Performance testing under load conditions\n* API integration testing with mock services\n* Security testing and vulnerability assessment\n* Automated regression testing pipeline",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:10:14.324Z",
+      "updatedAt": "2025-07-30T03:10:14.324Z",
+      "dependsOn": [],
+      "priority": 7,
+      "complexity": 7,
+      "status": "pending",
+      "tags": [
+        "testing",
+        "quality-assurance",
+        "automation",
+        "reliability"
+      ],
+      "estimatedHours": 16,
+      "level": 0
+    },
+    {
+      "id": "11fb4bae-0f99-4df9-a2b8-29ddfc1a5e83",
+      "name": "Complete UI/UX System Documentation and Component Catalog",
+      "details": "Objective: Complete the UI component catalog and design system documentation with real implementations rather than templates. Current files exist as scaffolds but lack actual content.\n\nCross-links: /docs/ui/component-catalog.md, /docs/ui/system-design-ui.md, /docs/design-system/tokens.md\n\nOutcomes / Acceptance Criteria:\n* Complete component catalog with all implemented components\n* Design system documentation with actual design tokens\n* UI/UX system design with real wireframes and patterns\n* Component usage examples and API documentation\n* Storybook integration with comprehensive component stories\n* Design token validation and consistency checking\n* Accessibility guidelines and implementation examples",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:10:14.591Z",
+      "updatedAt": "2025-07-30T03:10:14.591Z",
+      "dependsOn": [],
+      "priority": 6,
+      "complexity": 6,
+      "status": "pending",
+      "tags": [
+        "documentation",
+        "design-system",
+        "ui-catalog",
+        "developer-experience"
+      ],
+      "estimatedHours": 14,
+      "level": 0
+    },
+    {
+      "id": "ade407d8-6c40-4b2a-a787-3f2f66521cb6",
+      "name": "Deployment Infrastructure Implementation",
+      "details": "Objective: Implement the deployment infrastructure outlined in the deployment guide. While the guide exists, the actual implementation infrastructure needs completion.\n\nCross-links: /docs/deployment-guide.md, /docs/NEXT_STEPS.md, /k8s/\n\nOutcomes / Acceptance Criteria:\n* Feature flag service implementation matching deployment guide\n* Kubernetes deployment manifests updated and tested\n* Staging and production environment setup\n* Monitoring and health check implementation\n* Rollback procedures tested and documented",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:10:14.886Z",
+      "updatedAt": "2025-07-30T03:10:14.886Z",
+      "dependsOn": [],
+      "priority": 7,
+      "complexity": 7,
+      "status": "pending",
+      "tags": [
+        "devops",
+        "deployment",
+        "infrastructure"
+      ],
+      "estimatedHours": 14,
+      "level": 0
+    },
+    {
+      "id": "4ed82c7b-062c-4ff7-9558-369524762b98",
+      "name": "UI Routing and Navigation Implementation",
+      "details": "Objective: Complete the UI routing and navigation system based on the routing plan. Implement comprehensive navigation patterns with ADHD-friendly design.\n\nCross-links: /docs/ui/routing-plan.md, /docs/ui/implementation-plan-ui.md\n\nOutcomes / Acceptance Criteria:\n* Complete Next.js routing implementation following routing plan\n* Navigation components with accessibility compliance\n* Breadcrumb and page state management\n* Deep linking and URL state synchronization\n* Mobile-responsive navigation patterns",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:10:20.839Z",
+      "updatedAt": "2025-07-30T03:10:20.839Z",
+      "dependsOn": [],
+      "priority": 6,
+      "complexity": 6,
+      "status": "pending",
+      "tags": [
+        "frontend",
+        "routing",
+        "navigation"
+      ],
+      "estimatedHours": 12,
+      "level": 0
+    },
+    {
+      "id": "3b6c5eab-ef90-4c0a-bb45-05f1d5ecf83b",
+      "name": "Theme Configuration and Customization System",
+      "details": "Objective: Implement comprehensive theme configuration system allowing user customization while maintaining ADHD-friendly design principles and accessibility compliance.\n\nCross-links: /docs/ui/theme-config.md, /docs/design-system/tokens.md\n\nOutcomes / Acceptance Criteria:\n* Theme configuration system implementation\n* User preference persistence\n* High contrast mode support\n* ADHD-specific theme variants\n* Theme validation and accessibility checking",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-07-30T03:10:21.104Z",
+      "updatedAt": "2025-07-30T03:10:21.104Z",
+      "dependsOn": [],
+      "priority": 5,
+      "complexity": 5,
+      "status": "pending",
+      "tags": [
+        "theming",
+        "customization",
+        "accessibility"
+      ],
+      "estimatedHours": 10,
+      "level": 0
+    },
+    {
+      "id": "d871c17e-f583-41a5-b88c-94d47e58651e",
+      "name": "Design OAuth2 Authentication Architecture",
+      "details": "✅ COMPLETED: OAuth2 authentication architecture fully designed and documented.\n\n**Deliverables Created:**\n- OAuth2 architecture documentation (/docs/auth/oauth2-architecture.md)\n- Database migration script (001_add_oauth_authentication.sql) \n- Updated Prisma schema with OAuth models\n- TypeScript type definitions (auth.types.ts)\n- API endpoint specifications (/docs/auth/api-endpoints.md)\n- Security audit checklist (120 security requirements)\n- Environment configuration guide\n- Complete integration guide with code examples\n\n**Technical Foundation:**\n- Database schema: OAuthProvider, UserSession, BlacklistedToken models\n- Security patterns: JWT tokens, OAuth2 flows, session management\n- API contracts: 13 REST endpoints with error handling\n- Type system: Complete TypeScript interfaces for type-safe implementation\n- Integration approach: Step-by-step implementation guide\n\n**Architecture Validated:**\n- OAuth2 flows for Google and Microsoft providers\n- JWT-based session management with refresh token rotation\n- Token encryption and blacklisting for security\n- User onboarding with calendar permissions\n- Production-ready security measures\n\nReady for implementation of remaining subtasks: Google OAuth integration, Microsoft OAuth integration, session management, and frontend integration.",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "e1ab7f1d-c868-4289-97be-4f4b78eb9f4c",
+      "completed": true,
+      "createdAt": "2025-07-30T05:50:44.281Z",
+      "updatedAt": "2025-08-01T00:11:51.653Z",
+      "priority": 5,
+      "complexity": 3,
+      "status": "done",
+      "level": 1,
+      "actualHours": 6
+    },
+    {
+      "id": "2d281264-fc3c-48dd-8ecc-20f38b125819",
+      "name": "Implement Google OAuth2 Integration",
+      "details": "✅ **COMPLETED: Google OAuth2 Integration Implementation**\n\n**Implementation Summary:**\n- ✅ Google OAuth2 Strategy with full calendar/drive permissions\n- ✅ GoogleAuthService with token encryption and management  \n- ✅ Database schema migration with OAuth2 tables\n- ✅ JWT authentication guards and token validation\n- ✅ Complete API endpoints (login, callback, refresh, logout)\n- ✅ Comprehensive error handling and logging\n- ✅ Test endpoints for validation\n- ✅ Security features: token encryption, rotation, blacklisting\n- ✅ Implementation guide with testing instructions\n\n**Technical Deliverables:**\n1. **Authentication Flow**: `/auth/google/login` → Google OAuth → `/auth/google/callback` → JWT tokens\n2. **Database Schema**: OAuthProvider, UserSession, BlacklistedToken tables added and migrated\n3. **Security Implementation**: AES token encryption, JWT guards, secure cookies, token rotation\n4. **API Endpoints**: Complete OAuth2 flow with refresh and logout functionality\n5. **Documentation**: [Google OAuth2 Implementation Guide](/docs/auth/google-oauth2-implementation-guide.md)\n\n**Architecture Compliance**: ✅ Fully implements OAuth2 architecture patterns from `/docs/auth/oauth2-architecture.md`\n\n**Testing Status**: Ready for integration testing with Google Cloud Console credentials",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "e1ab7f1d-c868-4289-97be-4f4b78eb9f4c",
+      "completed": false,
+      "createdAt": "2025-07-30T05:51:02.821Z",
+      "updatedAt": "2025-08-01T00:23:50.301Z",
+      "priority": 5,
+      "complexity": 3,
+      "status": "done",
+      "level": 1,
+      "actualHours": 3
+    },
+    {
+      "id": "069fae35-cc42-4a52-b522-d6f886baca98",
+      "name": "Implement Microsoft OAuth2 Integration",
+      "details": "Implement Microsoft Graph OAuth2 authentication leveraging existing Graph infrastructure for token handling and API integration.\n\n**📚 Architecture Reference:** Follow the complete design framework in [OAuth2 Architecture Documentation](/docs/auth/oauth2-architecture.md)\n\n**Cross-links:** \n- [OAuth2 Architecture](/docs/auth/oauth2-architecture.md) - Complete system design and patterns\n- [API Endpoints](/docs/auth/api-endpoints.md) - REST API specifications\n- [Integration Guide](/docs/auth/integration-guide.md) - Step-by-step implementation  \n- [Security Checklist](/docs/auth/security-audit-checklist.md) - Security requirements\n- [Environment Config](/docs/auth/environment-config.md) - Setup instructions\n- /backend/src/integrations/graph/auth/, /backend/src/integrations/graph/graph.service.ts\n\n**Implementation Requirements:**\n- Extend existing GraphService with authentication methods per IAuthService interface\n- Create /auth/microsoft/login and /auth/microsoft/callback routes per API specs\n- Integrate with existing Microsoft Graph SDK setup and MSAL patterns\n- Implement token management using current Graph patterns + TokenManager\n- Leverage existing Graph calendar permissions infrastructure\n- User database integration following OAuth architecture patterns\n\n**Environment Setup:** Configure MICROSOFT_CLIENT_ID, MICROSOFT_CLIENT_SECRET, MICROSOFT_TENANT_ID per environment guide\n\n**Testing:** Unit tests for Microsoft auth methods, integration with existing Graph tests, OAuth flow validation\n\n**🔄 Keep Updated:** Update architecture docs if implementation deviates from design patterns\n\n**Acceptance:** Working Microsoft login, token management, calendar permissions, integration with existing Graph service architecture",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "e1ab7f1d-c868-4289-97be-4f4b78eb9f4c",
+      "completed": true,
+      "createdAt": "2025-07-30T05:51:20.850Z",
+      "updatedAt": "2025-08-01T00:52:35.593Z",
+      "priority": 5,
+      "complexity": 3,
+      "status": "done",
+      "level": 1,
+      "actualHours": 14
+    },
+    {
+      "id": "a3e3c631-9982-4c6d-b857-90f858d0c64e",
+      "name": "Implement User Session Management",
+      "details": "Create user session management with JWT tokens, refresh rotation, and API route protection.\n\n**📚 Architecture Reference:** Follow the complete design framework in [OAuth2 Architecture Documentation](/docs/auth/oauth2-architecture.md)\n\n**Cross-links:** \n- [OAuth2 Architecture](/docs/auth/oauth2-architecture.md) - Complete system design and patterns\n- [API Endpoints](/docs/auth/api-endpoints.md) - Session management API specs\n- [Integration Guide](/docs/auth/integration-guide.md) - Step-by-step implementation\n- [Security Checklist](/docs/auth/security-audit-checklist.md) - Security requirements\n- [Environment Config](/docs/auth/environment-config.md) - JWT and security config\n- /backend/src/auth/, /backend/prisma/schema.prisma\n\n**Implementation Requirements:**\n- JWT token generation implementing TokenManager interface (see auth.types.ts)\n- Refresh token rotation following security patterns from architecture\n- Session persistence using UserSession and BlacklistedToken models\n- SessionMiddleware for API protection per middleware specifications\n- User context injection following authentication patterns\n- Secure logout with token invalidation per security checklist\n\n**Security Features:** JWT signing with secrets, refresh rotation, session expiration, token blacklisting, CSRF protection, secure cookies per architecture\n\n**API Integration:** Protect /api routes with auth middleware, user context in controllers, role-based access foundation\n\n**Environment Setup:** Configure JWT_SECRET, JWT_EXPIRES_IN, REFRESH_TOKEN_EXPIRES_IN per environment guide\n\n**Testing:** Session creation/validation, token refresh scenarios, middleware protection, security testing\n\n**🔄 Keep Updated:** Update architecture docs if implementation deviates from design patterns\n\n**Acceptance:** Secure sessions, protected API routes, token refresh, user context injection, security measures validated against checklist",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "e1ab7f1d-c868-4289-97be-4f4b78eb9f4c",
+      "completed": false,
+      "createdAt": "2025-07-30T05:51:38.242Z",
+      "updatedAt": "2025-08-01T03:00:59.278Z",
+      "priority": 5,
+      "complexity": 3,
+      "status": "done",
+      "level": 1,
+      "actualHours": 6
+    },
+    {
+      "id": "82718055-130d-4fd7-8ea2-23329674fdeb",
+      "name": "Implement Frontend Authentication Integration",
+      "details": "Create frontend authentication state management, login/logout components, and protected route integration.\n\n**📚 Architecture Reference:** Follow [OAuth2 Architecture Documentation](/docs/auth/oauth2-architecture.md)\n\n**Cross-links:** \n- [OAuth2 Architecture](/docs/auth/oauth2-architecture.md) - System design patterns\n- [API Endpoints](/docs/auth/api-endpoints.md) - Frontend integration specs  \n- [Integration Guide](/docs/auth/integration-guide.md) - Implementation examples\n- [Security Checklist](/docs/auth/security-audit-checklist.md) - Security requirements\n- [Environment Config](/docs/auth/environment-config.md) - Frontend setup\n- /frontend/src/components/, /frontend/src/app/\n\n**Implementation Requirements:**\n- AuthProvider context following React patterns from integration guide\n- Login/logout UI with Google/Microsoft options per API endpoints\n- Protected route guards implementing frontend auth patterns\n- Token refresh handling following session management patterns\n- Calendar permission flows per OAuth architecture\n\n**State Management:** React context for auth state, automatic token refresh, persistent login, logout cleanup\n\n**UI Components:** Login page with provider options, user profile dropdown, loading states, calendar wizard, error modals\n\n**Testing:** Auth state tests, component rendering, protected route behavior, backend integration\n\n**🔄 Keep Updated:** Update architecture docs if implementation deviates from design patterns\n\n**Acceptance:** Complete frontend auth, protected routes, token management, calendar permissions, user onboarding",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "parentId": "e1ab7f1d-c868-4289-97be-4f4b78eb9f4c",
+      "completed": false,
+      "createdAt": "2025-07-30T05:51:56.333Z",
+      "updatedAt": "2025-08-01T00:16:32.918Z",
+      "priority": 5,
+      "complexity": 3,
+      "status": "pending",
+      "level": 1
     }
   ],
   "subtasks": [],
   "migration": {
     "version": "1.8.1",
-    "migratedAt": "2025-07-29T16:48:17.270Z",
+    "migratedAt": "2025-08-01T00:10:37.144Z",
     "subtasksMigrated": 1
   }
 }

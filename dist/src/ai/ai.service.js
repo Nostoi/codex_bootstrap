@@ -89,6 +89,42 @@ let AiService = AiService_1 = class AiService {
             throw this.handleError(error);
         }
     }
+    async extractTasks(dto) {
+        const prompt = this.buildTaskExtractionPrompt(dto);
+        const messages = [
+            {
+                role: "system",
+                content: "You are an AI assistant that extracts actionable tasks from conversational text. Analyze the provided text and identify specific, actionable tasks mentioned or implied. Return results in valid JSON format.",
+            },
+            {
+                role: "user",
+                content: prompt,
+            },
+        ];
+        try {
+            const startTime = Date.now();
+            const response = await this.chatCompletion({
+                messages,
+                model: this.config.defaultModel,
+                temperature: 0.3,
+                maxTokens: 2000,
+                jsonMode: true,
+            });
+            const tasks = this.parseTasksResponse(response.data);
+            await this.mem0Service.storeInteraction(`Task extraction from conversation text. Extracted ${tasks.length} tasks.`);
+            return {
+                data: tasks,
+                usage: response.usage,
+                model: response.model,
+                requestId: response.requestId,
+                processingTimeMs: Date.now() - startTime,
+            };
+        }
+        catch (error) {
+            this.logger.error("Error extracting tasks:", error);
+            throw this.handleError(error);
+        }
+    }
     async classifyTask(taskDescription) {
         const prompt = this.buildTaskClassificationPrompt(taskDescription);
         const messages = [
@@ -297,6 +333,44 @@ Example format:
       "estimatedHours": 4,
       "dependencies": [],
       "tags": ["setup", "infrastructure"]
+    }
+  ]
+}
+    `.trim();
+    }
+    buildTaskExtractionPrompt(dto) {
+        return `
+Analyze the following text and extract up to ${dto.maxTasks || 10} actionable tasks that are mentioned or implied:
+
+Text: ${dto.text}
+
+Instructions:
+- Identify specific tasks, action items, or to-dos mentioned in the text
+- Extract tasks that have clear actionable outcomes
+- Include tasks that are implied but not explicitly stated
+- Prioritize tasks based on urgency and importance mentioned in context
+- Estimate time based on task complexity and context clues
+
+Return as a JSON object with a "tasks" array containing objects with:
+- id: unique identifier (string)
+- name: concise task name (string)
+- description: detailed description including context (string)
+- priority: priority level 1-10 based on urgency/importance (number)
+- estimatedHours: estimated time in hours (number)
+- dependencies: array of task IDs this depends on (string[])
+- tags: relevant tags for categorization (string[])
+
+Example format:
+{
+  "tasks": [
+    {
+      "id": "extracted-1",
+      "name": "Call team meeting",
+      "description": "Schedule and conduct team sync to discuss project status",
+      "priority": 7,
+      "estimatedHours": 1,
+      "dependencies": [],
+      "tags": ["meeting", "communication"]
     }
   ]
 }

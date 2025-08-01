@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { aiService } from "@/lib/aiService";
 
 export interface ChatMessage {
   id: string;
@@ -44,6 +45,8 @@ const ChatGPTIntegration: React.FC<ChatGPTIntegrationProps> = ({
 }) => {
   const [inputMessage, setInputMessage] = useState("");
   const [extractedTasks, setExtractedTasks] = useState<ExtractedTask[]>([]);
+  const [isExtracting, setIsExtracting] = useState(false);
+  const [aiServiceConnected, setAiServiceConnected] = useState(isConnected);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -55,8 +58,29 @@ const ChatGPTIntegration: React.FC<ChatGPTIntegrationProps> = ({
     scrollToBottom();
   }, [messages]);
 
+  // Check AI service health periodically
+  useEffect(() => {
+    const checkHealth = async () => {
+      if (isConnected) {
+        try {
+          const healthy = await aiService.healthCheck();
+          setAiServiceConnected(healthy);
+        } catch (error) {
+          setAiServiceConnected(false);
+        }
+      } else {
+        setAiServiceConnected(false);
+      }
+    };
+
+    checkHealth();
+    const interval = setInterval(checkHealth, 30000); // Check every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [isConnected]);
+
   const handleSendMessage = () => {
-    if (inputMessage.trim() && !isLoading && isConnected) {
+    if (inputMessage.trim() && !isLoading && isConnected && aiServiceConnected) {
       onSendMessage(inputMessage.trim());
       setInputMessage("");
     }
@@ -69,25 +93,31 @@ const ChatGPTIntegration: React.FC<ChatGPTIntegrationProps> = ({
     }
   };
 
-  const handleTaskExtraction = () => {
-    // Mock extracted tasks from conversation
-    const mockTasks: ExtractedTask[] = [
-      {
-        title: "Review project proposal",
-        priority: "high",
-        dueDate: "2025-07-28",
-        project: "Client Work",
-        estimatedDuration: 60,
-      },
-      {
-        title: "Update team on progress",
-        priority: "medium",
-        dueDate: "2025-07-27",
-        estimatedDuration: 30,
-      },
-    ];
-    setExtractedTasks(mockTasks);
-    onExtractTasks(mockTasks);
+  const handleTaskExtraction = async () => {
+    if (messages.length === 0 || isExtracting) return;
+    
+    setIsExtracting(true);
+    
+    // Combine all conversation messages into text for extraction
+    const conversationText = messages
+      .map(msg => `${msg.role}: ${msg.content}`)
+      .join('\n');
+    
+    try {
+      const tasks = await aiService.extractTasks({
+        text: conversationText,
+        maxTasks: 10
+      });
+      
+      setExtractedTasks(tasks);
+      onExtractTasks(tasks);
+    } catch (error) {
+      console.error('Task extraction failed:', error);
+      // Fallback to empty array on error
+      setExtractedTasks([]);
+    } finally {
+      setIsExtracting(false);
+    }
   };
 
   const formatTime = (date: Date) => {
@@ -113,11 +143,13 @@ const ChatGPTIntegration: React.FC<ChatGPTIntegrationProps> = ({
       <div className="flex items-center justify-between p-4 border-b border-base-300">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-success' : 'bg-error'}`} />
+            <div className={`w-3 h-3 rounded-full ${isConnected && aiServiceConnected ? 'bg-success' : 'bg-error'}`} />
             <h3 className="font-semibold text-lg">AI Assistant</h3>
           </div>
-          {!isConnected && (
-            <span className="text-xs text-error">Disconnected</span>
+          {(!isConnected || !aiServiceConnected) && (
+            <span className="text-xs text-error">
+              {!isConnected ? 'Disconnected' : 'AI Service Unavailable'}
+            </span>
           )}
         </div>
         <div className="flex gap-2">
@@ -125,10 +157,17 @@ const ChatGPTIntegration: React.FC<ChatGPTIntegrationProps> = ({
             <button
               onClick={handleTaskExtraction}
               className="btn btn-sm btn-outline btn-primary"
-              disabled={isLoading}
+              disabled={isLoading || isExtracting}
               aria-label="Extract tasks from conversation"
             >
-              📋 Extract Tasks
+              {isExtracting ? (
+                <>
+                  <span className="loading loading-spinner loading-sm" />
+                  Extracting...
+                </>
+              ) : (
+                <>📋 Extract Tasks</>
+              )}
             </button>
           )}
           {onClearChat && messages.length > 0 && (
@@ -265,8 +304,8 @@ const ChatGPTIntegration: React.FC<ChatGPTIntegrationProps> = ({
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyDown={handleKeyPress}
-            placeholder={isConnected ? placeholder : "AI Assistant is disconnected..."}
-            disabled={!isConnected || isLoading}
+            placeholder={isConnected && aiServiceConnected ? placeholder : "AI Assistant is disconnected..."}
+            disabled={!isConnected || !aiServiceConnected || isLoading}
             className="textarea textarea-bordered flex-1 resize-none"
             rows={1}
             style={{
@@ -277,7 +316,7 @@ const ChatGPTIntegration: React.FC<ChatGPTIntegrationProps> = ({
           />
           <button
             onClick={handleSendMessage}
-            disabled={!inputMessage.trim() || !isConnected || isLoading}
+            disabled={!inputMessage.trim() || !isConnected || !aiServiceConnected || isLoading}
             className="btn btn-primary"
             aria-label="Send message"
           >

@@ -46,6 +46,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // OAuth authentication relationships
+  oauthProviders OAuthProvider[]
+  userSessions   UserSession[]
+
   // Collaboration relationships
   documents Document[]
   sessions  CollaborationSession[]
@@ -372,4 +376,57 @@ enum CalendarConflictResolution {
   SKIP
   PREFER_LOCAL
   PREFER_REMOTE
+}
+
+// OAuth2 Authentication Models
+
+model OAuthProvider {
+  id           String   @id @default(cuid())
+  provider     String   // 'google' | 'microsoft'
+  providerId   String   // OAuth provider's user ID
+  email        String
+  accessToken  String?  // Encrypted at application level
+  refreshToken String?  // Encrypted at application level
+  tokenExpiry  DateTime?
+  scopes       String[] // Requested permissions
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relationships
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([provider, providerId])
+  @@unique([provider, userId]) // One provider per user
+  @@map("oauth_providers")
+}
+
+model UserSession {
+  id           String   @id @default(cuid())
+  sessionId    String   @unique @default(cuid())
+  accessToken  String   // JWT for API access
+  refreshToken String   // For token rotation
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Session metadata
+  userAgent    String?
+  ipAddress    String?
+  isActive     Boolean  @default(true)
+  
+  // Relationships
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_sessions")
+}
+
+model BlacklistedToken {
+  id        String   @id @default(cuid())
+  tokenId   String   @unique // JWT 'jti' claim
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  
+  @@map("blacklisted_tokens")
 }

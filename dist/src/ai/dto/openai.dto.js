@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SummarizationDto = exports.SuggestionRequestDto = exports.TaskGenerationDto = exports.OpenAIChatCompletionDto = exports.OpenAIChatMessageDto = exports.OpenAICompletionDto = void 0;
+exports.SummarizationDto = exports.TaskExtractionDto = exports.SuggestionRequestDto = exports.TaskGenerationDto = exports.OpenAIChatCompletionDto = exports.OpenAIChatMessageDto = exports.OpenAICompletionDto = void 0;
 const class_validator_1 = require("class-validator");
 class OpenAICompletionDto {
     constructor() {
@@ -145,6 +145,23 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], SuggestionRequestDto.prototype, "codebase", void 0);
+class TaskExtractionDto {
+    constructor() {
+        this.maxTasks = 10;
+    }
+}
+exports.TaskExtractionDto = TaskExtractionDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], TaskExtractionDto.prototype, "text", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(1),
+    (0, class_validator_1.Max)(20),
+    __metadata("design:type", Number)
+], TaskExtractionDto.prototype, "maxTasks", void 0);
 class SummarizationDto {
     constructor() {
         this.maxLength = 200;

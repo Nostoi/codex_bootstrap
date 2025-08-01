@@ -1,7 +1,24 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ChatGPTIntegration, { ChatMessage } from './ChatGPTIntegration';
+
+// Mock the AI service
+vi.mock('../../lib/aiService', () => ({
+  aiService: {
+    extractTasks: vi.fn().mockResolvedValue([
+      {
+        title: "Test extracted task",
+        priority: "medium" as const,
+        estimatedDuration: 30
+      }
+    ]),
+    sendChatMessage: vi.fn().mockResolvedValue({
+      data: "Mock AI response"
+    }),
+    healthCheck: vi.fn().mockResolvedValue(true)
+  }
+}));
 
 // Mock scrollIntoView for test environment
 Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
@@ -106,14 +123,17 @@ describe('ChatGPTIntegration', () => {
     expect(screen.getByRole('button', { name: /send message/i })).toBeDisabled();
   });
 
-  it('extracts tasks when extract button is clicked', () => {
+  it('extracts tasks when extract button is clicked', async () => {
     const onExtractTasks = vi.fn();
     render(<ChatGPTIntegration {...defaultProps} onExtractTasks={onExtractTasks} />);
     
     const extractButton = screen.getByRole('button', { name: /extract tasks/i });
     fireEvent.click(extractButton);
     
-    expect(onExtractTasks).toHaveBeenCalled();
+    // Wait for the async operation to complete
+    await waitFor(() => {
+      expect(onExtractTasks).toHaveBeenCalled();
+    });
   });
 
   it('clears chat when clear button is clicked', () => {

@@ -23,6 +23,9 @@ let AiController = class AiController {
     async generateTasks(dto) {
         return this.aiService.generateTasks(dto);
     }
+    async extractTasks(dto) {
+        return this.aiService.extractTasks(dto);
+    }
     async getSuggestions(dto) {
         return this.aiService.getSuggestions(dto);
     }
@@ -55,6 +58,14 @@ __decorate([
     __metadata("design:paramtypes", [openai_dto_1.TaskGenerationDto]),
     __metadata("design:returntype", Promise)
 ], AiController.prototype, "generateTasks", null);
+__decorate([
+    (0, common_1.Post)("extract-tasks"),
+    (0, common_1.UsePipes)(new common_1.ValidationPipe({ transform: true })),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [openai_dto_1.TaskExtractionDto]),
+    __metadata("design:returntype", Promise)
+], AiController.prototype, "extractTasks", null);
 __decorate([
     (0, common_1.Post)("suggestions"),
     (0, common_1.UsePipes)(new common_1.ValidationPipe({ transform: true })),

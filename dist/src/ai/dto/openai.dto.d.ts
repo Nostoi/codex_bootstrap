@@ -28,6 +28,10 @@ export declare class SuggestionRequestDto {
     type: "improvement" | "feature" | "optimization" | "bug-fix";
     codebase?: string;
 }
+export declare class TaskExtractionDto {
+    text: string;
+    maxTasks?: number;
+}
 export declare class SummarizationDto {
     text: string;
     maxLength?: number;

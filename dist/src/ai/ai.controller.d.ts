@@ -1,9 +1,10 @@
 import { AiService } from "./ai.service";
-import { TaskGenerationDto, SuggestionRequestDto, SummarizationDto, OpenAIChatCompletionDto } from "./dto/openai.dto";
+import { TaskGenerationDto, TaskExtractionDto, SuggestionRequestDto, SummarizationDto, OpenAIChatCompletionDto } from "./dto/openai.dto";
 export declare class AiController {
     private readonly aiService;
     constructor(aiService: AiService);
     generateTasks(dto: TaskGenerationDto): Promise<import("./interfaces/openai.interfaces").OpenAIResponse<import("./interfaces/openai.interfaces").Task[]>>;
+    extractTasks(dto: TaskExtractionDto): Promise<import("./interfaces/openai.interfaces").OpenAIResponse<import("./interfaces/openai.interfaces").Task[]>>;
     getSuggestions(dto: SuggestionRequestDto): Promise<import("./interfaces/openai.interfaces").OpenAIResponse<import("./interfaces/openai.interfaces").Suggestion[]>>;
     summarize(dto: SummarizationDto): Promise<import("./interfaces/openai.interfaces").OpenAIResponse<import("./interfaces/openai.interfaces").SummaryResponse>>;
     classifyTask(description: string): Promise<import("./interfaces/openai.interfaces").OpenAIResponse<any>>;

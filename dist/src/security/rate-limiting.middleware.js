@@ -156,6 +156,10 @@ let RateLimitingMiddleware = RateLimitingMiddleware_1 = class RateLimitingMiddle
     }
     async getRateLimitStatus(userId, ip) {
         const results = [];
+        if (!this.redis) {
+            this.logger.warn("Redis not available for rate limit status check");
+            return results;
+        }
         for (const [category] of this.rateLimiters) {
             try {
                 const key = userId
@@ -190,6 +194,10 @@ let RateLimitingMiddleware = RateLimitingMiddleware_1 = class RateLimitingMiddle
         return limits[category] || limits.default;
     }
     async resetRateLimit(userId, ip, category) {
+        if (!this.redis) {
+            this.logger.warn("Redis not available for rate limit reset");
+            return;
+        }
         try {
             if (category) {
                 const key = userId

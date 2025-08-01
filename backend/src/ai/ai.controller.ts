@@ -9,6 +9,7 @@ import {
 import { AiService } from "./ai.service";
 import {
   TaskGenerationDto,
+  TaskExtractionDto,
   SuggestionRequestDto,
   SummarizationDto,
   OpenAIChatCompletionDto,
@@ -22,6 +23,12 @@ export class AiController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async generateTasks(@Body() dto: TaskGenerationDto) {
     return this.aiService.generateTasks(dto);
+  }
+
+  @Post("extract-tasks")
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async extractTasks(@Body() dto: TaskExtractionDto) {
+    return this.aiService.extractTasks(dto);
   }
 
   @Post("suggestions")

@@ -5,6 +5,7 @@ import CalendarEvents from "./CalendarEvents";
 import FilterBar, { FilterValues } from "./FilterBar";
 import TaskCard, { EnhancedTask } from "./TaskCard";
 import { useDailyPlan, useRefreshDailyPlan } from "../../hooks/useApi";
+import { aiService } from "../../lib/aiService";
 
 // Enhanced Task interface matching TaskCard component
 export interface Task extends EnhancedTask {}
@@ -267,8 +268,8 @@ const Dashboard: React.FC<DashboardProps> = ({
     }, 1500);
   }, [tasks]);
 
-  // Handle messages from ChatGPT Integration
-  const handleSendMessage = useCallback((content: string) => {
+  // Handle messages from ChatGPT Integration  
+  const handleSendMessage = useCallback(async (content: string) => {
     const userMessage: ChatMessage = {
       id: `msg-${Date.now()}`,
       role: "user",
@@ -279,43 +280,58 @@ const Dashboard: React.FC<DashboardProps> = ({
     setMessages(prev => [...prev, userMessage]);
     setIsAiLoading(true);
 
-    setTimeout(() => {
-      let aiResponse: ChatMessage;
-      
-      if (content.toLowerCase().includes("plan my day") || content.toLowerCase().includes("schedule")) {
-        aiResponse = {
-          id: `msg-${Date.now() + 1}`,
-          role: "assistant",
-          content: `I can help you plan your day! I see you currently have ${tasks.length} tasks. Let me suggest an optimal schedule based on priorities and estimated time.`,
-          timestamp: new Date(),
-          metadata: {
-            suggestedActions: [
-              "Extract tasks from my thoughts",
-              "Prioritize my existing tasks",
-              "Suggest a daily schedule",
-            ],
-          },
-        };
-      } else {
-        aiResponse = {
-          id: `msg-${Date.now() + 1}`,
-          role: "assistant",
-          content: `I understand you need help with: "${content}"\n\nI can assist you with planning, task extraction, and productivity optimization. What would you like to focus on?`,
-          timestamp: new Date(),
-          metadata: {
-            suggestedActions: [
-              "Help me plan my schedule",
-              "Extract tasks from my notes",
-              "Prioritize my workload",
-            ],
-          },
-        };
-      }
+    try {
+      // Get AI response using real service
+      const response = await aiService.sendChatMessage({
+        messages: [...messages, userMessage].map(msg => ({
+          role: msg.role,
+          content: msg.content,
+          id: msg.id,
+          timestamp: msg.timestamp,
+          metadata: msg.metadata
+        })),
+        temperature: 0.7,
+        maxTokens: 1000
+      });
+
+      const aiResponse: ChatMessage = {
+        id: `msg-${Date.now() + 1}`,
+        role: "assistant",
+        content: response.data,
+        timestamp: new Date(),
+        metadata: {
+          suggestedActions: [
+            "Extract tasks from this conversation",
+            "Help me plan my schedule", 
+            "Prioritize my workload",
+          ],
+        },
+      };
 
       setMessages(prev => [...prev, aiResponse]);
+    } catch (error) {
+      console.error('AI service error:', error);
+      
+      // Fallback to helpful error message
+      const errorResponse: ChatMessage = {
+        id: `msg-${Date.now() + 1}`,
+        role: "assistant",
+        content: "I'm having trouble connecting to my AI service right now. Please try again in a moment, or use the task extraction feature to work with your existing conversation.",
+        timestamp: new Date(),
+        metadata: {
+          suggestedActions: [
+            "Try again",
+            "Extract tasks from conversation",
+            "Refresh the page",
+          ],
+        },
+      };
+
+      setMessages(prev => [...prev, errorResponse]);
+    } finally {
       setIsAiLoading(false);
-    }, 1000 + Math.random() * 1000);
-  }, [tasks]);
+    }
+  }, [messages, tasks]);
 
   // Helper function to convert priority
   const convertPriority = (priority: "high" | "medium" | "low"): number => {
