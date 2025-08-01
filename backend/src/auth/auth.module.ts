@@ -9,6 +9,7 @@ import { AuthService } from "./auth.service";
 import { AuthController } from "./auth.controller";
 import { MicrosoftAuthService } from "./services/microsoft-auth.service";
 import { MicrosoftAuthController } from "./controllers/microsoft-auth.controller";
+import { SessionController } from "./controllers/session.controller";
 import { MicrosoftStrategy } from "./strategies/microsoft.strategy";
 import { TokenManagerService } from "./services/token-manager.service";
 import { SessionManagerService } from "./services/session-manager.service";
@@ -35,7 +36,8 @@ import { JwtAuthGuard } from "./guards/jwt-auth.guard";
   ],
   controllers: [
     AuthController, 
-    MicrosoftAuthController
+    MicrosoftAuthController,
+    SessionController
   ],
   providers: [
     AuthService, 

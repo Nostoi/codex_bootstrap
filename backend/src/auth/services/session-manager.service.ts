@@ -405,4 +405,97 @@ export class SessionManagerService {
     const uniqueScopes = Array.from(new Set([...scopes, 'profile', 'email']));
     return uniqueScopes;
   }
+
+  /**
+   * Terminate a specific session by refresh token
+   */
+  async terminateSession(refreshToken: string): Promise<boolean> {
+    try {
+      // First, blacklist the refresh token
+      await this.tokenManager.blacklistToken(refreshToken, 'refresh');
+
+      // Find and revoke the session
+      const session = await this.prisma.userSession.findFirst({
+        where: { refreshToken },
+      });
+
+      if (session) {
+        await this.revokeSession(session.sessionId);
+        this.logger.log(`Session terminated for refresh token: ${refreshToken.substring(0, 10)}...`);
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      this.logger.error('Failed to terminate session:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Terminate all sessions for a user
+   */
+  async terminateAllSessions(userId: string): Promise<number> {
+    try {
+      // Get all active sessions for the user
+      const sessions = await this.prisma.userSession.findMany({
+        where: {
+          userId,
+          isActive: true,
+        },
+      });
+
+      let revokedCount = 0;
+
+      // Revoke each session
+      for (const session of sessions) {
+        try {
+          // Blacklist the refresh token
+          await this.tokenManager.blacklistToken(session.refreshToken, 'refresh');
+          
+          // Revoke the session
+          await this.revokeSession(session.sessionId);
+          revokedCount++;
+        } catch (error) {
+          this.logger.warn(`Failed to revoke session ${session.sessionId}:`, error);
+        }
+      }
+
+      this.logger.log(`Terminated ${revokedCount} sessions for user: ${userId}`);
+      return revokedCount;
+    } catch (error) {
+      this.logger.error('Failed to terminate all sessions:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get all active sessions for a user
+   */
+  async getActiveSessions(userId: string): Promise<any[]> {
+    try {
+      const sessions = await this.prisma.userSession.findMany({
+        where: {
+          userId,
+          isActive: true,
+        },
+        orderBy: {
+          updatedAt: 'desc',
+        },
+      });
+
+      return sessions.map(session => ({
+        id: session.sessionId,
+        deviceInfo: session.deviceInfo,
+        userAgent: session.userAgent,
+        ipAddress: session.ipAddress,
+        createdAt: session.createdAt,
+        lastAccessedAt: session.updatedAt,
+        expiresAt: session.expiresAt,
+      }));
+    } catch (error) {
+      this.logger.error('Failed to get active sessions:', error);
+      throw error;
+    }
+  }
 }

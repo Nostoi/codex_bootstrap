@@ -18,6 +18,7 @@ const auth_service_1 = require("./auth.service");
 const auth_controller_1 = require("./auth.controller");
 const microsoft_auth_service_1 = require("./services/microsoft-auth.service");
 const microsoft_auth_controller_1 = require("./controllers/microsoft-auth.controller");
+const session_controller_1 = require("./controllers/session.controller");
 const microsoft_strategy_1 = require("./strategies/microsoft.strategy");
 const token_manager_service_1 = require("./services/token-manager.service");
 const session_manager_service_1 = require("./services/session-manager.service");
@@ -47,7 +48,8 @@ exports.AuthModule = AuthModule = __decorate([
         ],
         controllers: [
             auth_controller_1.AuthController,
-            microsoft_auth_controller_1.MicrosoftAuthController
+            microsoft_auth_controller_1.MicrosoftAuthController,
+            session_controller_1.SessionController
         ],
         providers: [
             auth_service_1.AuthService,
