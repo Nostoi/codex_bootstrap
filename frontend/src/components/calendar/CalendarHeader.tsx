@@ -48,7 +48,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
         endOfWeek.setDate(startOfWeek.getDate() + 6);
         
         if (startOfWeek.getMonth() === endOfWeek.getMonth()) {
-          return `${startOfWeek.toLocaleDateString('en-US', { month: 'long' })} ${startOfWeek.getDate()} - ${endOfWeek.getDate()}, ${startOfWeek.getFullYear()}`;
+          return `${startOfWeek.toLocaleDateString('en-US', { month: 'long' })} ${startOfWeek.getDate()}-${endOfWeek.getDate()}, ${startOfWeek.getFullYear()}`;
         } else {
           return `${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
         }
@@ -57,248 +57,130 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
           year: 'numeric', 
           month: 'long' 
         });
-      default:
-        return date.toLocaleDateString();
     }
   };
 
-  const isToday = () => {
-    const today = new Date();
-    return currentDate.year === today.getFullYear() &&
-           currentDate.month === today.getMonth() + 1 &&
-           currentDate.day === today.getDate();
+  const getNavigationLabel = (direction: 'previous' | 'next') => {
+    const date = new Date(currentDate.year, currentDate.month - 1, currentDate.day);
+    
+    switch (currentView) {
+      case 'daily':
+        const dayOffset = direction === 'previous' ? -1 : 1;
+        const targetDate = new Date(date);
+        targetDate.setDate(date.getDate() + dayOffset);
+        return `${direction === 'previous' ? 'Previous' : 'Next'} day, ${targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}`;
+      
+      case 'weekly':
+        const weekOffset = direction === 'previous' ? -7 : 7;
+        const targetWeek = new Date(date);
+        targetWeek.setDate(date.getDate() + weekOffset);
+        return `${direction === 'previous' ? 'Previous' : 'Next'} week`;
+      
+      case 'monthly':
+        const monthOffset = direction === 'previous' ? -1 : 1;
+        const targetMonth = new Date(date.getFullYear(), date.getMonth() + monthOffset, 1);
+        return `${direction === 'previous' ? 'Previous' : 'Next'} month, ${targetMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`;
+        
+      default:
+        return `${direction === 'previous' ? 'Previous' : 'Next'}`;
+    }
   };
 
   return (
     <header 
-      className="calendar-header flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 p-4 bg-base-100 rounded-lg shadow-sm"
+      className="calendar-header"
       role={CALENDAR_ARIA.BANNER}
-      aria-label="Calendar navigation and controls"
     >
-      {/* Date Display and Navigation */}
-      <nav 
-        className="flex items-center gap-2"
-        role={CALENDAR_ARIA.NAVIGATION}
-        aria-label="Calendar date navigation"
-      >
-        {/* Previous Button */}
-        <button
-          className="btn btn-sm btn-ghost"
-          onClick={onPrevious}
-          disabled={disabled || isLoading}
-          aria-label={`Go to previous ${currentView}`}
-          title={`Previous ${currentView} (Left Arrow)`}
-          type="button"
-        >
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            className="h-4 w-4" 
-            fill="none" 
-            viewBox="0 0 24 24" 
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-
-        {/* Current Date Display */}
+      <div className="flex justify-between items-center p-4 border-b">
+        {/* Navigation Controls */}
         <div className="flex items-center gap-2">
-          <h2 
-            className="text-lg font-semibold text-base-content min-w-0"
-            id="current-date-display"
-            aria-live="polite"
+          <button
+            className="btn btn-sm btn-ghost"
+            onClick={onPrevious}
+            disabled={disabled || isLoading}
+            aria-label={getNavigationLabel('previous')}
           >
-            {formatDateDisplay()}
-          </h2>
-          {isToday() && (
-            <span 
-              className="badge badge-primary badge-sm"
-              aria-label="Today's date"
-            >
-              Today
-            </span>
-          )}
+            <span aria-hidden="true">←</span>
+            <span className="hidden sm:inline ml-1">Previous</span>
+          </button>
+          
+          <button
+            className="btn btn-sm btn-outline"
+            onClick={onToday}
+            disabled={disabled || isLoading}
+          >
+            Today
+          </button>
+          
+          <button
+            className="btn btn-sm btn-ghost"
+            onClick={onNext}
+            disabled={disabled || isLoading}
+            aria-label={getNavigationLabel('next')}
+          >
+            <span className="hidden sm:inline mr-1">Next</span>
+            <span aria-hidden="true">→</span>
+          </button>
         </div>
 
-        {/* Next Button */}
-                  onClick={onNext}
-          disabled={disabled || isLoading}
-          aria-label={`Go to next ${currentView}`}
-          title={`Next ${currentView} (Right Arrow)`}
-          type="button"
+        {/* Current Date Display */}
+        <h1 
+          className="text-lg font-semibold text-center"
+          aria-live="polite"
         >
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            className="h-4 w-4" 
-            fill="none" 
-            viewBox="0 0 24 24" 
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
+          {formatDateDisplay()}
+        </h1>
 
-        {/* Today Button */}
-        <button
-          className={`btn btn-sm ${isToday() ? 'btn-outline' : 'btn-primary'}`}
-          onClick={onToday}
-          disabled={disabled || isLoading || isToday()}
-          aria-label={isToday() ? "Already viewing today" : "Go to today"}
-          title="Go to today (Home key)"
-          type="button"
-        >
-          Today
-        </button>
-      </nav>
+        {/* View Controls and Actions */}
+        <div className="flex items-center gap-2">
+          {/* Refresh Button */}
+          {onRefresh && (
+            <button
+              className={`btn btn-sm btn-ghost ${isLoading ? 'loading' : ''}`}
+              onClick={onRefresh}
+              disabled={disabled || isLoading}
+              aria-label="Refresh calendar data"
+            >
+              {!isLoading && (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              )}
+              <span className="hidden sm:inline ml-1">Refresh</span>
+            </button>
+          )}
 
-      {/* View Selector and Actions */}
-      <div className="flex items-center gap-2">
-        {/* Refresh Button */}
-        {onRefresh && (
-          <button
-            className={`btn btn-sm btn-ghost ${isLoading ? 'loading' : ''}`}
-            onClick={onRefresh}
-            disabled={disabled || isLoading}
-            aria-label={isLoading ? "Refreshing calendar..." : "Refresh calendar"}
-            title="Refresh calendar data"
-            type="button"
-          >
-            {!isLoading && (
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                className="h-4 w-4" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                stroke="currentColor"
-                aria-hidden="true"
+          {/* View Selector */}
+          {showViewSelector && (
+            <div className="join" role="group" aria-label="Calendar view options">
+              <button
+                className={`btn btn-sm join-item ${currentView === 'daily' ? 'btn-active' : ''}`}
+                onClick={() => onViewChange('daily')}
+                disabled={disabled || isLoading}
+                aria-pressed={currentView === 'daily'}
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            )}
-            <span className="sr-only">
-              {isLoading ? "Refreshing..." : "Refresh"}
-            </span>
-          </button>
-        )}
-
-        {/* View Selector */}
-        {showViewSelector && (
-          <div 
-            className="join" 
-            role="tablist" 
-            aria-label="Calendar view selection"
-            aria-describedby="view-selector-help"
-          >
-            {/* Hidden help text for screen readers */}
-            <div id="view-selector-help" className="sr-only">
-              Select calendar view mode. Use keyboard shortcuts: 1 for daily, 2 for weekly, 3 for monthly.
+                Day
+              </button>
+              <button
+                className={`btn btn-sm join-item ${currentView === 'weekly' ? 'btn-active' : ''}`}
+                onClick={() => onViewChange('weekly')}
+                disabled={disabled || isLoading}
+                aria-pressed={currentView === 'weekly'}
+              >
+                Week
+              </button>
+              <button
+                className={`btn btn-sm join-item ${currentView === 'monthly' ? 'btn-active' : ''}`}
+                onClick={() => onViewChange('monthly')}
+                disabled={disabled || isLoading}
+                aria-pressed={currentView === 'monthly'}
+              >
+                Month
+              </button>
             </div>
-            
-            <button
-              className={`btn btn-sm join-item ${currentView === 'daily' ? 'btn-active' : ''}`}
-              onClick={() => onViewChange('daily')}
-              disabled={disabled || isLoading}
-              role="tab"
-              aria-selected={currentView === 'daily'}
-              aria-controls="calendar-grid"
-              title="Daily view (Keyboard shortcut: 1)"
-              type="button"
-            >
-              Day
-            </button>
-            <button
-              className={`btn btn-sm join-item ${currentView === 'weekly' ? 'btn-active' : ''}`}
-              onClick={() => onViewChange('weekly')}
-              disabled={disabled || isLoading}
-              role="tab"
-              aria-selected={currentView === 'weekly'}
-              aria-controls="calendar-grid"
-              title="Weekly view (Keyboard shortcut: 2)"
-              type="button"
-            >
-              Week
-            </button>
-            <button
-              className={`btn btn-sm join-item ${currentView === 'monthly' ? 'btn-active' : ''}`}
-              onClick={() => onViewChange('monthly')}
-              disabled={disabled || isLoading}
-              role="tab"
-              aria-selected={currentView === 'monthly'}
-              aria-controls="calendar-grid"
-              title="Monthly view (Keyboard shortcut: 3)"
-              type="button"
-            >
-              Month
-            </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </header>
-  );
-      </div>
-
-      {/* View Selector and Actions */}
-      <div className="flex items-center gap-2">
-        {/* Refresh Button */}
-        {onRefresh && (
-          <button
-            className={`btn btn-sm btn-ghost ${isLoading ? 'loading' : ''}`}
-            onClick={onRefresh}
-            disabled={disabled || isLoading}
-            aria-label="Refresh calendar"
-            title="Refresh calendar data"
-          >
-            {!isLoading && (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            )}
-          </button>
-        )}
-
-        {/* View Selector */}
-        {showViewSelector && (
-          <div className="join" role="tablist" aria-label="Calendar view options">
-            <button
-              className={`btn btn-sm join-item ${currentView === 'daily' ? 'btn-active' : ''}`}
-              onClick={() => onViewChange('daily')}
-              disabled={disabled || isLoading}
-              role="tab"
-              aria-selected={currentView === 'daily'}
-              title="Daily view (Ctrl+1)"
-            >
-              Day
-            </button>
-            <button
-              className={`btn btn-sm join-item ${currentView === 'weekly' ? 'btn-active' : ''}`}
-              onClick={() => onViewChange('weekly')}
-              disabled={disabled || isLoading}
-              role="tab"
-              aria-selected={currentView === 'weekly'}
-              title="Weekly view (Ctrl+2)"
-            >
-              Week
-            </button>
-            <button
-              className={`btn btn-sm join-item ${currentView === 'monthly' ? 'btn-active' : ''}`}
-              onClick={() => onViewChange('monthly')}
-              disabled={disabled || isLoading}
-              role="tab"
-              aria-selected={currentView === 'monthly'}
-              title="Monthly view (Ctrl+3)"
-            >
-              Month
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Loading indicator */}
-      {isLoading && (
-        <div className="absolute top-2 right-2 loading loading-spinner loading-sm opacity-50"></div>
-      )}
-    </div>
   );
 };

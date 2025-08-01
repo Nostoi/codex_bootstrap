@@ -25,9 +25,9 @@ import {
   useAccessibilityPreferences,
   useReducedMotion,
   useHighContrast 
-} from './accessibility';
-import { useKeyboardNavigation, useGlobalShortcuts } from './keyboard-navigation';
-import { ADHD_ARIA, srText, focusStyles } from './aria-constants';
+} from '../../lib/accessibility';
+import { useKeyboardNavigation, useGlobalShortcuts } from '../../lib/keyboard-navigation';
+import { ADHD_ARIA, srText, focusStyles } from '../../lib/aria-constants';
 
 // ===== CONTEXT =====
 
@@ -206,6 +206,7 @@ export const AccessibleButton = forwardRef<HTMLButtonElement, AccessibleButtonPr
     return (
       <button
         ref={ref}
+        type="button"
         disabled={disabled || loading}
         onClick={handleClick}
         className={`

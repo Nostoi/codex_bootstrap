@@ -1,16 +1,20 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { CalendarDate, ADHDCalendarSettings } from '../../types/calendar';
 import { CalendarEvent } from '../../hooks/useApi';
-import { CalendarEvent as CalendarEventComponent } from '../ui/CalendarEvent';
+import { DragWrapper } from '../ui/DragWrapper';
+import { TimeSlot } from '../ui/TimeSlot';
+import { useDragAndDrop } from '../../hooks/useDragAndDrop';
 
 interface WeeklyGridProps {
   currentDate: CalendarDate;
   events: CalendarEvent[];
   isLoading?: boolean;
   onEventClick?: (event: CalendarEvent) => void;
-  maxEventsPerDay?: number;
+  maxEventsPerSlot?: number;
   enableDragAndDrop?: boolean;
   adhdSettings?: ADHDCalendarSettings;
+  onEventMove?: (eventId: string, newStartTime: Date, newEndTime: Date) => Promise<void>;
+  onTimeSlotClick?: (startTime: Date) => void;
   'aria-describedby'?: string;
 }
 
@@ -19,17 +23,29 @@ export const WeeklyGrid: React.FC<WeeklyGridProps> = ({
   events,
   isLoading = false,
   onEventClick,
-  maxEventsPerDay = 3,
+  maxEventsPerSlot = 3,
   enableDragAndDrop = true,
-  adhdSettings: _adhdSettings,
-  ..._ariaProps
+  adhdSettings,
+  onEventMove,
+  onTimeSlotClick,
+  ...ariaProps
 }) => {
-  // Calculate week start (Monday)
+  // Initialize drag and drop
+  const { handlers } = useDragAndDrop({
+    adhdSettings,
+    onEventMove,
+    onConflictDetected: (conflicts) => {
+      console.warn('Calendar conflicts detected:', conflicts);
+    },
+  });
+
+  // Calculate week start (Sunday)
   const weekStart = useMemo(() => {
     const date = new Date(currentDate.year, currentDate.month - 1, currentDate.day);
-    const day = date.getDay();
-    const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Sunday
-    return new Date(date.setDate(diff));
+    const dayOfWeek = date.getDay();
+    const startOfWeek = new Date(date);
+    startOfWeek.setDate(date.getDate() - dayOfWeek);
+    return startOfWeek;
   }, [currentDate]);
 
   // Generate 7 days of the week
@@ -50,156 +66,201 @@ export const WeeklyGrid: React.FC<WeeklyGridProps> = ({
     return days;
   }, [weekStart, currentDate.month]);
 
-  // Generate hour slots (6 AM to 10 PM by default)
-  const hourSlots = useMemo(() => {
+  // Generate time slots for weekly view (24hrs x 7 days, 1-hour intervals for better weekly view)
+  const timeSlots = useMemo(() => {
     const slots = [];
-    for (let hour = 6; hour <= 22; hour++) {
+    
+    for (let hour = 0; hour < 24; hour++) {
+      const hourSlots = [];
+      
+      for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+        const slotStart = new Date(weekDays[dayIndex].date);
+        slotStart.setHours(hour, 0, 0, 0);
+        
+        const slotEnd = new Date(slotStart);
+        slotEnd.setHours(hour + 1, 0, 0, 0);
+        
+        // Filter events for this specific time slot
+        const slotEvents = events.filter(event => {
+          const eventStart = new Date(event.startTime);
+          const eventEnd = new Date(event.endTime);
+          
+          return (
+            (eventStart >= slotStart && eventStart < slotEnd) ||
+            (eventEnd > slotStart && eventEnd <= slotEnd) ||
+            (eventStart <= slotStart && eventEnd >= slotEnd)
+          );
+        });
+
+        hourSlots.push({
+          startTime: slotStart,
+          endTime: slotEnd,
+          events: slotEvents,
+          dayIndex,
+          isWorkingHours: hour >= 9 && hour < 17, // 9 AM to 5 PM
+          isToday: slotStart.toDateString() === new Date().toDateString(),
+        });
+      }
       slots.push({
         hour,
-        timeLabel: new Date(0, 0, 0, hour).toLocaleTimeString('en-US', { 
-          hour: 'numeric', 
-          hour12: true 
-        })
+        timeLabel: formatTimeLabel(hour),
+        slots: hourSlots,
       });
     }
+    
     return slots;
+  }, [weekDays, events]);
+
+  // Format time labels
+  const formatTimeLabel = useCallback((hour: number) => {
+    const time = new Date();
+    time.setHours(hour, 0, 0, 0);
+    return time.toLocaleTimeString([], { 
+      hour: 'numeric', 
+      hour12: true 
+    });
   }, []);
 
-  // Group events by day and hour
-  const eventsByDayHour = useMemo(() => {
-    const groupedEvents: Record<string, Record<number, CalendarEvent[]>> = {};
-    
-    events.forEach(event => {
-      const eventDate = new Date(event.startTime);
-      const dateKey = eventDate.toDateString();
-      const hour = eventDate.getHours();
-      
-      if (!groupedEvents[dateKey]) {
-        groupedEvents[dateKey] = {};
-      }
-      if (!groupedEvents[dateKey][hour]) {
-        groupedEvents[dateKey][hour] = [];
-      }
-      groupedEvents[dateKey][hour].push(event);
-    });
-    
-    return groupedEvents;
-  }, [events]);
+  // Format day headers
+  const formatDayHeader = useCallback((day: typeof weekDays[0]) => {
+    return {
+      dayName: day.date.toLocaleDateString([], { weekday: 'short' }),
+      dayNumber: day.day,
+      isToday: day.isToday,
+    };
+  }, []);
 
-  // Get events for a specific day and hour
-  const getEventsForDayHour = (date: Date, hour: number) => {
-    const dateKey = date.toDateString();
-    return eventsByDayHour[dateKey]?.[hour] || [];
-  };
+  // ADHD-friendly styling
+  const gridStyles = {
+    '--calendar-reduce-motion': adhdSettings?.reducedMotion ? '1' : '0',
+    '--calendar-enhance-focus': adhdSettings?.enableFocusMode ? '1' : '0',
+    '--calendar-max-colors': adhdSettings?.maxEventsPerView?.toString() || '3',
+  } as React.CSSProperties;
 
   if (isLoading) {
     return (
       <div 
-        className="grid grid-cols-8 gap-1 h-full animate-pulse"
-        role="grid"
-        aria-label="Loading weekly calendar"
-        {..._ariaProps}
+        className="weekly-grid weekly-grid--loading"
+        style={gridStyles}
+        {...ariaProps}
       >
-        <div className="bg-gray-200 rounded"></div>
-        {Array.from({ length: 7 }).map((_, index) => (
-          <div key={index} className="bg-gray-200 rounded"></div>
-        ))}
+        <div className="grid grid-cols-8 gap-px">
+          {/* Time column header placeholder */}
+          <div className="bg-muted/50 p-2">
+            <div className="h-4 bg-muted rounded animate-pulse" />
+          </div>
+          
+          {/* Day headers placeholders */}
+          {Array.from({ length: 7 }).map((_, index) => (
+            <div key={index} className="bg-muted/50 p-2 text-center">
+              <div className="h-4 bg-muted rounded animate-pulse mb-1" />
+              <div className="h-6 bg-muted rounded animate-pulse" />
+            </div>
+          ))}
+          
+          {/* Time slots placeholders */}
+          {Array.from({ length: 24 }).map((_, timeIndex) => (
+            <React.Fragment key={timeIndex}>
+              <div className="bg-muted/30 p-1 text-xs">
+                <div className="h-3 bg-muted rounded animate-pulse" />
+              </div>
+              {Array.from({ length: 7 }).map((_, dayIndex) => (
+                <div key={dayIndex} className="bg-background border border-border min-h-[60px]">
+                  <div className="h-full bg-muted/20 rounded animate-pulse" />
+                </div>
+              ))}
+            </React.Fragment>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="grid grid-cols-8 gap-1 mb-2 min-h-[60px]">
-        <div className="flex items-center justify-center">
-          <span className="text-sm font-medium text-gray-500">Time</span>
-        </div>
-        
-        {weekDays.map((day, index) => (
-          <div
-            key={index}
-            className={`
-              flex flex-col items-center justify-center p-2 rounded-lg
-              ${day.isToday ? 'bg-primary text-primary-content' : 'bg-base-200'}
-              ${!day.isCurrentMonth ? 'opacity-50' : ''}
-            `}
-          >
-            <span className="text-xs font-medium">
-              {day.date.toLocaleDateString('en-US', { weekday: 'short' })}
-            </span>
-            <span className="text-lg font-bold">
-              {day.day}
-            </span>
-          </div>
-        ))}
-      </div>
-
+    <DragWrapper
+      adhdSettings={adhdSettings}
+      onDragStart={handlers.handleDragStart}
+      onDragEnd={handlers.handleDragEnd}
+      onDragCancel={handlers.handleDragCancel}
+      className="weekly-grid"
+    >
       <div 
-        className="grid grid-cols-8 gap-1 flex-1 overflow-auto"
+        className="grid grid-cols-8 gap-px bg-border"
+        style={gridStyles}
         role="grid"
-        aria-label={`Weekly calendar for ${weekStart.toLocaleDateString()}`}
-        {..._ariaProps}
+        aria-label="Weekly calendar view"
+        aria-rowcount={25} // 24 time slots + 1 header
+        aria-colcount={8} // 7 days + 1 time column
+        {...ariaProps}
       >
-        {hourSlots.map((slot) => (
-          <React.Fragment key={slot.hour}>
-            <div 
-              className="flex items-start justify-end pr-2 py-1 text-sm text-gray-500"
-              role="rowheader"
+        {/* Empty corner cell */}
+        <div 
+          className="bg-muted/50 p-2 text-xs font-medium sticky top-0 z-10"
+          role="columnheader"
+          aria-label="Time column"
+        />
+        
+        {/* Day headers */}
+        {weekDays.map((day, dayIndex) => {
+          const { dayName, dayNumber, isToday } = formatDayHeader(day);
+          return (
+            <div
+              key={dayIndex}
+              className={`
+                bg-background p-2 text-center sticky top-0 z-10 border-b
+                ${isToday ? 'bg-primary/10 border-primary font-bold' : 'border-border'}
+              `}
+              role="columnheader"
+              aria-label={`${dayName} ${dayNumber}${isToday ? ' (today)' : ''}`}
             >
-              {slot.timeLabel}
+              <div className={`text-xs ${isToday ? 'text-primary' : 'text-muted-foreground'}`}>
+                {dayName}
+              </div>
+              <div className={`text-lg font-semibold ${isToday ? 'text-primary' : 'text-foreground'}`}>
+                {dayNumber}
+              </div>
+            </div>
+          );
+        })}
+        
+        {/* Time slots grid */}
+        {timeSlots.map((timeSlot) => (
+          <React.Fragment key={timeSlot.hour}>
+            {/* Time label */}
+            <div 
+              className="bg-muted/30 p-1 text-xs text-muted-foreground text-right pr-2 sticky left-0 z-5"
+              role="rowheader"
+              aria-label={timeSlot.timeLabel}
+            >
+              {timeSlot.timeLabel}
             </div>
             
-            {weekDays.map((day, _dayIndex) => {
-              const dayEvents = getEventsForDayHour(day.date, slot.hour);
-              const displayEvents = dayEvents.slice(0, maxEventsPerDay);
-              const hasMoreEvents = dayEvents.length > maxEventsPerDay;
-              
-              return (
-                <div
-                  key={`${day.date.toDateString()}-${slot.hour}`}
-                  className={`
-                    relative min-h-[60px] p-1 border border-gray-200 rounded
-                    hover:bg-gray-50 transition-colors
-                    ${day.isToday && slot.hour === new Date().getHours() ? 'bg-primary/10' : ''}
-                  `}
-                  role="gridcell"
-                  aria-label={`${slot.timeLabel} on ${day.date.toLocaleDateString()}, ${dayEvents.length} events`}
-                >
-                  <div className="space-y-1">
-                    {displayEvents.map((event, eventIndex) => (
-                      <CalendarEventComponent
-                        key={`${event.id}-${eventIndex}`}
-                        event={event}
-                        onClick={onEventClick}
-                        compact={true}
-                        showTimeLabels={false}
-                        enableDragAndDrop={enableDragAndDrop}
-                        className="w-full"
-                      />
-                    ))}
-                    
-                    {hasMoreEvents && (
-                      <div className="text-xs text-gray-500 text-center py-1">
-                        +{dayEvents.length - maxEventsPerDay} more
-                      </div>
-                    )}
-                  </div>
-                  
-                  {day.isToday && slot.hour === new Date().getHours() && (
-                    <div 
-                      className="absolute left-0 w-full h-0.5 bg-red-500 z-10"
-                      style={{
-                        top: `${(new Date().getMinutes() / 60) * 100}%`
-                      }}
-                      aria-hidden="true"
-                    />
-                  )}
-                </div>
-              );
-            })}
+            {/* Day slots for this hour */}
+            {timeSlot.slots.map((slot, slotIndex) => (
+              <TimeSlot
+                key={`${slot.dayIndex}-${timeSlot.hour}`}
+                startTime={slot.startTime}
+                endTime={slot.endTime}
+                events={slot.events}
+                onClick={onTimeSlotClick}
+                onEventClick={onEventClick}
+                onEventMove={onEventMove}
+                enableDragAndDrop={enableDragAndDrop}
+                maxEventsPerSlot={maxEventsPerSlot}
+                showTimeLabel={false} // Time labels are in the row headers
+                isWorkingHours={slot.isWorkingHours}
+                className={`
+                  min-h-[60px] border-b border-border
+                  ${slot.isToday ? 'bg-primary/5' : 'bg-background'}
+                  hover:bg-muted/50 transition-colors
+                  ${!slot.isWorkingHours ? 'bg-muted/20' : ''}
+                `}
+                compact={true}
+              />
+            ))}
           </React.Fragment>
         ))}
       </div>
-    </div>
+    </DragWrapper>
   );
 };

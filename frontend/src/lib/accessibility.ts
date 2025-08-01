@@ -615,7 +615,7 @@ export const a11y = {
  * Detect and respect user accessibility preferences
  */
 export function getUserPreferences() {
-  if (typeof window === 'undefined') {
+  if (typeof window === 'undefined' || !window.matchMedia) {
     return {
       reducedMotion: false,
       highContrast: false,
@@ -637,7 +637,7 @@ export function useAccessibilityPreferences() {
   const [preferences, setPreferences] = useState(getUserPreferences);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || !window.matchMedia) return;
 
     const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     const highContrastQuery = window.matchMedia('(prefers-contrast: high)');
@@ -659,6 +659,50 @@ export function useAccessibilityPreferences() {
   }, []);
 
   return preferences;
+}
+
+/**
+ * Hook for detecting reduced motion preference
+ */
+export function useReducedMotion() {
+  const [reducedMotion, setReducedMotion] = useState(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return false;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const updatePreference = () => setReducedMotion(mediaQuery.matches);
+
+    mediaQuery.addEventListener('change', updatePreference);
+    return () => mediaQuery.removeEventListener('change', updatePreference);
+  }, []);
+
+  return reducedMotion;
+}
+
+/**
+ * Hook for detecting high contrast preference
+ */
+export function useHighContrast() {
+  const [highContrast, setHighContrast] = useState(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return false;
+    return window.matchMedia('(prefers-contrast: high)').matches;
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+
+    const mediaQuery = window.matchMedia('(prefers-contrast: high)');
+    const updatePreference = () => setHighContrast(mediaQuery.matches);
+
+    mediaQuery.addEventListener('change', updatePreference);
+    return () => mediaQuery.removeEventListener('change', updatePreference);
+  }, []);
+
+  return highContrast;
 }
 
 // ===== FOCUS VISIBLE POLYFILL =====
@@ -738,4 +782,3 @@ export function announceSuccess(message: string) {
 // ===== EXPORTS =====
 
 export type { NavigationItem };
-export { FocusTrap, LiveAnnouncer, KeyboardNavigator };

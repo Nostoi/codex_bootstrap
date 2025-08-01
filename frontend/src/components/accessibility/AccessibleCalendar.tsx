@@ -20,8 +20,8 @@ import {
   LiveRegion,
   KeyboardNavigationContainer 
 } from './AccessibilityComponents';
-import { useKeyboardNavigation } from '../lib/keyboard-navigation';
-import { CALENDAR_ARIA, srText } from '../lib/aria-constants';
+import { useKeyboardNavigation } from '../../lib/keyboard-navigation';
+import { CALENDAR_ARIA, srText } from '../../lib/aria-constants';
 
 // ===== TYPES =====
 
@@ -282,9 +282,10 @@ export const AccessibleCalendar = forwardRef<HTMLDivElement, CalendarProps>(
       return grid.map(day => {
         const dayEvents = events.filter(event => isSameDay(event.date, day.date));
         const isSelected = selectedDate ? isSameDay(day.date, selectedDate) : false;
-        const isDisabled = 
+        const isDisabled = !!(
           (minDate && day.date < minDate) ||
-          (maxDate && day.date > maxDate);
+          (maxDate && day.date > maxDate)
+        );
         
         // Calculate energy level based on events
         let energyLevel: 'high' | 'medium' | 'low' | undefined;
@@ -476,40 +477,42 @@ export const AccessibleCalendar = forwardRef<HTMLDivElement, CalendarProps>(
           }}
         >
           {/* Week number header */}
-          {showWeekNumbers && (
-            <div 
-              role="columnheader"
-              className="accessible-calendar__week-header"
-              style={{
-                padding: 'var(--space-2)',
-                backgroundColor: 'var(--color-surface-secondary)',
-                fontSize: 'var(--font-size-sm)',
-                fontWeight: 'var(--font-weight-medium)',
-                textAlign: 'center',
-              }}
-            >
-              Wk
-            </div>
-          )}
+          <div role="row" style={{ display: 'contents' }}>
+            {showWeekNumbers && (
+              <div 
+                role="columnheader"
+                className="accessible-calendar__week-header"
+                style={{
+                  padding: 'var(--space-2)',
+                  backgroundColor: 'var(--color-surface-secondary)',
+                  fontSize: 'var(--font-size-sm)',
+                  fontWeight: 'var(--font-weight-medium)',
+                  textAlign: 'center',
+                }}
+              >
+                Wk
+              </div>
+            )}
 
-          {/* Day headers */}
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((dayName, index) => (
-            <div
-              key={dayName}
-              role="columnheader"
-              aria-colindex={showWeekNumbers ? index + 2 : index + 1}
-              className="accessible-calendar__day-header"
-              style={{
-                padding: 'var(--space-2)',
-                backgroundColor: 'var(--color-surface-secondary)',
-                fontSize: 'var(--font-size-sm)',
-                fontWeight: 'var(--font-weight-medium)',
-                textAlign: 'center',
-              }}
-            >
-              {dayName}
-            </div>
-          ))}
+            {/* Day headers */}
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((dayName, index) => (
+              <div
+                key={dayName}
+                role="columnheader"
+                aria-colindex={showWeekNumbers ? index + 2 : index + 1}
+                className="accessible-calendar__day-header"
+                style={{
+                  padding: 'var(--space-2)',
+                  backgroundColor: 'var(--color-surface-secondary)',
+                  fontSize: 'var(--font-size-sm)',
+                  fontWeight: 'var(--font-weight-medium)',
+                  textAlign: 'center',
+                }}
+              >
+                {dayName}
+              </div>
+            ))}
+          </div>
 
           {/* Calendar weeks */}
           {Array.from({ length: 6 }, (_, weekIndex) => {
@@ -518,7 +521,7 @@ export const AccessibleCalendar = forwardRef<HTMLDivElement, CalendarProps>(
             const firstDayOfWeek = weekDays[0]?.date;
             
             return (
-              <React.Fragment key={weekIndex}>
+              <div key={weekIndex} role="row" style={{ display: 'contents' }}>
                 {/* Week number */}
                 {showWeekNumbers && firstDayOfWeek && (
                   <div 
@@ -553,7 +556,7 @@ export const AccessibleCalendar = forwardRef<HTMLDivElement, CalendarProps>(
                     />
                   );
                 })}
-              </React.Fragment>
+              </div>
             );
           })}
         </div>

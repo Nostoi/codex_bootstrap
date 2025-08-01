@@ -8,13 +8,18 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TasksService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const notifications_service_1 = require("../notifications/notifications.service");
 let TasksService = class TasksService {
-    constructor(prisma) {
+    constructor(prisma, notificationsService) {
         this.prisma = prisma;
+        this.notificationsService = notificationsService;
     }
     async findAll(ownerId) {
         const where = {};
@@ -103,7 +108,7 @@ let TasksService = class TasksService {
         if (createTaskDto.projectId) {
             data.project = { connect: { id: createTaskDto.projectId } };
         }
-        return this.prisma.task.create({
+        const task = await this.prisma.task.create({
             data,
             include: {
                 project: {
@@ -114,8 +119,17 @@ let TasksService = class TasksService {
                 },
             },
         });
+        await this.notificationsService.notifyTaskCreated(ownerId, {
+            id: task.id,
+            title: task.title,
+            status: task.status,
+            priority: task.priority,
+            dueDate: task.dueDate,
+            updatedBy: ownerId,
+        });
+        return task;
     }
-    async update(id, updateTaskDto) {
+    async update(id, updateTaskDto, updatedBy) {
         const existingTask = await this.prisma.task.findUnique({ where: { id } });
         if (!existingTask) {
             throw new common_1.NotFoundException(`Task with ID ${id} not found`);
@@ -161,7 +175,7 @@ let TasksService = class TasksService {
                 ? { connect: { id: updateTaskDto.projectId } }
                 : { disconnect: true };
         }
-        return this.prisma.task.update({
+        const updatedTask = await this.prisma.task.update({
             where: { id },
             data,
             include: {
@@ -173,13 +187,30 @@ let TasksService = class TasksService {
                 },
             },
         });
+        await this.notificationsService.notifyTaskUpdate(updatedTask.ownerId, {
+            id: updatedTask.id,
+            title: updatedTask.title,
+            status: updatedTask.status,
+            priority: updatedTask.priority,
+            dueDate: updatedTask.dueDate,
+            updatedBy: updatedBy || updatedTask.ownerId,
+        });
+        return updatedTask;
     }
     async remove(id) {
-        const existingTask = await this.prisma.task.findUnique({ where: { id } });
+        const existingTask = await this.prisma.task.findUnique({
+            where: { id },
+            include: {
+                owner: {
+                    select: { id: true, name: true, email: true },
+                },
+            },
+        });
         if (!existingTask) {
             throw new common_1.NotFoundException(`Task with ID ${id} not found`);
         }
         await this.prisma.task.delete({ where: { id } });
+        await this.notificationsService.notifyTaskDeleted(existingTask.ownerId, existingTask.id, existingTask.title);
     }
     async toggle(id) {
         const task = await this.prisma.task.findUnique({ where: { id } });
@@ -326,6 +357,8 @@ let TasksService = class TasksService {
 exports.TasksService = TasksService;
 exports.TasksService = TasksService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __param(1, (0, common_1.Inject)((0, common_1.forwardRef)(() => notifications_service_1.NotificationsService))),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notifications_service_1.NotificationsService])
 ], TasksService);
 //# sourceMappingURL=tasks.service.js.map

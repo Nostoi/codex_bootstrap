@@ -8,6 +8,14 @@
 				"@pimzino/agentic-tools-mcp@1.8.1"
 			],
 			"env": {}
+		},
+		"memory": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@modelcontextprotocol/server-memory"
+			],
+			"type": "stdio"
 		}
 	},
 	"inputs": []

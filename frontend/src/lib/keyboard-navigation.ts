@@ -101,6 +101,25 @@ export class KeyboardNavigationManager {
 
     // Sort by priority if specified
     this.items.sort((a, b) => (b.priority || 0) - (a.priority || 0));
+
+    // Initialize tabindex values if not already set
+    const availableItems = this.options.skipDisabled 
+      ? this.items.filter(item => !item.disabled)
+      : this.items;
+
+    availableItems.forEach((item, index) => {
+      // Only set tabindex if it's not already set appropriately
+      const currentTabindex = item.element.getAttribute('tabindex');
+      if (currentTabindex === null || (currentTabindex !== '0' && currentTabindex !== '-1')) {
+        item.element.setAttribute('tabindex', index === 0 ? '0' : '-1');
+      }
+    });
+
+    // Set initial current index if not set
+    if (this.currentIndex === -1 && availableItems.length > 0) {
+      this.currentIndex = 0;
+      availableItems[0].element.classList.add('kb-focused');
+    }
   }
 
   private isElementDisabled(element: HTMLElement): boolean {
@@ -324,7 +343,15 @@ export class KeyboardNavigationManager {
     const currentItem = availableItems[this.currentIndex];
     currentItem.element.setAttribute('tabindex', '0');
     currentItem.element.classList.add('kb-focused');
-    currentItem.element.focus();
+    
+    // Try to focus with error handling for test environments
+    try {
+      currentItem.element.focus();
+    } catch (error) {
+      // In test environments, focus might not work properly
+      // The keyboard navigation still works with tabindex and kb-focused class
+      console.debug('Focus failed in test environment:', error);
+    }
 
     // Announce to screen readers
     this.announceCurrentItem(currentItem);

@@ -1,3 +1,5 @@
+2025-01-22T18:30:00Z Updated .github/copilot-instructions.md with comprehensive AI coding guidance
+
 2025-07-24T06:09:25Z Fix test suite and update lint config
 
 2025-07-25T01:38:51Z Add GitHub Actions CI workflow

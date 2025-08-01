@@ -1,13 +1,15 @@
 import { PrismaService } from "../prisma/prisma.service";
 import { Task, TaskDependency, UserSettings } from "@prisma/client";
 import { CreateTaskDto, UpdateTaskDto, CreateTaskDependencyDto, CreateUserSettingsDto, UpdateUserSettingsDto } from "./dto";
+import { NotificationsService } from "../notifications/notifications.service";
 export declare class TasksService {
     private prisma;
-    constructor(prisma: PrismaService);
+    private notificationsService;
+    constructor(prisma: PrismaService, notificationsService: NotificationsService);
     findAll(ownerId?: string): Promise<Task[]>;
     findOne(id: string): Promise<Task>;
     create(createTaskDto: CreateTaskDto, ownerId: string): Promise<Task>;
-    update(id: string, updateTaskDto: UpdateTaskDto): Promise<Task>;
+    update(id: string, updateTaskDto: UpdateTaskDto, updatedBy?: string): Promise<Task>;
     remove(id: string): Promise<void>;
     toggle(id: string): Promise<Task>;
     findTaskDependencies(taskId: string): Promise<TaskDependency[]>;

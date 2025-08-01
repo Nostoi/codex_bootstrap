@@ -2,6 +2,8 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Inject,
+  forwardRef,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { Task, TaskDependency, UserSettings, Prisma } from "@prisma/client";
@@ -12,10 +14,15 @@ import {
   CreateUserSettingsDto,
   UpdateUserSettingsDto,
 } from "./dto";
+import { NotificationsService } from "../notifications/notifications.service";
 
 @Injectable()
 export class TasksService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => NotificationsService))
+    private notificationsService: NotificationsService,
+  ) {}
 
   async findAll(ownerId?: string): Promise<Task[]> {
     const where: Prisma.TaskWhereInput = {};
@@ -111,7 +118,7 @@ export class TasksService {
       data.project = { connect: { id: createTaskDto.projectId } };
     }
 
-    return this.prisma.task.create({
+    const task = await this.prisma.task.create({
       data,
       include: {
         project: {
@@ -122,9 +129,21 @@ export class TasksService {
         },
       },
     });
+
+    // Send real-time notification for task creation
+    await this.notificationsService.notifyTaskCreated(ownerId, {
+      id: task.id,
+      title: task.title,
+      status: task.status,
+      priority: task.priority,
+      dueDate: task.dueDate,
+      updatedBy: ownerId,
+    });
+
+    return task;
   }
 
-  async update(id: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
+  async update(id: string, updateTaskDto: UpdateTaskDto, updatedBy?: string): Promise<Task> {
     const existingTask = await this.prisma.task.findUnique({ where: { id } });
     if (!existingTask) {
       throw new NotFoundException(`Task with ID ${id} not found`);
@@ -170,7 +189,7 @@ export class TasksService {
         : { disconnect: true };
     }
 
-    return this.prisma.task.update({
+    const updatedTask = await this.prisma.task.update({
       where: { id },
       data,
       include: {
@@ -182,15 +201,41 @@ export class TasksService {
         },
       },
     });
+
+    // Send real-time notification for task update
+    await this.notificationsService.notifyTaskUpdate(updatedTask.ownerId, {
+      id: updatedTask.id,
+      title: updatedTask.title,
+      status: updatedTask.status,
+      priority: updatedTask.priority,
+      dueDate: updatedTask.dueDate,
+      updatedBy: updatedBy || updatedTask.ownerId,
+    });
+
+    return updatedTask;
   }
 
   async remove(id: string): Promise<void> {
-    const existingTask = await this.prisma.task.findUnique({ where: { id } });
+    const existingTask = await this.prisma.task.findUnique({ 
+      where: { id },
+      include: {
+        owner: {
+          select: { id: true, name: true, email: true },
+        },
+      },
+    });
     if (!existingTask) {
       throw new NotFoundException(`Task with ID ${id} not found`);
     }
 
     await this.prisma.task.delete({ where: { id } });
+
+    // Send real-time notification for task deletion
+    await this.notificationsService.notifyTaskDeleted(
+      existingTask.ownerId,
+      existingTask.id,
+      existingTask.title,
+    );
   }
 
   async toggle(id: string): Promise<Task> {

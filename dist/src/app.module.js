@@ -12,17 +12,8 @@ const config_1 = require("@nestjs/config");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const prisma_module_1 = require("./prisma/prisma.module");
-const users_module_1 = require("./users/users.module");
-const collaboration_module_1 = require("./collaboration/collaboration.module");
-const google_module_1 = require("./integrations/google/google.module");
 const tasks_module_1 = require("./tasks/tasks.module");
 const notifications_module_1 = require("./notifications/notifications.module");
-const projects_module_1 = require("./projects/projects.module");
-const ai_module_1 = require("./ai/ai.module");
-const metrics_module_1 = require("./metrics/metrics.module");
-const security_module_1 = require("./security/security.module");
-const planning_module_1 = require("./planning/planning.module");
-const feature_flags_module_1 = require("./features/feature-flags.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -33,17 +24,8 @@ exports.AppModule = AppModule = __decorate([
                 isGlobal: true,
             }),
             prisma_module_1.PrismaModule,
-            users_module_1.UsersModule,
-            collaboration_module_1.CollaborationModule,
-            google_module_1.GoogleModule,
-            projects_module_1.ProjectsModule,
             tasks_module_1.TasksModule,
             notifications_module_1.NotificationsModule,
-            ai_module_1.AiModule,
-            metrics_module_1.MetricsModule,
-            security_module_1.SecurityModule,
-            planning_module_1.PlanningModule,
-            feature_flags_module_1.FeatureFlagsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

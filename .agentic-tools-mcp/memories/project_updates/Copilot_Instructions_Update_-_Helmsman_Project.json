@@ -1,0 +1,8 @@
+{
+  "id": "dc1b02f0-02d0-46b5-b4b5-b20bc7c18651",
+  "title": "Copilot Instructions Update - Helmsman Project",
+  "details": "Successfully analyzed and updated the .github/copilot-instructions.md file for the Helmsman project (ADHD-optimized task management system). \n\nKey changes made:\n- Enhanced project overview to reflect current ADHD-focused features\n- Added agent-specific Codex environment commands (TaskMaster, CreatePrd, CreateTasks)\n- Updated development workflow commands with correct package management (pnpm for frontend/root, npm for backend)\n- Added comprehensive code patterns for Zustand state management, NestJS services, and accessibility components\n- Included ADHD-specific UI patterns with energy level colors and focus type indicators\n- Enhanced testing patterns with accessibility-first approach using axe-core\n- Added AI integration architecture for OpenAI service and Microsoft Graph integration\n- Documented performance optimization guidelines for ADHD users\n\nThe updated file is now 479 lines and provides comprehensive guidance for AI coding assistants working on this ADHD-optimized full-stack application built with Next.js 14+, NestJS, PostgreSQL, and Prisma.\n\nOriginal file backed up as copilot-instructions-backup.md. Updated CHANGELOG.md with timestamp entry.",
+  "category": "project_updates",
+  "dateCreated": "2025-08-01T05:54:15.300Z",
+  "dateUpdated": "2025-08-01T05:54:15.300Z"
+}

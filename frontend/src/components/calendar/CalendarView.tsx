@@ -67,12 +67,6 @@ const CalendarView: React.FC<CalendarViewComponentProps> = ({
     focusTimeSlot
   } = useCalendarFocusManagement(calendarRef);
 
-  // Convert CalendarDate to ISO string for API
-  const dateString = `${currentDate.year}-${currentDate.month.toString().padStart(2, '0')}-${currentDate.day.toString().padStart(2, '0')}`;
-
-  // Fetch calendar events for current date
-  const { data: calendarData, isLoading, error, refetch } = useCalendarEvents(dateString);
-
   // Handle event move for drag and drop
   const handleEventMove = async (eventId: string, newStartTime: Date, newEndTime: Date) => {
     try {

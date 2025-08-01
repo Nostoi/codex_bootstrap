@@ -520,11 +520,11 @@ export const focusStyles = {
 export const ADHD_ARIA = {
   /**
    * Energy level indicators with clear semantics
+   * Note: For buttons, we avoid role conflicts by using data attributes and aria-label
    */
   energyIndicator: (level: 'high' | 'medium' | 'low') => ({
-    role: 'status',
     'aria-label': srText.energyLevel(level),
-    'aria-live': 'polite',
+    'data-energy-level': level,
   }),
 
   /**
@@ -551,11 +551,11 @@ export const ADHD_ARIA = {
 
   /**
    * Cognitive load indicators
+   * Note: For buttons, we avoid role conflicts by using data attributes and aria-label
    */
   cognitiveLoad: (level: 'low' | 'medium' | 'high') => ({
-    role: 'status',
     'aria-label': `Cognitive load: ${level}`,
-    'aria-live': 'polite',
+    'data-cognitive-load': level,
   }),
 };
 
