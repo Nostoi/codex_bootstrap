@@ -68,9 +68,11 @@ const nextConfig = {
       };
     }
 
-    // Tree shaking optimization
-    config.optimization.usedExports = true;
-    config.optimization.sideEffects = false;
+    // Tree shaking optimization - only in production to avoid turbo conflicts
+    if (!dev) {
+      config.optimization.usedExports = true;
+      config.optimization.sideEffects = false;
+    }
 
     // Service Worker support
     if (!isServer && !dev) {

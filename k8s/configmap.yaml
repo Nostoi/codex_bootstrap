@@ -11,9 +11,24 @@ data:
   # These values can be updated without redeploying the application
   enhanced-task-metadata: "true"
   ai-task-extraction: "true"
-  daily-planning: "false"
+  daily-planning: "true"
   mem0-integration: "false"
   advanced-ai-features: "false"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: codex-bootstrap
+  labels:
+    app: helmsman
+    component: app-config
+data:
+  # Application configuration
+  api-url: "http://codex-backend:8000"
+  websocket-url: "ws://codex-backend:8001"
+  cors-origin: "http://codex-frontend"
+  app-version: "1.0.0"
 ---
 apiVersion: v1
 kind: Secret
@@ -46,6 +61,33 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: openai-secret
+  namespace: codex-bootstrap
+  labels:
+    app: helmsman
+    component: ai
+type: Opaque
+data:
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: oauth-secret
+  namespace: codex-bootstrap
+  labels:
+    app: helmsman
+    component: oauth
+type: Opaque
+data:
+  # Base64 encoded OAuth credentials
+  google-client-id: eW91cl9nb29nbGVfY2xpZW50X2lk
+  google-client-secret: eW91cl9nb29nbGVfY2xpZW50X3NlY3JldA==
+  microsoft-client-id: eW91cl9taWNyb3NvZnRfY2xpZW50X2lk
+  microsoft-client-secret: eW91cl9taWNyb3NvZnRfY2xpZW50X3NlY3JldA==
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ai-secret
   namespace: codex-bootstrap
   labels:
     app: helmsman

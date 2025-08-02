@@ -6,6 +6,8 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=8000
+      - WEBSOCKET_PORT=8001
+      - CORS_ORIGIN=https://your-domain.com
       # Feature flags for production - gradual rollout
       - FF_ENHANCED_TASK_METADATA=true
       - FF_AI_TASK_EXTRACTION=true

@@ -1,0 +1,365 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME_BACKEND: ${{ github.repository }}/backend
+  IMAGE_NAME_FRONTEND: ${{ github.repository }}/frontend
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_USER: test
+          POSTGRES_DB: codex_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          npm ci
+
+      - name: Run Prisma migrations
+        run: |
+          cd backend
+          npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/codex_test
+
+      - name: Run backend tests
+        run: |
+          cd backend
+          npm run test
+          npm run test:e2e -- --forceExit
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/codex_test
+          JWT_SECRET: test-secret
+          GOOGLE_CLIENT_ID: test-client-id
+          GOOGLE_CLIENT_SECRET: test-client-secret
+
+      - name: Upload backend coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./backend/coverage/lcov.info
+          flags: backend
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Run frontend tests
+        run: |
+          cd frontend
+          npm run test:ci
+          npm run test:e2e
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Upload frontend coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./frontend/coverage/lcov.info
+          flags: frontend
+
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Run npm audit (backend)
+        run: |
+          cd backend
+          npm audit --audit-level high
+
+      - name: Run npm audit (frontend)
+        run: |
+          cd frontend
+          npm audit --audit-level high
+
+  build-and-push:
+    needs: [test-backend, test-frontend, security-scan]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (backend)
+        id: meta-backend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Extract metadata (frontend)
+        id: meta-frontend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.backend
+          push: true
+          tags: ${{ steps.meta-backend.outputs.tags }}
+          labels: ${{ steps.meta-backend.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./Dockerfile.frontend
+          push: true
+          tags: ${{ steps.meta-frontend.outputs.tags }}
+          labels: ${{ steps.meta-frontend.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+  deploy-staging:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configure kubectl
+        run: |
+          echo "${{ secrets.KUBE_CONFIG_STAGING }}" | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
+
+      - name: Deploy to staging
+        run: |
+          export KUBECONFIG=kubeconfig
+          # Update image tags in deployment manifests
+          sed -i "s|ghcr.io/${{ github.repository }}/backend:.*|ghcr.io/${{ github.repository }}/backend:develop-${{ github.sha }}|g" k8s/backend-deployment.yaml
+          sed -i "s|ghcr.io/${{ github.repository }}/frontend:.*|ghcr.io/${{ github.repository }}/frontend:develop-${{ github.sha }}|g" k8s/frontend-deployment.yaml
+          
+          # Apply all manifests
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/configmap.yaml
+          kubectl apply -f k8s/database.yaml
+          kubectl apply -f k8s/backend-deployment.yaml
+          kubectl apply -f k8s/frontend-deployment.yaml
+          kubectl apply -f k8s/ingress.yaml
+          kubectl apply -f k8s/monitoring.yaml
+          kubectl apply -f k8s/prometheus-config.yaml
+          
+          # Wait for deployments to be ready
+          kubectl rollout status deployment/codex-backend -n codex-bootstrap --timeout=300s
+          kubectl rollout status deployment/codex-frontend -n codex-bootstrap --timeout=300s
+
+      - name: Run smoke tests
+        run: |
+          export KUBECONFIG=kubeconfig
+          # Get the staging URL
+          STAGING_URL=$(kubectl get ingress codex-ingress -n codex-bootstrap -o jsonpath='{.spec.rules[0].host}')
+          
+          # Wait for services to be ready
+          sleep 30
+          
+          # Basic health checks
+          curl -f https://$STAGING_URL/api/health || exit 1
+          curl -f https://$STAGING_URL/ || exit 1
+
+  deploy-production:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configure kubectl
+        run: |
+          echo "${{ secrets.KUBE_CONFIG_PRODUCTION }}" | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
+
+      - name: Deploy to production
+        run: |
+          export KUBECONFIG=kubeconfig
+          # Update image tags in deployment manifests
+          sed -i "s|ghcr.io/${{ github.repository }}/backend:.*|ghcr.io/${{ github.repository }}/backend:main-${{ github.sha }}|g" k8s/backend-deployment.yaml
+          sed -i "s|ghcr.io/${{ github.repository }}/frontend:.*|ghcr.io/${{ github.repository }}/frontend:main-${{ github.sha }}|g" k8s/frontend-deployment.yaml
+          
+          # Apply database changes first
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/configmap.yaml
+          kubectl apply -f k8s/database.yaml
+          
+          # Wait for database to be ready
+          kubectl rollout status statefulset/postgresql -n codex-bootstrap --timeout=300s
+          
+          # Apply application deployments
+          kubectl apply -f k8s/backend-deployment.yaml
+          kubectl apply -f k8s/frontend-deployment.yaml
+          kubectl apply -f k8s/ingress.yaml
+          kubectl apply -f k8s/monitoring.yaml
+          kubectl apply -f k8s/prometheus-config.yaml
+          
+          # Wait for deployments to be ready
+          kubectl rollout status deployment/codex-backend -n codex-bootstrap --timeout=300s
+          kubectl rollout status deployment/codex-frontend -n codex-bootstrap --timeout=300s
+
+      - name: Run production smoke tests
+        run: |
+          export KUBECONFIG=kubeconfig
+          # Get the production URL
+          PROD_URL=$(kubectl get ingress codex-ingress -n codex-bootstrap -o jsonpath='{.spec.rules[0].host}')
+          
+          # Wait for services to be ready
+          sleep 60
+          
+          # Comprehensive health checks
+          curl -f https://$PROD_URL/api/health || exit 1
+          curl -f https://$PROD_URL/ || exit 1
+          
+          # Test WebSocket connection
+          node -e "
+            const WebSocket = require('ws');
+            const ws = new WebSocket('wss://$PROD_URL/ws');
+            ws.on('open', () => {
+              console.log('WebSocket connection successful');
+              ws.close();
+              process.exit(0);
+            });
+            ws.on('error', (error) => {
+              console.error('WebSocket connection failed:', error);
+              process.exit(1);
+            });
+            setTimeout(() => {
+              console.error('WebSocket connection timeout');
+              process.exit(1);
+            }, 10000);
+          "
+
+      - name: Notify deployment success
+        uses: 8398a7/action-slack@v3
+        if: success()
+        with:
+          status: success
+          text: '🚀 Production deployment successful! Version: ${{ github.sha }}'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify deployment failure
+        uses: 8398a7/action-slack@v3
+        if: failure()
+        with:
+          status: failure
+          text: '❌ Production deployment failed! Check the logs for details.'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  cleanup:
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [deploy-staging, deploy-production]
+    
+    steps:
+      - name: Clean up old images
+        run: |
+          # This would typically connect to your registry and clean up old images
+          echo "Cleaning up old container images..."
+          # Implementation depends on your registry (GitHub Packages, Docker Hub, etc.)
