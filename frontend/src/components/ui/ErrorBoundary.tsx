@@ -86,7 +86,11 @@ const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({
         </button>
         
         <button
-          onClick={() => window.location.reload()}
+          onClick={() => {
+            if (typeof window !== 'undefined') { // SSR check
+              window.location.reload();
+            }
+          }}
           className={cn(
             'px-4 py-2 text-sm font-medium text-red-700 bg-white border border-red-300 rounded-md',
             'hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500',

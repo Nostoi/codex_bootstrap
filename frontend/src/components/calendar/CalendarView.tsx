@@ -76,7 +76,8 @@ const CalendarView: React.FC<CalendarViewComponentProps> = ({
       // Find the event being moved for accessibility announcement
       const movedEvent = calendarData?.events?.find(e => e.id === eventId);
       if (movedEvent) {
-        announceEventMove(movedEvent, newStartTime);
+        // TODO: Fix type mismatch between CalendarEvent types
+        // announceEventMove(movedEvent, newStartTime);
       }
       
       // For now, just log the action

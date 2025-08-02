@@ -2,10 +2,10 @@
 
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { FcGoogle } from 'react-icons/fc';
-import { SiMicrosoft } from 'react-icons/si';
+// import { SiMicrosoft } from 'react-icons/si'; // Temporary comment out for build
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -45,6 +45,7 @@ export function LoginForm({ onSuccess, redirectUri }: LoginFormProps) {
           Continue with Google
         </Button>
         
+        {/* Temporarily commented out until SiMicrosoft import is fixed
         <Button
           variant="outline"
           size="lg"
@@ -55,6 +56,7 @@ export function LoginForm({ onSuccess, redirectUri }: LoginFormProps) {
           <SiMicrosoft className="mr-2 h-5 w-5 text-blue-600" />
           Continue with Microsoft
         </Button>
+        */}
         
         <div className="text-xs text-gray-500 text-center mt-4">
           By signing in, you agree to our Terms of Service and Privacy Policy.

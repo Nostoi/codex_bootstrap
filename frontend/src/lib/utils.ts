@@ -88,6 +88,10 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
  * Focus management utility for accessibility
  */
 export function trapFocus(element: HTMLElement): () => void {
+  if (typeof document === 'undefined') { // SSR check
+    return () => {}; // Return empty cleanup function
+  }
+  
   const focusableElements = element.querySelectorAll(
     'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
   );
@@ -95,18 +99,18 @@ export function trapFocus(element: HTMLElement): () => void {
   const firstElement = focusableElements[0] as HTMLElement;
   const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
 
-  function handleTabKey(e: KeyboardEvent) {
-    if (e.key !== 'Tab') return;
-
-    if (e.shiftKey) {
-      if (document.activeElement === firstElement) {
-        lastElement?.focus();
-        e.preventDefault();
-      }
-    } else {
-      if (document.activeElement === lastElement) {
-        firstElement?.focus();
-        e.preventDefault();
+  const handleTabKey = (e: KeyboardEvent) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          lastElement?.focus();
+          e.preventDefault();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          firstElement?.focus();
+          e.preventDefault();
+        }
       }
     }
   }

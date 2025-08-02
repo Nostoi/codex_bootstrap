@@ -229,12 +229,6 @@ const CalendarDay = forwardRef<HTMLButtonElement, CalendarDayProps>(
             level={day.energyLevel}
             className="calendar-day__energy"
             showText={false}
-            style={{
-              position: 'absolute',
-              top: '2px',
-              left: '2px',
-              fontSize: '8px',
-            }}
           />
         )}
         

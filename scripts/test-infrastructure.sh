@@ -72,7 +72,7 @@ test_docker_build() {
     fi
     
     # Test frontend build
-    if docker build -t codex-frontend:test -f Dockerfile.frontend ./frontend > /dev/null 2>&1; then
+    if docker build -t codex-frontend:test -f Dockerfile.frontend . > /dev/null 2>&1; then
         test_pass "Frontend Docker build"
     else
         test_fail "Frontend Docker build" "Failed to build frontend image"

@@ -86,6 +86,7 @@ export const Modal: React.FC<ModalProps> = ({
   // Handle escape key
   useEffect(() => {
     if (!isOpen || !closeOnEscape) return;
+    if (typeof document === 'undefined') return; // SSR check
 
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -122,14 +123,15 @@ export const Modal: React.FC<ModalProps> = ({
 
   // Body scroll lock
   useEffect(() => {
-    if (isOpen) {
-      const originalStyle = window.getComputedStyle(document.body).overflow;
-      document.body.style.overflow = 'hidden';
-      
-      return () => {
-        document.body.style.overflow = originalStyle;
-      };
-    }
+    if (!isOpen) return;
+    if (typeof window === 'undefined' || typeof document === 'undefined') return; // SSR check
+    
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    document.body.style.overflow = 'hidden';
+    
+    return () => {
+      document.body.style.overflow = originalStyle;
+    };
   }, [isOpen]);
 
   // Don't render if not open

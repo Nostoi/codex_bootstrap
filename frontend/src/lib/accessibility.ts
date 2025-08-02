@@ -167,6 +167,7 @@ export class FocusTrap {
 
   activate(): void {
     if (this.isActive) return;
+    if (typeof document === 'undefined') return; // SSR check
 
     this.previousFocus = document.activeElement as HTMLElement;
     this.isActive = true;
@@ -183,6 +184,7 @@ export class FocusTrap {
 
   deactivate(): void {
     if (!this.isActive) return;
+    if (typeof document === 'undefined') return; // SSR check
 
     this.isActive = false;
     document.removeEventListener('keydown', this.handleKeyDown);

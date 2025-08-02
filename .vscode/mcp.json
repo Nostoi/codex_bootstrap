@@ -9,14 +9,34 @@
 			],
 			"env": {}
 		},
-		"memory": {
+		"cipher": {
+			"type": "stdio",
 			"command": "npx",
-			"args": [
-				"-y",
-				"@modelcontextprotocol/server-memory"
-			],
-			"type": "stdio"
-		}
+			"args": ["@byterover/cipher@0.2.0", "--mode", "mcp"],
+			"env": {
+				// --- MCP aggregator ---
+				"MCP_SERVER_MODE": "aggregator",
+				"AGGREGATOR_CONFLICT_RESOLUTION": "prefix",
+				"AGGREGATOR_TIMEOUT": "60000",
+
+				// --- vector store ---
+				"VECTOR_STORE_TYPE": "qdrant",
+				"VECTOR_STORE_URL": "http://localhost:8999",
+				"VECTOR_STORE_COLLECTION": "helmsman",
+				"VECTOR_STORE_DIMENSION": "1536",
+				"VECTOR_STORE_DISTANCE": "Cosine",
+
+
+				// --- reflection memory (optional) ---
+				"REFLECTION_VECTOR_STORE_COLLECTION": "helmsman_reflection",
+				"DISABLE_REFLECTION_MEMORY": "false",          // flip to "false" when you’re ready
+
+				// --- logging / perf ---
+				"CIPHER_LOG_LEVEL": "info",
+				"REDACT_SECRETS": "true",
+				"MCP_GLOBAL_TIMEOUT": "30000"
+			}
+		},
 	},
 	"inputs": []
 }

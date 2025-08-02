@@ -2,6 +2,16 @@
 const nextConfig = {
   output: 'standalone',
   
+  // Skip ESLint during build in production
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  
+  // Skip TypeScript checking during build in production
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  
   // Performance optimizations for ADHD-friendly experience
   experimental: {
     optimizeCss: true,

@@ -3,10 +3,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui';
 import { CheckCircle, Calendar, Clock, Users, ArrowRight } from 'lucide-react';
 import { FcGoogle } from 'react-icons/fc';
-import { SiMicrosoft } from 'react-icons/si';
+// import { SiMicrosoft } from 'react-icons/si'; // Temporarily disabled - export not found
 
 interface OnboardingFlowProps {
   onComplete?: () => void;
@@ -49,7 +49,9 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       if (response.ok) {
         const data = await response.json();
         // Redirect to OAuth with calendar scopes
-        window.location.href = data.authUrl;
+        if (typeof window !== 'undefined') { // SSR check
+          window.location.href = data.authUrl;
+        }
       } else {
         throw new Error('Failed to request calendar permissions');
       }
@@ -171,7 +173,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center space-x-3">
-                    <SiMicrosoft className="h-6 w-6 text-blue-600" />
+                    <Calendar className="h-6 w-6 text-blue-600" /> {/* TODO: Replace with SiMicrosoft when available */}
                     <div>
                       <div className="font-medium">Microsoft Outlook</div>
                       <div className="text-sm text-gray-500">

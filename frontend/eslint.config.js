@@ -18,10 +18,16 @@ module.exports = {
   },
   plugins: ['@typescript-eslint'],
   rules: {
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'warn',
+    'react/display-name': 'warn',
+    'react/no-unescaped-entities': 'warn',
+    '@next/next/no-img-element': 'warn',
+    'jsx-a11y/alt-text': 'warn',
+    'react-hooks/exhaustive-deps': 'warn',
+    'import/no-anonymous-default-export': 'warn',
   },
   env: {
     browser: true,

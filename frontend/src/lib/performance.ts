@@ -38,10 +38,16 @@ export class PerformanceMonitor {
   private observers: Map<string, PerformanceObserver> = new Map();
 
   constructor() {
-    this.initializeObservers();
+    // Only initialize observers on the client side
+    if (typeof window !== 'undefined') {
+      this.initializeObservers();
+    }
   }
 
   private initializeObservers() {
+    // Guard against SSR
+    if (typeof window === 'undefined') return;
+    
     // Largest Contentful Paint observer
     if ('PerformanceObserver' in window && PerformanceObserver.supportedEntryTypes?.includes('largest-contentful-paint')) {
       const lcpObserver = new PerformanceObserver((list) => {
@@ -107,8 +113,8 @@ export class PerformanceMonitor {
 
   private trackPerformanceViolation(metric: string, value: number, budget: number) {
     // In production, this would send metrics to analytics
-    if (typeof window !== 'undefined' && window.gtag) {
-      window.gtag('event', 'performance_budget_violation', {
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'performance_budget_violation', {
         metric_name: metric,
         metric_value: value,
         budget_value: budget,
@@ -261,35 +267,6 @@ export const useMemoryMonitor = () => {
   return memoryInfo;
 };
 
-// Intersection Observer for lazy loading optimization
-export const useLazyLoad = (threshold = 0.1) => {
-  const [isIntersecting, setIsIntersecting] = useState(false);
-  const [element, setElement] = useState<Element | null>(null);
-
-  const elementRef = useCallback((node: Element | null) => {
-    if (node) setElement(node);
-  }, []);
-
-  useEffect(() => {
-    if (!element) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsIntersecting(entry.isIntersecting);
-      },
-      { threshold }
-    );
-
-    observer.observe(element);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [element, threshold]);
-
-  return { elementRef, isIntersecting };
-};
-
 // Web Vitals reporting for production monitoring
 export const reportWebVitals = (metric: WebVitals) => {
   // Log to console in development
@@ -302,8 +279,8 @@ export const reportWebVitals = (metric: WebVitals) => {
   }
 
   // Send to analytics in production
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('event', metric.name, {
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', metric.name, {
       value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value),
       event_category: 'Web Vitals',
       event_label: metric.id,
