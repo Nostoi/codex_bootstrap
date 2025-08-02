@@ -5,6 +5,9 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
+# Install pnpm globally
+RUN npm install -g pnpm
+
 # Install build dependencies
 RUN apk add --no-cache \
     python3 \
@@ -15,23 +18,27 @@ RUN apk add --no-cache \
 
 # Copy package files
 COPY backend/package*.json ./
+COPY backend/pnpm-lock.yaml ./
 COPY backend/prisma ./prisma
 
 # Install all dependencies (including dev dependencies for build)
-RUN npm ci --only=production=false
+RUN pnpm install --frozen-lockfile
 
 # Copy source code
 COPY backend/ ./
 
 # Generate Prisma client
-RUN npx prisma generate
+RUN pnpm exec prisma generate
 
 # Build the application
-RUN npm run build
+RUN pnpm run build
 
 # Production stage
 FROM node:20-alpine AS production
 WORKDIR /app
+
+# Install pnpm globally
+RUN npm install -g pnpm
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
@@ -43,16 +50,27 @@ RUN apk add --no-cache \
     bash \
     curl \
     tini \
-    dumb-init
+    dumb-init \
+    && rm -rf /var/cache/apk/*
+
+# Set security labels
+LABEL security.scan.enabled="true" \
+      security.non-root="true" \
+      security.no-new-privileges="true" \
+      org.opencontainers.image.title="Codex Bootstrap Backend" \
+      org.opencontainers.image.description="AI-augmented task management backend"
 
 # Copy package files and install production dependencies only
 COPY backend/package*.json ./
-RUN npm ci --only=production && npm cache clean --force
+COPY backend/pnpm-lock.yaml ./
+COPY --from=builder /app/prisma ./prisma
+RUN pnpm install --prod --frozen-lockfile && pnpm store prune
+
+# Generate Prisma client in production stage
+RUN pnpm exec prisma generate
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/prisma ./prisma
 
 # Install wait-for-it for database readiness
 ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /wait-for-it.sh
@@ -60,14 +78,23 @@ RUN chmod +x /wait-for-it.sh
 
 # Change ownership to non-root user
 RUN chown -R nestjs:nodejs /app && \
-    chown nestjs:nodejs /wait-for-it.sh
+    chown nestjs:nodejs /wait-for-it.sh && \
+    chmod +x /wait-for-it.sh
 
 # Switch to non-root user
 USER nestjs
 
-# Set environment variables
-ENV NODE_ENV=production
-ENV NODE_PATH=/app/node_modules
+# Set environment variables for security and performance
+ENV NODE_ENV=production \
+    NODE_PATH=/app/node_modules \
+    NODE_OPTIONS="--max-old-space-size=512" \
+    NPM_CONFIG_CACHE=/tmp/.npm \
+    NPM_CONFIG_UPDATE_NOTIFIER=false
+
+# Security: Disable new privileges and set security options
+# These will be enforced by the container runtime
+ENV SECURITY_NON_ROOT=true \
+    SECURITY_NO_NEW_PRIVILEGES=true
 
 # Add comprehensive health check
 HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \

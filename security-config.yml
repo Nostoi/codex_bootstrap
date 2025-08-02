@@ -1,0 +1,156 @@
+# Container Security Configuration for Codex Bootstrap
+# This file defines security policies and scanning configurations
+
+security:
+  # Trivy vulnerability scanning configuration
+  trivy:
+    severity: "HIGH,CRITICAL"
+    ignore_unfixed: true
+    format: "json"
+    output: "trivy-report.json"
+    
+    # Exit codes
+    exit_code: 1  # Fail on vulnerabilities
+    
+    # Skip files/directories
+    skip_files:
+      - "*.md"
+      - "docs/"
+      - "test/"
+    
+    # Skip specific vulnerabilities (with justification)
+    ignore_cves:
+      # Add CVEs to ignore here with justification
+      # - "CVE-2023-XXXXX"  # Justification: False positive in Alpine package
+    
+  # Docker security best practices checklist
+  docker_security:
+    non_root_user: true
+    read_only_root_filesystem: false  # Set to true after testing
+    no_new_privileges: true
+    drop_capabilities:
+      - ALL
+    add_capabilities:
+      - CHOWN
+      - SETGID
+      - SETUID
+    
+    # Security labels
+    labels:
+      security.scan.trivy: "enabled"
+      security.run.non-root: "true"
+      security.build.date: "auto"
+      security.version: "1.0.0"
+
+  # Container runtime security
+  runtime:
+    # AppArmor/SELinux profiles
+    apparmor_profile: "docker-default"
+    
+    # Resource limits for security
+    memory_limit: "512m"
+    cpu_limit: "0.5"
+    
+    # Network security
+    network_mode: "bridge"
+    
+    # Filesystem security
+    tmpfs:
+      - "/tmp:noexec,nosuid,size=100m"
+      - "/var/tmp:noexec,nosuid,size=50m"
+
+  # Image security policies
+  image_policies:
+    # Base image requirements
+    allowed_base_images:
+      - "node:20-alpine"
+      - "alpine:3.18"
+      - "scratch"
+    
+    # Registry security
+    trusted_registries:
+      - "docker.io"
+      - "ghcr.io"
+      - "gcr.io"
+    
+    # Image signing requirements
+    require_signed_images: false  # Enable in production
+    cosign_verification: false    # Enable with proper key management
+
+# Environment-specific security configurations
+environments:
+  development:
+    strict_mode: false
+    debug_enabled: true
+    vulnerability_tolerance: "MEDIUM"
+    
+  staging:
+    strict_mode: true
+    debug_enabled: false
+    vulnerability_tolerance: "HIGH"
+    require_health_checks: true
+    
+  production:
+    strict_mode: true
+    debug_enabled: false
+    vulnerability_tolerance: "CRITICAL"
+    require_health_checks: true
+    require_signed_images: true
+    enforce_resource_limits: true
+
+# Compliance and audit settings
+compliance:
+  frameworks:
+    - "CIS Docker Benchmark"
+    - "NIST Cybersecurity Framework"
+    - "SOC 2 Type II"
+  
+  audit_logging: true
+  security_scanning_frequency: "daily"
+  
+  # Security monitoring
+  monitoring:
+    container_runtime_security: true
+    network_traffic_analysis: true
+    file_integrity_monitoring: true
+    anomaly_detection: true
+
+# Security automation
+automation:
+  # Automated security scanning in CI/CD
+  ci_integration:
+    scan_on_build: true
+    fail_on_high_vulnerabilities: true
+    security_gate_required: true
+    
+  # Dependency scanning
+  dependency_scanning:
+    npm_audit: true
+    snyk_integration: false  # Configure if using Snyk
+    github_security_advisories: true
+    
+  # Secrets scanning
+  secrets_scanning:
+    detect_hardcoded_secrets: true
+    scan_git_history: false  # Enable for thorough audit
+    supported_patterns:
+      - "api_keys"
+      - "database_urls"
+      - "jwt_secrets"
+      - "oauth_tokens"
+
+# Incident response
+incident_response:
+  security_contacts:
+    - "security@company.com"
+  
+  escalation_procedures:
+    critical: "immediate"
+    high: "24_hours"
+    medium: "72_hours"
+    low: "weekly"
+  
+  automated_responses:
+    quarantine_vulnerable_containers: true
+    notify_security_team: true
+    create_security_tickets: true
