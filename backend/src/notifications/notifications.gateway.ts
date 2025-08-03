@@ -1,6 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { WebSocketServer, WebSocketGateway, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
-import { Server, WebSocket } from 'ws';
+import { 
+  WebSocketServer, 
+  WebSocketGateway, 
+  OnGatewayInit, 
+  OnGatewayConnection, 
+  OnGatewayDisconnect,
+  ConnectedSocket,
+  MessageBody,
+  SubscribeMessage
+} from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
 
 export interface NotificationPayload {
   type: 'task-update' | 'calendar-sync' | 'plan-regeneration' | 'deadline-reminder' | 'conflict-alert' | 'connection-confirmed' | 'task-created' | 'task-deleted';
@@ -9,15 +18,14 @@ export interface NotificationPayload {
   timestamp: Date;
 }
 
-interface AuthenticatedWebSocket extends WebSocket {
+interface AuthenticatedSocket extends Socket {
   userId?: string;
   sessionId?: string;
 }
 
 @Injectable()
 @WebSocketGateway({
-  port: 8001,
-  path: '/notifications',
+  namespace: 'notifications',
   cors: {
     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true,
@@ -28,24 +36,23 @@ export class NotificationsGateway implements OnGatewayInit, OnGatewayConnection,
   server: Server;
 
   private readonly logger = new Logger(NotificationsGateway.name);
-  private connectedClients = new Map<string, AuthenticatedWebSocket[]>();
+  private connectedClients = new Map<string, AuthenticatedSocket[]>();
   private offlineNotifications = new Map<string, NotificationPayload[]>();
 
   afterInit(server: Server) {
     this.logger.log('WebSocket server initialized on port 8001');
   }
 
-  handleConnection(client: AuthenticatedWebSocket) {
+  handleConnection(client: AuthenticatedSocket) {
     this.logger.log('Client attempting to connect');
     
-    // Extract user ID from query parameters or headers
-    const url = new URL(client.url || '', 'ws://localhost:8001');
-    const userId = url.searchParams.get('userId');
-    const sessionId = url.searchParams.get('sessionId');
+    // Extract user ID from handshake query
+    const userId = client.handshake.query.userId as string;
+    const sessionId = client.handshake.query.sessionId as string;
 
     if (!userId) {
       this.logger.warn('Client connection rejected: No userId provided');
-      client.close(1008, 'Authentication required');
+      client.disconnect();
       return;
     }
 
@@ -72,7 +79,7 @@ export class NotificationsGateway implements OnGatewayInit, OnGatewayConnection,
     });
   }
 
-  handleDisconnect(client: AuthenticatedWebSocket) {
+  handleDisconnect(client: AuthenticatedSocket) {
     if (client.userId) {
       const userClients = this.connectedClients.get(client.userId);
       if (userClients) {
@@ -105,7 +112,7 @@ export class NotificationsGateway implements OnGatewayInit, OnGatewayConnection,
     }
 
     userClients.forEach(client => {
-      if (client.readyState === WebSocket.OPEN) {
+      if (client.connected) {
         this.sendToClient(client, payload);
       }
     });
@@ -121,7 +128,7 @@ export class NotificationsGateway implements OnGatewayInit, OnGatewayConnection,
 
     this.connectedClients.forEach((clients, userId) => {
       clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
+        if (client.connected) {
           this.sendToClient(client, { ...payload, userId });
         }
       });
@@ -205,9 +212,9 @@ export class NotificationsGateway implements OnGatewayInit, OnGatewayConnection,
   }
 
   // Private helper methods
-  private sendToClient(client: AuthenticatedWebSocket, payload: NotificationPayload) {
+  private sendToClient(client: AuthenticatedSocket, payload: NotificationPayload) {
     try {
-      client.send(JSON.stringify(payload));
+      client.emit('notification', payload);
       this.logger.debug(`Sent notification to client: ${payload.type}`);
     } catch (error) {
       this.logger.error(`Failed to send notification to client: ${error.message}`);

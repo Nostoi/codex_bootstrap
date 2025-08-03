@@ -30,6 +30,7 @@
     "dist",
     "src/auth_disabled/**/*",
     "src/integrations_disabled/**/*",
-    "src/planning_disabled/**/*"
+    "src/planning_disabled/**/*",
+    "src/security_disabled/**/*"
   ]
 }

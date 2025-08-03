@@ -174,10 +174,19 @@ model Notification {
   id        String   @id @default(cuid())
   message   String
   read      Boolean  @default(false)
+  readAt    DateTime?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   taskId    String?
   task      Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  // Enhanced fields for notification persistence and tracking
+  deliveryStatus   String @default("pending") // 'pending', 'delivered', 'failed', 'acknowledged'
+  retryCount       Int    @default(0)
+  lastRetryAt      DateTime?
+  notificationType String // 'task-update', 'calendar-sync', 'deadline-reminder', 'conflict-alert'
+  metadata         Json?  // Additional notification-specific data
+  
   createdAt DateTime @default(now())
 
   @@map("notifications")
@@ -214,6 +223,9 @@ model UserSettings {
   workEndTime         String? @default("17:00")
   focusSessionLength  Int? @default(90) // minutes
   preferredFocusTypes String[] // JSON array of focus types
+  
+  // Notification preferences
+  notificationPreferences Json? // JSONB field for granular notification settings
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

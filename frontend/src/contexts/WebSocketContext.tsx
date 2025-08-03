@@ -20,7 +20,12 @@ export interface NotificationData {
   data?: any;
   timestamp: string;
   read?: boolean;
+  readAt?: string;
+  deliveryStatus?: 'pending' | 'delivered' | 'failed' | 'retry';
+  retryCount?: number;
   severity?: 'low' | 'medium' | 'high' | 'urgent';
+  notificationType?: string;
+  metadata?: Record<string, any>;
 }
 
 export interface WebSocketContextType {

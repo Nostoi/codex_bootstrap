@@ -913,28 +913,6 @@
       "level": 0
     },
     {
-      "id": "17eaeccf-2e6b-4eed-adc0-9f6de876ae4f",
-      "name": "Implement Real-time Notification System",
-      "details": "Implement comprehensive real-time notification system using WebSockets to provide timely reminders, calendar alerts, and task notifications. This ensures users stay informed about critical deadlines and schedule changes with ADHD-friendly notification patterns.\n\nCreate backend/src/notifications/notifications.service.ts:\n- Implement WebSocket gateway for real-time communication\n- Add notification queue management with priority handling\n- Create notification types (task reminders, calendar alerts, deadline warnings)\n- Implement user notification preferences and delivery settings\n- Add notification history and delivery tracking\n- Create notification templates with personalization\n\nWebSocket implementation:\n- Set up Socket.IO for reliable real-time communication\n- Implement user authentication for WebSocket connections\n- Add connection management and automatic reconnection\n- Create notification broadcasting for multiple user sessions\n- Handle offline notification queueing and delivery\n- Implement notification acknowledgment and read receipts\n\nADHD-optimized notification features:\n- Gentle notification delivery without overwhelming users\n- Customizable notification timing and frequency settings\n- Visual and audio notification options with user preference\n- Notification batching to reduce interruption frequency\n- Focus mode that suppresses non-critical notifications\n- Clear notification categorization with importance levels\n\nThis provides essential real-time awareness for effective task and time management.",
-      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
-      "completed": false,
-      "createdAt": "2025-07-29T01:02:35.303Z",
-      "updatedAt": "2025-07-29T01:02:35.303Z",
-      "dependsOn": [],
-      "priority": 6,
-      "complexity": 8,
-      "status": "pending",
-      "tags": [
-        "notifications",
-        "websockets",
-        "real-time",
-        "adhd-ux",
-        "backend"
-      ],
-      "estimatedHours": 14,
-      "level": 0
-    },
-    {
       "id": "e4f69460-141a-4d60-af74-70db452acca7",
       "name": "Implement Reflection and Feedback Loop Features",
       "details": "Implement reflection and feedback loop features to help users develop self-awareness and improve task management effectiveness. This includes daily reflection prompts, journaling capabilities, and productivity insights with ADHD-friendly design patterns.\n\nCreate backend/src/reflection/reflection.service.ts:\n- Implement daily reflection prompt generation with personalized questions\n- Add reflection response storage and analysis\n- Create productivity insights based on task completion patterns\n- Implement journaling functionality with rich text support\n- Add reflection streak tracking and encouragement features\n- Create reflection analytics and progress visualization\n\nReflection features:\n- Daily reflection prompts based on task completion and energy levels\n- Weekly reflection summaries with productivity insights\n- Goal alignment checking (\"Was this aligned with your priorities?\")\n- Energy level reflection and pattern recognition\n- Task difficulty and time estimation accuracy feedback\n- Project progress reflection and course correction prompts\n\nADHD-optimized reflection design:\n- Short, focused reflection questions to avoid cognitive overload\n- Optional reflection with gentle encouragement, not pressure\n- Visual progress indicators and celebration of small wins\n- Flexible reflection timing to accommodate varying schedules\n- Positive framing and strengths-based reflection approach\n- Integration with user energy patterns for optimal reflection timing\n\nFrontend implementation:\n- Reflection modal with calming, distraction-free design\n- Daily reflection prompt in dashboard with dismissible interface\n- Reflection history view with search and filtering capabilities\n- Productivity insights dashboard with ADHD-friendly visualizations\n- Journaling interface with autosave and offline support\n\nThis supports user growth and self-awareness development through structured reflection.",
@@ -1720,27 +1698,6 @@
       "level": 0
     },
     {
-      "id": "ee4af3e4-556b-41fe-a851-1106f1f932dc",
-      "name": "Complete Real-Time WebSocket Notification System",
-      "details": "Objective: Implement comprehensive real-time notification system using WebSockets for task updates, calendar sync, deadline reminders, and collaborative features. Infrastructure partially exists but needs completion.\n\nCross-links: /docs/helmsman-implementation-plan.md, /docs/frontend-implementation-specs.md\n\nOutcomes / Acceptance Criteria:\n* WebSocket gateway for real-time communication\n* Task update notifications across user sessions\n* Calendar sync notifications and conflict alerts\n* Deadline and reminder notifications\n* Collaborative editing notifications\n* Offline notification queueing and delivery\n* User notification preferences and settings",
-      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
-      "completed": false,
-      "createdAt": "2025-07-30T03:08:25.030Z",
-      "updatedAt": "2025-07-30T03:08:25.030Z",
-      "dependsOn": [],
-      "priority": 8,
-      "complexity": 7,
-      "status": "pending",
-      "tags": [
-        "real-time",
-        "websockets",
-        "notifications",
-        "user-experience"
-      ],
-      "estimatedHours": 16,
-      "level": 0
-    },
-    {
       "id": "6f3ad02f-5954-42bd-b6e3-01578b132dca",
       "name": "Complete Semantic Memory (Mem0) Integration and Context Pipeline",
       "details": "Objective: Complete the Mem0 semantic memory integration for contextual AI responses and intelligent task suggestions. Service infrastructure exists but RAG pipeline and context utilization needs implementation.\n\nCross-links: /docs/helmsman-implementation-plan.md, /backend/src/ai/mem0.service.ts\n\nOutcomes / Acceptance Criteria:\n* Vector store implementation with user interaction history\n* RAG pipeline for contextual AI responses\n* User preference learning and pattern recognition\n* Semantic search across task and project context\n* Memory cleanup and retention policies\n* Context-aware task suggestions and recommendations\n* Personalized AI responses based on user history",
@@ -2212,6 +2169,96 @@
       "estimatedHours": 3,
       "level": 1,
       "actualHours": 1.5
+    },
+    {
+      "id": "04bbafd4-c3ce-4755-881a-4d26a09cd826",
+      "name": "Implement Notification History and Persistence",
+      "details": "Build notification persistence system for delivery tracking, history viewing, and read/unread status. Completes WebSocket infrastructure with database persistence.\n\n**Backend (4h):** \n- Create notification-history.service.ts with saveNotificationToDatabase(), markAsRead(), getHistory(), getUnreadCount()\n- Update notifications.service.ts to persist all notifications with delivery status\n- Enhance Prisma Notification model: add deliveryStatus, readAt, retryCount, notificationType, metadata fields\n- Create API endpoints: GET /notifications/history, PUT /notifications/:id/read, GET /notifications/unread-count\n\n**Database Schema:**\n```sql\nALTER TABLE notifications ADD delivery_status VARCHAR(20) DEFAULT 'pending';\nALTER TABLE notifications ADD read_at TIMESTAMP;\nALTER TABLE notifications ADD notification_type VARCHAR(50);\nALTER TABLE notifications ADD metadata JSONB;\n```\n\n**Frontend (2h):**\n- Update WebSocketContext.tsx: add acknowledgment, sync read status\n- Create useNotificationHistory.ts hook: fetchHistory(), markAsRead(), pagination\n- Add infinite scroll for large notification lists\n\n**Success Criteria:**\n- All notifications persist to database with tracking\n- Users view paginated notification history with filtering\n- Read/unread status syncs frontend/backend  \n- Delivery failures retry with exponential backoff\n- Cleanup service maintains database size",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": true,
+      "createdAt": "2025-08-02T20:27:17.738Z",
+      "updatedAt": "2025-08-02T20:35:58.885Z",
+      "dependsOn": [],
+      "priority": 8,
+      "complexity": 4,
+      "status": "done",
+      "tags": [
+        "backend",
+        "database",
+        "notifications",
+        "persistence",
+        "api"
+      ],
+      "estimatedHours": 6,
+      "level": 0,
+      "actualHours": 6
+    },
+    {
+      "id": "279b0f84-8d3f-4042-9d35-15fdf3ad40b4",
+      "name": "Add User Notification Preferences System",
+      "details": "Create granular user notification preferences system allowing per-notification-type settings, quiet hours, and audio/visual customization. Integrates with existing UserSettings model.\n\n**Backend (2h):**\n- Extend UserSettings model: add notificationPreferences JSONB field with default settings\n- Create notification-preferences.service.ts: getPreferences(), updatePreferences(), validateSettings()\n- Add preference checking to notifications.service.ts before sending notifications\n- Support per-type settings: task-updates, calendar-sync, deadline-reminders, conflicts\n- Implement quiet hours: suppress notifications during user-defined time windows\n- Create API endpoints: GET/PUT /api/users/notification-preferences\n\n**Notification Preference Schema:**\n```json\n{\n  \"globalEnabled\": true,\n  \"types\": {\n    \"task-update\": {\"enabled\": true, \"urgencyThreshold\": \"medium\"},\n    \"calendar-sync\": {\"enabled\": true, \"urgencyThreshold\": \"low\"},\n    \"deadline-reminder\": {\"enabled\": true, \"urgencyThreshold\": \"low\"}\n  },\n  \"quietHours\": {\"start\": \"22:00\", \"end\": \"08:00\"},\n  \"audioEnabled\": false,\n  \"batchingEnabled\": true,\n  \"batchInterval\": 30000\n}\n```\n\n**Frontend (2h):**\n- Create NotificationPreferences.tsx component with toggle switches and time pickers\n- Update useNotifications.ts hook to respect user preferences\n- Add preferences tab to user settings page\n- Real-time preview of notification behavior with current settings\n- Integrate with existing ADHD-friendly notification features\n\n**Success Criteria:**\n- Users customize notification types individually\n- Quiet hours suppress non-urgent notifications\n- Audio/visual preferences work across all notification types\n- Settings persist and sync across user sessions\n- ADHD-friendly defaults maintain usability",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": true,
+      "createdAt": "2025-08-02T20:27:33.610Z",
+      "updatedAt": "2025-08-02T21:21:41.708Z",
+      "dependsOn": [],
+      "priority": 7,
+      "complexity": 3,
+      "status": "done",
+      "tags": [
+        "backend",
+        "frontend",
+        "preferences",
+        "user-settings",
+        "adhd-friendly"
+      ],
+      "estimatedHours": 4,
+      "level": 0
+    },
+    {
+      "id": "a59d1f07-cf37-4ba5-91ca-a5f4fedf595c",
+      "name": "Create Notification Templates and Personalization",
+      "details": "Create rich notification templates with personalization and smart formatting. Replaces basic text with engaging, contextual messages.\n\n**Backend (2h):**\n- Create notification-templates.service.ts with Handlebars template engine\n- Define templates: task-update, calendar-sync, deadline-reminder, conflict-alert\n- Add user context: name, preferences, energy patterns, recent activity\n- Smart formatting: relative time, priority indicators, personalized greetings\n- Template validation with fallback to basic text on errors\n\n**Template Examples:**\n```handlebars\n\"{{greeting}} {{userName}}! 📝 Your {{priorityEmoji}} task '{{taskTitle}}' {{actionPast}}.\"\n\"⏰ {{urgencyEmoji}} {{userName}}, '{{taskTitle}}' is due {{relativeTime}}.\"\n```\n\n**Frontend (2h):**\n- Update notification components for rich HTML content\n- Add template previews in settings with user's actual data\n- Support emoji, formatting, personalized messages\n- Maintain ADHD-friendly design: clear hierarchy, not overwhelming\n- Add notification sound selection with preview\n\n**Personalization:**\n- Time-aware greetings (Good morning/afternoon)\n- Energy level context (\"Since you're high-energy...\")\n- Progress encouragement (\"You've completed 3 tasks today!\")\n- Contextual suggestions based on current activity\n\n**Success Criteria:**\n- All notifications use rich, personalized templates\n- Graceful fallback to basic text on errors\n- Template preview with user's real data\n- ADHD-friendly clarity maintained\n- Template rendering under 10ms per notification",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": true,
+      "createdAt": "2025-08-02T20:28:04.008Z",
+      "updatedAt": "2025-08-02T22:47:49.705Z",
+      "dependsOn": [],
+      "priority": 6,
+      "complexity": 3,
+      "status": "done",
+      "tags": [
+        "backend",
+        "frontend",
+        "templates",
+        "personalization",
+        "ux"
+      ],
+      "estimatedHours": 4,
+      "level": 0,
+      "actualHours": 6
+    },
+    {
+      "id": "61b65599-b461-4b66-9281-d772106027d5",
+      "name": "Enhance Notification Queue with Priority Management",
+      "details": "Enhance notification queue with intelligent priority management, smart batching, and delivery optimization for improved user experience.\n\n**Backend (2h):**\n- Update notifications.service.ts with priority-based queue system\n- Implement notification priority levels: critical, high, medium, low\n- Add intelligent batching: group related notifications (same task, same type)\n- Create delivery optimization: analyze user activity patterns for best timing\n- Add queue performance monitoring: track delivery success rates, timing metrics\n- Implement notification coalescing: merge similar notifications to reduce noise\n\n**Priority Rules:**\n- Critical: Security alerts, system failures (immediate delivery)\n- High: Deadline reminders <2hrs, calendar conflicts (5min delay max)\n- Medium: Task updates, calendar sync (30min batching)\n- Low: Weekly summaries, tips (daily batching)\n\n**Smart Batching Logic:**\n- Group notifications by type and timeframe\n- Collapse multiple task updates into single summary\n- Batch calendar events from same sync operation\n- Respect ADHD-friendly limits: max 3 notifications per batch\n\n**Frontend (1h):**\n- Update notification display to show batched items expandably\n- Add priority indicators with visual cues (colors, icons)\n- Show delivery optimization status in debug mode\n- Maintain focus mode compatibility with new priority system\n\n**Performance Monitoring:**\n- Track queue depth and processing time\n- Monitor notification delivery success rates\n- Analyze user engagement with different priority levels\n- Generate reports for notification effectiveness\n\n**Success Criteria:**\n- Critical notifications deliver immediately\n- Batching reduces notification volume by 60%\n- User engagement improves with priority-based delivery\n- Queue processing stays under 100ms average\n- ADHD-friendly batching respects cognitive load limits",
+      "projectId": "e9ea941b-e0b7-401f-b32b-65799792e150",
+      "completed": false,
+      "createdAt": "2025-08-02T20:28:21.397Z",
+      "updatedAt": "2025-08-02T20:28:21.397Z",
+      "dependsOn": [],
+      "priority": 5,
+      "complexity": 2,
+      "status": "pending",
+      "tags": [
+        "backend",
+        "performance",
+        "queue",
+        "priority",
+        "adhd-friendly"
+      ],
+      "estimatedHours": 3,
+      "level": 0
     }
   ],
   "subtasks": [],

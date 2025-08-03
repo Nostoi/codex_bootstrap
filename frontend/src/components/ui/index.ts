@@ -25,6 +25,14 @@ export {
   type ButtonGroupProps,
 } from './Button';
 
+// Form Components
+export { Switch } from './switch';
+export { Label } from './label';
+export { Input } from './input';
+export { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
+export { Slider } from './slider';
+export { Separator } from './separator';
+
 // Modal Components
 export {
   Modal,

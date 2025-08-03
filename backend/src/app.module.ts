@@ -10,7 +10,7 @@ import { PrismaModule } from "./prisma/prisma.module";
 import { TasksModule } from "./tasks/tasks.module";
 import { NotificationsModule } from "./notifications/notifications.module";
 // import { ProjectsModule } from "./projects/projects.module"; // Temporarily disabled for WebSocket testing
-// import { AuthModule } from "./auth/auth.module"; // Temporarily disabled due to compilation errors
+import { AuthModule } from "./auth/auth.module";
 // import { AiModule } from "./ai/ai.module"; // Temporarily disabled for WebSocket testing
 // import { MetricsModule } from "./metrics/metrics.module"; // Temporarily disabled for WebSocket testing
 // import { SecurityModule } from "./security/security.module"; // Temporarily disabled for WebSocket testing
@@ -30,7 +30,7 @@ import { NotificationsModule } from "./notifications/notifications.module";
     // ProjectsModule, // Temporarily disabled for WebSocket testing
     TasksModule,
     NotificationsModule,
-    // AuthModule, // Temporarily disabled due to compilation errors
+    AuthModule,
     // AiModule, // Temporarily disabled for WebSocket testing
     // MetricsModule, // Temporarily disabled for WebSocket testing
     // SecurityModule, // Temporarily disabled for WebSocket testing
