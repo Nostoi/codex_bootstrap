@@ -2,9 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CalendarSyncService } from './calendar-sync.service';
 import { DeltaSyncManager } from './delta-sync.manager';
 import { ConflictResolver } from './conflict-resolver.service';
-import { PrismaService } from '../../../prisma/prisma.service';
-import { GraphService } from '../graph.service';
-import { GraphAuthService } from '../auth/graph-auth.service';
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { GraphService } from '../../graph.service';
+import { GraphAuthService } from '../../auth/graph-auth.service';
 import { CalendarSyncStatus, CalendarConflictResolution } from '@prisma/client';
 import { SyncDirection } from '../types/calendar-sync.types';
 

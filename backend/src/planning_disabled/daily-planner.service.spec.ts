@@ -2,8 +2,8 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { DailyPlannerService } from "./daily-planner.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { TasksService } from "../tasks/tasks.service";
-import { GoogleService } from "../integrations/google/google.service";
-import { GraphService } from "../integrations/graph/graph.service";
+import { GoogleService } from "../integrations_disabled/google/google.service";
+import { GraphService } from "../integrations_disabled/graph/graph.service";
 import { BadRequestException } from "@nestjs/common";
 import { EnergyLevel, FocusType, Task, TaskStatus } from "@prisma/client";
 

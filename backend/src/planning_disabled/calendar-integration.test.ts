@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DailyPlannerService } from './daily-planner.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { TasksService } from '../tasks/tasks.service';
-import { GoogleService } from '../integrations/google/google.service';
+import { GoogleService } from '../integrations_disabled/google/google.service';
 import { EnergyLevel, FocusType, TaskStatus } from '@prisma/client';
 import { TimeSlot } from './types';
 

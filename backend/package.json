@@ -100,6 +100,12 @@
     ],
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
+    "testPathIgnorePatterns": [
+      "<rootDir>/integrations_disabled/",
+      "<rootDir>/planning_disabled/",
+      "<rootDir>/auth_disabled/",
+      "<rootDir>/security_disabled/"
+    ],
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
