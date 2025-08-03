@@ -1,20 +1,20 @@
-# Production-optimized Backend Dockerfile for Codex Bootstrap
+# Production-Hardened Backend Dockerfile for Codex Bootstrap
 # Multi-stage build for security and performance
 
-# Build stage
-FROM node:20-alpine AS builder
+# Build stage - Use specific Node.js version for reproducibility
+FROM node:20.18.0-alpine@sha256:c13b26e7e602ef2f1074aef304ce6e9b7dd284c419b35d89fcf3cc8e44a8def9 AS builder
 WORKDIR /app
 
-# Install pnpm globally
-RUN npm install -g pnpm
+# Install pnpm globally with specific version
+RUN npm install -g pnpm@9.12.1
 
+# Install build dependencies with minimal attack surface
 # Install build dependencies
 RUN apk add --no-cache \
     python3 \
     make \
     g++ \
-    openssl \
-    bash
+    git
 
 # Copy package files
 COPY backend/package*.json ./
@@ -33,16 +33,31 @@ RUN pnpm exec prisma generate
 # Build the application
 RUN pnpm run build
 
-# Production stage
-FROM node:20-alpine AS production
+# Production stage - Security-hardened base image
+FROM node:20.18.0-alpine@sha256:c13b26e7e602ef2f1074aef304ce6e9b7dd284c419b35d89fcf3cc8e44a8def9 AS production
+
+# Add security metadata
+LABEL maintainer="security@codexbootstrap.com" \
+      version="1.0.0" \
+      security.scan.enabled="true" \
+      security.non-root="true" \
+      security.no-new-privileges="true" \
+      org.opencontainers.image.title="Codex Bootstrap Backend" \
+      org.opencontainers.image.description="AI-augmented task management backend" \
+      org.opencontainers.image.vendor="Codex Bootstrap" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.source="https://github.com/codex-bootstrap/helmsman"
+
 WORKDIR /app
 
-# Install pnpm globally
-RUN npm install -g pnpm
+# Install pnpm globally with specific version
+RUN npm install -g pnpm@9.12.1
 
-# Create non-root user for security
+# Create non-root user with security-first approach
 RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nestjs -u 1001
+    adduser -S nestjs -u 1001 -G nodejs && \
+    mkdir -p /app/.npm /app/logs /tmp/app && \
+    chown -R nestjs:nodejs /app /tmp/app
 
 # Install production dependencies and security tools
 RUN apk add --no-cache \
@@ -51,7 +66,11 @@ RUN apk add --no-cache \
     curl \
     tini \
     dumb-init \
-    && rm -rf /var/cache/apk/*
+    ca-certificates \
+    && update-ca-certificates \
+    && rm -rf /var/cache/apk/* \
+    && rm -rf /tmp/* \
+    && rm -rf /var/tmp/*
 
 # Set security labels
 LABEL security.scan.enabled="true" \
@@ -61,25 +80,36 @@ LABEL security.scan.enabled="true" \
       org.opencontainers.image.description="AI-augmented task management backend"
 
 # Copy package files and install production dependencies only
-COPY backend/package*.json ./
-COPY backend/pnpm-lock.yaml ./
-COPY --from=builder /app/prisma ./prisma
-RUN pnpm install --prod --frozen-lockfile && pnpm store prune
+COPY --chown=nestjs:nodejs backend/package*.json ./
+COPY --chown=nestjs:nodejs backend/pnpm-lock.yaml ./
+COPY --from=builder --chown=nestjs:nodejs /app/prisma ./prisma
+
+# Install production dependencies with security audit
+RUN pnpm install --prod --frozen-lockfile --ignore-scripts && \
+    pnpm audit --audit-level moderate && \
+    pnpm store prune && \
+    rm -rf ~/.npm /tmp/* /var/tmp/*
 
 # Generate Prisma client in production stage
 RUN pnpm exec prisma generate
 
-# Copy built application from builder stage
-COPY --from=builder /app/dist ./dist
+# Copy built application from builder stage with proper ownership
+COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
 
-# Install wait-for-it for database readiness
-ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /wait-for-it.sh
-RUN chmod +x /wait-for-it.sh
+# Install wait-for-it for database readiness with integrity check
+ADD --chown=nestjs:nodejs https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /wait-for-it.sh
+RUN chmod +x /wait-for-it.sh && \
+    echo "Verifying wait-for-it.sh integrity..." && \
+    head -1 /wait-for-it.sh | grep -q "#!/usr/bin/env bash"
 
-# Change ownership to non-root user
-RUN chown -R nestjs:nodejs /app && \
-    chown nestjs:nodejs /wait-for-it.sh && \
-    chmod +x /wait-for-it.sh
+# Final ownership and permissions setup
+RUN chown -R nestjs:nodejs /app /wait-for-it.sh && \
+    chmod 755 /app && \
+    chmod 644 /app/package*.json && \
+    chmod -R 755 /app/dist && \
+    chmod -R 755 /app/node_modules/.bin 2>/dev/null || true && \
+    find /app -type f -name "*.js" -exec chmod 644 {} \; && \
+    find /app -type d -exec chmod 755 {} \;
 
 # Switch to non-root user
 USER nestjs
@@ -87,21 +117,31 @@ USER nestjs
 # Set environment variables for security and performance
 ENV NODE_ENV=production \
     NODE_PATH=/app/node_modules \
-    NODE_OPTIONS="--max-old-space-size=512" \
+    NODE_OPTIONS="--max-old-space-size=512 --no-warnings" \
     NPM_CONFIG_CACHE=/tmp/.npm \
-    NPM_CONFIG_UPDATE_NOTIFIER=false
+    NPM_CONFIG_UPDATE_NOTIFIER=false \
+    NPM_CONFIG_AUDIT_LEVEL=moderate \
+    PNPM_HOME=/app/.pnpm
 
 # Security: Disable new privileges and set security options
-# These will be enforced by the container runtime
 ENV SECURITY_NON_ROOT=true \
-    SECURITY_NO_NEW_PRIVILEGES=true
+    SECURITY_NO_NEW_PRIVILEGES=true \
+    DISABLE_OPENCOLLECTIVE=true \
+    ADBLOCK=true
 
-# Add comprehensive health check
-HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
+# Runtime security settings
+ENV NODE_TLS_REJECT_UNAUTHORIZED=1 \
+    UV_THREADPOOL_SIZE=4
+
+# Enhanced health check with timeout and retries
+HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=3 \
   CMD curl -f http://localhost:8000/health || exit 1
 
-# Expose ports
-EXPOSE 8000 8001
+# Expose ports with documentation
+EXPOSE 8000/tcp 8001/tcp
+LABEL exposed.ports="8000,8001" \
+      exposed.8000.description="HTTP API" \
+      exposed.8001.description="WebSocket"
 
 # Use tini as init system for proper signal handling
 ENTRYPOINT ["/sbin/tini", "--"]

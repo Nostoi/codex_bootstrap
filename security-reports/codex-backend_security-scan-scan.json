@@ -1,200 +1,217 @@
 {
   "SchemaVersion": 2,
-  "CreatedAt": "2025-08-02T23:56:20.104243-05:00",
+  "CreatedAt": "2025-08-03T14:26:17.126716-05:00",
   "ArtifactName": "codex-backend:security-scan",
   "ArtifactType": "container_image",
   "Metadata": {
-    "Size": 815105024,
+    "Size": 805679104,
     "OS": {
       "Family": "alpine",
-      "Name": "3.22.1"
+      "Name": "3.20.3"
     },
-    "ImageID": "sha256:f51df291c3d1395ba363b32cc563b2500ec1a793b65a34964a6285fdd1723b5f",
+    "ImageID": "sha256:2b5ad0b66277001dbd7d925a1aae7a2585768a970ea3d8b548986d417c2ded5a",
     "DiffIDs": [
-      "sha256:0b83d017db6efafadf6b3f18d087d2ce1d67d8f0e927dc7254b0ad088074cd3a",
-      "sha256:0d791a36a057f28c6172ec4cb465562c6aa8e54662dfa02609e369c059ae7f80",
-      "sha256:3c2c9afb9907c6d4ee514f68f2c9bf8639fc9bc2bd790322c996eabf09a04822",
-      "sha256:b6a3d61a78520daf9c416bdac8a7cf594e11f0a92921e96cc14355c8d16ccd7a",
-      "sha256:c25bbc34da61a257a67f2be8cc43f60fa9866cde9ee11b3fd662e79aadd92d18",
-      "sha256:e1ff2f1f3f2db1341ca527725391cfcb61ae63733f5f07a2b7fd4eb227322ae7",
-      "sha256:80918f40d8ea72ebbc93c9a52f99bff7a9786a7dd662fcf4fcb3170a7003dc99",
-      "sha256:64bf37692cfaf5de7457ef996e407cb0c64575dee8651daa2e2a7117f3a815d1",
-      "sha256:084eca5434d6a614fc7010147c6d98aa28d020bea216af78a7104c44972565ad",
-      "sha256:6f4939aa7b281c46f04d0dd9193546a734d48238102cb40fdef868dfa2ced9f0",
-      "sha256:d00d65666959ea2d8ba0d399a78fa8e8dbe35e30ca9ee77d5c7ec9f9b942438b",
-      "sha256:ab2e9478e274bc84057376a9daf5cb5d6aac91ee34de7f2446b05fd2d00bac51",
-      "sha256:f4e1552904e888154d83edc03573470c551804fc3b8ecd5cff346175fd15d621",
-      "sha256:0615c7283576eeeb75abf086902f1dcc468285d3119c115432f3fd5a1c7a75b1",
-      "sha256:823f898c1f49e13eda67a99de46876bac9fdd1caf03056a8dd03d433bf0ebcea",
-      "sha256:d1660697ee32ce4aa8a12c975b0fbbbbdde15e437d1441faf166868d417316cf",
-      "sha256:c492dd81c7794cabdd58c23ab6a7cd9c5f0dcba0e3e6e457b0c3d0477a6f4c40"
+      "sha256:16113d51b7181f20135f51e8ffbaead20a7671cd783017601f198748ce8a8ebf",
+      "sha256:78c5c7c51387d96859f7f4abeec5c2664e532b75d063fb5dc874b84dddeac247",
+      "sha256:a006ea7e5154bae70d3e02d2c58c75d580e1b3a48614709623c00e3cc1a4d6b0",
+      "sha256:c2e7ce420a537504ac73e2f82596892004560c8e393744acd5050ee1c1a480b3",
+      "sha256:5596b740355f7906c8132f354306361d84cbe567caeb93c05d750d2de06bb8ce",
+      "sha256:9845177e26e2d1f983a5b8984a51c0a78b9edb91026fcddbff684d20168f821d",
+      "sha256:7a17da257e3b33ca76ffebb4ed22f1fb37b5499d826dff0b510e23a671073ba1",
+      "sha256:f652053197d9a8fa37c2000aff4dd3d7b40f1cda8aecc7e5f5c9499843325568",
+      "sha256:8d7bc1833b8926c9b0a27aa69d8324cc23a2732ddef6f3fb22adf98b3108fc17",
+      "sha256:79d8997a81b22b34b2f2d2dc368a73d6514799904c703d57eff2fec6bb8a27ef",
+      "sha256:1cb00a562a7b15ddda56b933db6702c299aa1b5039fc2a431caf244ea414924b",
+      "sha256:e10203f47ba010cef3a52d6917020bf542ab8844e7b914200cecb69992647364",
+      "sha256:a382b98ec667281b61d76ced5d1ff5bcfa2be0333482a15ad38d1ea5f9b0d5cf",
+      "sha256:140713f856c795b7818790ec3037c22dca901e33dc3ca91fb9913357483983bc",
+      "sha256:cdd5c2e10866523c1fb441da9ad7d24f3a6863eb8179fa5771f6367738f744b3",
+      "sha256:61d4be3a7ea205da7c41d29ba5b76c3dc372d9c6f1d15559b7033369f0e54a4b",
+      "sha256:dda3268c77e2c47ec6a519ecff3293fd8b13a7a728f8d75498832e9111582368"
     ],
     "RepoTags": [
-      "codex-backend:security-scan"
+      "codex-backend:security-scan",
+      "codex-backend:security-test"
     ],
     "ImageConfig": {
       "architecture": "arm64",
-      "created": "2025-08-03T02:45:25.069466925Z",
+      "created": "2025-08-03T19:23:25.664559052Z",
       "history": [
         {
-          "created": "2025-07-15T11:01:16Z",
-          "created_by": "ADD alpine-minirootfs-3.22.1-aarch64.tar.gz / # buildkit",
-          "comment": "buildkit.dockerfile.v0"
+          "created": "2024-09-06T22:44:10Z",
+          "created_by": "/bin/sh -c #(nop) ADD file:ee5bb8409915b11413f44cce4c22fed658aba4fb078a448e08dd4ac9a23581f2 in / "
         },
         {
-          "created": "2025-07-15T11:01:16Z",
-          "created_by": "CMD [\"/bin/sh\"]",
+          "created": "2024-09-06T22:44:11Z",
+          "created_by": "/bin/sh -c #(nop)  CMD [\"/bin/sh\"]",
+          "empty_layer": true
+        },
+        {
+          "created": "2024-10-04T15:27:57Z",
+          "created_by": "ENV NODE_VERSION=20.18.0",
           "comment": "buildkit.dockerfile.v0",
           "empty_layer": true
         },
         {
-          "created": "2025-07-15T23:35:30Z",
-          "created_by": "ENV NODE_VERSION=20.19.4",
-          "comment": "buildkit.dockerfile.v0",
-          "empty_layer": true
-        },
-        {
-          "created": "2025-07-15T23:35:30Z",
-          "created_by": "RUN /bin/sh -c addgroup -g 1000 node     \u0026\u0026 adduser -u 1000 -G node -s /bin/sh -D node     \u0026\u0026 apk add --no-cache         libstdc++     \u0026\u0026 apk add --no-cache --virtual .build-deps         curl     \u0026\u0026 ARCH= OPENSSL_ARCH='linux*' \u0026\u0026 alpineArch=\"$(apk --print-arch)\"       \u0026\u0026 case \"${alpineArch##*-}\" in         x86_64) ARCH='x64' CHECKSUM=\"8a4633a9f8101de6870f7d4e5ceb3aa83d3c6cd7c11ad91cd902ea223b8c55fe\" OPENSSL_ARCH=linux-x86_64;;         x86) OPENSSL_ARCH=linux-elf;;         aarch64) OPENSSL_ARCH=linux-aarch64;;         arm*) OPENSSL_ARCH=linux-armv4;;         ppc64le) OPENSSL_ARCH=linux-ppc64le;;         s390x) OPENSSL_ARCH=linux-s390x;;         *) ;;       esac   \u0026\u0026 if [ -n \"${CHECKSUM}\" ]; then     set -eu;     curl -fsSLO --compressed \"https://unofficial-builds.nodejs.org/download/release/v$NODE_VERSION/node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz\";     echo \"$CHECKSUM  node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz\" | sha256sum -c -       \u0026\u0026 tar -xJf \"node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz\" -C /usr/local --strip-components=1 --no-same-owner       \u0026\u0026 ln -s /usr/local/bin/node /usr/local/bin/nodejs;   else     echo \"Building from source\"     \u0026\u0026 apk add --no-cache --virtual .build-deps-full         binutils-gold         g++         gcc         gnupg         libgcc         linux-headers         make         python3         py-setuptools     \u0026\u0026 export GNUPGHOME=\"$(mktemp -d)\"     \u0026\u0026 for key in       C0D6248439F1D5604AAFFB4021D900FFDB233756       DD792F5973C6DE52C432CBDAC77ABFA00DDBF2B7       CC68F5A3106FF448322E48ED27F5E38D5B0A215F       8FCCA13FEF1D0C2E91008E09770F7A9A5AE15600       890C08DB8579162FEE0DF9DB8BEAB4DFCF555EF4       C82FA3AE1CBEDC6BE46B9360C43CEC45C17AB93C       108F52B48DB57BB0CC439B2997B01419BD92F80A       A363A499291CBBC940DD62E41F10027AF002F8B0     ; do       { gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys \"$key\" \u0026\u0026 gpg --batch --fingerprint \"$key\"; } ||       { gpg --batch --keyserver keyserver.ubuntu.com --recv-keys \"$key\" \u0026\u0026 gpg --batch --fingerprint \"$key\"; } ;     done     \u0026\u0026 curl -fsSLO --compressed \"https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION.tar.xz\"     \u0026\u0026 curl -fsSLO --compressed \"https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc\"     \u0026\u0026 gpg --batch --decrypt --output SHASUMS256.txt SHASUMS256.txt.asc     \u0026\u0026 gpgconf --kill all     \u0026\u0026 rm -rf \"$GNUPGHOME\"     \u0026\u0026 grep \" node-v$NODE_VERSION.tar.xz\\$\" SHASUMS256.txt | sha256sum -c -     \u0026\u0026 tar -xf \"node-v$NODE_VERSION.tar.xz\"     \u0026\u0026 cd \"node-v$NODE_VERSION\"     \u0026\u0026 ./configure     \u0026\u0026 make -j$(getconf _NPROCESSORS_ONLN) V=     \u0026\u0026 make install     \u0026\u0026 apk del .build-deps-full     \u0026\u0026 cd ..     \u0026\u0026 rm -Rf \"node-v$NODE_VERSION\"     \u0026\u0026 rm \"node-v$NODE_VERSION.tar.xz\" SHASUMS256.txt.asc SHASUMS256.txt;   fi   \u0026\u0026 rm -f \"node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz\"   \u0026\u0026 find /usr/local/include/node/openssl/archs -mindepth 1 -maxdepth 1 ! -name \"$OPENSSL_ARCH\" -exec rm -rf {} \\;   \u0026\u0026 apk del .build-deps   \u0026\u0026 node --version   \u0026\u0026 npm --version   \u0026\u0026 rm -rf /tmp/* # buildkit",
+          "created": "2024-10-04T15:27:57Z",
+          "created_by": "RUN /bin/sh -c addgroup -g 1000 node     \u0026\u0026 adduser -u 1000 -G node -s /bin/sh -D node     \u0026\u0026 apk add --no-cache         libstdc++     \u0026\u0026 apk add --no-cache --virtual .build-deps         curl     \u0026\u0026 ARCH= OPENSSL_ARCH='linux*' \u0026\u0026 alpineArch=\"$(apk --print-arch)\"       \u0026\u0026 case \"${alpineArch##*-}\" in         x86_64) ARCH='x64' CHECKSUM=\"757bba0adff8eaadfa7f9be2c87a35d5010ac3f71b5527e57385218c806a4fa4\" OPENSSL_ARCH=linux-x86_64;;         x86) OPENSSL_ARCH=linux-elf;;         aarch64) OPENSSL_ARCH=linux-aarch64;;         arm*) OPENSSL_ARCH=linux-armv4;;         ppc64le) OPENSSL_ARCH=linux-ppc64le;;         s390x) OPENSSL_ARCH=linux-s390x;;         *) ;;       esac   \u0026\u0026 if [ -n \"${CHECKSUM}\" ]; then     set -eu;     curl -fsSLO --compressed \"https://unofficial-builds.nodejs.org/download/release/v$NODE_VERSION/node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz\";     echo \"$CHECKSUM  node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz\" | sha256sum -c -       \u0026\u0026 tar -xJf \"node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz\" -C /usr/local --strip-components=1 --no-same-owner       \u0026\u0026 ln -s /usr/local/bin/node /usr/local/bin/nodejs;   else     echo \"Building from source\"     \u0026\u0026 apk add --no-cache --virtual .build-deps-full         binutils-gold         g++         gcc         gnupg         libgcc         linux-headers         make         python3         py-setuptools     \u0026\u0026 export GNUPGHOME=\"$(mktemp -d)\"     \u0026\u0026 for key in       4ED778F539E3634C779C87C6D7062848A1AB005C       141F07595B7B3FFE74309A937405533BE57C7D57       74F12602B6F1C4E913FAA37AD3A89613643B6201       DD792F5973C6DE52C432CBDAC77ABFA00DDBF2B7       CC68F5A3106FF448322E48ED27F5E38D5B0A215F       8FCCA13FEF1D0C2E91008E09770F7A9A5AE15600       890C08DB8579162FEE0DF9DB8BEAB4DFCF555EF4       C82FA3AE1CBEDC6BE46B9360C43CEC45C17AB93C       108F52B48DB57BB0CC439B2997B01419BD92F80A       A363A499291CBBC940DD62E41F10027AF002F8B0     ; do       gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys \"$key\" ||       gpg --batch --keyserver keyserver.ubuntu.com --recv-keys \"$key\" ;     done     \u0026\u0026 curl -fsSLO --compressed \"https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION.tar.xz\"     \u0026\u0026 curl -fsSLO --compressed \"https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc\"     \u0026\u0026 gpg --batch --decrypt --output SHASUMS256.txt SHASUMS256.txt.asc     \u0026\u0026 gpgconf --kill all     \u0026\u0026 rm -rf \"$GNUPGHOME\"     \u0026\u0026 grep \" node-v$NODE_VERSION.tar.xz\\$\" SHASUMS256.txt | sha256sum -c -     \u0026\u0026 tar -xf \"node-v$NODE_VERSION.tar.xz\"     \u0026\u0026 cd \"node-v$NODE_VERSION\"     \u0026\u0026 ./configure     \u0026\u0026 make -j$(getconf _NPROCESSORS_ONLN) V=     \u0026\u0026 make install     \u0026\u0026 apk del .build-deps-full     \u0026\u0026 cd ..     \u0026\u0026 rm -Rf \"node-v$NODE_VERSION\"     \u0026\u0026 rm \"node-v$NODE_VERSION.tar.xz\" SHASUMS256.txt.asc SHASUMS256.txt;   fi   \u0026\u0026 rm -f \"node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz\"   \u0026\u0026 find /usr/local/include/node/openssl/archs -mindepth 1 -maxdepth 1 ! -name \"$OPENSSL_ARCH\" -exec rm -rf {} \\;   \u0026\u0026 apk del .build-deps   \u0026\u0026 node --version   \u0026\u0026 npm --version # buildkit",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2025-07-15T23:35:30Z",
+          "created": "2024-10-04T15:27:57Z",
           "created_by": "ENV YARN_VERSION=1.22.22",
           "comment": "buildkit.dockerfile.v0",
           "empty_layer": true
         },
         {
-          "created": "2025-07-15T23:35:30Z",
-          "created_by": "RUN /bin/sh -c apk add --no-cache --virtual .build-deps-yarn curl gnupg tar   \u0026\u0026 export GNUPGHOME=\"$(mktemp -d)\"   \u0026\u0026 for key in     6A010C5166006599AA17F08146C2130DFD2497F5   ; do     { gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys \"$key\" \u0026\u0026 gpg --batch --fingerprint \"$key\"; } ||     { gpg --batch --keyserver keyserver.ubuntu.com --recv-keys \"$key\" \u0026\u0026 gpg --batch --fingerprint \"$key\"; } ;   done   \u0026\u0026 curl -fsSLO --compressed \"https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v$YARN_VERSION.tar.gz\"   \u0026\u0026 curl -fsSLO --compressed \"https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v$YARN_VERSION.tar.gz.asc\"   \u0026\u0026 gpg --batch --verify yarn-v$YARN_VERSION.tar.gz.asc yarn-v$YARN_VERSION.tar.gz   \u0026\u0026 gpgconf --kill all   \u0026\u0026 rm -rf \"$GNUPGHOME\"   \u0026\u0026 mkdir -p /opt   \u0026\u0026 tar -xzf yarn-v$YARN_VERSION.tar.gz -C /opt/   \u0026\u0026 ln -s /opt/yarn-v$YARN_VERSION/bin/yarn /usr/local/bin/yarn   \u0026\u0026 ln -s /opt/yarn-v$YARN_VERSION/bin/yarnpkg /usr/local/bin/yarnpkg   \u0026\u0026 rm yarn-v$YARN_VERSION.tar.gz.asc yarn-v$YARN_VERSION.tar.gz   \u0026\u0026 apk del .build-deps-yarn   \u0026\u0026 yarn --version   \u0026\u0026 rm -rf /tmp/* # buildkit",
+          "created": "2024-10-04T15:27:57Z",
+          "created_by": "RUN /bin/sh -c apk add --no-cache --virtual .build-deps-yarn curl gnupg tar   \u0026\u0026 export GNUPGHOME=\"$(mktemp -d)\"   \u0026\u0026 for key in     6A010C5166006599AA17F08146C2130DFD2497F5   ; do     gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys \"$key\" ||     gpg --batch --keyserver keyserver.ubuntu.com --recv-keys \"$key\" ;   done   \u0026\u0026 curl -fsSLO --compressed \"https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v$YARN_VERSION.tar.gz\"   \u0026\u0026 curl -fsSLO --compressed \"https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v$YARN_VERSION.tar.gz.asc\"   \u0026\u0026 gpg --batch --verify yarn-v$YARN_VERSION.tar.gz.asc yarn-v$YARN_VERSION.tar.gz   \u0026\u0026 gpgconf --kill all   \u0026\u0026 rm -rf \"$GNUPGHOME\"   \u0026\u0026 mkdir -p /opt   \u0026\u0026 tar -xzf yarn-v$YARN_VERSION.tar.gz -C /opt/   \u0026\u0026 ln -s /opt/yarn-v$YARN_VERSION/bin/yarn /usr/local/bin/yarn   \u0026\u0026 ln -s /opt/yarn-v$YARN_VERSION/bin/yarnpkg /usr/local/bin/yarnpkg   \u0026\u0026 rm yarn-v$YARN_VERSION.tar.gz.asc yarn-v$YARN_VERSION.tar.gz   \u0026\u0026 apk del .build-deps-yarn   \u0026\u0026 yarn --version   \u0026\u0026 rm -rf /tmp/* # buildkit",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2025-07-15T23:35:30Z",
+          "created": "2024-10-04T15:27:57Z",
           "created_by": "COPY docker-entrypoint.sh /usr/local/bin/ # buildkit",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2025-07-15T23:35:30Z",
+          "created": "2024-10-04T15:27:57Z",
           "created_by": "ENTRYPOINT [\"docker-entrypoint.sh\"]",
           "comment": "buildkit.dockerfile.v0",
           "empty_layer": true
         },
         {
-          "created": "2025-07-15T23:35:30Z",
+          "created": "2024-10-04T15:27:57Z",
           "created_by": "CMD [\"node\"]",
           "comment": "buildkit.dockerfile.v0",
           "empty_layer": true
         },
         {
-          "created": "2025-07-26T23:29:04Z",
+          "created": "2025-08-03T19:20:41Z",
+          "created_by": "LABEL maintainer=security@codexbootstrap.com version=1.0.0 security.scan.enabled=true security.non-root=true security.no-new-privileges=true org.opencontainers.image.title=Codex Bootstrap Backend org.opencontainers.image.description=AI-augmented task management backend org.opencontainers.image.vendor=Codex Bootstrap org.opencontainers.image.licenses=MIT org.opencontainers.image.source=https://github.com/codex-bootstrap/helmsman",
+          "comment": "buildkit.dockerfile.v0",
+          "empty_layer": true
+        },
+        {
+          "created": "2025-08-03T19:20:41Z",
           "created_by": "WORKDIR /app",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2025-08-02T13:31:09Z",
-          "created_by": "RUN /bin/sh -c npm install -g pnpm # buildkit",
+          "created": "2025-08-03T19:22:32Z",
+          "created_by": "RUN /bin/sh -c npm install -g pnpm@9.12.1 # buildkit",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2025-08-02T13:31:09Z",
-          "created_by": "RUN /bin/sh -c addgroup -g 1001 -S nodejs \u0026\u0026     adduser -S nestjs -u 1001 # buildkit",
+          "created": "2025-08-03T19:22:32Z",
+          "created_by": "RUN /bin/sh -c addgroup -g 1001 -S nodejs \u0026\u0026     adduser -S nestjs -u 1001 -G nodejs \u0026\u0026     mkdir -p /app/.npm /app/logs /tmp/app \u0026\u0026     chown -R nestjs:nodejs /app /tmp/app # buildkit",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2025-08-02T13:31:11Z",
-          "created_by": "RUN /bin/sh -c apk add --no-cache     openssl     bash     curl     tini     dumb-init     \u0026\u0026 rm -rf /var/cache/apk/* # buildkit",
+          "created": "2025-08-03T19:22:34Z",
+          "created_by": "RUN /bin/sh -c apk add --no-cache     openssl     bash     curl     tini     dumb-init     ca-certificates     \u0026\u0026 update-ca-certificates     \u0026\u0026 rm -rf /var/cache/apk/*     \u0026\u0026 rm -rf /tmp/*     \u0026\u0026 rm -rf /var/tmp/* # buildkit",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2025-08-03T02:44:37Z",
+          "created": "2025-08-03T19:22:34Z",
           "created_by": "LABEL security.scan.enabled=true security.non-root=true security.no-new-privileges=true org.opencontainers.image.title=Codex Bootstrap Backend org.opencontainers.image.description=AI-augmented task management backend",
           "comment": "buildkit.dockerfile.v0",
           "empty_layer": true
         },
         {
-          "created": "2025-08-03T02:44:37Z",
-          "created_by": "COPY backend/package*.json ./ # buildkit",
+          "created": "2025-08-03T19:22:34Z",
+          "created_by": "COPY --chown=nestjs:nodejs backend/package*.json ./ # buildkit",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2025-08-03T02:44:38Z",
-          "created_by": "COPY backend/pnpm-lock.yaml ./ # buildkit",
+          "created": "2025-08-03T19:22:34Z",
+          "created_by": "COPY --chown=nestjs:nodejs backend/pnpm-lock.yaml ./ # buildkit",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2025-08-03T02:45:04Z",
-          "created_by": "COPY /app/prisma ./prisma # buildkit",
+          "created": "2025-08-03T19:23:01Z",
+          "created_by": "COPY --chown=nestjs:nodejs /app/prisma ./prisma # buildkit",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2025-08-03T02:45:11Z",
-          "created_by": "RUN /bin/sh -c pnpm install --prod --frozen-lockfile \u0026\u0026 pnpm store prune # buildkit",
+          "created": "2025-08-03T19:23:07Z",
+          "created_by": "RUN /bin/sh -c pnpm install --prod --frozen-lockfile --ignore-scripts \u0026\u0026     pnpm audit --audit-level moderate \u0026\u0026     pnpm store prune \u0026\u0026     rm -rf ~/.npm /tmp/* /var/tmp/* # buildkit",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2025-08-03T02:45:12Z",
+          "created": "2025-08-03T19:23:10Z",
           "created_by": "RUN /bin/sh -c pnpm exec prisma generate # buildkit",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2025-08-03T02:45:13Z",
-          "created_by": "COPY /app/dist ./dist # buildkit",
+          "created": "2025-08-03T19:23:10Z",
+          "created_by": "COPY --chown=nestjs:nodejs /app/dist ./dist # buildkit",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2025-08-03T02:45:13Z",
-          "created_by": "ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /wait-for-it.sh # buildkit",
+          "created": "2025-08-03T19:23:10Z",
+          "created_by": "ADD --chown=nestjs:nodejs https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /wait-for-it.sh # buildkit",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2025-08-03T02:45:13Z",
-          "created_by": "RUN /bin/sh -c chmod +x /wait-for-it.sh # buildkit",
+          "created": "2025-08-03T19:23:10Z",
+          "created_by": "RUN /bin/sh -c chmod +x /wait-for-it.sh \u0026\u0026     echo \"Verifying wait-for-it.sh integrity...\" \u0026\u0026     head -1 /wait-for-it.sh | grep -q \"#!/usr/bin/env bash\" # buildkit",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2025-08-03T02:45:25Z",
-          "created_by": "RUN /bin/sh -c chown -R nestjs:nodejs /app \u0026\u0026     chown nestjs:nodejs /wait-for-it.sh \u0026\u0026     chmod +x /wait-for-it.sh # buildkit",
+          "created": "2025-08-03T19:23:25Z",
+          "created_by": "RUN /bin/sh -c chown -R nestjs:nodejs /app /wait-for-it.sh \u0026\u0026     chmod 755 /app \u0026\u0026     chmod 644 /app/package*.json \u0026\u0026     chmod -R 755 /app/dist \u0026\u0026     chmod -R 755 /app/node_modules/.bin 2\u003e/dev/null || true \u0026\u0026     find /app -type f -name \"*.js\" -exec chmod 644 {} \\; \u0026\u0026     find /app -type d -exec chmod 755 {} \\; # buildkit",
           "comment": "buildkit.dockerfile.v0"
         },
         {
-          "created": "2025-08-03T02:45:25Z",
+          "created": "2025-08-03T19:23:25Z",
           "created_by": "USER nestjs",
           "comment": "buildkit.dockerfile.v0",
           "empty_layer": true
         },
         {
-          "created": "2025-08-03T02:45:25Z",
-          "created_by": "ENV NODE_ENV=production NODE_PATH=/app/node_modules NODE_OPTIONS=--max-old-space-size=512 NPM_CONFIG_CACHE=/tmp/.npm NPM_CONFIG_UPDATE_NOTIFIER=false",
+          "created": "2025-08-03T19:23:25Z",
+          "created_by": "ENV NODE_ENV=production NODE_PATH=/app/node_modules NODE_OPTIONS=--max-old-space-size=512 --no-warnings NPM_CONFIG_CACHE=/tmp/.npm NPM_CONFIG_UPDATE_NOTIFIER=false NPM_CONFIG_AUDIT_LEVEL=moderate PNPM_HOME=/app/.pnpm",
           "comment": "buildkit.dockerfile.v0",
           "empty_layer": true
         },
         {
-          "created": "2025-08-03T02:45:25Z",
-          "created_by": "ENV SECURITY_NON_ROOT=true SECURITY_NO_NEW_PRIVILEGES=true",
+          "created": "2025-08-03T19:23:25Z",
+          "created_by": "ENV SECURITY_NON_ROOT=true SECURITY_NO_NEW_PRIVILEGES=true DISABLE_OPENCOLLECTIVE=true ADBLOCK=true",
           "comment": "buildkit.dockerfile.v0",
           "empty_layer": true
         },
         {
-          "created": "2025-08-03T02:45:25Z",
-          "created_by": "HEALTHCHECK \u0026{[\"CMD-SHELL\" \"curl -f http://localhost:8000/health || exit 1\"] \"15s\" \"5s\" \"10s\" \"0s\" '\\x03'}",
+          "created": "2025-08-03T19:23:25Z",
+          "created_by": "ENV NODE_TLS_REJECT_UNAUTHORIZED=1 UV_THREADPOOL_SIZE=4",
           "comment": "buildkit.dockerfile.v0",
           "empty_layer": true
         },
         {
-          "created": "2025-08-03T02:45:25Z",
+          "created": "2025-08-03T19:23:25Z",
+          "created_by": "HEALTHCHECK \u0026{[\"CMD-SHELL\" \"curl -f http://localhost:8000/health || exit 1\"] \"15s\" \"5s\" \"30s\" \"0s\" '\\x03'}",
+          "comment": "buildkit.dockerfile.v0",
+          "empty_layer": true
+        },
+        {
+          "created": "2025-08-03T19:23:25Z",
           "created_by": "EXPOSE map[8000/tcp:{} 8001/tcp:{}]",
           "comment": "buildkit.dockerfile.v0",
           "empty_layer": true
         },
         {
-          "created": "2025-08-03T02:45:25Z",
+          "created": "2025-08-03T19:23:25Z",
+          "created_by": "LABEL exposed.ports=8000,8001 exposed.8000.description=HTTP API exposed.8001.description=WebSocket",
+          "comment": "buildkit.dockerfile.v0",
+          "empty_layer": true
+        },
+        {
+          "created": "2025-08-03T19:23:25Z",
           "created_by": "ENTRYPOINT [\"/sbin/tini\" \"--\"]",
           "comment": "buildkit.dockerfile.v0",
           "empty_layer": true
         },
         {
-          "created": "2025-08-03T02:45:25Z",
+          "created": "2025-08-03T19:23:25Z",
           "created_by": "CMD [\"/wait-for-it.sh\" \"db:5432\" \"--timeout=60\" \"--\" \"sh\" \"-c\" \"npx prisma migrate deploy \u0026\u0026 node dist/main\"]",
           "comment": "buildkit.dockerfile.v0",
           "empty_layer": true
@@ -204,23 +221,23 @@
       "rootfs": {
         "type": "layers",
         "diff_ids": [
-          "sha256:0b83d017db6efafadf6b3f18d087d2ce1d67d8f0e927dc7254b0ad088074cd3a",
-          "sha256:0d791a36a057f28c6172ec4cb465562c6aa8e54662dfa02609e369c059ae7f80",
-          "sha256:3c2c9afb9907c6d4ee514f68f2c9bf8639fc9bc2bd790322c996eabf09a04822",
-          "sha256:b6a3d61a78520daf9c416bdac8a7cf594e11f0a92921e96cc14355c8d16ccd7a",
-          "sha256:c25bbc34da61a257a67f2be8cc43f60fa9866cde9ee11b3fd662e79aadd92d18",
-          "sha256:e1ff2f1f3f2db1341ca527725391cfcb61ae63733f5f07a2b7fd4eb227322ae7",
-          "sha256:80918f40d8ea72ebbc93c9a52f99bff7a9786a7dd662fcf4fcb3170a7003dc99",
-          "sha256:64bf37692cfaf5de7457ef996e407cb0c64575dee8651daa2e2a7117f3a815d1",
-          "sha256:084eca5434d6a614fc7010147c6d98aa28d020bea216af78a7104c44972565ad",
-          "sha256:6f4939aa7b281c46f04d0dd9193546a734d48238102cb40fdef868dfa2ced9f0",
-          "sha256:d00d65666959ea2d8ba0d399a78fa8e8dbe35e30ca9ee77d5c7ec9f9b942438b",
-          "sha256:ab2e9478e274bc84057376a9daf5cb5d6aac91ee34de7f2446b05fd2d00bac51",
-          "sha256:f4e1552904e888154d83edc03573470c551804fc3b8ecd5cff346175fd15d621",
-          "sha256:0615c7283576eeeb75abf086902f1dcc468285d3119c115432f3fd5a1c7a75b1",
-          "sha256:823f898c1f49e13eda67a99de46876bac9fdd1caf03056a8dd03d433bf0ebcea",
-          "sha256:d1660697ee32ce4aa8a12c975b0fbbbbdde15e437d1441faf166868d417316cf",
-          "sha256:c492dd81c7794cabdd58c23ab6a7cd9c5f0dcba0e3e6e457b0c3d0477a6f4c40"
+          "sha256:16113d51b7181f20135f51e8ffbaead20a7671cd783017601f198748ce8a8ebf",
+          "sha256:78c5c7c51387d96859f7f4abeec5c2664e532b75d063fb5dc874b84dddeac247",
+          "sha256:a006ea7e5154bae70d3e02d2c58c75d580e1b3a48614709623c00e3cc1a4d6b0",
+          "sha256:c2e7ce420a537504ac73e2f82596892004560c8e393744acd5050ee1c1a480b3",
+          "sha256:5596b740355f7906c8132f354306361d84cbe567caeb93c05d750d2de06bb8ce",
+          "sha256:9845177e26e2d1f983a5b8984a51c0a78b9edb91026fcddbff684d20168f821d",
+          "sha256:7a17da257e3b33ca76ffebb4ed22f1fb37b5499d826dff0b510e23a671073ba1",
+          "sha256:f652053197d9a8fa37c2000aff4dd3d7b40f1cda8aecc7e5f5c9499843325568",
+          "sha256:8d7bc1833b8926c9b0a27aa69d8324cc23a2732ddef6f3fb22adf98b3108fc17",
+          "sha256:79d8997a81b22b34b2f2d2dc368a73d6514799904c703d57eff2fec6bb8a27ef",
+          "sha256:1cb00a562a7b15ddda56b933db6702c299aa1b5039fc2a431caf244ea414924b",
+          "sha256:e10203f47ba010cef3a52d6917020bf542ab8844e7b914200cecb69992647364",
+          "sha256:a382b98ec667281b61d76ced5d1ff5bcfa2be0333482a15ad38d1ea5f9b0d5cf",
+          "sha256:140713f856c795b7818790ec3037c22dca901e33dc3ca91fb9913357483983bc",
+          "sha256:cdd5c2e10866523c1fb441da9ad7d24f3a6863eb8179fa5771f6367738f744b3",
+          "sha256:61d4be3a7ea205da7c41d29ba5b76c3dc372d9c6f1d15559b7033369f0e54a4b",
+          "sha256:dda3268c77e2c47ec6a519ecff3293fd8b13a7a728f8d75498832e9111582368"
         ]
       },
       "config": {
@@ -240,7 +257,7 @@
           ],
           "Interval": 15000000000,
           "Timeout": 5000000000,
-          "StartPeriod": 10000000000,
+          "StartPeriod": 30000000000,
           "Retries": 3
         },
         "Entrypoint": [
@@ -249,22 +266,36 @@
         ],
         "Env": [
           "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
-          "NODE_VERSION=20.19.4",
+          "NODE_VERSION=20.18.0",
           "YARN_VERSION=1.22.22",
           "NODE_ENV=production",
           "NODE_PATH=/app/node_modules",
-          "NODE_OPTIONS=--max-old-space-size=512",
+          "NODE_OPTIONS=--max-old-space-size=512 --no-warnings",
           "NPM_CONFIG_CACHE=/tmp/.npm",
           "NPM_CONFIG_UPDATE_NOTIFIER=false",
+          "NPM_CONFIG_AUDIT_LEVEL=moderate",
+          "PNPM_HOME=/app/.pnpm",
           "SECURITY_NON_ROOT=true",
-          "SECURITY_NO_NEW_PRIVILEGES=true"
+          "SECURITY_NO_NEW_PRIVILEGES=true",
+          "DISABLE_OPENCOLLECTIVE=true",
+          "ADBLOCK=true",
+          "NODE_TLS_REJECT_UNAUTHORIZED=1",
+          "UV_THREADPOOL_SIZE=4"
         ],
         "Labels": {
+          "exposed.8000.description": "HTTP API",
+          "exposed.8001.description": "WebSocket",
+          "exposed.ports": "8000,8001",
+          "maintainer": "security@codexbootstrap.com",
           "org.opencontainers.image.description": "AI-augmented task management backend",
+          "org.opencontainers.image.licenses": "MIT",
+          "org.opencontainers.image.source": "https://github.com/codex-bootstrap/helmsman",
           "org.opencontainers.image.title": "Codex Bootstrap Backend",
+          "org.opencontainers.image.vendor": "Codex Bootstrap",
           "security.no-new-privileges": "true",
           "security.non-root": "true",
-          "security.scan.enabled": "true"
+          "security.scan.enabled": "true",
+          "version": "1.0.0"
         },
         "User": "nestjs",
         "WorkingDir": "/app",
@@ -277,78 +308,78 @@
     },
     "Layers": [
       {
-        "Size": 8790016,
-        "DiffID": "sha256:0b83d017db6efafadf6b3f18d087d2ce1d67d8f0e927dc7254b0ad088074cd3a"
+        "Size": 9110016,
+        "DiffID": "sha256:16113d51b7181f20135f51e8ffbaead20a7671cd783017601f198748ce8a8ebf"
       },
       {
-        "Size": 122398208,
-        "DiffID": "sha256:0d791a36a057f28c6172ec4cb465562c6aa8e54662dfa02609e369c059ae7f80"
+        "Size": 120360448,
+        "DiffID": "sha256:78c5c7c51387d96859f7f4abeec5c2664e532b75d063fb5dc874b84dddeac247"
       },
       {
-        "Size": 5389824,
-        "DiffID": "sha256:3c2c9afb9907c6d4ee514f68f2c9bf8639fc9bc2bd790322c996eabf09a04822"
+        "Size": 5610496,
+        "DiffID": "sha256:a006ea7e5154bae70d3e02d2c58c75d580e1b3a48614709623c00e3cc1a4d6b0"
       },
       {
         "Size": 3584,
-        "DiffID": "sha256:b6a3d61a78520daf9c416bdac8a7cf594e11f0a92921e96cc14355c8d16ccd7a"
+        "DiffID": "sha256:c2e7ce420a537504ac73e2f82596892004560c8e393744acd5050ee1c1a480b3"
       },
       {
         "Size": 1536,
-        "DiffID": "sha256:c25bbc34da61a257a67f2be8cc43f60fa9866cde9ee11b3fd662e79aadd92d18"
+        "DiffID": "sha256:5596b740355f7906c8132f354306361d84cbe567caeb93c05d750d2de06bb8ce"
       },
       {
-        "Size": 28036608,
-        "DiffID": "sha256:e1ff2f1f3f2db1341ca527725391cfcb61ae63733f5f07a2b7fd4eb227322ae7"
+        "Size": 28728832,
+        "DiffID": "sha256:9845177e26e2d1f983a5b8984a51c0a78b9edb91026fcddbff684d20168f821d"
       },
       {
-        "Size": 10752,
-        "DiffID": "sha256:80918f40d8ea72ebbc93c9a52f99bff7a9786a7dd662fcf4fcb3170a7003dc99"
+        "Size": 13312,
+        "DiffID": "sha256:7a17da257e3b33ca76ffebb4ed22f1fb37b5499d826dff0b510e23a671073ba1"
       },
       {
-        "Size": 10579456,
-        "DiffID": "sha256:64bf37692cfaf5de7457ef996e407cb0c64575dee8651daa2e2a7117f3a815d1"
+        "Size": 17380864,
+        "DiffID": "sha256:f652053197d9a8fa37c2000aff4dd3d7b40f1cda8aecc7e5f5c9499843325568"
       },
       {
         "Size": 6656,
-        "DiffID": "sha256:084eca5434d6a614fc7010147c6d98aa28d020bea216af78a7104c44972565ad"
+        "DiffID": "sha256:8d7bc1833b8926c9b0a27aa69d8324cc23a2732ddef6f3fb22adf98b3108fc17"
       },
       {
         "Size": 247296,
-        "DiffID": "sha256:6f4939aa7b281c46f04d0dd9193546a734d48238102cb40fdef868dfa2ced9f0"
+        "DiffID": "sha256:79d8997a81b22b34b2f2d2dc368a73d6514799904c703d57eff2fec6bb8a27ef"
       },
       {
         "Size": 66560,
-        "DiffID": "sha256:d00d65666959ea2d8ba0d399a78fa8e8dbe35e30ca9ee77d5c7ec9f9b942438b"
+        "DiffID": "sha256:1cb00a562a7b15ddda56b933db6702c299aa1b5039fc2a431caf244ea414924b"
       },
       {
-        "Size": 339724288,
-        "DiffID": "sha256:ab2e9478e274bc84057376a9daf5cb5d6aac91ee34de7f2446b05fd2d00bac51"
+        "Size": 245215744,
+        "DiffID": "sha256:e10203f47ba010cef3a52d6917020bf542ab8844e7b914200cecb69992647364"
       },
       {
-        "Size": 15691776,
-        "DiffID": "sha256:f4e1552904e888154d83edc03573470c551804fc3b8ecd5cff346175fd15d621"
+        "Size": 94638080,
+        "DiffID": "sha256:a382b98ec667281b61d76ced5d1ff5bcfa2be0333482a15ad38d1ea5f9b0d5cf"
       },
       {
-        "Size": 1328640,
-        "DiffID": "sha256:0615c7283576eeeb75abf086902f1dcc468285d3119c115432f3fd5a1c7a75b1"
+        "Size": 1400832,
+        "DiffID": "sha256:140713f856c795b7818790ec3037c22dca901e33dc3ca91fb9913357483983bc"
       },
       {
         "Size": 7168,
-        "DiffID": "sha256:823f898c1f49e13eda67a99de46876bac9fdd1caf03056a8dd03d433bf0ebcea"
+        "DiffID": "sha256:cdd5c2e10866523c1fb441da9ad7d24f3a6863eb8179fa5771f6367738f744b3"
       },
       {
         "Size": 7680,
-        "DiffID": "sha256:d1660697ee32ce4aa8a12c975b0fbbbbdde15e437d1441faf166868d417316cf"
+        "DiffID": "sha256:61d4be3a7ea205da7c41d29ba5b76c3dc372d9c6f1d15559b7033369f0e54a4b"
       },
       {
-        "Size": 282814976,
-        "DiffID": "sha256:c492dd81c7794cabdd58c23ab6a7cd9c5f0dcba0e3e6e457b0c3d0477a6f4c40"
+        "Size": 282880000,
+        "DiffID": "sha256:dda3268c77e2c47ec6a519ecff3293fd8b13a7a728f8d75498832e9111582368"
       }
     ]
   },
   "Results": [
     {
-      "Target": "codex-backend:security-scan (alpine 3.22.1)",
+      "Target": "codex-backend:security-scan (alpine 3.20.3)",
       "Class": "os-pkgs",
       "Type": "alpine"
     },
@@ -370,7 +401,68 @@
           "FixedVersion": "7.0.5, 6.0.6",
           "Status": "fixed",
           "Layer": {
-            "DiffID": "sha256:0d791a36a057f28c6172ec4cb465562c6aa8e54662dfa02609e369c059ae7f80"
+            "DiffID": "sha256:78c5c7c51387d96859f7f4abeec5c2664e532b75d063fb5dc874b84dddeac247"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2024-21538",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory npm",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"
+          },
+          "Title": "cross-spawn: regular expression denial of service",
+          "Description": "Versions of the package cross-spawn before 6.0.6, from 7.0.0 and before 7.0.5 are vulnerable to Regular Expression Denial of Service (ReDoS) due to improper input sanitization. An attacker can increase the CPU usage and crash the program by crafting a very large and well crafted string.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "amazon": 2,
+            "azure": 3,
+            "cbl-mariner": 3,
+            "ghsa": 3,
+            "redhat": 1
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:R/S:U/C:N/I:N/A:H",
+              "V3Score": 4.4
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2024-21538",
+            "https://github.com/moxystudio/node-cross-spawn",
+            "https://github.com/moxystudio/node-cross-spawn/commit/5ff3a07d9add449021d806e45c4168203aa833ff",
+            "https://github.com/moxystudio/node-cross-spawn/commit/640d391fde65388548601d95abedccc12943374f",
+            "https://github.com/moxystudio/node-cross-spawn/commit/d35c865b877d2f9ded7c1ed87521c2fdb689c8dd",
+            "https://github.com/moxystudio/node-cross-spawn/issues/165",
+            "https://github.com/moxystudio/node-cross-spawn/pull/160",
+            "https://nvd.nist.gov/vuln/detail/CVE-2024-21538",
+            "https://security.snyk.io/vuln/SNYK-JAVA-ORGWEBJARSNPM-8366349",
+            "https://security.snyk.io/vuln/SNYK-JS-CROSSSPAWN-8303230",
+            "https://www.cve.org/CVERecord?id=CVE-2024-21538"
+          ],
+          "PublishedDate": "2024-11-08T05:15:06.453Z",
+          "LastModifiedDate": "2025-05-20T15:16:03.53Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2024-21538",
+          "PkgID": "cross-spawn@7.0.3",
+          "PkgName": "cross-spawn",
+          "PkgPath": "usr/local/lib/node_modules/pnpm/dist/node_modules/cross-spawn/package.json",
+          "PkgIdentifier": {
+            "PURL": "pkg:npm/cross-spawn@7.0.3",
+            "UID": "b5ab8b17ebbaed61"
+          },
+          "InstalledVersion": "7.0.3",
+          "FixedVersion": "7.0.5, 6.0.6",
+          "Status": "fixed",
+          "Layer": {
+            "DiffID": "sha256:9845177e26e2d1f983a5b8984a51c0a78b9edb91026fcddbff684d20168f821d"
           },
           "SeveritySource": "ghsa",
           "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2024-21538",

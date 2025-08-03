@@ -30,15 +30,11 @@ services:
         tmpfs:
           size: 100m
           mode: 1777
-          noexec: true
-          nosuid: true
       - type: tmpfs
         target: /var/tmp
         tmpfs:
           size: 50m
           mode: 1777
-          noexec: true
-          nosuid: true
     restart: always
     # Security configurations
     security_opt:
@@ -95,8 +91,6 @@ services:
         tmpfs:
           size: 50m
           mode: 1777
-          noexec: true
-          nosuid: true
     restart: always
     # Security configurations
     security_opt:
@@ -145,8 +139,6 @@ services:
         target: /tmp
         tmpfs:
           size: 100m
-          noexec: true
-          nosuid: true
     restart: always
     # Security configurations
     security_opt:

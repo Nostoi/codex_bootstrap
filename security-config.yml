@@ -1,6 +1,11 @@
 # Container Security Configuration for Codex Bootstrap
 # This file defines security policies and scanning configurations
 
+metadata:
+  name: "codex-bootstrap-security"
+  version: "1.0.0"
+  description: "Production security configuration for Codex Bootstrap containers"
+
 security:
   # Trivy vulnerability scanning configuration
   trivy:
@@ -17,6 +22,21 @@ security:
       - "*.md"
       - "docs/"
       - "test/"
+    
+    # Vulnerability thresholds
+    thresholds:
+      critical: 0    # No critical vulnerabilities allowed
+      high: 5        # Maximum 5 high vulnerabilities
+      medium: 20     # Maximum 20 medium vulnerabilities
+    
+    # Scanning schedule
+    schedule: "0 2 * * *"  # Daily at 2 AM
+    
+    # SBOM generation
+    sbom:
+      enabled: true
+      format: "spdx-json"
+      include_licenses: true
     
     # Skip specific vulnerabilities (with justification)
     ignore_cves:

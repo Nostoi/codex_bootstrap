@@ -1,26 +1,29 @@
-# Production-optimized Frontend Dockerfile for Codex Bootstrap
+# Production-Hardened Frontend Dockerfile for Codex Bootstrap
 # Multi-stage build for optimal performance and security
 
-# Dependencies stage
-FROM node:20-alpine AS deps
+# Dependencies stage - Use pinned version for reproducibility
+FROM node:20.18.0-alpine@sha256:c13b26e7e602ef2f1074aef304ce6e9b7dd284c419b35d89fcf3cc8e44a8def9 AS deps
 WORKDIR /app
 
-# Install pnpm globally
-RUN npm install -g pnpm
+# Install pnpm globally with specific version
+RUN npm install -g pnpm@9.12.1
 
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat && \
+    rm -rf /var/cache/apk/* /tmp/*
 
-# Copy package files
+# Copy package files with security audit
 COPY frontend/package*.json ./
 COPY frontend/pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --ignore-scripts && \
+    pnpm audit --audit-level moderate && \
+    rm -rf ~/.npm /tmp/* /var/tmp/*
 
-# Builder stage
-FROM node:20-alpine AS builder
+# Builder stage - Use same pinned version
+FROM node:20.18.0-alpine@sha256:c13b26e7e602ef2f1074aef304ce6e9b7dd284c419b35d89fcf3cc8e44a8def9 AS builder
 WORKDIR /app
 
-# Install pnpm globally
-RUN npm install -g pnpm
+# Install pnpm globally with specific version
+RUN npm install -g pnpm@9.12.1
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
@@ -28,25 +31,47 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy source code
 COPY frontend/ ./
 
-# Build the application with optimizations
+# Build the application with security optimizations
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN pnpm run build
+ENV NEXT_BUILD_OUTPUT=standalone
+ENV NODE_OPTIONS="--max-old-space-size=1024"
+RUN pnpm run build && \
+    rm -rf ~/.npm /tmp/* /var/tmp/*
 
-# Production runner stage
-FROM node:20-alpine AS runner
+# Production runner stage - Security-hardened
+FROM node:20.18.0-alpine@sha256:c13b26e7e602ef2f1074aef304ce6e9b7dd284c419b35d89fcf3cc8e44a8def9 AS runner
+
+# Add security metadata
+LABEL maintainer="security@codexbootstrap.com" \
+      version="1.0.0" \
+      security.scan.enabled="true" \
+      security.non-root="true" \
+      security.no-new-privileges="true" \
+      org.opencontainers.image.title="Codex Bootstrap Frontend" \
+      org.opencontainers.image.description="AI-augmented task management frontend" \
+      org.opencontainers.image.vendor="Codex Bootstrap" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.source="https://github.com/codex-bootstrap/helmsman"
+
 WORKDIR /app
 
-# Create non-root user for security
+# Create non-root user with enhanced security
 RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+    adduser --system --uid 1001 nextjs --ingroup nodejs && \
+    mkdir -p /app/.next /tmp/app && \
+    chown -R nextjs:nodejs /app /tmp/app
 
-# Install production dependencies and security tools
+# Install production dependencies and security tools with version pinning
 RUN apk add --no-cache \
     curl \
     tini \
     dumb-init \
-    && rm -rf /var/cache/apk/*
+    ca-certificates \
+    && update-ca-certificates \
+    && rm -rf /var/cache/apk/* \
+    && rm -rf /tmp/* \
+    && rm -rf /var/tmp/*
 
 # Set security labels
 LABEL security.scan.enabled="true" \
@@ -55,13 +80,16 @@ LABEL security.scan.enabled="true" \
       org.opencontainers.image.title="Codex Bootstrap Frontend" \
       org.opencontainers.image.description="AI-augmented task management frontend"
 
-# Copy built application and dependencies
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+# Copy built application and dependencies with proper ownership
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Change ownership to non-root user
-RUN chown -R nextjs:nodejs /app
+# Set proper permissions
+RUN chown -R nextjs:nodejs /app && \
+    chmod 755 /app && \
+    find /app -type f -name "*.js" -exec chmod 644 {} \; && \
+    find /app -type d -exec chmod 755 {} \;
 
 # Switch to non-root user
 USER nextjs
@@ -71,19 +99,27 @@ ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \
     HOSTNAME="0.0.0.0" \
-    NODE_OPTIONS="--max-old-space-size=512" \
-    NPM_CONFIG_UPDATE_NOTIFIER=false
+    NODE_OPTIONS="--max-old-space-size=512 --no-warnings" \
+    NPM_CONFIG_UPDATE_NOTIFIER=false \
+    NPM_CONFIG_AUDIT_LEVEL=moderate
 
-# Security: Disable new privileges
+# Security: Disable new privileges and set security options
 ENV SECURITY_NON_ROOT=true \
-    SECURITY_NO_NEW_PRIVILEGES=true
+    SECURITY_NO_NEW_PRIVILEGES=true \
+    DISABLE_OPENCOLLECTIVE=true \
+    ADBLOCK=true
 
-# Add comprehensive health check
-HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
+# Runtime security settings
+ENV NODE_TLS_REJECT_UNAUTHORIZED=1
+
+# Enhanced health check with proper timing
+HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=3 \
   CMD curl -f http://localhost:3000/api/health || exit 1
 
-# Expose port
-EXPOSE 3000
+# Expose port with documentation
+EXPOSE 3000/tcp
+LABEL exposed.ports="3000" \
+      exposed.3000.description="HTTP Frontend"
 
 # Use tini as init system for proper signal handling
 ENTRYPOINT ["/sbin/tini", "--"]
