@@ -1,0 +1,206 @@
+# Falco security monitoring configuration for Codex Bootstrap
+# Runtime security monitoring for containers
+
+# Basic configuration
+json_output: true
+json_include_output_property: true
+json_include_tags_property: true
+
+# Log level
+log_level: info
+
+# File output
+file_output:
+  enabled: true
+  keep_alive: false
+  filename: /var/log/falco/events.log
+
+# Stdout output for container logs
+stdout_output:
+  enabled: true
+
+# HTTP output for security system integration
+http_output:
+  enabled: false  # Enable when security monitoring system is configured
+  url: "http://security-monitor:8080/falco/events"
+
+# Program output for custom handling
+program_output:
+  enabled: false
+  keep_alive: false
+  program: "jq '{ts: .time, rule: .rule, msg: .output}'"
+
+# Rules configuration
+rules_file:
+  - /etc/falco/falco_rules.yaml
+  - /etc/falco/falco_rules.local.yaml
+  - /etc/falco/k8s_audit_rules.yaml
+
+# Load plugins
+plugins:
+  - name: k8saudit
+    library_path: libk8saudit.so
+    init_config:
+      maxEventSize: 262144
+      webhookMaxBatchSize: 12582912
+      sslCertificate: /etc/ssl/certs/ca-certificates.crt
+    open_params: "http://:9765/k8s-audit"
+
+  - name: cloudtrail
+    library_path: libcloudtrail.so
+
+# Syscall event drops
+syscall_event_drops:
+  actions:
+    - log
+    - alert
+  rate: 10000
+  max_burst: 1000
+
+# Container orchestrator metadata
+metadata_download:
+  max_mb: 100
+  chunk_wait_us: 1000
+  watch_freq_sec: 1
+
+# Modern BPF
+modern_bpf:
+  cpus_for_each_syscall_buffer: 2
+
+# Metrics
+metrics:
+  enabled: true
+  interval: 30s
+  output_rule: true
+  rules_counters_enabled: true
+  resource_utilization_enabled: true
+  state_counters_enabled: true
+  kernel_event_counters_enabled: true
+  libbpf_stats_enabled: true
+  plugins_metrics_enabled: true
+
+# Priority level for alerts
+priority: debug
+
+# Buffered outputs
+buffered_outputs: false
+
+# Watch config files
+watch_config_files: true
+
+# Custom rules for Codex Bootstrap application
+custom_rules: |
+  # Detect container running as root
+  - rule: Container Run as Root User
+    desc: Detect containers running with root privileges
+    condition: >
+      spawned_process and
+      container and
+      proc.vpid=1 and
+      user.uid=0
+    output: >
+      Container running as root
+      (user=%user.name user_uid=%user.uid parent=%proc.pname container_id=%container.id container_name=%container.name image=%container.image.repository:%container.image.tag)
+    priority: WARNING
+    tags: [container, security, root]
+
+  # Detect suspicious network activity
+  - rule: Unexpected Network Connection
+    desc: Detect unexpected outbound network connections from containers
+    condition: >
+      inbound_outbound and
+      container and
+      not proc.name in (node, npm, pnpm, curl, wget) and
+      not fd.net.cnet in (private_networks)
+    output: >
+      Unexpected network connection from container
+      (proc=%proc.name pid=%proc.pid container_id=%container.id dest=%fd.net.cnet.name port=%fd.net.sport proto=%fd.net.proto)
+    priority: WARNING
+    tags: [network, container, security]
+
+  # Detect file system changes in containers
+  - rule: Write to Important Directory
+    desc: Detect writes to important system directories
+    condition: >
+      open_write and
+      container and
+      fd.name startswith /etc
+    output: >
+      Write to important directory in container
+      (file=%fd.name proc=%proc.name container_id=%container.id container_name=%container.name image=%container.image.repository:%container.image.tag)
+    priority: WARNING
+    tags: [filesystem, container, security]
+
+  # Detect privilege escalation attempts
+  - rule: Privilege Escalation Attempt
+    desc: Detect potential privilege escalation in containers
+    condition: >
+      spawned_process and
+      container and
+      proc.name in (sudo, su, setuid, chmod) and
+      proc.args contains "+s"
+    output: >
+      Privilege escalation attempt detected
+      (proc=%proc.name args=%proc.args user=%user.name container_id=%container.id container_name=%container.name)
+    priority: CRITICAL
+    tags: [privilege_escalation, container, security]
+
+  # Detect suspicious command execution
+  - rule: Suspicious Command Execution
+    desc: Detect execution of suspicious commands in containers
+    condition: >
+      spawned_process and
+      container and
+      proc.name in (nc, netcat, ncat, socat, nmap, telnet, ssh, scp, rsync, wget, curl) and
+      not proc.pname in (node, npm, pnpm, bash, sh)
+    output: >
+      Suspicious command executed in container
+      (proc=%proc.name args=%proc.args parent=%proc.pname container_id=%container.id container_name=%container.name)
+    priority: WARNING
+    tags: [command_execution, container, security]
+
+  # Detect database connection attempts
+  - rule: Database Connection from Unexpected Process
+    desc: Detect database connections from processes other than the main application
+    condition: >
+      outbound and
+      container and
+      fd.net.sport=5432 and
+      not proc.name in (node, postgres, psql)
+    output: >
+      Unexpected database connection
+      (proc=%proc.name pid=%proc.pid dest_port=%fd.net.dport container_id=%container.id container_name=%container.name)
+    priority: INFO
+    tags: [database, container, network]
+
+  # Detect secrets access
+  - rule: Access to Secrets Directory
+    desc: Detect access to secrets or sensitive directories
+    condition: >
+      open and
+      container and
+      (fd.name startswith /run/secrets or
+       fd.name contains password or
+       fd.name contains secret or
+       fd.name contains .env)
+    output: >
+      Access to sensitive file detected
+      (file=%fd.name proc=%proc.name container_id=%container.id container_name=%container.name)
+    priority: INFO
+    tags: [secrets, container, filesystem]
+
+# Network and system lists for rules
+lists:
+  private_networks:
+    - "10.0.0.0/8"
+    - "172.16.0.0/12"
+    - "192.168.0.0/16"
+    - "127.0.0.0/8"
+  
+  allowed_dev_binaries:
+    - node
+    - npm
+    - pnpm
+    - git
+    - curl
+    - wget

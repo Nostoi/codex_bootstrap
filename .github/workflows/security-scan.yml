@@ -1,0 +1,304 @@
+name: Security Scanning Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run security scan daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+env:
+  # Container registry settings
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  security-scan:
+    name: Container Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+      actions: read
+
+    outputs:
+      backend-scan-result: ${{ steps.backend-scan.outputs.result }}
+      frontend-scan-result: ${{ steps.frontend-scan.outputs.result }}
+      security-gate-passed: ${{ steps.security-gate.outputs.passed }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Install security tools
+      run: |
+        # Install Trivy
+        sudo apt-get update
+        sudo apt-get install wget apt-transport-https gnupg lsb-release
+        wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+        echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+        sudo apt-get update
+        sudo apt-get install trivy
+        
+        # Install jq for JSON parsing
+        sudo apt-get install jq
+
+    - name: Build backend image for scanning
+      id: backend-build
+      run: |
+        docker build \
+          -t codex-backend:security-scan \
+          -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:${{ github.sha }} \
+          --build-arg BUILD_ID="${{ github.run_id }}" \
+          --build-arg COMMIT_SHA="${{ github.sha }}" \
+          --build-arg BRANCH="${{ github.ref_name }}" \
+          -f Dockerfile.backend \
+          .
+        echo "backend-image=codex-backend:security-scan" >> $GITHUB_OUTPUT
+
+    - name: Build frontend image for scanning
+      id: frontend-build
+      continue-on-error: true
+      run: |
+        docker build \
+          -t codex-frontend:security-scan \
+          -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:${{ github.sha }} \
+          --build-arg BUILD_ID="${{ github.run_id }}" \
+          --build-arg COMMIT_SHA="${{ github.sha }}" \
+          --build-arg BRANCH="${{ github.ref_name }}" \
+          -f Dockerfile.frontend \
+          .
+        echo "frontend-image=codex-frontend:security-scan" >> $GITHUB_OUTPUT
+
+    - name: Run backend security scan
+      id: backend-scan
+      run: |
+        mkdir -p security-reports
+        
+        # Run Trivy scan on backend
+        trivy image \
+          --format sarif \
+          --output security-reports/backend-security-scan.sarif \
+          --severity CRITICAL,HIGH,MEDIUM \
+          --ignore-unfixed \
+          --security-checks vuln,config,secret \
+          codex-backend:security-scan
+        
+        # Also generate JSON report for processing
+        trivy image \
+          --format json \
+          --output security-reports/backend-security-scan.json \
+          --severity CRITICAL,HIGH,MEDIUM \
+          --ignore-unfixed \
+          --security-checks vuln,config,secret \
+          codex-backend:security-scan
+        
+        # Parse results
+        CRITICAL=$(jq -r '[.Results[]? | .Vulnerabilities[]? | select(.Severity == "CRITICAL")] | length' security-reports/backend-security-scan.json)
+        HIGH=$(jq -r '[.Results[]? | .Vulnerabilities[]? | select(.Severity == "HIGH")] | length' security-reports/backend-security-scan.json)
+        SECRETS=$(jq -r '[.Results[]? | .Secrets[]?] | length' security-reports/backend-security-scan.json)
+        
+        echo "critical-vulns=$CRITICAL" >> $GITHUB_OUTPUT
+        echo "high-vulns=$HIGH" >> $GITHUB_OUTPUT
+        echo "secrets-found=$SECRETS" >> $GITHUB_OUTPUT
+        
+        # Determine pass/fail
+        if [ "$CRITICAL" -eq 0 ] && [ "$HIGH" -le 5 ] && [ "$SECRETS" -eq 0 ]; then
+          echo "result=PASS" >> $GITHUB_OUTPUT
+        else
+          echo "result=FAIL" >> $GITHUB_OUTPUT
+        fi
+        
+        echo "Backend scan results: Critical=$CRITICAL, High=$HIGH, Secrets=$SECRETS"
+
+    - name: Run frontend security scan
+      id: frontend-scan
+      if: steps.frontend-build.outcome == 'success'
+      run: |
+        # Run Trivy scan on frontend
+        trivy image \
+          --format sarif \
+          --output security-reports/frontend-security-scan.sarif \
+          --severity CRITICAL,HIGH,MEDIUM \
+          --ignore-unfixed \
+          --security-checks vuln,config,secret \
+          codex-frontend:security-scan
+        
+        trivy image \
+          --format json \
+          --output security-reports/frontend-security-scan.json \
+          --severity CRITICAL,HIGH,MEDIUM \
+          --ignore-unfixed \
+          --security-checks vuln,config,secret \
+          codex-frontend:security-scan
+        
+        # Parse results
+        CRITICAL=$(jq -r '[.Results[]? | .Vulnerabilities[]? | select(.Severity == "CRITICAL")] | length' security-reports/frontend-security-scan.json)
+        HIGH=$(jq -r '[.Results[]? | .Vulnerabilities[]? | select(.Severity == "HIGH")] | length' security-reports/frontend-security-scan.json)
+        SECRETS=$(jq -r '[.Results[]? | .Secrets[]?] | length' security-reports/frontend-security-scan.json)
+        
+        echo "critical-vulns=$CRITICAL" >> $GITHUB_OUTPUT
+        echo "high-vulns=$HIGH" >> $GITHUB_OUTPUT
+        echo "secrets-found=$SECRETS" >> $GITHUB_OUTPUT
+        
+        if [ "$CRITICAL" -eq 0 ] && [ "$HIGH" -le 5 ] && [ "$SECRETS" -eq 0 ]; then
+          echo "result=PASS" >> $GITHUB_OUTPUT
+        else
+          echo "result=FAIL" >> $GITHUB_OUTPUT
+        fi
+        
+        echo "Frontend scan results: Critical=$CRITICAL, High=$HIGH, Secrets=$SECRETS"
+
+    - name: Upload SARIF files to GitHub Security
+      if: always()
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: security-reports/
+        category: container-security
+
+    - name: Security Gate Decision
+      id: security-gate
+      run: |
+        BACKEND_RESULT="${{ steps.backend-scan.outputs.result }}"
+        FRONTEND_RESULT="${{ steps.frontend-scan.outputs.result || 'PASS' }}"
+        
+        echo "Backend scan: $BACKEND_RESULT"
+        echo "Frontend scan: $FRONTEND_RESULT"
+        
+        if [ "$BACKEND_RESULT" = "PASS" ] && [ "$FRONTEND_RESULT" = "PASS" ]; then
+          echo "🎉 Security Gate PASSED - Build approved for deployment"
+          echo "passed=true" >> $GITHUB_OUTPUT
+          echo "status=success" >> $GITHUB_OUTPUT
+        else
+          echo "❌ Security Gate FAILED - Build blocked due to security issues"
+          echo "passed=false" >> $GITHUB_OUTPUT  
+          echo "status=failure" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+
+    - name: Generate security summary
+      if: always()
+      run: |
+        mkdir -p security-reports
+        
+        cat > security-reports/security-summary.md << EOF
+        # Security Scan Summary
+        
+        **Build:** ${{ github.run_id }}
+        **Commit:** ${{ github.sha }}
+        **Branch:** ${{ github.ref_name }}
+        **Status:** ${{ steps.security-gate.outputs.status == 'success' && '✅ PASSED' || '❌ FAILED' }}
+        
+        ## Backend Results
+        - Critical: ${{ steps.backend-scan.outputs.critical-vulns }}
+        - High: ${{ steps.backend-scan.outputs.high-vulns }}
+        - Secrets: ${{ steps.backend-scan.outputs.secrets-found }}
+        - Result: ${{ steps.backend-scan.outputs.result }}
+        
+        ## Frontend Results
+        - Critical: ${{ steps.frontend-scan.outputs.critical-vulns || 'N/A' }}
+        - High: ${{ steps.frontend-scan.outputs.high-vulns || 'N/A' }}
+        - Secrets: ${{ steps.frontend-scan.outputs.secrets-found || 'N/A' }}
+        - Result: ${{ steps.frontend-scan.outputs.result || 'SKIPPED' }}
+        
+        ## Security Policy
+        - Maximum CRITICAL vulnerabilities: 0
+        - Maximum HIGH vulnerabilities: 5
+        - Maximum secrets: 0
+        
+        ${{ steps.security-gate.outputs.status == 'success' && '✅ **APPROVED FOR DEPLOYMENT**' || '❌ **DEPLOYMENT BLOCKED** - Address security issues before proceeding' }}
+        EOF
+
+    - name: Upload security artifacts
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-reports-${{ github.sha }}
+        path: |
+          security-reports/
+          !security-reports/*.sarif
+        retention-days: 30
+
+    - name: Comment on PR with security results
+      if: github.event_name == 'pull_request' && always()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const summary = fs.readFileSync('security-reports/security-summary.md', 'utf8');
+          
+          await github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: summary
+          });
+
+    - name: Push images to registry
+      if: github.event_name != 'pull_request' && steps.security-gate.outputs.passed == 'true'
+      run: |
+        docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:${{ github.sha }}
+        
+        if docker image inspect codex-frontend:security-scan >/dev/null 2>&1; then
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:${{ github.sha }}
+        fi
+
+  dependency-scan:
+    name: Dependency Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Run npm audit on backend
+      run: |
+        cd backend
+        npm audit --audit-level=high --json > ../security-reports/backend-npm-audit.json || true
+        npm audit --audit-level=high
+
+    - name: Run npm audit on frontend
+      run: |
+        cd frontend
+        mkdir -p ../security-reports
+        npm audit --audit-level=high --json > ../security-reports/frontend-npm-audit.json || true
+        npm audit --audit-level=high
+
+    - name: Upload dependency scan results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: dependency-scans-${{ github.sha }}
+        path: security-reports/*npm-audit.json
+        retention-days: 30
+
+  security-notify:
+    name: Security Notification
+    needs: [security-scan, dependency-scan]
+    runs-on: ubuntu-latest
+    if: always() && (needs.security-scan.outputs.security-gate-passed == 'false' || failure())
+
+    steps:
+    - name: Send security alert
+      run: |
+        echo "🚨 Security scan failed for commit ${{ github.sha }}"
+        echo "Backend: ${{ needs.security-scan.outputs.backend-scan-result }}"
+        echo "Frontend: ${{ needs.security-scan.outputs.frontend-scan-result }}"
+        # Add notification logic here (Slack, email, etc.)

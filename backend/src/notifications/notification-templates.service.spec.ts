@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { Logger } from '@nestjs/common';
 import { NotificationTemplatesService, TemplateContext, UserContext, TaskContext } from './notification-templates.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { EnergyLevel, FocusType, TaskStatus } from '@prisma/client';
@@ -6,6 +7,7 @@ import { EnergyLevel, FocusType, TaskStatus } from '@prisma/client';
 describe('NotificationTemplatesService', () => {
   let service: NotificationTemplatesService;
   let prismaService: PrismaService;
+  let loggerErrorSpy: jest.SpyInstance;
 
   const mockPrismaService = {
     task: {
@@ -14,6 +16,9 @@ describe('NotificationTemplatesService', () => {
   };
 
   beforeEach(async () => {
+    // Suppress error logs during testing to keep output clean
+    loggerErrorSpy = jest.spyOn(Logger.prototype, 'error').mockImplementation(() => {});
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         NotificationTemplatesService,
@@ -26,6 +31,12 @@ describe('NotificationTemplatesService', () => {
 
     service = module.get<NotificationTemplatesService>(NotificationTemplatesService);
     prismaService = module.get<PrismaService>(PrismaService);
+  });
+
+  afterEach(() => {
+    // Restore logger after each test
+    loggerErrorSpy.mockRestore();
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
