@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true,
+    "types": ["jest", "node"]
+  },
+  "include": [
+    "src/auth_disabled/**/*",
+    "src/integrations_disabled/**/*", 
+    "src/planning_disabled/**/*",
+    "src/security_disabled/**/*"
+  ],
+  "exclude": []
+}

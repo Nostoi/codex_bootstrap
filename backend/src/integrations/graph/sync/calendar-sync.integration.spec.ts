@@ -165,25 +165,23 @@ describe.skip('Calendar Sync Integration Tests', () => {
         },
       });
 
-      // First create a calendar event to reference
+      // Create a calendar event for the conflict
       const calendarEvent = await prismaService.calendarEvent.create({
         data: {
-          userId: mockUser.id,
-          graphId: 'event-123',
           subject: 'Test Event',
-          startTime: new Date('2025-01-01T10:00:00Z'),
-          endTime: new Date('2025-01-01T11:00:00Z'),
+          startTime: new Date(),
+          endTime: new Date(Date.now() + 3600000), // 1 hour later
+          userId: mockUser.id,
         },
       });
 
       const conflict = await prismaService.calendarSyncConflict.create({
         data: {
           syncStateId: syncState.id,
-          eventId: 'event-123',
           calendarEventId: calendarEvent.id,
           conflictType: 'TITLE',
-          localVersion: JSON.stringify({ title: 'Local Title' }),
-          remoteVersion: JSON.stringify({ title: 'Remote Title' }),
+          localVersion: JSON.stringify({ subject: 'Local Title' }),
+          remoteVersion: JSON.stringify({ subject: 'Remote Title' }),
           conflictData: {
             localValue: 'Local Title',
             remoteValue: 'Remote Title',
@@ -218,25 +216,23 @@ describe.skip('Calendar Sync Integration Tests', () => {
         },
       });
 
-      // First create a calendar event to reference
+      // Create a calendar event for the conflict
       const calendarEvent = await prismaService.calendarEvent.create({
         data: {
-          userId: mockUser.id,
-          graphId: 'event-123',
           subject: 'Test Event',
-          startTime: new Date('2025-01-01T10:00:00Z'),
-          endTime: new Date('2025-01-01T11:00:00Z'),
+          startTime: new Date(),
+          endTime: new Date(Date.now() + 3600000), // 1 hour later
+          userId: mockUser.id,
         },
       });
 
       const conflict = await prismaService.calendarSyncConflict.create({
         data: {
           syncStateId: syncState.id,
-          eventId: 'event-123',
           calendarEventId: calendarEvent.id,
           conflictType: 'TITLE',
-          localVersion: JSON.stringify({ title: 'Local Title' }),
-          remoteVersion: JSON.stringify({ title: 'Remote Title' }),
+          localVersion: JSON.stringify({ subject: 'Local Title' }),
+          remoteVersion: JSON.stringify({ subject: 'Remote Title' }),
           conflictData: {
             localValue: 'Local Title',
             remoteValue: 'Remote Title',
@@ -367,24 +363,13 @@ describe.skip('Calendar Sync Integration Tests', () => {
         },
       });
 
-      // Create calendar events to reference
-      const calendarEvent1 = await prismaService.calendarEvent.create({
+      // Create a calendar event for the conflicts
+      const calendarEvent = await prismaService.calendarEvent.create({
         data: {
+          subject: 'Test Event',
+          startTime: new Date(),
+          endTime: new Date(Date.now() + 3600000), // 1 hour later
           userId: mockUser.id,
-          graphId: 'event-1',
-          subject: 'Test Event 1',
-          startTime: new Date('2025-01-01T10:00:00Z'),
-          endTime: new Date('2025-01-01T11:00:00Z'),
-        },
-      });
-
-      const calendarEvent2 = await prismaService.calendarEvent.create({
-        data: {
-          userId: mockUser.id,
-          graphId: 'event-2',
-          subject: 'Test Event 2',
-          startTime: new Date('2025-01-01T14:00:00Z'),
-          endTime: new Date('2025-01-01T15:00:00Z'),
         },
       });
 
@@ -392,11 +377,10 @@ describe.skip('Calendar Sync Integration Tests', () => {
         prismaService.calendarSyncConflict.create({
           data: {
             syncStateId: syncState.id,
-            eventId: 'event-1',
-            calendarEventId: calendarEvent1.id,
+            calendarEventId: calendarEvent.id,
             conflictType: 'TITLE',
-            localVersion: JSON.stringify({ title: 'Local Title 1' }),
-            remoteVersion: JSON.stringify({ title: 'Remote Title 1' }),
+            localVersion: JSON.stringify({ subject: 'Local Title' }),
+            remoteVersion: JSON.stringify({ subject: 'Remote Title' }),
             conflictData: {},
             resolution: 'PENDING',
           },
@@ -404,11 +388,10 @@ describe.skip('Calendar Sync Integration Tests', () => {
         prismaService.calendarSyncConflict.create({
           data: {
             syncStateId: syncState.id,
-            eventId: 'event-2',
-            calendarEventId: calendarEvent2.id,
+            calendarEventId: calendarEvent.id,
             conflictType: 'START_TIME',
-            localVersion: JSON.stringify({ startTime: '10:00' }),
-            remoteVersion: JSON.stringify({ startTime: '11:00' }),
+            localVersion: JSON.stringify({ startTime: new Date() }),
+            remoteVersion: JSON.stringify({ startTime: new Date(Date.now() + 1800000) }),
             conflictData: {},
             resolution: 'PREFER_LOCAL',
             resolvedAt: new Date(),

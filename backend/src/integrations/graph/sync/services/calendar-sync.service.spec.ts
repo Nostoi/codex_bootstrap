@@ -11,7 +11,7 @@ import { createMockPrismaService } from '../../../../test-utils';
 
 describe('CalendarSyncService', () => {
   let service: CalendarSyncService;
-  let prismaService: jest.Mocked<PrismaService>;
+  let prismaService: ReturnType<typeof createMockPrismaService>;
   let deltaSyncManager: jest.Mocked<DeltaSyncManager>;
   let conflictResolver: jest.Mocked<ConflictResolver>;
   let graphService: jest.Mocked<GraphService>;
@@ -26,19 +26,27 @@ describe('CalendarSyncService', () => {
     id: 'sync-123',
     userId: mockUser.id,
     calendarId: 'default',
-    status: CalendarSyncStatus.PENDING,
-    direction: 'bidirectional' as SyncDirection,
+    lastFullSync: new Date(),
+    lastDeltaSync: new Date(),
+    lastSyncTime: new Date(),
     deltaToken: null,
-    lastSyncTime: null,
+    syncInProgress: false,
+    lastSyncStatus: CalendarSyncStatus.PENDING,
+    status: CalendarSyncStatus.PENDING,
+    direction: 'bidirectional',
+    lastSyncError: null,
     totalEvents: 0,
+    syncedEvents: 0,
+    conflictedEvents: 0,
+    failedEvents: 0,
     processedEvents: 0,
+    conflictsDetected: 0,
     createdEvents: 0,
     updatedEvents: 0,
     deletedEvents: 0,
-    conflictsDetected: 0,
+    error: null,
     startedAt: new Date(),
     completedAt: null,
-    error: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   };

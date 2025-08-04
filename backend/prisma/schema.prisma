@@ -269,7 +269,7 @@ model CalendarEvent {
   locallyModified   Boolean   @default(false)
   remotelyModified  Boolean   @default(false)
   syncStatus        CalendarSyncStatus @default(PENDING)
-  conflictData      String?   // JSON string for conflict resolution
+  conflictData      Json?     // JSON object for conflict resolution
   
   // Relationships
   userId            String
@@ -311,9 +311,14 @@ model CalendarSyncState {
   conflictsDetected Int       @default(0)  // Add conflictsDetected field for tests
   createdEvents     Int       @default(0)  // Add createdEvents field for tests
   updatedEvents     Int       @default(0)  // Add updatedEvents field for tests
+  deletedEvents     Int       @default(0)  // Add deletedEvents field for tests
   
   // Error tracking
   error             String?   // Add error field for tests
+  
+  // Timing tracking
+  startedAt         DateTime?  // Add startedAt field for tests
+  completedAt       DateTime?  // Add completedAt field for tests
   
   // Relations
   conflicts         CalendarSyncConflict[]
@@ -341,7 +346,7 @@ model CalendarSyncConflict {
   conflictType      CalendarConflictType
   localVersion      String    // JSON string of local event data
   remoteVersion     String    // JSON string of remote event data
-  conflictData      String?   // Add conflictData field for tests (JSON string)
+  conflictData      Json?     // JSON object for conflict resolution (supports objects directly)
   resolution        CalendarConflictResolution? @default(PENDING)
   resolvedBy        String?   // User ID who resolved the conflict
   resolvedAt        DateTime?
@@ -377,6 +382,11 @@ enum CalendarConflictType {
   BOTH_MODIFIED
   TITLE
   START_TIME
+  DESCRIPTION
+  END_TIME
+  LOCATION
+  ALL_DAY
+  RECURRENCE
 }
 
 enum CalendarConflictResolution {

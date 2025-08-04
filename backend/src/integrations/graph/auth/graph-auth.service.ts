@@ -272,6 +272,14 @@ export class GraphAuthService {
   }
 
   /**
+   * Check if user has a valid Microsoft Graph token
+   * Alias for isUserAuthenticated for backward compatibility
+   */
+  async isTokenValid(userId: string): Promise<boolean> {
+    return this.isUserAuthenticated(userId);
+  }
+
+  /**
    * Get user's Microsoft Graph profile information
    */
   async getUserInfo(userId: string): Promise<any> {

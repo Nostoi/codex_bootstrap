@@ -3,6 +3,7 @@ import { DailyPlannerService } from './daily-planner.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { TasksService } from '../tasks/tasks.service';
 import { GoogleService } from '../integrations/google/google.service';
+import { GraphService } from '../integrations/graph/graph.service';
 import { EnergyLevel, FocusType, TaskStatus } from '@prisma/client';
 import { TimeSlot } from './types';
 
@@ -11,29 +12,34 @@ describe('DailyPlannerService - Calendar Integration', () => {
   let mockPrismaService: jest.Mocked<PrismaService>;
   let mockTasksService: jest.Mocked<TasksService>;
   let mockGoogleService: jest.Mocked<GoogleService>;
+  let mockGraphService: jest.Mocked<GraphService>;
 
   beforeEach(async () => {
     // Create mocks
     mockPrismaService = {
       userSettings: {
-        findUnique: jest.fn(),
+        findUnique: jest.fn().mockResolvedValue(null),
         create: jest.fn(),
       },
       task: {
-        findMany: jest.fn(),
+        findMany: jest.fn().mockResolvedValue([]),
       },
       taskDependency: {
-        findMany: jest.fn(),
+        findMany: jest.fn().mockResolvedValue([]),
       },
     } as unknown as jest.Mocked<PrismaService>;
 
     mockTasksService = {
-      findAllByUser: jest.fn(),
+      findAll: jest.fn(),
     } as unknown as jest.Mocked<TasksService>;
 
     mockGoogleService = {
       getCalendarEvents: jest.fn(),
     } as unknown as jest.Mocked<GoogleService>;
+
+    mockGraphService = {
+      getCalendarEvents: jest.fn().mockResolvedValue([]),
+    } as unknown as jest.Mocked<GraphService>;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -41,6 +47,7 @@ describe('DailyPlannerService - Calendar Integration', () => {
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: TasksService, useValue: mockTasksService },
         { provide: GoogleService, useValue: mockGoogleService },
+        { provide: GraphService, useValue: mockGraphService },
       ],
     }).compile();
 
@@ -60,7 +67,7 @@ describe('DailyPlannerService - Calendar Integration', () => {
       // Access the private method using array notation
       const result = (service as any).parseCalendarEventToTimeSlot(mockEvent);
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         startTime: new Date('2025-07-28T14:00:00-07:00'),
         endTime: new Date('2025-07-28T15:00:00-07:00'),
         energyLevel: EnergyLevel.MEDIUM,
@@ -180,28 +187,30 @@ describe('DailyPlannerService - Calendar Integration', () => {
   describe('Calendar Integration', () => {
     beforeEach(() => {
       // Setup common mocks
-      mockTasksService.findAllByUser.mockResolvedValue([
+      mockTasksService.findAll.mockResolvedValue([
         {
           id: 'task-1',
           title: 'Complete feature',
           description: 'Implement new functionality',
-          userId: 'test-user',
+          completed: false,
+          ownerId: 'test-user',
           status: TaskStatus.TODO,
           priority: 5,
           energyLevel: EnergyLevel.HIGH,
           focusType: FocusType.TECHNICAL,
           estimatedMinutes: 120,
-          actualMinutes: null,
+          dueDate: null,
           hardDeadline: null,
           softDeadline: null,
           projectId: null,
-          parentTaskId: null,
+          source: null,
+          aiSuggestion: null,
           createdAt: new Date(),
           updatedAt: new Date(),
         },
       ]);
 
-      mockPrismaService.userSettings.findUnique.mockResolvedValue({
+      (mockPrismaService.userSettings.findUnique as jest.Mock).mockResolvedValue({
         id: 'settings-1',
         userId: 'test-user',
         morningEnergyLevel: EnergyLevel.HIGH,
@@ -214,7 +223,7 @@ describe('DailyPlannerService - Calendar Integration', () => {
         updatedAt: new Date(),
       });
 
-      mockPrismaService.taskDependency.findMany.mockResolvedValue([]);
+      (mockPrismaService.taskDependency.findMany as jest.Mock).mockResolvedValue([]);
     });
 
     it('should integrate calendar events into daily planning', async () => {

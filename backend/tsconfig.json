@@ -18,14 +18,12 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "useDefineForClassFields": false,
+    "types": ["jest", "node"],
     "paths": {
       "@/*": ["src/*"]
     }
   },
   "exclude": [
-    "**/*.spec.ts",
-    "**/*.test.ts",
-    "**/*.integration.spec.ts",
     "node_modules",
     "dist",
     "src/auth_disabled/**/*",

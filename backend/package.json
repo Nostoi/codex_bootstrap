@@ -99,7 +99,7 @@
       "ts"
     ],
     "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
+    "testRegex": ".*\\.(spec|test)\\.ts$",
     "testPathIgnorePatterns": [
       "<rootDir>/integrations_disabled/",
       "<rootDir>/planning_disabled/",

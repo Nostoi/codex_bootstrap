@@ -1,33 +1,26 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { UsersService } from "./users.service";
 import { PrismaService } from "../prisma/prisma.service";
+import { createMockPrismaService } from "../test-utils";
 
 describe("UsersService", () => {
   let service: UsersService;
-
-  const mockPrismaService = {
-    user: {
-      findMany: jest.fn(),
-      findUnique: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-    },
-  };
+  let prismaService: ReturnType<typeof createMockPrismaService>;
 
   beforeEach(async () => {
+    prismaService = createMockPrismaService();
+    
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
         {
           provide: PrismaService,
-          useValue: mockPrismaService,
+          useValue: prismaService,
         },
       ],
     }).compile();
 
     service = module.get<UsersService>(UsersService);
-    // _prismaService = module.get<PrismaService>(PrismaService); // Currently unused
   });
 
   it("should be defined", () => {
@@ -36,24 +29,38 @@ describe("UsersService", () => {
 
   it("should find all users", async () => {
     const mockUsers = [
-      { id: "1", email: "test@example.com", name: "Test User" },
+      { 
+        id: "1", 
+        email: "test@example.com", 
+        name: "Test User",
+        avatar: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
     ];
-    mockPrismaService.user.findMany.mockResolvedValue(mockUsers);
+    prismaService.user.findMany.mockResolvedValue(mockUsers);
 
     const result = await service.findAll();
     expect(result).toEqual(mockUsers);
-    expect(mockPrismaService.user.findMany).toHaveBeenCalledWith({
+    expect(prismaService.user.findMany).toHaveBeenCalledWith({
       orderBy: { createdAt: "desc" },
     });
   });
 
   it("should find user by email", async () => {
-    const mockUser = { id: "1", email: "test@example.com", name: "Test User" };
-    mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
+    const mockUser = { 
+      id: "1", 
+      email: "test@example.com", 
+      name: "Test User",
+      avatar: null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    prismaService.user.findUnique.mockResolvedValue(mockUser);
 
     const result = await service.findByEmail("test@example.com");
     expect(result).toEqual(mockUser);
-    expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
+    expect(prismaService.user.findUnique).toHaveBeenCalledWith({
       where: { email: "test@example.com" },
     });
   });

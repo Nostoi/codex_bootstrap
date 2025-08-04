@@ -23,8 +23,8 @@ import {
   BlockedTask,
   BlockingReason,
   CalendarEvent,
-} from "./types";
-import { DailyPlanResponseDto } from "./dto";
+} from "../planning/types";
+import { DailyPlanResponseDto } from "../planning/dto";
 
 @Injectable()
 export class DailyPlannerService {

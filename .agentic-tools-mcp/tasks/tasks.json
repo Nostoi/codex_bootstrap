@@ -6,6 +6,13 @@
       "description": "Transform the basic task management system into a sophisticated AI-powered personal command center with energy-aware scheduling, intelligent task extraction, dependency management, and contextual assistance. Implements the complete Helmsman specification with enhanced Prisma schema, OpenAI integration, daily planning algorithm, and accessibility-compliant UI components.",
       "createdAt": "2025-07-27T21:37:55.310Z",
       "updatedAt": "2025-07-27T21:37:55.310Z"
+    },
+    {
+      "id": "081b9c54-7831-4432-a0f8-bb5c8d0feb97",
+      "name": "Calendar Sync Compatibility Resolution",
+      "description": "Complete the calendar sync re-enablement by resolving all compatibility issues between the legacy calendar sync implementation and the current codebase architecture, Prisma schema, and service interfaces. This project will restore full functionality to the enterprise-grade calendar synchronization system.",
+      "createdAt": "2025-08-03T22:04:20.326Z",
+      "updatedAt": "2025-08-03T22:04:20.326Z"
     }
   ],
   "tasks": [
@@ -2451,6 +2458,345 @@
       ],
       "estimatedHours": 10,
       "level": 0
+    },
+    {
+      "id": "7c9f7948-c306-4bdb-9023-4319c33f5450",
+      "name": "Fix Prisma Schema Compatibility - conflictData Type",
+      "details": "Update the Prisma schema compatibility issues where the calendar sync code expects object types for conflictData but the current schema expects string. The integration tests show conflictData being used as objects ({ localValue: 'Local Title', remoteValue: 'Remote Title' }) but the schema defines it as string | null. This requires either updating the schema to support JSON objects or modifying the code to serialize/deserialize the data properly.\n\nGoals:\n- Analyze current Prisma schema for CalendarSyncConflict model\n- Determine if conflictData should be JSON object or string\n- Update either schema or code to maintain consistency\n- Ensure test data structures align with schema expectations\n\nExpected Outcomes:\n- conflictData field properly typed and functional\n- Integration tests can create conflict records without type errors\n- Data serialization/deserialization working correctly",
+      "projectId": "081b9c54-7831-4432-a0f8-bb5c8d0feb97",
+      "completed": true,
+      "createdAt": "2025-08-03T22:04:32.594Z",
+      "updatedAt": "2025-08-03T22:09:40.867Z",
+      "dependsOn": [],
+      "priority": 9,
+      "complexity": 8,
+      "status": "done",
+      "tags": [
+        "prisma",
+        "schema",
+        "types",
+        "database"
+      ],
+      "estimatedHours": 4,
+      "level": 0,
+      "actualHours": 2
+    },
+    {
+      "id": "cd1ec54f-bd21-4a11-b012-f77294e9c850",
+      "name": "Fix Service Interface Mismatches",
+      "details": "Fix service interface mismatches where the calendar sync services expect methods that don't exist or have changed signatures in the current codebase. Key issues include:\n\n1. GraphAuthService.getValidAccessToken() doesn't exist (should be getAccessToken())\n2. GraphAuthService.isTokenValid() method missing from current interface\n3. CalendarSyncService missing methods like getSyncHistory(), testSyncCapabilities(), getSyncMetrics()\n4. ConflictResolver.detectConflicts() method signature changed (missing lastSyncTime parameter)\n5. ConflictInfo interface has changed - missing properties like hasConflict, conflictTypes, localModified, remoteModified, details, suggestedResolution\n\nGoals:\n- Update all service method calls to match current interfaces\n- Add missing methods to services or remove calls to them\n- Update type interfaces to match current implementations\n- Ensure dependency injection works correctly\n\nExpected Outcomes:\n- All service method calls compile without errors\n- Service interfaces are consistent across the codebase\n- Dependency injection resolves all services correctly\n- No method signature mismatches",
+      "projectId": "081b9c54-7831-4432-a0f8-bb5c8d0feb97",
+      "completed": true,
+      "createdAt": "2025-08-03T22:04:45.133Z",
+      "updatedAt": "2025-08-03T23:33:35.608Z",
+      "dependsOn": [],
+      "priority": 9,
+      "complexity": 9,
+      "status": "done",
+      "tags": [
+        "services",
+        "interfaces",
+        "typescript",
+        "dependency-injection"
+      ],
+      "estimatedHours": 6,
+      "level": 0,
+      "actualHours": 3.9
+    },
+    {
+      "id": "c864b6e3-b279-4a00-8e15-d8cf9b355f69",
+      "name": "Fix Prisma Enum Mismatches",
+      "details": "Resolve Prisma enum mismatches where the calendar sync code references enum values that don't exist in the current schema. Key issues include:\n\n1. CalendarConflictType enum missing values: DESCRIPTION, END_TIME, LOCATION, ALL_DAY, RECURRENCE\n2. CalendarConflictResolution enum has 'MERGED' instead of 'MERGE'\n3. Test code uses enum values that don't match current schema definitions\n\nGoals:\n- Analyze current Prisma schema enum definitions\n- Compare with calendar sync code enum usage\n- Update either schema enums or code to align\n- Ensure all enum references are valid\n\nExpected Outcomes:\n- All enum value references compile without errors\n- Consistent enum definitions across schema and code\n- Test data uses valid enum values\n- No missing enum value errors",
+      "projectId": "081b9c54-7831-4432-a0f8-bb5c8d0feb97",
+      "completed": true,
+      "createdAt": "2025-08-03T22:04:55.751Z",
+      "updatedAt": "2025-08-03T22:55:20.352Z",
+      "dependsOn": [],
+      "priority": 8,
+      "complexity": 7,
+      "status": "done",
+      "tags": [
+        "prisma",
+        "enums",
+        "schema",
+        "types"
+      ],
+      "estimatedHours": 3,
+      "level": 0,
+      "actualHours": 1.5
+    },
+    {
+      "id": "d862e4ad-f3ac-4c48-8b1f-a9b6ee507d99",
+      "name": "Fix Test Framework Compatibility",
+      "details": "Fix test framework compatibility issues where the Jest mocks and Prisma client mocking don't work with the current testing setup. Key issues include:\n\n1. Prisma client methods don't have mockResolvedValue properties in current setup\n2. Mock configurations for services are incompatible with current implementations\n3. Test data structures don't match current schema expectations\n4. GraphCalendarEvent interface mismatches (missing timeZone property)\n5. ConflictInfo mock data structure doesn't match interface\n\nGoals:\n- Update Jest mock configurations for Prisma client\n- Fix test data structures to match current schema\n- Update mock service implementations\n- Ensure all test assertions work with current interfaces\n\nExpected Outcomes:\n- All unit tests compile without errors\n- Mock configurations work correctly\n- Test data matches schema requirements\n- Tests can run without compilation failures",
+      "projectId": "081b9c54-7831-4432-a0f8-bb5c8d0feb97",
+      "completed": false,
+      "createdAt": "2025-08-03T22:05:06.377Z",
+      "updatedAt": "2025-08-03T22:05:06.377Z",
+      "dependsOn": [],
+      "priority": 7,
+      "complexity": 8,
+      "status": "pending",
+      "tags": [
+        "testing",
+        "jest",
+        "mocks",
+        "compatibility"
+      ],
+      "estimatedHours": 5,
+      "level": 0
+    },
+    {
+      "id": "0b025e13-95f0-4c18-845f-be3d7d9d9e53",
+      "name": "Re-enable Calendar Sync Services",
+      "details": "Re-enable calendar sync services in CalendarSyncModule after compatibility issues are resolved. Currently the services are commented out to prevent compilation errors. Once all compatibility fixes are complete, this task will uncomment and properly register all calendar sync services.\n\nGoals:\n- Uncomment CalendarSyncService, DeltaSyncManager, ConflictResolver in module\n- Ensure all services properly inject dependencies\n- Verify module loads without circular dependency errors\n- Test that all API endpoints are functional\n\nExpected Outcomes:\n- CalendarSyncModule fully functional with all services enabled\n- Calendar sync API endpoints respond correctly\n- No module loading or dependency injection errors\n- All services properly registered and exported",
+      "projectId": "081b9c54-7831-4432-a0f8-bb5c8d0feb97",
+      "completed": true,
+      "createdAt": "2025-08-03T22:05:17.346Z",
+      "updatedAt": "2025-08-03T23:36:31.846Z",
+      "dependsOn": [
+        "7c9f7948-c306-4bdb-9023-4319c33f5450",
+        "cd1ec54f-bd21-4a11-b012-f77294e9c850",
+        "c864b6e3-b279-4a00-8e15-d8cf9b355f69"
+      ],
+      "priority": 8,
+      "complexity": 6,
+      "status": "done",
+      "tags": [
+        "module",
+        "services",
+        "enable",
+        "final-step"
+      ],
+      "estimatedHours": 2,
+      "level": 0,
+      "actualHours": 0.5
+    },
+    {
+      "id": "f00a0d10-44ab-4e84-8623-a464b294c0b9",
+      "name": "Re-enable and Validate Integration Tests",
+      "details": "Re-enable and validate all calendar sync integration tests after compatibility fixes are complete. Currently tests are disabled with describe.skip(). This task will remove the skip, ensure all tests pass, and validate the complete calendar sync functionality end-to-end.\n\nGoals:\n- Remove describe.skip() from integration tests\n- Run all integration tests and ensure they pass\n- Validate all API endpoints work correctly\n- Test complete calendar sync workflow (start, status, conflicts, resolution)\n- Verify database operations work correctly\n\nExpected Outcomes:\n- All integration tests pass without errors\n- Complete calendar sync functionality validated\n- API endpoints respond correctly to all test scenarios\n- Database operations work as expected\n- Full calendar sync workflow functional",
+      "projectId": "081b9c54-7831-4432-a0f8-bb5c8d0feb97",
+      "completed": false,
+      "createdAt": "2025-08-03T22:05:28.164Z",
+      "updatedAt": "2025-08-03T22:05:28.164Z",
+      "dependsOn": [
+        "d862e4ad-f3ac-4c48-8b1f-a9b6ee507d99",
+        "0b025e13-95f0-4c18-845f-be3d7d9d9e53"
+      ],
+      "priority": 7,
+      "complexity": 5,
+      "status": "pending",
+      "tags": [
+        "testing",
+        "integration",
+        "validation",
+        "final-step"
+      ],
+      "estimatedHours": 3,
+      "level": 0
+    },
+    {
+      "id": "badd502b-6c39-4766-98f2-14e6716f3194",
+      "name": "Analyze Current Prisma Schema",
+      "details": "Examine the current Prisma schema to understand how CalendarSyncConflict.conflictData is currently defined. Check if it's defined as String, Json, or another type. Also examine the CalendarSyncConflict model structure and any related types.\n\nGoals:\n- Read current Prisma schema file\n- Document CalendarSyncConflict model structure\n- Identify conflictData field type definition\n- Understand current schema expectations\n\nExpected Outcomes:\n- Clear understanding of current schema definition\n- Documentation of current conflictData type\n- Basis for deciding on compatibility approach",
+      "projectId": "081b9c54-7831-4432-a0f8-bb5c8d0feb97",
+      "parentId": "7c9f7948-c306-4bdb-9023-4319c33f5450",
+      "completed": true,
+      "createdAt": "2025-08-03T22:05:38.837Z",
+      "updatedAt": "2025-08-03T22:07:09.461Z",
+      "dependsOn": [],
+      "priority": 9,
+      "complexity": 3,
+      "status": "done",
+      "tags": [
+        "analysis",
+        "prisma",
+        "schema"
+      ],
+      "estimatedHours": 1,
+      "level": 1,
+      "actualHours": 0.5
+    },
+    {
+      "id": "7dfe638a-7427-4a46-9acc-c5c536a7fa66",
+      "name": "Analyze Test conflictData Usage",
+      "details": "Analyze how the calendar sync integration tests expect to use conflictData. Examine the test code to understand the structure and content of conflict data objects being passed to Prisma operations.\n\nGoals:\n- Review integration test conflictData usage patterns\n- Document expected data structures for conflicts\n- Identify required fields and data types\n- Understand test expectations vs schema reality\n\nExpected Outcomes:\n- Clear documentation of test expectations\n- Understanding of required conflictData structure\n- Basis for choosing schema vs code update approach",
+      "projectId": "081b9c54-7831-4432-a0f8-bb5c8d0feb97",
+      "parentId": "7c9f7948-c306-4bdb-9023-4319c33f5450",
+      "completed": true,
+      "createdAt": "2025-08-03T22:05:48.767Z",
+      "updatedAt": "2025-08-03T22:08:21.452Z",
+      "dependsOn": [
+        "badd502b-6c39-4766-98f2-14e6716f3194"
+      ],
+      "priority": 8,
+      "complexity": 4,
+      "status": "done",
+      "tags": [
+        "analysis",
+        "testing",
+        "data-structures"
+      ],
+      "estimatedHours": 1,
+      "level": 1,
+      "actualHours": 0.5
+    },
+    {
+      "id": "46553a44-c690-4ec6-9dce-bb7d66d71690",
+      "name": "Implement conflictData Compatibility Fix",
+      "details": "Based on the analysis of current schema and test expectations, implement the chosen solution to make conflictData compatible. This could involve either:\n1. Updating the Prisma schema to use Json type for conflictData\n2. Updating the test code to serialize objects to strings\n3. Creating helper functions for serialization/deserialization\n\nGoals:\n- Implement the chosen compatibility solution\n- Update schema or code as determined by analysis\n- Ensure type safety is maintained\n- Test the solution with sample data\n\nExpected Outcomes:\n- conflictData field works with both schema and tests\n- No TypeScript compilation errors\n- Data can be properly stored and retrieved\n- Solution is maintainable and type-safe",
+      "projectId": "081b9c54-7831-4432-a0f8-bb5c8d0feb97",
+      "parentId": "7c9f7948-c306-4bdb-9023-4319c33f5450",
+      "completed": true,
+      "createdAt": "2025-08-03T22:06:00.348Z",
+      "updatedAt": "2025-08-03T22:09:34.608Z",
+      "dependsOn": [
+        "7dfe638a-7427-4a46-9acc-c5c536a7fa66"
+      ],
+      "priority": 9,
+      "complexity": 5,
+      "status": "done",
+      "tags": [
+        "implementation",
+        "prisma",
+        "fix"
+      ],
+      "estimatedHours": 2,
+      "level": 1,
+      "actualHours": 1
+    },
+    {
+      "id": "264ce405-b8e3-4b36-82fa-f71126711efa",
+      "name": "Fix GraphAuthService Method Signature Issues",
+      "details": "Address method signature mismatches in GraphAuthService where legacy calendar sync code expects methods that don't exist or have changed signatures.\n\nSpecific Issues:\n1. Fix remaining getValidAccessToken() calls to use getAccessToken()\n2. Add missing isTokenValid() method or update code to use alternative approach\n3. Ensure all GraphAuthService method calls use correct signatures\n\nGoals:\n- Update all GraphAuthService method calls to match current interface\n- Either implement missing methods or refactor code to use existing methods\n- Ensure proper error handling for authentication scenarios\n\nExpected Outcomes:\n- All GraphAuthService-related compilation errors resolved\n- Authentication logic working correctly\n- No method signature mismatches",
+      "projectId": "081b9c54-7831-4432-a0f8-bb5c8d0feb97",
+      "parentId": "cd1ec54f-bd21-4a11-b012-f77294e9c850",
+      "completed": true,
+      "createdAt": "2025-08-03T23:13:10.749Z",
+      "updatedAt": "2025-08-03T23:20:15.031Z",
+      "dependsOn": [],
+      "priority": 9,
+      "complexity": 6,
+      "status": "done",
+      "tags": [
+        "authentication",
+        "method-signatures",
+        "interfaces"
+      ],
+      "estimatedHours": 2,
+      "level": 1,
+      "actualHours": 0.5
+    },
+    {
+      "id": "c681ec08-16de-4ca9-930e-1fff9aefa2d7",
+      "name": "Fix ConflictResolver Interface and Missing Methods",
+      "details": "Fix ConflictResolver service interface mismatches and missing methods that are expected by the calendar sync system.\n\nSpecific Issues:\n1. Fix conflictTypes vs conflictType property mismatch in ConflictInfo interface\n2. Add missing helper methods: convertLocalEventToData, convertGraphEventToData, isAutoResolvable\n3. Fix properties expected by legacy code: localModified, remoteModified, details, suggestedResolution\n4. Update conflict creation logic to match current Prisma schema constraints\n\nGoals:\n- Align ConflictInfo interface with current expectations\n- Implement missing helper methods for data conversion\n- Fix conflict resolution logic to work with current schema\n- Ensure conflict detection and resolution workflow functions correctly\n\nExpected Outcomes:\n- ConflictResolver compiles without interface errors\n- Conflict detection logic works with current data structures\n- Database operations for conflicts work correctly\n- Conflict resolution workflow functional",
+      "projectId": "081b9c54-7831-4432-a0f8-bb5c8d0feb97",
+      "parentId": "cd1ec54f-bd21-4a11-b012-f77294e9c850",
+      "completed": true,
+      "createdAt": "2025-08-03T23:13:22.331Z",
+      "updatedAt": "2025-08-03T23:28:20.404Z",
+      "dependsOn": [],
+      "priority": 8,
+      "complexity": 7,
+      "status": "done",
+      "tags": [
+        "conflict-resolution",
+        "interfaces",
+        "data-conversion"
+      ],
+      "estimatedHours": 2.5,
+      "level": 1,
+      "actualHours": 1.2
+    },
+    {
+      "id": "6503ebd1-c931-4a24-a274-902319a0edc8",
+      "name": "Add Missing CalendarSyncService Methods",
+      "details": "Address missing methods in CalendarSyncService that are expected by tests and other parts of the calendar sync system.\n\nSpecific Issues:\n1. Add missing getSyncHistory() method for retrieving sync operation history\n2. Add missing testSyncCapabilities() method for testing sync functionality\n3. Add missing getSyncMetrics() method for sync performance analytics\n4. Ensure methods return appropriate data structures matching test expectations\n\nGoals:\n- Implement missing service methods or create stub implementations\n- Ensure method signatures match test expectations\n- Return appropriate mock/real data for testing purposes\n- Maintain consistency with existing service patterns\n\nExpected Outcomes:\n- All CalendarSyncService method calls compile successfully\n- Service methods return expected data structures\n- Tests can call service methods without compilation errors\n- Service interface complete and functional",
+      "projectId": "081b9c54-7831-4432-a0f8-bb5c8d0feb97",
+      "parentId": "cd1ec54f-bd21-4a11-b012-f77294e9c850",
+      "completed": true,
+      "createdAt": "2025-08-03T23:13:33.614Z",
+      "updatedAt": "2025-08-03T23:33:16.969Z",
+      "dependsOn": [],
+      "priority": 7,
+      "complexity": 5,
+      "status": "done",
+      "tags": [
+        "service-methods",
+        "implementation",
+        "testing"
+      ],
+      "estimatedHours": 1.5,
+      "level": 1,
+      "actualHours": 0.7
+    },
+    {
+      "id": "d15a5254-53f1-4907-8f27-e8456cd7d101",
+      "name": "Fix Prisma Client Mock Configuration",
+      "details": "Fix Jest mock configurations for Prisma client methods to work with the current testing setup and resolve mockResolvedValue property issues.\n\nSpecific Issues:\n1. Prisma client methods don't have mockResolvedValue properties in current setup\n2. Mock configurations need to be compatible with current Prisma client version\n3. Update test setup to properly mock Prisma operations\n4. Ensure mocks work with both unit and integration tests\n\nGoals:\n- Update Jest mock setup for PrismaService\n- Fix mockResolvedValue property issues on Prisma methods\n- Ensure all Prisma operations can be properly mocked\n- Maintain test isolation and reliability\n\nExpected Outcomes:\n- All Prisma method mocks work correctly\n- Tests can mock database operations successfully\n- No mockResolvedValue property errors\n- Test framework properly isolates database operations",
+      "projectId": "081b9c54-7831-4432-a0f8-bb5c8d0feb97",
+      "parentId": "d862e4ad-f3ac-4c48-8b1f-a9b6ee507d99",
+      "completed": true,
+      "createdAt": "2025-08-03T23:13:46.743Z",
+      "updatedAt": "2025-08-04T01:50:25.010Z",
+      "dependsOn": [],
+      "priority": 8,
+      "complexity": 6,
+      "status": "done",
+      "tags": [
+        "jest",
+        "mocks",
+        "prisma",
+        "testing"
+      ],
+      "estimatedHours": 2,
+      "level": 1
+    },
+    {
+      "id": "cb2cc6d3-c2b6-4b16-82a0-0987512556ff",
+      "name": "Update Test Data Structures and Mock Objects",
+      "details": "Update test data structures and mock objects to match current schema expectations and interface definitions.\n\nSpecific Issues:\n1. Test data structures don't match current schema field requirements (calendarEventId vs eventId)\n2. GraphCalendarEvent interface mismatches (missing timeZone property)\n3. ConflictInfo mock data structure doesn't match current interface\n4. SyncOptions and other interface mismatches in test data\n\nGoals:\n- Update all test data to match current Prisma schema requirements\n- Fix GraphCalendarEvent test objects to include required properties\n- Align ConflictInfo test data with current interface\n- Ensure all test mock data uses correct types and structures\n\nExpected Outcomes:\n- All test data structures compile without errors\n- Test objects match current schema and interface expectations\n- Mock data accurately represents current system design\n- Tests use valid data structures throughout",
+      "projectId": "081b9c54-7831-4432-a0f8-bb5c8d0feb97",
+      "parentId": "d862e4ad-f3ac-4c48-8b1f-a9b6ee507d99",
+      "completed": false,
+      "createdAt": "2025-08-03T23:13:58.287Z",
+      "updatedAt": "2025-08-04T02:05:29.918Z",
+      "dependsOn": [],
+      "priority": 7,
+      "complexity": 5,
+      "status": "done",
+      "tags": [
+        "test-data",
+        "schema-alignment",
+        "interfaces"
+      ],
+      "estimatedHours": 2,
+      "level": 1,
+      "actualHours": 2.5
+    },
+    {
+      "id": "a2131fa4-e6cb-4302-be42-4a5c20e1300c",
+      "name": "Fix Mock Service Implementations",
+      "details": "Fix mock service implementations to be compatible with current service interfaces and testing framework.\n\nSpecific Issues:\n1. Mock service configurations are incompatible with current implementations\n2. Service method mocks need to match current interface signatures  \n3. Update mock return values to match expected data structures\n4. Ensure proper Jest mock setup for all services\n\nGoals:\n- Update all service mocks to match current interfaces\n- Fix mock method signatures and return types\n- Ensure mock implementations work with current Jest setup\n- Maintain test reliability with accurate service mocks\n\nExpected Outcomes:\n- All service mocks compile without errors\n- Mock implementations accurately represent real services\n- Test assertions work with current mock configurations\n- Service integration tests work correctly with mocks",
+      "projectId": "081b9c54-7831-4432-a0f8-bb5c8d0feb97",
+      "parentId": "d862e4ad-f3ac-4c48-8b1f-a9b6ee507d99",
+      "completed": false,
+      "createdAt": "2025-08-03T23:14:08.652Z",
+      "updatedAt": "2025-08-04T02:07:09.763Z",
+      "dependsOn": [],
+      "priority": 6,
+      "complexity": 4,
+      "status": "in-progress",
+      "tags": [
+        "mocks",
+        "services",
+        "jest",
+        "interfaces"
+      ],
+      "estimatedHours": 1,
+      "level": 1
     }
   ],
   "subtasks": [],

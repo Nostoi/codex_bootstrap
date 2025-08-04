@@ -4,31 +4,21 @@ import { PrismaService } from '../prisma/prisma.service';
 import { TasksService } from '../tasks/tasks.service';
 import { GoogleService } from '../integrations_disabled/google/google.service';
 import { EnergyLevel, FocusType, TaskStatus } from '@prisma/client';
-import { TimeSlot } from './types';
+import { TimeSlot } from '../planning/types';
+import { createMockPrismaService } from '../test-utils';
 
 describe('DailyPlannerService - Calendar Integration', () => {
   let service: DailyPlannerService;
-  let mockPrismaService: jest.Mocked<PrismaService>;
+  let mockPrismaService: ReturnType<typeof createMockPrismaService>;
   let mockTasksService: jest.Mocked<TasksService>;
   let mockGoogleService: jest.Mocked<GoogleService>;
 
   beforeEach(async () => {
-    // Create mocks
-    mockPrismaService = {
-      userSettings: {
-        findUnique: jest.fn(),
-        create: jest.fn(),
-      },
-      task: {
-        findMany: jest.fn(),
-      },
-      taskDependency: {
-        findMany: jest.fn(),
-      },
-    } as unknown as jest.Mocked<PrismaService>;
+    // Create mocks using the enhanced factory
+    mockPrismaService = createMockPrismaService();
 
     mockTasksService = {
-      findAllByUser: jest.fn(),
+      findAll: jest.fn(),
     } as unknown as jest.Mocked<TasksService>;
 
     mockGoogleService = {
@@ -180,22 +170,24 @@ describe('DailyPlannerService - Calendar Integration', () => {
   describe('Calendar Integration', () => {
     beforeEach(() => {
       // Setup common mocks
-      mockTasksService.findAllByUser.mockResolvedValue([
+      mockTasksService.findAll.mockResolvedValue([
         {
           id: 'task-1',
           title: 'Complete feature',
           description: 'Implement new functionality',
-          userId: 'test-user',
+          ownerId: 'test-user',
+          completed: false,
           status: TaskStatus.TODO,
+          dueDate: null,
           priority: 5,
           energyLevel: EnergyLevel.HIGH,
           focusType: FocusType.TECHNICAL,
           estimatedMinutes: 120,
-          actualMinutes: null,
-          hardDeadline: null,
           softDeadline: null,
+          hardDeadline: null,
+          source: null,
+          aiSuggestion: null,
           projectId: null,
-          parentTaskId: null,
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -204,12 +196,14 @@ describe('DailyPlannerService - Calendar Integration', () => {
       mockPrismaService.userSettings.findUnique.mockResolvedValue({
         id: 'settings-1',
         userId: 'test-user',
+        theme: 'light',
         morningEnergyLevel: EnergyLevel.HIGH,
         afternoonEnergyLevel: EnergyLevel.MEDIUM,
         workStartTime: '09:00',
         workEndTime: '17:00',
         focusSessionLength: 90,
         preferredFocusTypes: [],
+        notificationPreferences: {},
         createdAt: new Date(),
         updatedAt: new Date(),
       });
