@@ -50,7 +50,7 @@ export class MicrosoftStrategy extends PassportStrategy(CustomStrategy, 'microso
         picture: undefined, // Microsoft Graph profile photo would need separate API call
         accessToken: authResult.accessToken,
         refreshToken: undefined, // MSAL handles refresh tokens internally
-        scope: authResult.scopes || [
+        scopes: authResult.scopes || [
           'openid',
           'profile',
           'email',

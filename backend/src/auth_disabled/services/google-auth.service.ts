@@ -90,8 +90,7 @@ export class GoogleAuthService implements IAuthService {
       // Blacklist old refresh token
       await this.prisma.blacklistedToken.create({
         data: {
-          token: refreshToken,
-          type: 'refresh',
+          tokenId: refreshToken,
           reason: 'Token refreshed',
           expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
         }
@@ -116,8 +115,7 @@ export class GoogleAuthService implements IAuthService {
       for (const session of sessions) {
         await this.prisma.blacklistedToken.create({
           data: {
-            token: session.refreshToken,
-            type: 'refresh',
+            tokenId: session.refreshToken,
             reason: 'User logout',
             expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
           }
@@ -151,16 +149,16 @@ export class GoogleAuthService implements IAuthService {
       }
 
       // Decrypt tokens
-      const accessToken = this.decryptToken(provider.encryptedAccessToken);
-      const refreshToken = provider.encryptedRefreshToken 
-        ? this.decryptToken(provider.encryptedRefreshToken)
+      const accessToken = this.decryptToken(provider.accessToken);
+      const refreshToken = provider.refreshToken 
+        ? this.decryptToken(provider.refreshToken)
         : null;
 
       return {
         accessToken,
         refreshToken,
-        expiresAt: provider.tokenExpiresAt,
-        scope: provider.scope
+        expiresAt: provider.tokenExpiry,
+        scopes: provider.scopes
       };
 
     } catch (error) {
@@ -178,11 +176,11 @@ export class GoogleAuthService implements IAuthService {
         }
       });
 
-      if (!provider || !provider.encryptedRefreshToken) {
+      if (!provider || !provider.refreshToken) {
         throw new BadRequestException('No refresh token available');
       }
 
-      const refreshToken = this.decryptToken(provider.encryptedRefreshToken);
+      const refreshToken = this.decryptToken(provider.refreshToken);
       
       // Set refresh token and get new access token
       this.oauth2Client.setCredentials({
@@ -195,8 +193,8 @@ export class GoogleAuthService implements IAuthService {
       await this.prisma.oAuthProvider.update({
         where: { id: provider.id },
         data: {
-          encryptedAccessToken: this.encryptToken(credentials.access_token),
-          tokenExpiresAt: credentials.expiry_date ? new Date(credentials.expiry_date) : null,
+          accessToken: this.encryptToken(credentials.access_token),
+          tokenExpiry: credentials.expiry_date ? new Date(credentials.expiry_date) : null,
           lastRefreshed: new Date(),
         }
       });
@@ -205,7 +203,7 @@ export class GoogleAuthService implements IAuthService {
         accessToken: credentials.access_token,
         refreshToken: credentials.refresh_token || refreshToken,
         expiresAt: credentials.expiry_date ? new Date(credentials.expiry_date) : null,
-        scope: provider.scope
+        scopes: provider.scopes
       };
 
     } catch (error) {
@@ -227,12 +225,12 @@ export class GoogleAuthService implements IAuthService {
           create: {
             provider: profile.provider,
             providerId: profile.providerId,
-            encryptedAccessToken: this.encryptToken(profile.accessToken),
-            encryptedRefreshToken: profile.refreshToken 
+            accessToken: this.encryptToken(profile.accessToken),
+            refreshToken: profile.refreshToken 
               ? this.encryptToken(profile.refreshToken) 
               : null,
-            scope: profile.scope,
-            tokenExpiresAt: null, // Will be updated on first refresh
+            scopes: profile.scopes,
+            tokenExpiry: null, // Will be updated on first refresh
           }
         }
       },
@@ -253,11 +251,11 @@ export class GoogleAuthService implements IAuthService {
       await this.prisma.oAuthProvider.update({
         where: { id: existingProvider.id },
         data: {
-          encryptedAccessToken: this.encryptToken(profile.accessToken),
-          encryptedRefreshToken: profile.refreshToken 
+          accessToken: this.encryptToken(profile.accessToken),
+          refreshToken: profile.refreshToken 
             ? this.encryptToken(profile.refreshToken) 
             : null,
-          scope: profile.scope,
+          scopes: profile.scopes,
           lastRefreshed: new Date(),
         }
       });
@@ -268,11 +266,11 @@ export class GoogleAuthService implements IAuthService {
           userId,
           provider: profile.provider,
           providerId: profile.providerId,
-          encryptedAccessToken: this.encryptToken(profile.accessToken),
-          encryptedRefreshToken: profile.refreshToken 
+          accessToken: this.encryptToken(profile.accessToken),
+          refreshToken: profile.refreshToken 
             ? this.encryptToken(profile.refreshToken) 
             : null,
-          scope: profile.scope,
+          scopes: profile.scopes,
         }
       });
     }

@@ -172,7 +172,7 @@ describe("GraphAuthService", () => {
     });
   });
 
-  describe("getValidAccessToken", () => {
+  describe("getAccessToken", () => {
     it("should return valid token when not expired", async () => {
       const userId = "test-user-id";
       const mockConfig = {
@@ -183,7 +183,7 @@ describe("GraphAuthService", () => {
 
       jest.spyOn(prismaService.integrationConfig, "findUnique").mockResolvedValue(mockConfig as any);
 
-      const result = await service.getValidAccessToken(userId);
+      const result = await service.getAccessToken(userId);
 
       expect(result).toBe("valid-token");
     });
@@ -207,7 +207,7 @@ describe("GraphAuthService", () => {
       mockMsalInstance.acquireTokenSilent.mockResolvedValue(mockRefreshResponse);
       jest.spyOn(prismaService.integrationConfig, "update").mockResolvedValue({} as any);
 
-      const result = await service.getValidAccessToken(userId);
+      const result = await service.getAccessToken(userId);
 
       expect(result).toBe("new-access-token");
       expect(mockMsalInstance.acquireTokenSilent).toHaveBeenCalled();
@@ -219,11 +219,11 @@ describe("GraphAuthService", () => {
 
       jest.spyOn(prismaService.integrationConfig, "findUnique").mockResolvedValue(null);
 
-      await expect(service.getValidAccessToken(userId)).rejects.toThrow("Microsoft integration not configured for user");
+      await expect(service.getAccessToken(userId)).rejects.toThrow("Microsoft integration not configured for user");
     });
   });
 
-  describe("isAuthenticated", () => {
+  describe("isUserAuthenticated", () => {
     it("should return true when user has valid token", async () => {
       const userId = "test-user-id";
       const mockConfig = {
@@ -233,7 +233,7 @@ describe("GraphAuthService", () => {
 
       jest.spyOn(prismaService.integrationConfig, "findUnique").mockResolvedValue(mockConfig as any);
 
-      const result = await service.isAuthenticated(userId);
+      const result = await service.isUserAuthenticated(userId);
 
       expect(result).toBe(true);
     });
@@ -243,7 +243,7 @@ describe("GraphAuthService", () => {
 
       jest.spyOn(prismaService.integrationConfig, "findUnique").mockResolvedValue(null);
 
-      const result = await service.isAuthenticated(userId);
+      const result = await service.isUserAuthenticated(userId);
 
       expect(result).toBe(false);
     });
@@ -260,7 +260,7 @@ describe("GraphAuthService", () => {
       jest.spyOn(prismaService.integrationConfig, "findUnique").mockResolvedValue(mockConfig as any);
       mockMsalInstance.acquireTokenSilent.mockRejectedValue(new Error("Refresh failed"));
 
-      const result = await service.isAuthenticated(userId);
+      const result = await service.isUserAuthenticated(userId);
 
       expect(result).toBe(false);
     });

@@ -13,8 +13,8 @@ describe("GraphService", () => {
   };
 
   const mockGraphAuthService = {
-    getValidAccessToken: jest.fn(),
-    isAuthenticated: jest.fn(),
+    getAccessToken: jest.fn(),
+    isUserAuthenticated: jest.fn(),
   };
 
   beforeEach(async () => {

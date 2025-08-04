@@ -35,7 +35,6 @@ export class SessionController {
   @ApiResponse({
     status: 200,
     description: 'Token refreshed successfully',
-    type: RefreshTokenResponse,
   })
   @ApiResponse({
     status: 401,
@@ -54,7 +53,7 @@ export class SessionController {
       return {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
-        expiresAt: tokens.expiresAt.toISOString(),
+        expiresAt: tokens.expiresAt,
       };
     } catch (error) {
       this.logger.warn(`Token refresh failed: ${error.message}`);

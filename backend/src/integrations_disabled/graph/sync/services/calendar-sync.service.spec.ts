@@ -84,7 +84,7 @@ describe('CalendarSyncService', () => {
     };
 
     const mockGraphAuthService = {
-      getValidAccessToken: jest.fn(),
+      getAccessToken: jest.fn(),
       isTokenValid: jest.fn(),
     };
 

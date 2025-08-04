@@ -9,7 +9,7 @@ describe("GraphAuthController", () => {
   const mockAuthService = {
     getAuthorizationUrl: jest.fn(),
     handleCallback: jest.fn(),
-    isAuthenticated: jest.fn(),
+    isUserAuthenticated: jest.fn(),
     refreshToken: jest.fn(),
     revokeAccess: jest.fn(),
     getUserInfo: jest.fn(),
@@ -70,12 +70,12 @@ describe("GraphAuthController", () => {
   describe("status", () => {
     it("should return authentication status", async () => {
       const userId = "test-user";
-      mockAuthService.isAuthenticated.mockResolvedValue(true);
+      mockAuthService.isUserAuthenticated.mockResolvedValue(true);
 
       const result = await controller.status(userId);
 
       expect(result).toEqual({ authenticated: true });
-      expect(mockAuthService.isAuthenticated).toHaveBeenCalledWith(userId);
+      expect(mockAuthService.isUserAuthenticated).toHaveBeenCalledWith(userId);
     });
   });
 

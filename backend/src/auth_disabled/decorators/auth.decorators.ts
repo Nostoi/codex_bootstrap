@@ -53,7 +53,7 @@ export const CurrentSession = createParamDecorator(
 );
 
 /**
- * Common scope combinations for convenience
+ * Common scopes combinations for convenience
  */
 export const SCOPE_COMBINATIONS = {
   GOOGLE_CALENDAR: {
@@ -85,7 +85,7 @@ export const SCOPE_COMBINATIONS = {
 } as const;
 
 /**
- * Convenience decorators for common scope requirements
+ * Convenience decorators for common scopes requirements
  */
 export const RequireGoogleCalendar = () => RequireScopes({
   google: [...SCOPE_COMBINATIONS.GOOGLE_CALENDAR.google]

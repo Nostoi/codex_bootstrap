@@ -144,10 +144,10 @@ export class GraphAuthController {
   })
   async getAuthStatus(@Param('userId') userId: string) {
     try {
-      const isAuthenticated = await this.graphAuthService.isUserAuthenticated(userId);
+      const isUserAuthenticated = await this.graphAuthService.isUserAuthenticated(userId);
       
       let userInfo = null;
-      if (isAuthenticated) {
+      if (isUserAuthenticated) {
         try {
           userInfo = await this.graphAuthService.getUserInfo(userId);
         } catch (error) {
@@ -161,7 +161,7 @@ export class GraphAuthController {
       }
 
       return {
-        authenticated: isAuthenticated,
+        authenticated: isUserAuthenticated,
         userId,
         userInfo: userInfo ? {
           id: userInfo.id,
@@ -284,5 +284,45 @@ export class GraphAuthController {
     } catch (error) {
       throw new UnauthorizedException('Failed to retrieve user profile');
     }
+  }
+
+  /**
+   * Get authentication status
+   */
+  @Get('status/:userId')
+  @ApiOperation({ summary: 'Check authentication status' })
+  async status(@Param('userId') userId: string) {
+    const authenticated = await this.graphAuthService.isUserAuthenticated(userId);
+    return { authenticated };
+  }
+
+  /**
+   * Refresh tokens
+   */
+  @Post('refresh/:userId')
+  @ApiOperation({ summary: 'Refresh access tokens' })
+  async refresh(@Param('userId') userId: string) {
+    const tokens = await this.graphAuthService.refreshTokens(userId);
+    return { success: true, tokens };
+  }
+
+  /**
+   * Revoke access
+   */
+  @Post('revoke/:userId')
+  @ApiOperation({ summary: 'Revoke user access' })
+  async revoke(@Param('userId') userId: string) {
+    await this.graphAuthService.revokeAccess(userId);
+    return { success: true };
+  }
+
+  /**
+   * Get user profile
+   */
+  @Get('profile/:userId')
+  @ApiOperation({ summary: 'Get user profile' })
+  async profile(@Param('userId') userId: string) {
+    const profile = await this.graphAuthService.getUserProfile(userId);
+    return { success: true, profile };
   }
 }

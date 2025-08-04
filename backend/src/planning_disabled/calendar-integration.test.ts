@@ -19,6 +19,7 @@ describe('DailyPlannerService - Calendar Integration', () => {
 
     mockTasksService = {
       findAll: jest.fn(),
+      findTaskDependencies: jest.fn(),
     } as unknown as jest.Mocked<TasksService>;
 
     mockGoogleService = {
@@ -209,6 +210,7 @@ describe('DailyPlannerService - Calendar Integration', () => {
       });
 
       mockPrismaService.taskDependency.findMany.mockResolvedValue([]);
+      mockTasksService.findTaskDependencies.mockResolvedValue([]);
     });
 
     it('should integrate calendar events into daily planning', async () => {

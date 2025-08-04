@@ -95,7 +95,7 @@ export class MicrosoftAuthService implements IAuthService {
         picture: undefined,
         accessToken: authResult.accessToken,
         refreshToken: undefined, // MSAL handles refresh internally
-        scope: authResult.scopes || []
+        scopes: authResult.scopes || []
       };
 
       // Find or create user
@@ -193,7 +193,7 @@ export class MicrosoftAuthService implements IAuthService {
                 refreshToken: oauthProfile.refreshToken 
                   ? this.encryptToken(oauthProfile.refreshToken) 
                   : null,
-                scopes: oauthProfile.scope,
+                scopes: oauthProfile.scopes,
               }
             }
           },
@@ -275,8 +275,8 @@ export class MicrosoftAuthService implements IAuthService {
         return [];
       }
 
-      const hasCalendarAccess = oauthProvider.scopes.some(scope => 
-        scope.includes('Calendars.Read') || scope.includes('Calendars.ReadWrite')
+      const hasCalendarAccess = oauthProvider.scopes.some(scopes => 
+        scopes.includes('Calendars.Read') || scopes.includes('Calendars.ReadWrite')
       );
 
       return [{
@@ -310,7 +310,7 @@ export class MicrosoftAuthService implements IAuthService {
           refreshToken: profile.refreshToken 
             ? this.encryptToken(profile.refreshToken) 
             : null,
-          scopes: profile.scope,
+          scopes: profile.scopes,
         }
       });
     } else {
@@ -325,7 +325,7 @@ export class MicrosoftAuthService implements IAuthService {
           refreshToken: profile.refreshToken 
             ? this.encryptToken(profile.refreshToken) 
             : null,
-          scopes: profile.scope,
+          scopes: profile.scopes,
         }
       });
     }

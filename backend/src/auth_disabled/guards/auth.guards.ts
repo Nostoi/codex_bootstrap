@@ -93,8 +93,8 @@ export class ScopeGuard implements CanActivate {
 
     // Check Google scopes
     if (requiredScopes.google) {
-      const hasGoogleScopes = requiredScopes.google.some(scope =>
-        userScopes.includes(scope)
+      const hasGoogleScopes = requiredScopes.google.some(scopes =>
+        userScopes.includes(scopes)
       );
       if (!hasGoogleScopes) {
         throw new ForbiddenException('Required Google permissions not granted');
@@ -103,8 +103,8 @@ export class ScopeGuard implements CanActivate {
 
     // Check Microsoft scopes
     if (requiredScopes.microsoft) {
-      const hasMicrosoftScopes = requiredScopes.microsoft.some(scope =>
-        userScopes.includes(scope)
+      const hasMicrosoftScopes = requiredScopes.microsoft.some(scopes =>
+        userScopes.includes(scopes)
       );
       if (!hasMicrosoftScopes) {
         throw new ForbiddenException('Required Microsoft permissions not granted');
@@ -151,14 +151,14 @@ export class CalendarAccessGuard implements CanActivate {
         ? ['https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.readonly']
         : ['https://graph.microsoft.com/Calendars.Read', 'https://graph.microsoft.com/Calendars.ReadWrite'];
 
-      const hasProviderAccess = providerScopes.some(scope => userScopes.includes(scope));
+      const hasProviderAccess = providerScopes.some(scopes => userScopes.includes(scopes));
       
       if (!hasProviderAccess) {
         throw new ForbiddenException(`${requiredProvider} calendar access required`);
       }
     } else {
       // Check for any calendar access
-      const hasCalendarAccess = calendarScopes.some(scope => userScopes.includes(scope));
+      const hasCalendarAccess = calendarScopes.some(scopes => userScopes.includes(scopes));
       
       if (!hasCalendarAccess) {
         throw new ForbiddenException('Calendar access required');

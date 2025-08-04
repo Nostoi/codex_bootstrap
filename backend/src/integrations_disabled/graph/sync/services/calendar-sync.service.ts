@@ -48,8 +48,8 @@ export class CalendarSyncService {
     }
 
     // Verify authentication
-    const isAuthenticated = await this.graphAuthService.isUserAuthenticated(userId);
-    if (!isAuthenticated) {
+    const isUserAuthenticated = await this.graphAuthService.isUserAuthenticated(userId);
+    if (!isUserAuthenticated) {
       throw new BadRequestException('User not authenticated with Microsoft Graph');
     }
 
