@@ -5,70 +5,29 @@ import { TokenManagerService } from '../services/token-manager.service';
 import { SessionManagerService } from '../services/session-manager.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UserWithProvider } from '../types/auth.types';
+import { 
+  createMockPrismaService,
+  createMockJwtService,
+  createMockConfigService,
+  createMockTokenManagerService,
+  createMockUserWithProvider,
+  createMockSession,
+  createMockJwtPayload
+} from '../../test-utils';
 
 describe('SessionManagerService', () => {
   let service: SessionManagerService;
-  let tokenManager: TokenManagerService;
-  let prismaService: PrismaService;
+  let tokenManager: jest.Mocked<TokenManagerService>;
+  let prismaService: ReturnType<typeof createMockPrismaService>;
+  let jwtService: jest.Mocked<JwtService>;
+  let configService: ReturnType<typeof createMockConfigService>;
 
-  const mockUser: UserWithProvider = {
-    id: 'test-user-id',
-    email: 'test@example.com',
-    name: 'Test User',
-    avatar: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    oauthProviders: [
-      {
-        id: 'provider-id',
-        provider: 'microsoft',
-        providerId: 'ms-123',
-        email: 'test@example.com',
-        scopes: ['https://graph.microsoft.com/User.Read'],
-        accessToken: 'encrypted-access-token',
-        refreshToken: 'encrypted-refresh-token',
-        tokenExpiry: new Date(Date.now() + 3600000),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ],
-  };
+  const mockUser: UserWithProvider = createMockUserWithProvider();
 
-  const mockPrismaService = {
-    userSession: {
-      create: jest.fn(),
-      findFirst: jest.fn(),
-      findUnique: jest.fn(),
-      findMany: jest.fn(),
-      update: jest.fn(),
-      updateMany: jest.fn(),
-      deleteMany: jest.fn(),
-      count: jest.fn(),
-    },
-    blacklistedToken: {
-      create: jest.fn(),
-      findUnique: jest.fn(),
-      deleteMany: jest.fn(),
-    },
-  };
-
-  const mockConfigService = {
-    get: jest.fn((key: string) => {
-      const config = {
-        MAX_SESSIONS_PER_USER: 5,
-        SESSION_TIMEOUT_HOURS: 24,
-        JWT_SECRET: 'test-secret',
-        JWT_EXPIRES_IN: '15m',
-        JWT_ENCRYPTION_KEY: 'test-encryption-key-32-chars-long',
-      };
-      return config[key];
-    }),
-  };
-
-  const mockJwtService = {
-    sign: jest.fn(),
-    verify: jest.fn(),
-  };
+  const mockPrismaService = createMockPrismaService();
+  const mockConfigService = createMockConfigService();
+  const mockJwtService = createMockJwtService();
+  const mockTokenManagerService = createMockTokenManagerService();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

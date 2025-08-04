@@ -75,13 +75,13 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({ childr
     }
 
     // Check render performance
-    if (renderMetrics.slowRenders > 5) {
+    if (renderMetrics?.slowRenders && renderMetrics.slowRenders > 5) {
       newSuggestions.push('Multiple slow renders detected. Consider using React.memo or useMemo.');
       shouldShowWarning = true;
     }
 
     // Check interaction performance
-    if (interactionMetrics.avgResponseTime > 100) {
+    if (interactionMetrics?.avgResponseTime && interactionMetrics.avgResponseTime > 100) {
       newSuggestions.push('Interaction responses are slow. Consider debouncing user inputs.');
       shouldShowWarning = true;
     }
@@ -294,12 +294,12 @@ const PerformanceDebugOverlay: React.FC<{
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded">
                 <div className="font-medium">Total Renders</div>
-                <div className="text-lg">{renderMetrics.totalRenders}</div>
+                <div className="text-lg">{renderMetrics?.totalRenders || 0}</div>
               </div>
               <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded">
                 <div className="font-medium">Slow Renders</div>
-                <div className={`text-lg ${renderMetrics.slowRenders > 5 ? 'text-red-500' : 'text-green-500'}`}>
-                  {renderMetrics.slowRenders}
+                <div className={`text-lg ${(renderMetrics?.slowRenders || 0) > 5 ? 'text-red-500' : 'text-green-500'}`}>
+                  {renderMetrics?.slowRenders || 0}
                 </div>
               </div>
             </div>
@@ -311,12 +311,12 @@ const PerformanceDebugOverlay: React.FC<{
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded">
                 <div className="font-medium">Total Interactions</div>
-                <div className="text-lg">{interactionMetrics.totalInteractions}</div>
+                <div className="text-lg">{interactionMetrics?.totalInteractions || 0}</div>
               </div>
               <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded">
                 <div className="font-medium">Avg Response Time</div>
-                <div className={`text-lg ${interactionMetrics.avgResponseTime > 100 ? 'text-red-500' : 'text-green-500'}`}>
-                  {Math.round(interactionMetrics.avgResponseTime)}ms
+                <div className={`text-lg ${(interactionMetrics?.avgResponseTime || 0) > 100 ? 'text-red-500' : 'text-green-500'}`}>
+                  {Math.round(interactionMetrics?.avgResponseTime || 0)}ms
                 </div>
               </div>
             </div>

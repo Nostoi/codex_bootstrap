@@ -1,3 +1,5 @@
+/// <reference types="jest" />
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { DailyPlannerService } from './daily-planner.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -5,7 +7,12 @@ import { TasksService } from '../tasks/tasks.service';
 import { GoogleService } from '../integrations_disabled/google/google.service';
 import { EnergyLevel, FocusType, TaskStatus } from '@prisma/client';
 import { TimeSlot } from '../planning/types';
-import { createMockPrismaService } from '../test-utils';
+import { 
+  createMockPrismaService, 
+  createMockGoogleService,
+  createMockGoogleCalendarEvent,
+  createMockGoogleCalendarResponse 
+} from '../test-utils';
 
 describe('DailyPlannerService - Calendar Integration', () => {
   let service: DailyPlannerService;
@@ -17,14 +24,12 @@ describe('DailyPlannerService - Calendar Integration', () => {
     // Create mocks using the enhanced factory
     mockPrismaService = createMockPrismaService();
 
-    mockTasksService = {
-      findAll: jest.fn(),
-      findTaskDependencies: jest.fn(),
-    } as unknown as jest.Mocked<TasksService>;
+  const mockTasksService = {
+    findAll: jest.fn(),
+    findTaskDependencies: jest.fn(),
+  } as any;
 
-    mockGoogleService = {
-      getCalendarEvents: jest.fn(),
-    } as unknown as jest.Mocked<GoogleService>;
+  const mockGoogleService = createMockGoogleService();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
