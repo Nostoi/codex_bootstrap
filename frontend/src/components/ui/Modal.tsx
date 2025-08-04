@@ -49,7 +49,7 @@ const CloseIcon: React.FC<{ className?: string }> = ({ className }) => (
 
 /**
  * Modal - Accessible modal dialog with ADHD-friendly interactions
- * 
+ *
  * Features:
  * - Focus management and trapping
  * - Backdrop and Escape key closing
@@ -77,11 +77,14 @@ export const Modal: React.FC<ModalProps> = ({
   const previousActiveElement = useRef<HTMLElement | null>(null);
 
   // Handle backdrop click
-  const handleBackdropClick = useCallback((e: React.MouseEvent) => {
-    if (closeOnBackdropClick && e.target === backdropRef.current) {
-      onClose();
-    }
-  }, [closeOnBackdropClick, onClose]);
+  const handleBackdropClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (closeOnBackdropClick && e.target === backdropRef.current) {
+        onClose();
+      }
+    },
+    [closeOnBackdropClick, onClose]
+  );
 
   // Handle escape key
   useEffect(() => {
@@ -125,10 +128,10 @@ export const Modal: React.FC<ModalProps> = ({
   useEffect(() => {
     if (!isOpen) return;
     if (typeof window === 'undefined' || typeof document === 'undefined') return; // SSR check
-    
+
     const originalStyle = window.getComputedStyle(document.body).overflow;
     document.body.style.overflow = 'hidden';
-    
+
     return () => {
       document.body.style.overflow = originalStyle;
     };
@@ -142,7 +145,7 @@ export const Modal: React.FC<ModalProps> = ({
     md: 'max-w-lg',
     lg: 'max-w-2xl',
     xl: 'max-w-4xl',
-    full: 'max-w-full mx-4'
+    full: 'max-w-full mx-4',
   };
 
   return (
@@ -156,11 +159,11 @@ export const Modal: React.FC<ModalProps> = ({
       aria-describedby={ariaDescribedBy}
     >
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ease-in-out"
         aria-hidden="true"
       />
-      
+
       {/* Modal Content */}
       <div
         ref={modalRef}
@@ -170,28 +173,25 @@ export const Modal: React.FC<ModalProps> = ({
           'transform transition-all duration-300 ease-in-out',
           'max-h-[90vh] flex flex-col',
           'focus:outline-none',
-          
+
           // Size variants
           sizeClasses[size],
-          
+
           // Width constraints
           'w-full',
-          
+
           // ADHD-friendly styling
           'border border-neutral-200',
-          
+
           className
         )}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-neutral-200">
-          <h2
-            id="modal-title"
-            className="text-xl font-semibold text-neutral-900"
-          >
+          <h2 id="modal-title" className="text-xl font-semibold text-neutral-900">
             {title}
           </h2>
-          
+
           {showCloseButton && (
             <button
               onClick={onClose}
@@ -206,17 +206,13 @@ export const Modal: React.FC<ModalProps> = ({
             </button>
           )}
         </div>
-        
+
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
-          {children}
-        </div>
-        
+        <div className="flex-1 overflow-y-auto p-6">{children}</div>
+
         {/* Footer */}
         {footer && (
-          <div className="flex justify-end gap-3 p-6 border-t border-neutral-200">
-            {footer}
-          </div>
+          <div className="flex justify-end gap-3 p-6 border-t border-neutral-200">{footer}</div>
         )}
       </div>
     </div>
@@ -228,11 +224,11 @@ export const Modal: React.FC<ModalProps> = ({
  */
 export const useModal = (initialOpen = false) => {
   const [isOpen, setIsOpen] = React.useState(initialOpen);
-  
+
   const openModal = useCallback(() => setIsOpen(true), []);
   const closeModal = useCallback(() => setIsOpen(false), []);
   const toggleModal = useCallback(() => setIsOpen(prev => !prev), []);
-  
+
   return {
     isOpen,
     openModal,
@@ -310,7 +306,8 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
               'focus:outline-none focus:ring-2 focus:ring-offset-2',
               'disabled:opacity-50 disabled:cursor-not-allowed',
               {
-                'bg-brand-600 hover:bg-brand-700 focus:ring-brand-500': confirmVariant === 'primary',
+                'bg-brand-600 hover:bg-brand-700 focus:ring-brand-500':
+                  confirmVariant === 'primary',
                 'bg-red-600 hover:bg-red-700 focus:ring-red-500': confirmVariant === 'destructive',
               }
             )}

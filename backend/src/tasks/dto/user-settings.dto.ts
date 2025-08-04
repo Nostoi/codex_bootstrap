@@ -1,4 +1,4 @@
-import { EnergyLevel } from "@prisma/client";
+import { EnergyLevel } from '@prisma/client';
 
 export class CreateUserSettingsDto {
   morningEnergyLevel?: EnergyLevel;

@@ -1,6 +1,6 @@
 /**
  * UI Primitives Library - ADHD-Friendly Components
- * 
+ *
  * This barrel export file provides easy access to all UI primitive components
  * with consistent ADHD-optimized patterns and accessibility features.
  */
@@ -43,13 +43,7 @@ export {
 } from './Modal';
 
 // Toast Components
-export {
-  ToastProvider,
-  useToast,
-  useToastActions,
-  type Toast,
-  type ToastType,
-} from './Toast';
+export { ToastProvider, useToast, useToastActions, type Toast, type ToastType } from './Toast';
 
 // Skeleton Components
 export {

@@ -1,6 +1,6 @@
 /**
  * Design Tokens - TypeScript definitions for ADHD-friendly design system
- * 
+ *
  * These tokens provide type-safe access to design values and enable
  * consistent theming across the application with accessibility in mind.
  */
@@ -40,9 +40,9 @@ export const colors = {
 
   // ADHD-Specific Energy Level Colors
   energy: {
-    high: '#ef4444',    // Red - High energy/urgency
-    medium: '#f59e0b',  // Yellow - Medium energy
-    low: '#10b981',     // Green - Low energy/calm
+    high: '#ef4444', // Red - High energy/urgency
+    medium: '#f59e0b', // Yellow - Medium energy
+    low: '#10b981', // Green - Low energy/calm
   },
 
   // Semantic Colors
@@ -71,15 +71,15 @@ export const typography = {
 
   // Font sizes based on 1.25 modular scale
   fontSize: {
-    xs: '0.75rem',    // 12px
-    sm: '0.875rem',   // 14px
-    base: '1rem',     // 16px
-    lg: '1.125rem',   // 18px
-    xl: '1.25rem',    // 20px
-    '2xl': '1.5rem',  // 24px
+    xs: '0.75rem', // 12px
+    sm: '0.875rem', // 14px
+    base: '1rem', // 16px
+    lg: '1.125rem', // 18px
+    xl: '1.25rem', // 20px
+    '2xl': '1.5rem', // 24px
     '3xl': '1.875rem', // 30px
     '4xl': '2.25rem', // 36px
-    '5xl': '3rem',    // 48px
+    '5xl': '3rem', // 48px
     '6xl': '3.75rem', // 60px
   },
 
@@ -105,36 +105,36 @@ export const typography = {
 export const spacing = {
   0: '0',
   px: '1px',
-  0.5: '0.125rem',  // 2px
-  1: '0.25rem',     // 4px
-  1.5: '0.375rem',  // 6px
-  2: '0.5rem',      // 8px
-  2.5: '0.625rem',  // 10px
-  3: '0.75rem',     // 12px
-  3.5: '0.875rem',  // 14px
-  4: '1rem',        // 16px
-  5: '1.25rem',     // 20px
-  6: '1.5rem',      // 24px
-  7: '1.75rem',     // 28px
-  8: '2rem',        // 32px
-  10: '2.5rem',     // 40px
-  12: '3rem',       // 48px
-  16: '4rem',       // 64px
-  20: '5rem',       // 80px
-  24: '6rem',       // 96px
-  32: '8rem',       // 128px
+  0.5: '0.125rem', // 2px
+  1: '0.25rem', // 4px
+  1.5: '0.375rem', // 6px
+  2: '0.5rem', // 8px
+  2.5: '0.625rem', // 10px
+  3: '0.75rem', // 12px
+  3.5: '0.875rem', // 14px
+  4: '1rem', // 16px
+  5: '1.25rem', // 20px
+  6: '1.5rem', // 24px
+  7: '1.75rem', // 28px
+  8: '2rem', // 32px
+  10: '2.5rem', // 40px
+  12: '3rem', // 48px
+  16: '4rem', // 64px
+  20: '5rem', // 80px
+  24: '6rem', // 96px
+  32: '8rem', // 128px
 } as const;
 
 // ===== BORDER RADIUS =====
 
 export const borderRadius = {
   none: '0',
-  sm: '0.125rem',   // 2px
-  base: '0.25rem',  // 4px
-  md: '0.375rem',   // 6px
-  lg: '0.5rem',     // 8px
-  xl: '0.75rem',    // 12px
-  '2xl': '1rem',    // 16px
+  sm: '0.125rem', // 2px
+  base: '0.25rem', // 4px
+  md: '0.375rem', // 6px
+  lg: '0.5rem', // 8px
+  xl: '0.75rem', // 12px
+  '2xl': '1rem', // 16px
   full: '9999px',
 } as const;
 
@@ -298,7 +298,7 @@ export const accessibility = {
     width: '44px',
     height: '44px',
   },
-  
+
   // Focus ring specifications
   focusRing: {
     width: '2px',
@@ -306,20 +306,20 @@ export const accessibility = {
     color: colors.focus.primary,
     offset: '2px',
   },
-  
+
   // Color contrast ratios (WCAG 2.2 AA compliant)
   contrast: {
-    minimum: 4.5,   // For normal text
-    large: 3,       // For large text (18px+ or 14px+ bold)
-    enhanced: 7,    // AAA level for better accessibility
+    minimum: 4.5, // For normal text
+    large: 3, // For large text (18px+ or 14px+ bold)
+    enhanced: 7, // AAA level for better accessibility
   },
-  
+
   // Motion preferences
   motion: {
     reduce: 'prefers-reduced-motion: reduce',
     noPreference: 'prefers-reduced-motion: no-preference',
   },
-  
+
   // Screen reader utilities
   screenReader: {
     only: 'sr-only',

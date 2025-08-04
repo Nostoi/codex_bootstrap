@@ -7,18 +7,21 @@ This directory contains a comprehensive accessibility implementation designed sp
 ## 🎯 Key Features
 
 ### Core Accessibility Infrastructure
+
 - **Focus Management**: Advanced focus trapping and restoration
 - **Live Announcements**: Screen reader compatible announcements
 - **Keyboard Navigation**: Comprehensive keyboard support with shortcuts
 - **User Preferences**: Automatic detection of motion, contrast, and other preferences
 
 ### ADHD-Optimized Features
+
 - **Energy Level Indicators**: Visual cues for task energy requirements
 - **Cognitive Load Indicators**: Feedback on mental effort required
 - **Reduced Motion Support**: Respects user motion preferences
 - **Progress Indicators**: Clear progress feedback to reduce anxiety
 
 ### Component Library
+
 - **AccessibleButton**: WCAG-compliant buttons with energy indicators
 - **AccessibleInput**: Form inputs with comprehensive error handling
 - **Modal**: Focus-trapped modals with keyboard navigation
@@ -58,29 +61,25 @@ function App() {
 ### 2. Use accessible components
 
 ```tsx
-import { 
-  AccessibleButton, 
-  AccessibleInput, 
-  EnergyIndicator 
+import {
+  AccessibleButton,
+  AccessibleInput,
+  EnergyIndicator,
 } from './components/accessibility/AccessibilityComponents';
 
 function TaskForm() {
   return (
     <form>
-      <AccessibleInput 
-        label="Task name"
-        required
-        hint="Enter a descriptive name for your task"
-      />
-      
-      <AccessibleButton 
+      <AccessibleInput label="Task name" required hint="Enter a descriptive name for your task" />
+
+      <AccessibleButton
         variant="primary"
         energyLevel="medium"
         announcement="Task created successfully"
       >
         Create Task
       </AccessibleButton>
-      
+
       <EnergyIndicator level="medium" />
     </form>
   );
@@ -106,6 +105,7 @@ function TaskList() {
 ## ⌨️ Keyboard Navigation
 
 ### Global Shortcuts
+
 - `Alt+M`: Open main menu
 - `Alt+S`: Focus search
 - `Alt+H`: Go to home
@@ -113,12 +113,14 @@ function TaskList() {
 - `/`: Focus search (when not in input)
 
 ### Calendar Navigation
+
 - `Arrow Keys`: Navigate dates
 - `Home/End`: First/last day of month
 - `PageUp/PageDown`: Previous/next month
 - `Enter/Space`: Select date
 
 ### Task Navigation
+
 - `j/k`: Next/previous task
 - `Enter`: Open task
 - `Space`: Toggle completion
@@ -128,19 +130,25 @@ function TaskList() {
 ## 🎨 ADHD-Friendly Features
 
 ### Energy Level System
+
 Three energy levels help users manage their capacity:
+
 - **High Energy** ⚡: Complex, demanding tasks
 - **Medium Energy** 🔥: Standard tasks
 - **Low Energy** 🌱: Simple, low-effort tasks
 
 ### Cognitive Load Indicators
+
 Visual feedback on mental effort required:
+
 - **Low** 🧠: Minimal cognitive load
 - **Medium** 🤔: Moderate thinking required
 - **High** 😵: High concentration needed
 
 ### Progress Feedback
+
 Clear progress indicators reduce anxiety and provide motivation:
+
 - Visual progress bars
 - Percentage completion
 - Task count completion
@@ -149,6 +157,7 @@ Clear progress indicators reduce anxiety and provide motivation:
 ## 🧪 Testing
 
 ### Manual Testing Checklist
+
 - [ ] All interactive elements are keyboard accessible
 - [ ] Focus indicators are visible and clear
 - [ ] Screen readers announce content changes
@@ -158,6 +167,7 @@ Clear progress indicators reduce anxiety and provide motivation:
 - [ ] Progress announcements work
 
 ### Automated Testing
+
 The accessibility utilities include comprehensive testing tools:
 
 ```tsx
@@ -168,20 +178,17 @@ await expectToBeAccessible(container, {
   wcagLevel: 'AA',
   colorContrast: true,
   focus: true,
-  keyboard: true
+  keyboard: true,
 });
 
 // Test keyboard navigation
-await expectKeyboardNavigation(
-  container,
-  ['ArrowDown', 'Enter'],
-  'Navigate and select'
-);
+await expectKeyboardNavigation(container, ['ArrowDown', 'Enter'], 'Navigate and select');
 ```
 
 ## 🎯 WCAG 2.2 AA Compliance
 
 ### Level A Requirements
+
 - ✅ Keyboard accessibility
 - ✅ Text alternatives for images
 - ✅ Captions for audio
@@ -195,6 +202,7 @@ await expectKeyboardNavigation(
 - ✅ Language of page
 
 ### Level AA Requirements
+
 - ✅ Color contrast (4.5:1 for normal text, 3:1 for large text)
 - ✅ Resize text (up to 200%)
 - ✅ Images of text (avoided when possible)
@@ -209,6 +217,7 @@ await expectKeyboardNavigation(
 ## 🔧 Configuration
 
 ### Design Tokens
+
 All accessibility features use CSS custom properties from the design token system:
 
 ```css
@@ -216,12 +225,12 @@ All accessibility features use CSS custom properties from the design token syste
   /* Focus indicators */
   --focus-outline: 2px solid var(--color-primary);
   --focus-offset: 2px;
-  
+
   /* Energy levels */
   --color-energy-high: hsl(0, 85%, 60%);
   --color-energy-medium: hsl(35, 85%, 55%);
   --color-energy-low: hsl(120, 45%, 50%);
-  
+
   /* Motion preferences */
   --motion-duration: 0.2s;
   --motion-easing: ease;
@@ -235,7 +244,9 @@ All accessibility features use CSS custom properties from the design token syste
 ```
 
 ### User Preferences
+
 The system automatically detects and respects user preferences:
+
 - `prefers-reduced-motion`
 - `prefers-contrast`
 - `prefers-color-scheme`
@@ -244,7 +255,9 @@ The system automatically detects and respects user preferences:
 ## 🚨 Common Issues and Solutions
 
 ### Issue: Focus not visible
+
 **Solution**: Ensure focus styles are properly applied
+
 ```css
 .my-element:focus-visible {
   outline: var(--focus-outline);
@@ -253,18 +266,22 @@ The system automatically detects and respects user preferences:
 ```
 
 ### Issue: Screen reader not announcing changes
+
 **Solution**: Use live regions or the LiveAnnouncer
+
 ```tsx
 const { announcer } = useAccessibilityContext();
 announcer.announce('Task completed successfully');
 ```
 
 ### Issue: Keyboard navigation not working
+
 **Solution**: Ensure proper tabindex and event handling
+
 ```tsx
-<div 
+<div
   tabIndex={0}
-  onKeyDown={(e) => {
+  onKeyDown={e => {
     if (e.key === 'Enter') {
       handleAction();
     }
@@ -277,20 +294,24 @@ announcer.announce('Task completed successfully');
 ## 📚 Resources
 
 ### WCAG Guidelines
+
 - [WCAG 2.2 Guidelines](https://www.w3.org/WAI/WCAG22/quickref/)
 - [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/)
 
 ### ADHD Research
+
 - [ADHD and Web Design](https://adhd-friendly-design-principles.com/)
 - [Cognitive Load Theory](https://www.understood.org/en/articles/cognitive-load-theory)
 
 ### Testing Tools
+
 - [axe-core](https://github.com/dequelabs/axe-core)
 - [Screen Reader Testing](https://webaim.org/articles/screenreader_testing/)
 
 ## 🤝 Contributing
 
 When adding new accessibility features:
+
 1. Follow WCAG 2.2 AA guidelines
 2. Include ADHD-friendly considerations
 3. Add comprehensive keyboard navigation

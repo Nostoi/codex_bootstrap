@@ -1,35 +1,41 @@
 # Production Deployment Guide
 
 ## Overview
+
 This guide provides step-by-step instructions for deploying the Codex Bootstrap application in a production environment with comprehensive security hardening.
 
 ## Security Features
 
 ### Container Security
+
 - **Non-root execution**: All services run with non-root user (UID 1001)
 - **Capability restrictions**: All capabilities dropped, only essential ones added back
 - **Read-only root filesystem**: Prevents runtime file system modifications
 - **Resource limits**: CPU and memory limits prevent resource exhaustion
 - **Security options**: `no-new-privileges` prevents privilege escalation
 
-### Network Security  
+### Network Security
+
 - **Network isolation**: Separate networks for frontend, backend, and monitoring
 - **Custom subnets**: Isolated IP ranges for each network segment
 - **No external networks**: All networks are internal to the Docker environment
 
 ### SSL/TLS Security
+
 - **Strong cipher suites**: Only TLS 1.2+ with modern ECDHE ciphers
 - **Perfect Forward Secrecy**: DHE key exchange with 2048-bit parameters
 - **Security headers**: HSTS, CSP, X-Frame-Options, and other protective headers
 - **OCSP stapling**: Certificate validation for enhanced security
 
 ### Monitoring & Observability
+
 - **Falco runtime security**: Real-time threat detection and alerting
 - **Comprehensive logging**: Structured JSON logs with rotation
 - **Health checks**: Application and database health monitoring
 - **Metrics collection**: Performance and security metrics
 
 ### Secrets Management
+
 - **File-based secrets**: Database credentials stored in secure files
 - **Proper permissions**: Secrets files restricted to 600 permissions
 - **Environment isolation**: Production-specific environment configuration
@@ -39,6 +45,7 @@ This guide provides step-by-step instructions for deploying the Codex Bootstrap 
 ### 1. Update Configuration Files
 
 **Update `.env.production`:**
+
 ```bash
 # Replace placeholder values with production secrets
 JWT_SECRET=your-super-secure-jwt-secret-change-in-production-2024
@@ -51,6 +58,7 @@ CORS_ORIGIN=https://yourdomain.com
 ```
 
 **Update database secrets:**
+
 ```bash
 # Update secrets/db_user.txt with your production database user
 # Update secrets/db_password.txt with a strong production password
@@ -59,6 +67,7 @@ CORS_ORIGIN=https://yourdomain.com
 ### 2. Generate Production SSL Certificates
 
 **For production, replace self-signed certificates:**
+
 ```bash
 # Remove test certificates
 rm certs/privkey.pem certs/fullchain.pem
@@ -72,6 +81,7 @@ rm certs/privkey.pem certs/fullchain.pem
 ### 3. Update Domain Configuration
 
 **Update `nginx/nginx.conf`:**
+
 ```nginx
 # Replace 'localhost' with your production domain
 server_name yourdomain.com www.yourdomain.com;
@@ -83,19 +93,21 @@ server_name yourdomain.com www.yourdomain.com;
 # Build backend image
 docker build -f Dockerfile.backend -t codex-backend:latest .
 
-# Build frontend image  
+# Build frontend image
 docker build -f Dockerfile.frontend -t codex-frontend:latest .
 ```
 
 ## Deployment Process
 
 ### 1. Run Security Validation
+
 ```bash
 # Validate all security configurations
 ./test-production-security.sh
 ```
 
 ### 2. Start Production Services
+
 ```bash
 # Start all services in background
 docker-compose -f docker-compose.production-secure.yml up -d
@@ -105,6 +117,7 @@ docker-compose -f docker-compose.production-secure.yml ps
 ```
 
 ### 3. Verify Deployment
+
 ```bash
 # Check service health
 docker-compose -f docker-compose.production-secure.yml exec backend curl -f http://localhost:8000/health
@@ -118,6 +131,7 @@ curl -I https://yourdomain.com | grep -E "(Strict-Transport-Security|X-Frame-Opt
 ```
 
 ### 4. Monitor Security Events
+
 ```bash
 # Monitor Falco security alerts
 docker-compose -f docker-compose.production-secure.yml logs -f falco
@@ -129,6 +143,7 @@ docker-compose -f docker-compose.production-secure.yml logs -f backend frontend
 ## Post-Deployment Operations
 
 ### Service Management
+
 ```bash
 # Stop services
 docker-compose -f docker-compose.production-secure.yml stop
@@ -141,6 +156,7 @@ docker-compose -f docker-compose.production-secure.yml up -d --force-recreate
 ```
 
 ### Log Management
+
 ```bash
 # View logs
 docker-compose -f docker-compose.production-secure.yml logs -f [service-name]
@@ -149,6 +165,7 @@ docker-compose -f docker-compose.production-secure.yml logs -f [service-name]
 ```
 
 ### Backup Operations
+
 ```bash
 # Backup database
 docker-compose -f docker-compose.production-secure.yml exec db pg_dump -U codex_user codex_bootstrap_prod > backup.sql
@@ -158,6 +175,7 @@ docker run --rm -v codex_bootstrap_postgres_production_data:/data -v $(pwd):/bac
 ```
 
 ### Security Monitoring
+
 ```bash
 # Check Falco alerts
 docker-compose -f docker-compose.production-secure.yml logs falco | grep -i "warning\|error\|critical"
@@ -170,6 +188,7 @@ docker-compose -f docker-compose.production-secure.yml pull
 ```
 
 ### Certificate Renewal
+
 ```bash
 # When certificates expire, update files in certs/ directory
 # Restart nginx to load new certificates
@@ -181,6 +200,7 @@ docker-compose -f docker-compose.production-secure.yml restart nginx
 ### Common Issues
 
 **Services not starting:**
+
 ```bash
 # Check logs for errors
 docker-compose -f docker-compose.production-secure.yml logs [service-name]
@@ -190,6 +210,7 @@ docker-compose -f docker-compose.production-secure.yml config
 ```
 
 **Database connection issues:**
+
 ```bash
 # Verify database is ready
 docker-compose -f docker-compose.production-secure.yml exec db pg_isready
@@ -199,6 +220,7 @@ docker-compose -f docker-compose.production-secure.yml logs db
 ```
 
 **SSL/TLS issues:**
+
 ```bash
 # Verify certificate validity
 openssl x509 -in certs/fullchain.pem -text -noout
@@ -208,6 +230,7 @@ openssl s_client -connect yourdomain.com:443 -servername yourdomain.com
 ```
 
 **Performance issues:**
+
 ```bash
 # Check resource usage
 docker stats
@@ -219,7 +242,7 @@ docker-compose -f docker-compose.production-secure.yml config | grep -A5 "resour
 ## Security Best Practices
 
 1. **Regular Updates**: Keep base images and dependencies updated
-2. **Secret Rotation**: Regularly rotate database passwords and API keys  
+2. **Secret Rotation**: Regularly rotate database passwords and API keys
 3. **Certificate Management**: Monitor certificate expiration dates
 4. **Log Monitoring**: Regularly review Falco security alerts
 5. **Backup Strategy**: Implement automated database and volume backups
@@ -240,6 +263,7 @@ The production deployment includes features that support various compliance requ
 ## Support
 
 For deployment support or security questions:
+
 1. Review logs for specific error messages
 2. Run the security validation script: `./test-production-security.sh`
 3. Check the troubleshooting section above
@@ -248,6 +272,7 @@ For deployment support or security questions:
 ---
 
 **Production Deployment Infrastructure - Complete**
+
 - ✅ Security-hardened Docker Compose configuration
 - ✅ Comprehensive SSL/TLS setup with modern ciphers
 - ✅ Runtime security monitoring with Falco

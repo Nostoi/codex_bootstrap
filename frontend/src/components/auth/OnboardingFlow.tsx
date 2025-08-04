@@ -33,7 +33,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     },
     {
       id: 3,
-      title: 'You\'re All Set!',
+      title: "You're All Set!",
       description: 'Start managing your tasks with AI assistance',
     },
   ];
@@ -49,7 +49,8 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       if (response.ok) {
         const data = await response.json();
         // Redirect to OAuth with calendar scopes
-        if (typeof window !== 'undefined') { // SSR check
+        if (typeof window !== 'undefined') {
+          // SSR check
           window.location.href = data.authUrl;
         }
       } else {
@@ -83,40 +84,28 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       <Card className="w-full max-w-2xl mx-auto">
         <CardHeader className="text-center">
           <div className="flex justify-center space-x-2 mb-6">
-            {steps.map((step) => (
+            {steps.map(step => (
               <div
                 key={step.id}
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                  step.id <= currentStep
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 text-gray-600'
+                  step.id <= currentStep ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
                 }`}
               >
-                {step.id < currentStep ? (
-                  <CheckCircle className="w-4 h-4" />
-                ) : (
-                  step.id
-                )}
+                {step.id < currentStep ? <CheckCircle className="w-4 h-4" /> : step.id}
               </div>
             ))}
           </div>
-          <CardTitle className="text-2xl font-bold">
-            {currentStepData?.title}
-          </CardTitle>
-          <CardDescription>
-            {currentStepData?.description}
-          </CardDescription>
+          <CardTitle className="text-2xl font-bold">{currentStepData?.title}</CardTitle>
+          <CardDescription>{currentStepData?.description}</CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-6">
           {currentStep === 1 && (
             <div className="text-center space-y-4">
-              <div className="text-lg">
-                Welcome, {user?.name || user?.email}! 👋
-              </div>
+              <div className="text-lg">Welcome, {user?.name || user?.email}! 👋</div>
               <div className="text-gray-600">
-                Helmsman helps you manage tasks with AI assistance and seamless calendar integration.
-                Let&apos;s get you set up in just a few steps.
+                Helmsman helps you manage tasks with AI assistance and seamless calendar
+                integration. Let&apos;s get you set up in just a few steps.
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                 <div className="flex flex-col items-center p-4 border rounded-lg">
@@ -150,7 +139,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 Connect your calendars to enable automatic task scheduling and conflict detection.
                 You can skip this step and set it up later in settings.
               </div>
-              
+
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center space-x-3">
@@ -173,7 +162,8 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center space-x-3">
-                    <Calendar className="h-6 w-6 text-blue-600" /> {/* TODO: Replace with SiMicrosoft when available */}
+                    <Calendar className="h-6 w-6 text-blue-600" />{' '}
+                    {/* TODO: Replace with SiMicrosoft when available */}
                     <div>
                       <div className="font-medium">Microsoft Outlook</div>
                       <div className="text-sm text-gray-500">
@@ -216,10 +206,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
           {currentStep < 3 && (
             <div className="flex justify-between pt-6">
-              <Button
-                onClick={handleSkip}
-                variant="ghost"
-              >
+              <Button onClick={handleSkip} variant="ghost">
                 {currentStep === 2 ? 'Skip for now' : 'Skip'}
               </Button>
               <Button onClick={handleNext}>

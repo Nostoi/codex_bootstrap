@@ -55,7 +55,7 @@ pnpm dev
 # Runs on http://localhost:3001
 
 # Terminal 2: Frontend (Next.js)
-cd frontend  
+cd frontend
 pnpm dev
 # Runs on http://localhost:3000
 
@@ -68,6 +68,7 @@ pnpm storybook
 ## 🏗️ Project Architecture
 
 ### Monorepo Structure
+
 ```
 codex_bootstrap/
 ├── backend/          # NestJS API server
@@ -102,6 +103,7 @@ codex_bootstrap/
 ### Technology Stack
 
 #### Backend
+
 - **Framework**: NestJS with TypeScript
 - **Database**: PostgreSQL with Prisma ORM
 - **Authentication**: JWT with OAuth 2.0 integrations
@@ -111,10 +113,11 @@ codex_bootstrap/
 - **Testing**: Jest with integration tests
 
 #### Frontend
+
 - **Framework**: Next.js 14 with App Router
 - **Language**: TypeScript with strict mode
 - **Styling**: Tailwind CSS with custom design tokens
-- **State Management**: 
+- **State Management**:
   - React Query (TanStack Query) for server state
   - Zustand for client state
 - **Components**: Custom library with Storybook
@@ -123,6 +126,7 @@ codex_bootstrap/
 ## 🔧 Environment Configuration
 
 ### Backend Environment (backend/.env)
+
 ```bash
 # Database
 DATABASE_URL="postgresql://username:password@localhost:5432/helmsman_dev"
@@ -159,6 +163,7 @@ PORT=3001
 ```
 
 ### Frontend Environment (frontend/.env.local)
+
 ```bash
 # API Configuration
 NEXT_PUBLIC_API_URL="http://localhost:3001"
@@ -217,6 +222,7 @@ pnpm prisma migrate deploy
 ### 3. API Development
 
 #### Creating a New Endpoint
+
 ```typescript
 // backend/src/tasks/tasks.controller.ts
 @Controller('tasks')
@@ -227,7 +233,7 @@ export class TasksController {
   @UseGuards(JwtAuthGuard)
   async createTask(
     @Body() createTaskDto: CreateTaskDto,
-    @User() user: UserEntity,
+    @User() user: UserEntity
   ): Promise<TaskEntity> {
     return this.tasksService.create(createTaskDto, user.id);
   }
@@ -254,6 +260,7 @@ export class CreateTaskDto {
 ```
 
 #### Testing the Endpoint
+
 ```typescript
 // backend/src/tasks/tasks.controller.spec.ts
 describe('TasksController', () => {
@@ -298,6 +305,7 @@ describe('TasksController', () => {
 ### 4. Frontend Component Development
 
 #### Creating a New Component
+
 ```tsx
 // frontend/src/components/ui/EnergyBadge.tsx
 import { cn } from '@/lib/utils';
@@ -330,6 +338,7 @@ export const EnergyBadge = ({ level, className }: EnergyBadgeProps) => {
 ```
 
 #### Component Story
+
 ```tsx
 // frontend/src/components/ui/EnergyBadge.stories.tsx
 import type { Meta, StoryObj } from '@storybook/react';
@@ -376,6 +385,7 @@ export const Low: Story = {
 ```
 
 #### Component Tests
+
 ```tsx
 // frontend/src/components/ui/EnergyBadge.test.tsx
 import { render, screen } from '@testing-library/react';
@@ -384,7 +394,7 @@ import { EnergyBadge } from './EnergyBadge';
 describe('EnergyBadge', () => {
   it('renders high energy badge with correct styling', () => {
     render(<EnergyBadge level="HIGH" />);
-    
+
     const badge = screen.getByText('HIGH Energy');
     expect(badge).toBeInTheDocument();
     expect(badge).toHaveClass('bg-green-100', 'text-green-900');
@@ -393,7 +403,7 @@ describe('EnergyBadge', () => {
 
   it('applies custom className', () => {
     render(<EnergyBadge level="MEDIUM" className="custom-class" />);
-    
+
     const badge = screen.getByText('MEDIUM Energy');
     expect(badge).toHaveClass('custom-class');
   });
@@ -403,6 +413,7 @@ describe('EnergyBadge', () => {
 ## 🧪 Testing Guidelines
 
 ### Testing Strategy
+
 1. **Unit Tests**: 80%+ coverage for business logic
 2. **Integration Tests**: API endpoints and database operations
 3. **E2E Tests**: Critical user journeys with Playwright
@@ -433,6 +444,7 @@ pnpm test:all            # All tests across workspaces
 ### Test Writing Guidelines
 
 #### Backend Unit Test Example
+
 ```typescript
 describe('DailyPlannerService', () => {
   let service: DailyPlannerService;
@@ -463,7 +475,7 @@ describe('DailyPlannerService', () => {
         { id: '1', title: 'High energy task', energyLevel: 'HIGH', priority: 5 },
         { id: '2', title: 'Low energy task', energyLevel: 'LOW', priority: 3 },
       ];
-      
+
       jest.spyOn(prismaService.task, 'findMany').mockResolvedValue(mockTasks);
 
       const plan = await service.generateDailyPlan('user-123', new Date());
@@ -477,6 +489,7 @@ describe('DailyPlannerService', () => {
 ```
 
 #### Frontend Component Test Example
+
 ```tsx
 describe('TaskCard', () => {
   const mockTask = {
@@ -489,13 +502,7 @@ describe('TaskCard', () => {
 
   it('handles task completion', async () => {
     const mockOnStatusChange = jest.fn();
-    render(
-      <TaskCard 
-        task={mockTask} 
-        onStatusChange={mockOnStatusChange}
-        interactive 
-      />
-    );
+    render(<TaskCard task={mockTask} onStatusChange={mockOnStatusChange} interactive />);
 
     const completeButton = screen.getByLabelText(/mark as complete/i);
     fireEvent.click(completeButton);
@@ -514,6 +521,7 @@ describe('TaskCard', () => {
 ## 🎨 Styling Guidelines
 
 ### Design Token Usage
+
 ```tsx
 // Use design tokens from the system
 import { tokens } from '@/lib/design-tokens';
@@ -526,12 +534,11 @@ const TaskCard = styled.div`
 `;
 
 // Or use Tailwind classes that map to tokens
-<div className="p-md rounded-lg bg-surface-primary border border-subtle">
-  {/* Content */}
-</div>
+<div className="p-md rounded-lg bg-surface-primary border border-subtle">{/* Content */}</div>;
 ```
 
 ### Component Styling Best Practices
+
 1. **Mobile-first responsive design**
 2. **Use design tokens consistently**
 3. **Follow ADHD-friendly color guidelines**
@@ -541,6 +548,7 @@ const TaskCard = styled.div`
 ## 🚢 Deployment
 
 ### Development Deployment
+
 ```bash
 # Build applications
 pnpm build
@@ -554,6 +562,7 @@ docker-compose up --build
 ```
 
 ### Production Deployment
+
 ```bash
 # Using Kubernetes
 kubectl apply -f k8s/
@@ -565,6 +574,7 @@ docker stack deploy -c docker-compose.prod.yml helmsman
 ## 🐛 Debugging
 
 ### Backend Debugging
+
 ```bash
 # Debug mode with inspector
 cd backend
@@ -574,6 +584,7 @@ pnpm start:debug
 ```
 
 ### Frontend Debugging
+
 ```bash
 # Next.js debug mode
 cd frontend
@@ -584,6 +595,7 @@ pnpm storybook --debug-webpack
 ```
 
 ### Database Debugging
+
 ```bash
 # Prisma Studio (visual database editor)
 cd backend
@@ -596,11 +608,13 @@ pnpm prisma db execute --schema=./prisma/schema.prisma --stdin < query.sql
 ## 📊 Performance Monitoring
 
 ### Core Web Vitals
+
 - **LCP**: < 2.5 seconds
 - **FID**: < 100 milliseconds
 - **CLS**: < 0.1
 
 ### Monitoring Tools
+
 ```bash
 # Lighthouse CI
 npm install -g @lhci/cli
@@ -617,6 +631,7 @@ pnpm dev --profile
 ## 🔧 Common Issues
 
 ### Issue: Database Connection Errors
+
 ```bash
 # Solution: Check PostgreSQL is running
 docker-compose ps
@@ -628,6 +643,7 @@ pnpm prisma migrate reset
 ```
 
 ### Issue: Module Resolution Errors
+
 ```bash
 # Solution: Clear node_modules and reinstall
 rm -rf node_modules */node_modules
@@ -635,6 +651,7 @@ pnpm install
 ```
 
 ### Issue: Port Already in Use
+
 ```bash
 # Solution: Kill processes on ports
 lsof -ti:3000 | xargs kill -9
@@ -644,17 +661,20 @@ lsof -ti:3001 | xargs kill -9
 ## 📚 Additional Resources
 
 ### Documentation
+
 - [NestJS Documentation](https://docs.nestjs.com/)
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Prisma Documentation](https://www.prisma.io/docs)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 
 ### Tools
+
 - [Prisma Studio](https://www.prisma.io/studio) - Database GUI
 - [Storybook](https://storybook.js.org/) - Component development
 - [Postman](https://www.postman.com/) - API testing
 
 ### Community
+
 - [GitHub Discussions](repository-discussions-url)
 - [Discord Server](discord-server-url)
 - [Contribution Guidelines](../CONTRIBUTING.md)

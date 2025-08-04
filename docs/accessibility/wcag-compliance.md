@@ -9,25 +9,26 @@ Helmsman adheres to the Web Content Accessibility Guidelines (WCAG) 2.2 Level AA
 ### Principle 1: Perceivable
 
 #### 1.1 Text Alternatives
+
 - **1.1.1 Non-text Content (A)**: ✅ All images have descriptive alt text
 - **Implementation**: Comprehensive alt text for icons, charts, and informational images
 
 ```tsx
 // ✅ Proper alt text implementation
-<img 
-  src="/icons/energy-high.svg" 
+<img
+  src="/icons/energy-high.svg"
   alt="High energy level indicator - optimal for demanding tasks"
 />
 
 // ✅ Decorative images
-<img 
-  src="/decorative-pattern.svg" 
-  alt="" 
+<img
+  src="/decorative-pattern.svg"
+  alt=""
   role="presentation"
 />
 
 // ✅ Complex images with detailed descriptions
-<img 
+<img
   src="/task-completion-chart.png"
   alt="Task completion chart showing 85% completion rate this week"
   aria-describedby="chart-details"
@@ -38,11 +39,13 @@ Helmsman adheres to the Web Content Accessibility Guidelines (WCAG) 2.2 Level AA
 ```
 
 #### 1.2 Time-based Media
+
 - **1.2.1 Audio-only and Video-only (A)**: ✅ Transcripts provided for audio content
 - **1.2.2 Captions (A)**: ✅ Captions for video demonstrations
 - **1.2.3 Audio Description or Media Alternative (A)**: ✅ Audio descriptions for instructional videos
 
 #### 1.3 Adaptable
+
 - **1.3.1 Info and Relationships (A)**: ✅ Semantic HTML structure
 - **1.3.2 Meaningful Sequence (A)**: ✅ Logical reading order
 - **1.3.3 Sensory Characteristics (A)**: ✅ Instructions don't rely solely on visual cues
@@ -76,6 +79,7 @@ Helmsman adheres to the Web Content Accessibility Guidelines (WCAG) 2.2 Level AA
 ```
 
 #### 1.4 Distinguishable
+
 - **1.4.1 Use of Color (A)**: ✅ Information conveyed through multiple means
 - **1.4.2 Audio Control (A)**: ✅ Audio controls provided
 - **1.4.3 Contrast (Minimum) (AA)**: ✅ 4.5:1 contrast ratio for normal text
@@ -88,25 +92,25 @@ Helmsman adheres to the Web Content Accessibility Guidelines (WCAG) 2.2 Level AA
 
 ```tsx
 // ✅ Color + pattern for information
-<Badge 
+<Badge
   variant="energy-high"
   className="bg-green-100 border-green-500 border-2"
   aria-label="High energy level - green background with thick border"
 >
   <Icon name="energy" aria-hidden="true" />
   High Energy
-</Badge>
+</Badge>;
 
 // ✅ Contrast validation
 const EnergyBadge = ({ level }: { level: EnergyLevel }) => {
   const styles = {
     HIGH: 'bg-green-100 text-green-900 border-green-600', // 7.2:1 contrast
     MEDIUM: 'bg-amber-100 text-amber-900 border-amber-600', // 6.8:1 contrast
-    LOW: 'bg-indigo-100 text-indigo-900 border-indigo-600' // 7.5:1 contrast
+    LOW: 'bg-indigo-100 text-indigo-900 border-indigo-600', // 7.5:1 contrast
   };
-  
+
   return (
-    <span 
+    <span
       className={`inline-flex items-center px-2 py-1 border ${styles[level]}`}
       aria-label={`${level.toLowerCase()} energy level`}
     >
@@ -119,6 +123,7 @@ const EnergyBadge = ({ level }: { level: EnergyLevel }) => {
 ### Principle 2: Operable
 
 #### 2.1 Keyboard Accessible
+
 - **2.1.1 Keyboard (A)**: ✅ All functionality available via keyboard
 - **2.1.2 No Keyboard Trap (A)**: ✅ No keyboard traps
 - **2.1.4 Character Key Shortcuts (A)**: ✅ Single-key shortcuts can be disabled
@@ -154,6 +159,7 @@ const TaskCard = ({ task, onSelect }: TaskCardProps) => {
 ```
 
 #### 2.2 Enough Time
+
 - **2.2.1 Timing Adjustable (A)**: ✅ Time limits can be extended
 - **2.2.2 Pause, Stop, Hide (A)**: ✅ Auto-updating content can be paused
 
@@ -166,17 +172,14 @@ const AutoRefreshProvider = ({ children }: { children: ReactNode }) => {
   return (
     <div>
       <div className="refresh-controls" role="region" aria-label="Auto-refresh settings">
-        <button 
-          onClick={() => setAutoRefresh(!autoRefresh)}
-          aria-pressed={autoRefresh}
-        >
+        <button onClick={() => setAutoRefresh(!autoRefresh)} aria-pressed={autoRefresh}>
           {autoRefresh ? 'Pause' : 'Resume'} Auto-refresh
         </button>
         <label>
           Refresh every:
-          <select 
-            value={refreshInterval} 
-            onChange={(e) => setRefreshInterval(Number(e.target.value))}
+          <select
+            value={refreshInterval}
+            onChange={e => setRefreshInterval(Number(e.target.value))}
           >
             <option value={15000}>15 seconds</option>
             <option value={30000}>30 seconds</option>
@@ -192,9 +195,11 @@ const AutoRefreshProvider = ({ children }: { children: ReactNode }) => {
 ```
 
 #### 2.3 Seizures and Physical Reactions
+
 - **2.3.1 Three Flashes or Below Threshold (A)**: ✅ No content flashes more than 3 times per second
 
 #### 2.4 Navigable
+
 - **2.4.1 Bypass Blocks (A)**: ✅ Skip links provided
 - **2.4.2 Page Titled (A)**: ✅ Descriptive page titles
 - **2.4.3 Focus Order (A)**: ✅ Logical focus order
@@ -234,13 +239,7 @@ const Modal = ({ isOpen, onClose, children }: ModalProps) => {
   }, [isOpen]);
 
   return isOpen ? (
-    <div 
-      ref={modalRef}
-      role="dialog"
-      aria-modal="true"
-      tabIndex={-1}
-      className="modal"
-    >
+    <div ref={modalRef} role="dialog" aria-modal="true" tabIndex={-1} className="modal">
       {children}
     </div>
   ) : null;
@@ -248,6 +247,7 @@ const Modal = ({ isOpen, onClose, children }: ModalProps) => {
 ```
 
 #### 2.5 Input Modalities
+
 - **2.5.1 Pointer Gestures (A)**: ✅ Complex gestures have simple alternatives
 - **2.5.2 Pointer Cancellation (A)**: ✅ Down-event doesn't trigger actions
 - **2.5.3 Label in Name (A)**: ✅ Accessible names include visible text
@@ -256,6 +256,7 @@ const Modal = ({ isOpen, onClose, children }: ModalProps) => {
 ### Principle 3: Understandable
 
 #### 3.1 Readable
+
 - **3.1.1 Language of Page (A)**: ✅ Page language specified
 - **3.1.2 Language of Parts (AA)**: ✅ Language changes identified
 
@@ -268,15 +269,14 @@ const Modal = ({ isOpen, onClose, children }: ModalProps) => {
   <body>
     <main>
       <p>Welcome to your task dashboard</p>
-      <blockquote lang="es">
-        "La productividad es la base del éxito"
-      </blockquote>
+      <blockquote lang="es">"La productividad es la base del éxito"</blockquote>
     </main>
   </body>
 </html>
 ```
 
 #### 3.2 Predictable
+
 - **3.2.1 On Focus (A)**: ✅ Focus doesn't cause unexpected context changes
 - **3.2.2 On Input (A)**: ✅ Input doesn't cause unexpected context changes
 - **3.2.3 Consistent Navigation (AA)**: ✅ Navigation is consistent across pages
@@ -286,27 +286,32 @@ const Modal = ({ isOpen, onClose, children }: ModalProps) => {
 // ✅ Predictable interactions
 const TaskForm = ({ task, onSave }: TaskFormProps) => {
   const [formData, setFormData] = useState(task);
-  
+
   // Focus doesn't trigger form submission
   const handleFocus = (field: string) => {
     // Only provide helpful hints, no actions
     showFieldHelp(field);
   };
-  
+
   // Input validation doesn't change context
   const handleChange = (field: string, value: any) => {
     setFormData({ ...formData, [field]: value });
     // Validate but don't auto-submit or redirect
     validateField(field, value);
   };
-  
+
   return (
-    <form onSubmit={(e) => { e.preventDefault(); onSave(formData); }}>
+    <form
+      onSubmit={e => {
+        e.preventDefault();
+        onSave(formData);
+      }}
+    >
       <label>
         Task Title:
         <input
           value={formData.title}
-          onChange={(e) => handleChange('title', e.target.value)}
+          onChange={e => handleChange('title', e.target.value)}
           onFocus={() => handleFocus('title')}
         />
       </label>
@@ -317,6 +322,7 @@ const TaskForm = ({ task, onSave }: TaskFormProps) => {
 ```
 
 #### 3.3 Input Assistance
+
 - **3.3.1 Error Identification (A)**: ✅ Errors are clearly identified
 - **3.3.2 Labels or Instructions (A)**: ✅ Form elements have labels/instructions
 - **3.3.3 Error Suggestion (AA)**: ✅ Error correction suggestions provided
@@ -324,38 +330,32 @@ const TaskForm = ({ task, onSave }: TaskFormProps) => {
 
 ```tsx
 // ✅ Comprehensive form validation
-const FormField = ({ 
-  label, 
-  value, 
-  onChange, 
-  validation,
-  required = false 
-}: FormFieldProps) => {
+const FormField = ({ label, value, onChange, validation, required = false }: FormFieldProps) => {
   const [error, setError] = useState<string>();
   const [touched, setTouched] = useState(false);
-  
+
   const validateField = (inputValue: string) => {
     if (required && !inputValue.trim()) {
       return 'This field is required';
     }
-    
+
     if (validation) {
       const result = validation(inputValue);
       return result.error;
     }
-    
+
     return null;
   };
-  
+
   const handleBlur = () => {
     setTouched(true);
     const errorMessage = validateField(value);
     setError(errorMessage);
   };
-  
+
   const fieldId = `field-${label.toLowerCase().replace(/\s+/g, '-')}`;
   const errorId = `${fieldId}-error`;
-  
+
   return (
     <div className="form-field">
       <label htmlFor={fieldId}>
@@ -365,7 +365,7 @@ const FormField = ({
       <input
         id={fieldId}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={e => onChange(e.target.value)}
         onBlur={handleBlur}
         aria-invalid={touched && error ? 'true' : 'false'}
         aria-describedby={error ? errorId : undefined}
@@ -384,6 +384,7 @@ const FormField = ({
 ### Principle 4: Robust
 
 #### 4.1 Compatible
+
 - **4.1.1 Parsing (A)**: ✅ Valid HTML markup
 - **4.1.2 Name, Role, Value (A)**: ✅ Proper ARIA implementation
 - **4.1.3 Status Messages (AA)**: ✅ Status messages programmatically determined
@@ -392,7 +393,7 @@ const FormField = ({
 // ✅ Proper ARIA implementation
 const TaskStatus = ({ status, onStatusChange }: TaskStatusProps) => {
   const [isChanging, setIsChanging] = useState(false);
-  
+
   const handleStatusChange = async (newStatus: TaskStatus) => {
     setIsChanging(true);
     try {
@@ -404,13 +405,13 @@ const TaskStatus = ({ status, onStatusChange }: TaskStatusProps) => {
       setIsChanging(false);
     }
   };
-  
+
   return (
     <div role="group" aria-labelledby="status-label">
       <span id="status-label">Task Status:</span>
       <select
         value={status}
-        onChange={(e) => handleStatusChange(e.target.value as TaskStatus)}
+        onChange={e => handleStatusChange(e.target.value as TaskStatus)}
         aria-describedby="status-help"
         disabled={isChanging}
       >
@@ -437,9 +438,9 @@ const announceToScreenReader = (message: string) => {
   announcement.setAttribute('aria-atomic', 'true');
   announcement.className = 'sr-only';
   announcement.textContent = message;
-  
+
   document.body.appendChild(announcement);
-  
+
   setTimeout(() => {
     document.body.removeChild(announcement);
   }, 1000);
@@ -449,6 +450,7 @@ const announceToScreenReader = (message: string) => {
 ## 🧪 Testing Procedures
 
 ### Automated Testing
+
 ```tsx
 // jest-axe integration
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -460,21 +462,22 @@ describe('Accessibility Tests', () => {
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
-  
+
   test('Dashboard navigation is keyboard accessible', () => {
     render(<Dashboard />);
-    
+
     // Test tab order
-    const focusableElements = screen.getAllByRole('button')
+    const focusableElements = screen
+      .getAllByRole('button')
       .concat(screen.getAllByRole('link'))
       .concat(screen.getAllByRole('textbox'));
-    
+
     focusableElements.forEach((element, index) => {
       if (index === 0) {
         element.focus();
         expect(document.activeElement).toBe(element);
       }
-      
+
       fireEvent.keyDown(element, { key: 'Tab' });
       if (index < focusableElements.length - 1) {
         expect(document.activeElement).toBe(focusableElements[index + 1]);
@@ -487,8 +490,9 @@ describe('Accessibility Tests', () => {
 ### Manual Testing Checklist
 
 #### Screen Reader Testing
+
 - [ ] Test with NVDA (Windows)
-- [ ] Test with JAWS (Windows)  
+- [ ] Test with JAWS (Windows)
 - [ ] Test with VoiceOver (macOS)
 - [ ] Test with Orca (Linux)
 - [ ] Verify all content is announced correctly
@@ -496,6 +500,7 @@ describe('Accessibility Tests', () => {
 - [ ] Validate form error announcements
 
 #### Keyboard Navigation Testing
+
 - [ ] Tab through all interactive elements
 - [ ] Verify focus indicators are visible
 - [ ] Test skip links functionality
@@ -503,6 +508,7 @@ describe('Accessibility Tests', () => {
 - [ ] Check custom keyboard shortcuts work
 
 #### Visual Testing
+
 - [ ] Test at 200% zoom level
 - [ ] Verify text spacing modifications don't break layout
 - [ ] Check high contrast mode compatibility
@@ -516,14 +522,14 @@ describe('Accessibility Tests', () => {
 :root {
   /* Text on white background - 7.2:1 ratio */
   --text-primary: #111827;
-  
+
   /* Text on light backgrounds - 4.8:1 ratio */
   --text-secondary: #374151;
-  
+
   /* Interactive elements - minimum 3:1 for UI components */
   --button-primary-bg: #3b82f6;
   --button-primary-text: #ffffff; /* 4.5:1 ratio */
-  
+
   /* Status colors with sufficient contrast */
   --success-bg: #d1fae5;
   --success-text: #065f46; /* 8.2:1 ratio */
@@ -537,20 +543,21 @@ describe('Accessibility Tests', () => {
 ## 📊 Compliance Monitoring
 
 ### Accessibility Metrics Dashboard
+
 ```tsx
 const AccessibilityMetrics = () => {
   const [metrics, setMetrics] = useState({
     contrastViolations: 0,
     keyboardIssues: 0,
     ariaErrors: 0,
-    structureProblems: 0
+    structureProblems: 0,
   });
-  
+
   useEffect(() => {
     // Run automated accessibility audit
     runA11yAudit().then(setMetrics);
   }, []);
-  
+
   return (
     <div className="metrics-dashboard">
       <h2>Accessibility Compliance Status</h2>
@@ -575,6 +582,7 @@ const AccessibilityMetrics = () => {
 ```
 
 ### Continuous Integration
+
 ```yaml
 # .github/workflows/accessibility.yml
 name: Accessibility Testing
@@ -585,21 +593,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Build application
         run: npm run build
-        
+
       - name: Run accessibility tests
         run: npm run test:a11y
-        
+
       - name: Run Lighthouse CI
         run: |
           npm install -g @lhci/cli
           lhci autorun
-        
+
       - name: Upload accessibility report
         uses: actions/upload-artifact@v2
         with:
@@ -612,6 +620,7 @@ jobs:
 ### Common Issues and Solutions
 
 #### Low Color Contrast
+
 ```tsx
 // ❌ Poor contrast
 <button className="bg-gray-300 text-gray-400">
@@ -625,6 +634,7 @@ jobs:
 ```
 
 #### Missing Form Labels
+
 ```tsx
 // ❌ Missing label association
 <input type="text" placeholder="Enter task title" />
@@ -632,15 +642,16 @@ jobs:
 // ✅ Proper label association
 <label htmlFor="task-title">
   Task Title:
-  <input 
+  <input
     id="task-title"
-    type="text" 
+    type="text"
     placeholder="Enter a descriptive title for your task"
   />
 </label>
 ```
 
 #### Improper Heading Structure
+
 ```tsx
 // ❌ Skipped heading levels
 <h1>Dashboard</h1>
@@ -655,18 +666,21 @@ jobs:
 ## 📚 Resources and Tools
 
 ### Testing Tools
+
 - **axe-core**: Automated accessibility testing
 - **Lighthouse**: Performance and accessibility audits
 - **WAVE**: Web accessibility evaluation
 - **Color Contrast Analyzers**: TPGI, WebAIM tools
 
 ### Screen Readers
+
 - **NVDA**: Free screen reader for Windows
 - **JAWS**: Professional screen reader for Windows
 - **VoiceOver**: Built-in macOS screen reader
 - **Orca**: Linux screen reader
 
 ### Documentation References
+
 - [WCAG 2.2 Guidelines](https://www.w3.org/WAI/WCAG22/quickref/)
 - [ARIA Authoring Practices Guide](https://www.w3.org/WAI/ARIA/apg/)
 - [WebAIM Articles](https://webaim.org/articles/)

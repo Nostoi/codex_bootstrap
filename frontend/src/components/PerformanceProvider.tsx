@@ -5,9 +5,27 @@
 
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
-import type { PerformanceMetrics, RenderMetrics, InteractionMetrics } from '@/hooks/usePerformanceMonitor';
+import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
+import { PerformanceErrorBoundary } from './PerformanceErrorBoundary';
+
+interface RenderMetrics {
+  slowRenders: number;
+  averageTime: number;
+  count: number;
+}
+
+interface InteractionMetrics {
+  avgResponseTime: number;
+  slowInteractions: number;
+  totalInteractions: number;
+}
+
+interface PerformanceMetrics {
+  lcp?: number;
+  fid?: number;
+  cls?: number;
+  memoryInfo?: any;
+}
 
 interface PerformanceContextType {
   metrics: PerformanceMetrics | null;
@@ -38,74 +56,16 @@ interface PerformanceProviderProps {
 }
 
 export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({ children }) => {
-  const {
-    metrics,
-    renderMetrics,
-    interactionMetrics,
-    isSlowDevice,
-    clearMetrics: clearPerformanceMetrics,
-  } = usePerformanceMonitor();
-
+  // Simple state management without complex hook dependencies
   const [showPerformanceWarning, setShowPerformanceWarning] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isDebugMode, setIsDebugMode] = useState(false);
-  const [hasShownWarning, setHasShownWarning] = useState(false);
 
-  // Analyze performance and generate suggestions
-  useEffect(() => {
-    if (!metrics) return;
-
-    const newSuggestions: string[] = [];
-    let shouldShowWarning = false;
-
-    // Check Core Web Vitals
-    if (metrics.lcp && metrics.lcp > 2500) {
-      newSuggestions.push('Large Contentful Paint is slow. Consider optimizing images and fonts.');
-      shouldShowWarning = true;
-    }
-
-    if (metrics.fid && metrics.fid > 100) {
-      newSuggestions.push('First Input Delay is high. Consider reducing JavaScript execution time.');
-      shouldShowWarning = true;
-    }
-
-    if (metrics.cls && metrics.cls > 0.1) {
-      newSuggestions.push('Cumulative Layout Shift is high. Ensure elements have stable layouts.');
-      shouldShowWarning = true;
-    }
-
-    // Check render performance
-    if (renderMetrics?.slowRenders && renderMetrics.slowRenders > 5) {
-      newSuggestions.push('Multiple slow renders detected. Consider using React.memo or useMemo.');
-      shouldShowWarning = true;
-    }
-
-    // Check interaction performance
-    if (interactionMetrics?.avgResponseTime && interactionMetrics.avgResponseTime > 100) {
-      newSuggestions.push('Interaction responses are slow. Consider debouncing user inputs.');
-      shouldShowWarning = true;
-    }
-
-    // Check memory usage
-    if (metrics.memoryInfo && metrics.memoryInfo.usedJSHeapSize > 100 * 1024 * 1024) { // 100MB
-      newSuggestions.push('High memory usage detected. Consider cleanup in useEffect hooks.');
-      shouldShowWarning = true;
-    }
-
-    // ADHD-specific optimizations
-    if (isSlowDevice) {
-      newSuggestions.push('Slow device detected. Enabling performance mode for better ADHD experience.');
-      shouldShowWarning = true;
-    }
-
-    setSuggestions(newSuggestions);
-
-    // Show warning only once per session for ADHD users (avoid overwhelming)
-    if (shouldShowWarning && !hasShownWarning) {
-      setShowPerformanceWarning(true);
-      setHasShownWarning(true);
-    }
-  }, [metrics, renderMetrics, interactionMetrics, isSlowDevice, hasShownWarning]);
+  // Provide safe default values
+  const metrics = null; // Keep it simple for now
+  const renderMetrics = { slowRenders: 0, averageTime: 0, count: 0 };
+  const interactionMetrics = { avgResponseTime: 0, slowInteractions: 0, totalInteractions: 0 };
+  const isSlowDevice = false;
 
   // Auto-dismiss warning after 10 seconds (ADHD-friendly)
   useEffect(() => {
@@ -132,59 +92,75 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({ childr
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const dismissWarning = () => {
+  const dismissWarning = useCallback(() => {
     setShowPerformanceWarning(false);
-  };
+  }, []);
 
-  const clearMetrics = () => {
-    clearPerformanceMetrics();
+  const clearMetrics = useCallback(() => {
     setSuggestions([]);
-    setHasShownWarning(false);
-  };
+  }, []);
 
-  const enableDebugMode = () => {
+  const enableDebugMode = useCallback(() => {
     setIsDebugMode(true);
-  };
+  }, []);
 
-  const disableDebugMode = () => {
+  const disableDebugMode = useCallback(() => {
     setIsDebugMode(false);
-  };
+  }, []);
 
-  const contextValue: PerformanceContextType = {
-    metrics,
-    renderMetrics,
-    interactionMetrics,
-    isSlowDevice,
-    showPerformanceWarning,
-    suggestions,
-    dismissWarning,
-    clearMetrics,
-    enableDebugMode,
-    disableDebugMode,
-    isDebugMode,
-  };
+  // Memoize context value to prevent unnecessary re-renders
+  const contextValue: PerformanceContextType = useMemo(
+    () => ({
+      metrics,
+      renderMetrics,
+      interactionMetrics,
+      isSlowDevice,
+      showPerformanceWarning,
+      suggestions,
+      dismissWarning,
+      clearMetrics,
+      enableDebugMode,
+      disableDebugMode,
+      isDebugMode,
+    }),
+    [
+      metrics,
+      renderMetrics,
+      interactionMetrics,
+      isSlowDevice,
+      showPerformanceWarning,
+      suggestions,
+      dismissWarning,
+      clearMetrics,
+      enableDebugMode,
+      disableDebugMode,
+      isDebugMode,
+    ]
+  );
 
   return (
-    <PerformanceContext.Provider value={contextValue}>
-      {children}
-      {/* Performance warning notification */}
-      {showPerformanceWarning && suggestions.length > 0 && (
-        <PerformanceWarning
-          suggestions={suggestions}
-          onDismiss={dismissWarning}
-          isSlowDevice={isSlowDevice}
-        />
-      )}
-      {/* Debug mode overlay */}
-      {isDebugMode && (
-        <PerformanceDebugOverlay
-          metrics={metrics}
-          renderMetrics={renderMetrics}
-          interactionMetrics={interactionMetrics}
-          onClose={disableDebugMode}
-        />
-      )}
-    </PerformanceContext.Provider>
+    <PerformanceErrorBoundary>
+      <PerformanceContext.Provider value={contextValue}>
+        {children}
+        {/* Performance warning notification */}
+        {showPerformanceWarning && suggestions.length > 0 && (
+          <PerformanceWarning
+            suggestions={suggestions}
+            onDismiss={dismissWarning}
+            isSlowDevice={isSlowDevice}
+          />
+        )}
+        {/* Debug mode overlay */}
+        {isDebugMode && (
+          <PerformanceDebugOverlay
+            metrics={metrics}
+            renderMetrics={renderMetrics}
+            interactionMetrics={interactionMetrics}
+            onClose={disableDebugMode}
+          />
+        )}
+      </PerformanceContext.Provider>
+    </PerformanceErrorBoundary>
   );
 };
 
@@ -201,8 +177,12 @@ const PerformanceWarning: React.FC<{
       <div className="flex items-start space-x-3">
         <div className="flex-shrink-0">
           <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+            />
           </svg>
         </div>
         <div className="flex-1">
@@ -214,9 +194,7 @@ const PerformanceWarning: React.FC<{
               <p key={index}>• {suggestion}</p>
             ))}
             {suggestions.length > 2 && (
-              <p className="text-yellow-700">
-                + {suggestions.length - 2} more suggestions
-              </p>
+              <p className="text-yellow-700">+ {suggestions.length - 2} more suggestions</p>
             )}
           </div>
           <p className="text-xs text-yellow-700 mt-2">
@@ -229,7 +207,12 @@ const PerformanceWarning: React.FC<{
           aria-label="Dismiss notification"
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>
@@ -257,7 +240,12 @@ const PerformanceDebugOverlay: React.FC<{
             aria-label="Close debug overlay"
           >
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -269,19 +257,25 @@ const PerformanceDebugOverlay: React.FC<{
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded">
                 <div className="font-medium">LCP</div>
-                <div className={`text-lg ${(metrics?.lcp || 0) > 2500 ? 'text-red-500' : 'text-green-500'}`}>
+                <div
+                  className={`text-lg ${(metrics?.lcp || 0) > 2500 ? 'text-red-500' : 'text-green-500'}`}
+                >
                   {metrics?.lcp ? `${Math.round(metrics.lcp)}ms` : 'N/A'}
                 </div>
               </div>
               <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded">
                 <div className="font-medium">FID</div>
-                <div className={`text-lg ${(metrics?.fid || 0) > 100 ? 'text-red-500' : 'text-green-500'}`}>
+                <div
+                  className={`text-lg ${(metrics?.fid || 0) > 100 ? 'text-red-500' : 'text-green-500'}`}
+                >
                   {metrics?.fid ? `${Math.round(metrics.fid)}ms` : 'N/A'}
                 </div>
               </div>
               <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded">
                 <div className="font-medium">CLS</div>
-                <div className={`text-lg ${(metrics?.cls || 0) > 0.1 ? 'text-red-500' : 'text-green-500'}`}>
+                <div
+                  className={`text-lg ${(metrics?.cls || 0) > 0.1 ? 'text-red-500' : 'text-green-500'}`}
+                >
                   {metrics?.cls ? metrics.cls.toFixed(3) : 'N/A'}
                 </div>
               </div>
@@ -294,11 +288,13 @@ const PerformanceDebugOverlay: React.FC<{
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded">
                 <div className="font-medium">Total Renders</div>
-                <div className="text-lg">{renderMetrics?.totalRenders || 0}</div>
+                <div className="text-lg">{renderMetrics?.count || 0}</div>
               </div>
               <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded">
                 <div className="font-medium">Slow Renders</div>
-                <div className={`text-lg ${(renderMetrics?.slowRenders || 0) > 5 ? 'text-red-500' : 'text-green-500'}`}>
+                <div
+                  className={`text-lg ${(renderMetrics?.slowRenders || 0) > 5 ? 'text-red-500' : 'text-green-500'}`}
+                >
                   {renderMetrics?.slowRenders || 0}
                 </div>
               </div>
@@ -315,7 +311,9 @@ const PerformanceDebugOverlay: React.FC<{
               </div>
               <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded">
                 <div className="font-medium">Avg Response Time</div>
-                <div className={`text-lg ${(interactionMetrics?.avgResponseTime || 0) > 100 ? 'text-red-500' : 'text-green-500'}`}>
+                <div
+                  className={`text-lg ${(interactionMetrics?.avgResponseTime || 0) > 100 ? 'text-red-500' : 'text-green-500'}`}
+                >
                   {Math.round(interactionMetrics?.avgResponseTime || 0)}ms
                 </div>
               </div>

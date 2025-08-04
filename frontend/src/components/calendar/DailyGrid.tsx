@@ -35,7 +35,7 @@ export const DailyGrid: React.FC<DailyGridProps> = ({
   const { handlers } = useDragAndDrop({
     adhdSettings,
     onEventMove,
-    onConflictDetected: (conflicts) => {
+    onConflictDetected: conflicts => {
       console.warn('Calendar conflicts detected:', conflicts);
     },
   });
@@ -44,25 +44,25 @@ export const DailyGrid: React.FC<DailyGridProps> = ({
   const timeSlots = useMemo(() => {
     const slots = [];
     const targetDate = new Date(currentDate.year, currentDate.month - 1, currentDate.day);
-    
+
     for (let hour = 0; hour < 24; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
         const slotStart = new Date(targetDate);
         slotStart.setHours(hour, minute, 0, 0);
-        
+
         const slotEnd = new Date(slotStart);
         slotEnd.setMinutes(slotEnd.getMinutes() + 30);
-        
+
         slots.push({
           id: `slot-${hour}-${minute}`,
           startTime: slotStart,
           endTime: slotEnd,
           hour,
           minute,
-          label: slotStart.toLocaleTimeString('en-US', { 
-            hour: 'numeric', 
-            minute: '2-digit', 
-            hour12: true 
+          label: slotStart.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
           }),
         });
       }
@@ -73,27 +73,27 @@ export const DailyGrid: React.FC<DailyGridProps> = ({
   // Group events by time slot
   const eventsInSlots = useMemo(() => {
     const slotEvents: { [key: string]: CalendarEvent[] } = {};
-    
+
     events.forEach(event => {
       const startTime = new Date(event.startTime);
       const hour = startTime.getHours();
       const minute = Math.floor(startTime.getMinutes() / 30) * 30;
       const slotId = `slot-${hour}-${minute}`;
-      
+
       if (!slotEvents[slotId]) {
         slotEvents[slotId] = [];
       }
       slotEvents[slotId].push(event);
     });
-    
+
     return slotEvents;
   }, [events]);
 
   // Determine energy level for time slot based on user patterns
   const getSlotEnergyLevel = useCallback((hour: number): 'HIGH' | 'MEDIUM' | 'LOW' => {
-    if (hour >= 6 && hour < 12) return 'HIGH';    // Morning
-    if (hour >= 12 && hour < 18) return 'MEDIUM'; // Afternoon  
-    return 'LOW';                                  // Evening/Night
+    if (hour >= 6 && hour < 12) return 'HIGH'; // Morning
+    if (hour >= 12 && hour < 18) return 'MEDIUM'; // Afternoon
+    return 'LOW'; // Evening/Night
   }, []);
 
   // Check if time slot is in working hours
@@ -106,14 +106,17 @@ export const DailyGrid: React.FC<DailyGridProps> = ({
     const now = new Date();
     const slotEnd = new Date(slotTime);
     slotEnd.setMinutes(slotEnd.getMinutes() + 30);
-    
+
     return now >= slotTime && now < slotEnd;
   }, []);
 
   // Handle time slot click
-  const handleTimeSlotClick = useCallback((startTime: Date) => {
-    onTimeSlotClick?.(startTime);
-  }, [onTimeSlotClick]);
+  const handleTimeSlotClick = useCallback(
+    (startTime: Date) => {
+      onTimeSlotClick?.(startTime);
+    },
+    [onTimeSlotClick]
+  );
 
   // Wrapper content for drag and drop
   const gridContent = (
@@ -121,12 +124,15 @@ export const DailyGrid: React.FC<DailyGridProps> = ({
       {/* Date Header */}
       <div className="sticky top-0 z-10 bg-base-100 border-b border-base-300 p-4">
         <h3 className="text-lg font-semibold">
-          {new Date(currentDate.year, currentDate.month - 1, currentDate.day).toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          })}
+          {new Date(currentDate.year, currentDate.month - 1, currentDate.day).toLocaleDateString(
+            'en-US',
+            {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            }
+          )}
         </h3>
         <p className="text-sm text-base-content/70">
           {events.length} event{events.length !== 1 ? 's' : ''} scheduled
@@ -141,7 +147,7 @@ export const DailyGrid: React.FC<DailyGridProps> = ({
             {events
               .filter(e => e.isAllDay)
               .slice(0, maxEventsPerSlot)
-              .map((event) => (
+              .map(event => (
                 <div
                   key={event.id}
                   className="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-base-200 transition-colors"
@@ -156,7 +162,7 @@ export const DailyGrid: React.FC<DailyGridProps> = ({
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-sm truncate">{event.title}</div>
                     {event.focusType && (
-                      <div 
+                      <div
                         className="text-xs font-medium"
                         style={{ color: calendarTokens.colors.focusTypes[event.focusType].primary }}
                       >
@@ -173,7 +179,7 @@ export const DailyGrid: React.FC<DailyGridProps> = ({
 
       {/* Time Grid with Drag and Drop */}
       <div className="time-grid flex-1 overflow-y-auto" role="grid" {...ariaProps}>
-        {timeSlots.map((slot) => {
+        {timeSlots.map(slot => {
           const slotEvents = eventsInSlots[slot.id]?.filter(e => !e.isAllDay) || [];
           const energyLevel = getSlotEnergyLevel(slot.hour);
           const isWorkingTime = isWorkingHours(slot.hour);
@@ -194,7 +200,7 @@ export const DailyGrid: React.FC<DailyGridProps> = ({
               isWorkingHours={isWorkingTime}
               className="border-b border-base-200"
               style={{
-                backgroundColor: isCurrentSlot 
+                backgroundColor: isCurrentSlot
                   ? calendarTokens.colors.energyLevels[energyLevel].secondary
                   : undefined,
                 borderLeftColor: calendarTokens.colors.energyLevels[energyLevel].primary,

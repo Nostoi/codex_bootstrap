@@ -31,6 +31,7 @@ This document outlines the comprehensive security implementation for Codex Boots
 ### Container Hardening
 
 #### Backend Container (`codex-backend`)
+
 - **Base Image**: `node:20-alpine` (minimal attack surface)
 - **User**: Non-root user `nestjs` (UID: 1001)
 - **Capabilities**: Dropped ALL, added only necessary ones (CHOWN, SETGID, SETUID)
@@ -38,12 +39,14 @@ This document outlines the comprehensive security implementation for Codex Boots
 - **Security Labels**: Enabled for tracking and compliance
 
 #### Frontend Container (`codex-frontend`)
+
 - **Base Image**: `node:20-alpine`
-- **User**: Non-root user `nextjs` (UID: 1001) 
+- **User**: Non-root user `nextjs` (UID: 1001)
 - **Capabilities**: Dropped ALL
 - **Optimizations**: Multi-stage build with standalone output
 
 #### Database Container (`db`)
+
 - **Base Image**: `postgres:15-alpine`
 - **User**: Non-root postgres user (UID: 999)
 - **Secrets**: External secrets management
@@ -52,14 +55,16 @@ This document outlines the comprehensive security implementation for Codex Boots
 ### Network Security
 
 #### Network Segmentation
+
 ```yaml
 # Three isolated networks:
 - secure_backend: Backend services communication
-- secure_frontend: Frontend and proxy communication  
+- secure_frontend: Frontend and proxy communication
 - monitoring: Security monitoring traffic
 ```
 
 #### Nginx Security Proxy
+
 - **Security Headers**: Comprehensive HTTP security headers
 - **Rate Limiting**: Protection against DoS attacks
 - **Content Security Policy**: Strict CSP implementation
@@ -68,11 +73,13 @@ This document outlines the comprehensive security implementation for Codex Boots
 ### Secrets Management
 
 #### Docker Secrets
+
 - Database credentials stored as Docker secrets
 - File-based secrets with proper permissions (600)
 - Runtime secret injection (no secrets in images)
 
 #### Environment Variables
+
 - No sensitive data in environment variables
 - Secure configuration file mounting
 - Development vs production separation
@@ -80,12 +87,14 @@ This document outlines the comprehensive security implementation for Codex Boots
 ### Monitoring and Alerting
 
 #### Falco Runtime Security
+
 - Real-time threat detection
 - Container runtime monitoring
 - Custom rules for application-specific threats
 - Integration with security incident response
 
 #### Security Scanning
+
 - **Trivy**: Comprehensive vulnerability scanning
 - **Multi-scan types**: Vulnerabilities, secrets, misconfigurations
 - **Threshold enforcement**: Zero critical vulnerabilities in production
@@ -170,7 +179,7 @@ tail -f /var/log/falco/events.log
    - Unusual network patterns
    - Rate limiting effectiveness
 
-3. **Runtime Security**  
+3. **Runtime Security**
    - Privilege escalation attempts
    - Suspicious command execution
    - File system changes
@@ -178,7 +187,7 @@ tail -f /var/log/falco/events.log
 ### Alerting Thresholds
 
 - **CRITICAL**: Privilege escalation, exposed secrets
-- **HIGH**: Multiple failed authentications, unusual network activity  
+- **HIGH**: Multiple failed authentications, unusual network activity
 - **MEDIUM**: Configuration drift, policy violations
 - **LOW**: Resource limit warnings, performance issues
 
@@ -236,7 +245,7 @@ docker-compose exec nginx nginx -t
 ### Regular Tasks
 
 - **Daily**: Vulnerability scanning
-- **Weekly**: Security patch updates  
+- **Weekly**: Security patch updates
 - **Monthly**: Security policy review
 - **Quarterly**: Security architecture review
 
@@ -283,4 +292,4 @@ docker-compose exec nginx nginx -t
 
 ---
 
-*This security implementation provides enterprise-grade container security for the Codex Bootstrap application. Regular reviews and updates ensure continued protection against evolving threats.*
+_This security implementation provides enterprise-grade container security for the Codex Bootstrap application. Regular reviews and updates ensure continued protection against evolving threats._

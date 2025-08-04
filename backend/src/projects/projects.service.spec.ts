@@ -1,8 +1,8 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { ProjectsService } from "./projects.service";
-import { PrismaService } from "../prisma/prisma.service";
+import { Test, TestingModule } from '@nestjs/testing';
+import { ProjectsService } from './projects.service';
+import { PrismaService } from '../prisma/prisma.service';
 
-describe("ProjectsService", () => {
+describe('ProjectsService', () => {
   let service: ProjectsService;
   const mockPrisma = {
     project: {
@@ -16,21 +16,18 @@ describe("ProjectsService", () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ProjectsService,
-        { provide: PrismaService, useValue: mockPrisma },
-      ],
+      providers: [ProjectsService, { provide: PrismaService, useValue: mockPrisma }],
     }).compile();
 
     service = module.get<ProjectsService>(ProjectsService);
   });
 
-  it("should be defined", () => {
+  it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  it("should return all projects", async () => {
-    const projects = [{ id: "1", name: "Proj" }];
+  it('should return all projects', async () => {
+    const projects = [{ id: '1', name: 'Proj' }];
     mockPrisma.project.findMany.mockResolvedValue(projects);
     const result = await service.findAll();
     expect(result).toEqual(projects);

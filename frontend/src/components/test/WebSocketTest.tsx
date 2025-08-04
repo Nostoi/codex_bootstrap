@@ -19,12 +19,12 @@ export function WebSocketTest() {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">WebSocket Real-time Integration Test</h1>
-      
+
       {/* Connection Status */}
       <div className="mb-8">
         <h2 className="text-lg font-semibold mb-4">Connection Status</h2>
         <RealTimeStatus showDetails={true} className="mb-4" />
-        
+
         <button
           onClick={sendTestMessage}
           disabled={!isConnected}
@@ -43,22 +43,22 @@ export function WebSocketTest() {
         <h2 className="text-lg font-semibold mb-4">Notifications ({unreadCount} unread)</h2>
         <div className="border rounded-lg p-4">
           <NotificationsPanel />
-          
+
           {notifications.length === 0 ? (
             <p className="text-gray-500">No notifications yet</p>
           ) : (
             <div className="mt-4">
               <h3 className="font-medium mb-2">Recent notifications:</h3>
               <div className="space-y-2">
-                {notifications.slice(0, 3).map((notification) => (
+                {notifications.slice(0, 3).map(notification => (
                   <div
                     key={notification.id}
                     className={`p-2 rounded border-l-4 ${
                       notification.severity === 'urgent'
                         ? 'border-red-500 bg-red-50'
                         : notification.severity === 'high'
-                        ? 'border-orange-500 bg-orange-50'
-                        : 'border-blue-500 bg-blue-50'
+                          ? 'border-orange-500 bg-orange-50'
+                          : 'border-blue-500 bg-blue-50'
                     }`}
                   >
                     <div className="font-medium">{notification.title}</div>
@@ -82,7 +82,7 @@ export function WebSocketTest() {
             <p className="text-gray-500">No tasks found</p>
           ) : (
             <div className="space-y-2">
-              {tasks.slice(0, 5).map((task) => (
+              {tasks.slice(0, 5).map(task => (
                 <div
                   key={task.id}
                   className="p-3 border rounded-lg flex items-center justify-between"
@@ -93,9 +93,7 @@ export function WebSocketTest() {
                       Status: {task.status} | Priority: {task.priority}
                     </div>
                   </div>
-                  <div className="text-xs text-gray-400">
-                    {task.updatedAt}
-                  </div>
+                  <div className="text-xs text-gray-400">{task.updatedAt}</div>
                 </div>
               ))}
             </div>

@@ -5,23 +5,20 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Dashboard from '../ui/Dashboard';
 
 // Create a test query client
-const createTestQueryClient = () => new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-      staleTime: Infinity,
+const createTestQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        staleTime: Infinity,
+      },
     },
-  },
-});
+  });
 
 // Test wrapper component
 const TestWrapper = ({ children }: { children: React.ReactNode }) => {
   const queryClient = createTestQueryClient();
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  );
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 };
 
 // Mock the API hooks
@@ -62,11 +59,7 @@ vi.mock('../ui/FilterBar', () => ({
 }));
 
 vi.mock('../ui/TaskCard', () => ({
-  default: ({ task }: any) => (
-    <div data-testid={`task-card-${task.id}`}>
-      Task: {task.title}
-    </div>
-  ),
+  default: ({ task }: any) => <div data-testid={`task-card-${task.id}`}>Task: {task.title}</div>,
 }));
 
 describe('Enhanced Dashboard - Simple Tests', () => {

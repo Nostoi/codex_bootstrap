@@ -5,18 +5,18 @@
  */
 
 import { useEffect, useRef, useCallback } from 'react';
-import { 
-  FocusTrap, 
-  LiveAnnouncer, 
+import {
+  FocusTrap,
+  LiveAnnouncer,
   KeyboardNavigator,
   useAccessibilityPreferences,
   useFocusTrap,
-  useScreenReaderAnnounce
+  useScreenReaderAnnounce,
 } from '../lib/accessibility';
-import { 
+import {
   KeyboardNavigationManager,
   useKeyboardNavigation,
-  useGlobalKeyboardShortcuts
+  useGlobalKeyboardShortcuts,
 } from '../lib/keyboard-navigation';
 import { ARIA_ROLES, ARIA_PROPERTIES, KEYBOARD_SHORTCUTS } from '../lib/aria-constants';
 import { CalendarViewType, CalendarDate, CalendarEvent } from '../types/calendar';
@@ -36,7 +36,7 @@ export const CALENDAR_KEYBOARD_SHORTCUTS = {
   GRID_UP: ['ArrowUp'],
   GRID_DOWN: ['ArrowDown'],
   GRID_LEFT: ['ArrowLeft'],
-  GRID_RIGHT: ['ArrowRight']
+  GRID_RIGHT: ['ArrowRight'],
 } as const;
 
 // ARIA roles and properties for calendar
@@ -50,23 +50,23 @@ export const CALENDAR_ARIA = {
   OPTION: 'option',
   REGION: 'region',
   BANNER: 'banner',
-  NAVIGATION: 'navigation'
+  NAVIGATION: 'navigation',
 } as const;
 
 // Screen reader announcements for calendar actions
 export const CALENDAR_ANNOUNCEMENTS = {
   VIEW_CHANGED: (view: CalendarViewType) => `Switched to ${view} view`,
   DATE_CHANGED: (date: Date) => `Navigated to ${formatDateForScreenReader(date)}`,
-  EVENT_SELECTED: (event: CalendarEvent) => 
+  EVENT_SELECTED: (event: CalendarEvent) =>
     `Selected event: ${event.title} from ${formatTimeForScreenReader(event.startTime)} to ${formatTimeForScreenReader(event.endTime)}`,
-  EVENT_MOVED: (event: CalendarEvent, newTime: Date) => 
+  EVENT_MOVED: (event: CalendarEvent, newTime: Date) =>
     `Event ${event.title} moved to ${formatTimeForScreenReader(newTime)}`,
   LOADING_STARTED: 'Loading calendar events',
   LOADING_FINISHED: 'Calendar events loaded',
   ERROR_OCCURRED: 'Error loading calendar. Please try again.',
   TODAY_NAVIGATED: 'Navigated to today',
   CONFLICT_DETECTED: (eventTitle: string) => `Scheduling conflict detected for ${eventTitle}`,
-  TIME_SLOT_SELECTED: (time: Date) => `Selected time slot: ${formatTimeForScreenReader(time)}`
+  TIME_SLOT_SELECTED: (time: Date) => `Selected time slot: ${formatTimeForScreenReader(time)}`,
 } as const;
 
 // Format date for screen reader announcements
@@ -75,7 +75,7 @@ export function formatDateForScreenReader(date: Date): string {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
   });
 }
 
@@ -84,7 +84,7 @@ export function formatTimeForScreenReader(date: Date): string {
   return date.toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
-    hour12: true
+    hour12: true,
   });
 }
 
@@ -95,22 +95,22 @@ export function generateCalendarInstructions(view: CalendarViewType): string {
     'Press Enter or Space to select an event or time slot.',
     'Press Escape to cancel current action.',
     'Press Home to go to today.',
-    'Press 1 for daily view, 2 for weekly view, 3 for monthly view.'
+    'Press 1 for daily view, 2 for weekly view, 3 for monthly view.',
   ];
 
   const viewSpecific = {
     daily: [
       'Use Up and Down arrows to navigate between time slots.',
-      'Use Shift+Home to go to first event, Shift+End to go to last event.'
+      'Use Shift+Home to go to first event, Shift+End to go to last event.',
     ],
     weekly: [
       'Use arrow keys to navigate between days and time slots.',
-      'Left and Right arrows change days, Up and Down change time slots.'
+      'Left and Right arrows change days, Up and Down change time slots.',
     ],
     monthly: [
       'Use arrow keys to navigate between dates.',
-      'Press Enter on a date to view that day in detail.'
-    ]
+      'Press Enter on a date to view that day in detail.',
+    ],
   };
 
   return [...baseInstructions, ...viewSpecific[view]].join(' ');
@@ -123,41 +123,62 @@ export function useCalendarAccessibility() {
   const preferences = useAccessibilityPreferences();
 
   // Announce calendar state changes
-  const announceViewChange = useCallback((view: CalendarViewType) => {
-    announce(CALENDAR_ANNOUNCEMENTS.VIEW_CHANGED(view), 'polite');
-  }, [announce]);
+  const announceViewChange = useCallback(
+    (view: CalendarViewType) => {
+      announce(CALENDAR_ANNOUNCEMENTS.VIEW_CHANGED(view), 'polite');
+    },
+    [announce]
+  );
 
-  const announceDateChange = useCallback((date: Date) => {
-    announce(CALENDAR_ANNOUNCEMENTS.DATE_CHANGED(date), 'polite');
-  }, [announce]);
+  const announceDateChange = useCallback(
+    (date: Date) => {
+      announce(CALENDAR_ANNOUNCEMENTS.DATE_CHANGED(date), 'polite');
+    },
+    [announce]
+  );
 
-  const announceEventSelection = useCallback((event: CalendarEvent) => {
-    announce(CALENDAR_ANNOUNCEMENTS.EVENT_SELECTED(event), 'polite');
-  }, [announce]);
+  const announceEventSelection = useCallback(
+    (event: CalendarEvent) => {
+      announce(CALENDAR_ANNOUNCEMENTS.EVENT_SELECTED(event), 'polite');
+    },
+    [announce]
+  );
 
-  const announceEventMove = useCallback((event: CalendarEvent, newTime: Date) => {
-    announce(CALENDAR_ANNOUNCEMENTS.EVENT_MOVED(event, newTime), 'polite');
-  }, [announce]);
+  const announceEventMove = useCallback(
+    (event: CalendarEvent, newTime: Date) => {
+      announce(CALENDAR_ANNOUNCEMENTS.EVENT_MOVED(event, newTime), 'polite');
+    },
+    [announce]
+  );
 
-  const announceLoading = useCallback((isLoading: boolean) => {
-    if (isLoading) {
-      announce(CALENDAR_ANNOUNCEMENTS.LOADING_STARTED, 'polite');
-    } else {
-      announce(CALENDAR_ANNOUNCEMENTS.LOADING_FINISHED, 'polite');
-    }
-  }, [announce]);
+  const announceLoading = useCallback(
+    (isLoading: boolean) => {
+      if (isLoading) {
+        announce(CALENDAR_ANNOUNCEMENTS.LOADING_STARTED, 'polite');
+      } else {
+        announce(CALENDAR_ANNOUNCEMENTS.LOADING_FINISHED, 'polite');
+      }
+    },
+    [announce]
+  );
 
   const announceError = useCallback(() => {
     announce(CALENDAR_ANNOUNCEMENTS.ERROR_OCCURRED, 'assertive');
   }, [announce]);
 
-  const announceConflict = useCallback((eventTitle: string) => {
-    announce(CALENDAR_ANNOUNCEMENTS.CONFLICT_DETECTED(eventTitle), 'assertive');
-  }, [announce]);
+  const announceConflict = useCallback(
+    (eventTitle: string) => {
+      announce(CALENDAR_ANNOUNCEMENTS.CONFLICT_DETECTED(eventTitle), 'assertive');
+    },
+    [announce]
+  );
 
-  const announceTimeSlotSelection = useCallback((time: Date) => {
-    announce(CALENDAR_ANNOUNCEMENTS.TIME_SLOT_SELECTED(time), 'polite');
-  }, [announce]);
+  const announceTimeSlotSelection = useCallback(
+    (time: Date) => {
+      announce(CALENDAR_ANNOUNCEMENTS.TIME_SLOT_SELECTED(time), 'polite');
+    },
+    [announce]
+  );
 
   return {
     announceViewChange,
@@ -168,7 +189,7 @@ export function useCalendarAccessibility() {
     announceError,
     announceConflict,
     announceTimeSlotSelection,
-    preferences
+    preferences,
   };
 }
 
@@ -184,7 +205,12 @@ export function useCalendarKeyboardNavigation(
   disabled: boolean = false
 ) {
   const keyboardManager = useRef<KeyboardNavigationManager>();
-  const { announceViewChange, announceDateChange, announceEventSelection, announceTimeSlotSelection } = useCalendarAccessibility();
+  const {
+    announceViewChange,
+    announceDateChange,
+    announceEventSelection,
+    announceTimeSlotSelection,
+  } = useCalendarAccessibility();
 
   // Initialize keyboard navigation manager
   useEffect(() => {
@@ -193,44 +219,47 @@ export function useCalendarKeyboardNavigation(
         enableArrowKeys: true,
         enableTabNavigation: true,
         enableTypeahead: false, // Calendar doesn't need typeahead
-        announceChanges: true
+        announceChanges: true,
       });
     }
   }, []);
 
   // Global keyboard shortcuts for calendar
-  useGlobalKeyboardShortcuts({
-    [KEYBOARD_SHORTCUTS.GLOBAL_SHORTCUTS.CALENDAR_PREVIOUS]: () => {
-      if (disabled) return;
-      onNavigate('previous');
+  useGlobalKeyboardShortcuts(
+    {
+      [KEYBOARD_SHORTCUTS.GLOBAL_SHORTCUTS.CALENDAR_PREVIOUS]: () => {
+        if (disabled) return;
+        onNavigate('previous');
+      },
+      [KEYBOARD_SHORTCUTS.GLOBAL_SHORTCUTS.CALENDAR_NEXT]: () => {
+        if (disabled) return;
+        onNavigate('next');
+      },
+      [KEYBOARD_SHORTCUTS.GLOBAL_SHORTCUTS.CALENDAR_TODAY]: () => {
+        if (disabled) return;
+        onNavigate('today');
+      },
+      [KEYBOARD_SHORTCUTS.GLOBAL_SHORTCUTS.CALENDAR_DAILY]: () => {
+        if (disabled) return;
+        onViewChange('daily');
+        announceViewChange('daily');
+      },
+      [KEYBOARD_SHORTCUTS.GLOBAL_SHORTCUTS.CALENDAR_WEEKLY]: () => {
+        if (disabled) return;
+        onViewChange('weekly');
+        announceViewChange('weekly');
+      },
+      [KEYBOARD_SHORTCUTS.GLOBAL_SHORTCUTS.CALENDAR_MONTHLY]: () => {
+        if (disabled) return;
+        onViewChange('monthly');
+        announceViewChange('monthly');
+      },
     },
-    [KEYBOARD_SHORTCUTS.GLOBAL_SHORTCUTS.CALENDAR_NEXT]: () => {
-      if (disabled) return;
-      onNavigate('next');
-    },
-    [KEYBOARD_SHORTCUTS.GLOBAL_SHORTCUTS.CALENDAR_TODAY]: () => {
-      if (disabled) return;
-      onNavigate('today');
-    },
-    [KEYBOARD_SHORTCUTS.GLOBAL_SHORTCUTS.CALENDAR_DAILY]: () => {
-      if (disabled) return;
-      onViewChange('daily');
-      announceViewChange('daily');
-    },
-    [KEYBOARD_SHORTCUTS.GLOBAL_SHORTCUTS.CALENDAR_WEEKLY]: () => {
-      if (disabled) return;
-      onViewChange('weekly');
-      announceViewChange('weekly');
-    },
-    [KEYBOARD_SHORTCUTS.GLOBAL_SHORTCUTS.CALENDAR_MONTHLY]: () => {
-      if (disabled) return;
-      onViewChange('monthly');
-      announceViewChange('monthly');
-    }
-  }, disabled);
+    disabled
+  );
 
   return {
-    keyboardManager: keyboardManager.current
+    keyboardManager: keyboardManager.current,
   };
 }
 
@@ -261,36 +290,42 @@ export function useCalendarFocusManagement(containerRef: React.RefObject<HTMLEle
   }, [containerRef]);
 
   // Set focus to specific event
-  const focusEvent = useCallback((eventId: string) => {
-    if (containerRef.current) {
-      const eventElement = containerRef.current.querySelector(
-        `[data-event-id="${eventId}"]`
-      ) as HTMLElement;
-      if (eventElement) {
-        eventElement.focus();
+  const focusEvent = useCallback(
+    (eventId: string) => {
+      if (containerRef.current) {
+        const eventElement = containerRef.current.querySelector(
+          `[data-event-id="${eventId}"]`
+        ) as HTMLElement;
+        if (eventElement) {
+          eventElement.focus();
+        }
       }
-    }
-  }, [containerRef]);
+    },
+    [containerRef]
+  );
 
   // Set focus to specific time slot
-  const focusTimeSlot = useCallback((time: Date) => {
-    if (containerRef.current) {
-      const timeString = time.toISOString();
-      const timeSlot = containerRef.current.querySelector(
-        `[data-time-slot="${timeString}"]`
-      ) as HTMLElement;
-      if (timeSlot) {
-        timeSlot.focus();
+  const focusTimeSlot = useCallback(
+    (time: Date) => {
+      if (containerRef.current) {
+        const timeString = time.toISOString();
+        const timeSlot = containerRef.current.querySelector(
+          `[data-time-slot="${timeString}"]`
+        ) as HTMLElement;
+        if (timeSlot) {
+          timeSlot.focus();
+        }
       }
-    }
-  }, [containerRef]);
+    },
+    [containerRef]
+  );
 
   return {
     focusFirstElement,
     focusGrid,
     focusEvent,
     focusTimeSlot,
-    ...focusTrap
+    ...focusTrap,
   };
 }
 
@@ -301,13 +336,16 @@ export function getCalendarAriaProps(
   isLoading: boolean = false,
   hasError: boolean = false
 ) {
-  const dateString = new Date(currentDate.year, currentDate.month - 1, currentDate.day)
-    .toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
+  const dateString = new Date(
+    currentDate.year,
+    currentDate.month - 1,
+    currentDate.day
+  ).toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 
   return {
     role: CALENDAR_ARIA.CALENDAR,
@@ -315,7 +353,7 @@ export function getCalendarAriaProps(
     'aria-busy': isLoading,
     'aria-invalid': hasError,
     'aria-describedby': 'calendar-instructions calendar-help',
-    tabIndex: 0
+    tabIndex: 0,
   };
 }
 
@@ -330,7 +368,7 @@ export function getCalendarGridAriaProps(
     'aria-label': `${view} calendar grid`,
     'aria-rowcount': rowCount,
     'aria-colcount': columnCount,
-    'aria-readonly': false
+    'aria-readonly': false,
   };
 }
 
@@ -352,7 +390,7 @@ export function getCalendarEventAriaProps(
     'aria-pressed': isSelected,
     'aria-disabled': isDragging,
     'data-event-id': event.id,
-    tabIndex: isSelected ? 0 : -1
+    tabIndex: isSelected ? 0 : -1,
   };
 }
 
@@ -364,7 +402,7 @@ export function getTimeSlotAriaProps(
   isSelected: boolean = false
 ) {
   const timeString = formatTimeForScreenReader(time);
-  const description = hasEvents 
+  const description = hasEvents
     ? `${timeString}, ${eventCount} event${eventCount === 1 ? '' : 's'}`
     : `${timeString}, available time slot`;
 
@@ -374,7 +412,7 @@ export function getTimeSlotAriaProps(
     'aria-selected': isSelected,
     'data-time-slot': time.toISOString(),
     tabIndex: isSelected ? 0 : -1,
-    'aria-describedby': hasEvents ? `timeslot-${time.getTime()}-events` : undefined
+    'aria-describedby': hasEvents ? `timeslot-${time.getTime()}-events` : undefined,
   };
 }
 
@@ -391,5 +429,5 @@ export default {
   formatTimeForScreenReader,
   CALENDAR_KEYBOARD_SHORTCUTS,
   CALENDAR_ARIA,
-  CALENDAR_ANNOUNCEMENTS
+  CALENDAR_ANNOUNCEMENTS,
 };

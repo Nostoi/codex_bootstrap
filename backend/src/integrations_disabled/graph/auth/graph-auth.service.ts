@@ -17,7 +17,7 @@ export class GraphAuthService {
   constructor(
     private configService: ConfigService,
     private prisma: PrismaService,
-    private graphConfig: GraphConfigService,
+    private graphConfig: GraphConfigService
   ) {
     this.initializeMsalClient();
   }
@@ -28,12 +28,12 @@ export class GraphAuthService {
   private initializeMsalClient(): void {
     try {
       const config = this.graphConfig.getMicrosoftGraphConfig();
-      
+
       this.msalClient = new ConfidentialClientApplication({
         auth: {
           clientId: config.clientId,
           clientSecret: config.clientSecret,
-          authority: config.tenantId 
+          authority: config.tenantId
             ? `https://login.microsoftonline.com/${config.tenantId}`
             : 'https://login.microsoftonline.com/common',
         },
@@ -63,7 +63,7 @@ export class GraphAuthService {
   async getAuthorizationUrl(userId: string, state?: string): Promise<string> {
     try {
       const config = this.graphConfig.getMicrosoftGraphConfig();
-      
+
       const authCodeUrlParameters = {
         scopes: [...ALL_CALENDAR_SCOPES],
         redirectUri: config.redirectUri,
@@ -71,7 +71,7 @@ export class GraphAuthService {
       };
 
       const response = await this.msalClient.getAuthCodeUrl(authCodeUrlParameters);
-      
+
       this.logger.log(`Generated authorization URL for user ${userId}`);
       return response;
     } catch (error) {
@@ -86,11 +86,11 @@ export class GraphAuthService {
   async exchangeCodeForTokens(
     code: string,
     userId: string,
-    state?: string,
+    state?: string
   ): Promise<AuthenticationResult> {
     try {
       const config = this.graphConfig.getMicrosoftGraphConfig();
-      
+
       const tokenRequest = {
         code,
         scopes: [...ALL_CALENDAR_SCOPES],
@@ -98,14 +98,14 @@ export class GraphAuthService {
       };
 
       const response = await this.msalClient.acquireTokenByCode(tokenRequest);
-      
+
       if (!response) {
         throw new Error('No token response received');
       }
 
       // Store tokens in database
       await this.storeTokens(userId, response);
-      
+
       this.logger.log(`Successfully exchanged code for tokens for user ${userId}`);
       return response;
     } catch (error) {
@@ -137,12 +137,14 @@ export class GraphAuthService {
       const now = new Date();
       const expiresAt = config.expiresAt;
 
-      if (!expiresAt || (expiresAt.getTime() - now.getTime()) < expirationBuffer) {
+      if (!expiresAt || expiresAt.getTime() - now.getTime() < expirationBuffer) {
         // Token is expired or about to expire, refresh it using MSAL silent flow
         if (config.refreshToken) {
           return await this.refreshAccessToken(userId, config.refreshToken);
         } else {
-          throw new UnauthorizedException('No account information available, re-authentication required');
+          throw new UnauthorizedException(
+            'No account information available, re-authentication required'
+          );
         }
       }
 
@@ -166,19 +168,19 @@ export class GraphAuthService {
       };
 
       const response = await this.msalClient.acquireTokenSilent(silentRequest);
-      
+
       if (!response) {
         throw new Error('No response from silent token request');
       }
 
       // Update stored tokens
       await this.storeTokens(userId, response);
-      
+
       this.logger.log(`Successfully refreshed access token for user ${userId}`);
       return response.accessToken;
     } catch (error) {
       this.logger.error(`Failed to refresh access token for user ${userId}:`, error);
-      
+
       // If refresh fails, clear the stored tokens to force re-authentication
       await this.clearTokens(userId);
       throw new UnauthorizedException('Token refresh failed, re-authentication required');
@@ -191,7 +193,7 @@ export class GraphAuthService {
   private async storeTokens(userId: string, authResult: AuthenticationResult): Promise<void> {
     try {
       const expiresAt = authResult.expiresOn || new Date(Date.now() + 3600 * 1000); // Default 1 hour if not provided
-      
+
       await this.prisma.integrationConfig.upsert({
         where: {
           provider_userId: {
@@ -260,8 +262,8 @@ export class GraphAuthService {
       }
 
       // Check if we have a valid token or account info for refresh
-      const hasValidToken = config.accessToken && 
-        (config.expiresAt && config.expiresAt > new Date()) ||
+      const hasValidToken =
+        (config.accessToken && config.expiresAt && config.expiresAt > new Date()) ||
         config.refreshToken; // refreshToken field now stores account ID
 
       return !!hasValidToken;
@@ -277,12 +279,12 @@ export class GraphAuthService {
   async getUserInfo(userId: string): Promise<any> {
     try {
       const accessToken = await this.getAccessToken(userId);
-      
+
       // Use the existing GraphService to get user profile
       // This creates a circular dependency, so we'll implement basic fetch here
       const response = await fetch('https://graph.microsoft.com/v1.0/me', {
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
       });
@@ -293,7 +295,7 @@ export class GraphAuthService {
 
       const userInfo = await response.json();
       this.logger.log(`Retrieved user info for user ${userId}`);
-      
+
       return userInfo;
     } catch (error) {
       this.logger.error(`Failed to get user info for user ${userId}:`, error);
@@ -308,7 +310,7 @@ export class GraphAuthService {
     try {
       // Clear tokens from database
       await this.clearTokens(userId);
-      
+
       this.logger.log(`Revoked authentication for user ${userId}`);
     } catch (error) {
       this.logger.error(`Failed to revoke authentication for user ${userId}:`, error);

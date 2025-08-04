@@ -9,34 +9,36 @@ Design tokens are the foundational elements of our design system, providing a co
 ### Color System
 
 #### Primary Palette
+
 ```css
 :root {
   /* Energy Level Colors - Core to ADHD-friendly design */
-  --color-energy-high: #10b981;    /* Green - Energizing */
-  --color-energy-medium: #f59e0b;  /* Amber - Balanced */
-  --color-energy-low: #6366f1;     /* Indigo - Calming */
-  
+  --color-energy-high: #10b981; /* Green - Energizing */
+  --color-energy-medium: #f59e0b; /* Amber - Balanced */
+  --color-energy-low: #6366f1; /* Indigo - Calming */
+
   /* Brand Colors */
-  --color-primary: #3b82f6;        /* Blue - Primary actions */
-  --color-secondary: #6b7280;      /* Gray - Secondary actions */
-  
+  --color-primary: #3b82f6; /* Blue - Primary actions */
+  --color-secondary: #6b7280; /* Gray - Secondary actions */
+
   /* Semantic Colors */
-  --color-success: #10b981;        /* Green - Success states */
-  --color-warning: #f59e0b;        /* Amber - Warning states */
-  --color-error: #ef4444;          /* Red - Error states */
-  --color-info: #3b82f6;           /* Blue - Informational */
+  --color-success: #10b981; /* Green - Success states */
+  --color-warning: #f59e0b; /* Amber - Warning states */
+  --color-error: #ef4444; /* Red - Error states */
+  --color-info: #3b82f6; /* Blue - Informational */
 }
 ```
 
 #### Surface Colors
+
 ```css
 :root {
   /* Light Theme Surfaces */
-  --color-surface-primary: #ffffff;     /* Main backgrounds */
-  --color-surface-secondary: #f9fafb;   /* Card backgrounds */
-  --color-surface-tertiary: #f3f4f6;    /* Subtle backgrounds */
-  --color-surface-elevated: #ffffff;    /* Modal/dropdown backgrounds */
-  
+  --color-surface-primary: #ffffff; /* Main backgrounds */
+  --color-surface-secondary: #f9fafb; /* Card backgrounds */
+  --color-surface-tertiary: #f3f4f6; /* Subtle backgrounds */
+  --color-surface-elevated: #ffffff; /* Modal/dropdown backgrounds */
+
   /* Dark Theme Surfaces */
   --color-surface-primary-dark: #111827;
   --color-surface-secondary-dark: #1f2937;
@@ -46,14 +48,15 @@ Design tokens are the foundational elements of our design system, providing a co
 ```
 
 #### Text Colors
+
 ```css
 :root {
   /* Light Theme Text */
-  --color-text-primary: #111827;        /* Primary text - 15.8:1 contrast */
-  --color-text-secondary: #6b7280;      /* Secondary text - 4.6:1 contrast */
-  --color-text-tertiary: #9ca3af;       /* Tertiary text - 3.1:1 contrast */
-  --color-text-inverse: #ffffff;        /* Text on dark backgrounds */
-  
+  --color-text-primary: #111827; /* Primary text - 15.8:1 contrast */
+  --color-text-secondary: #6b7280; /* Secondary text - 4.6:1 contrast */
+  --color-text-tertiary: #9ca3af; /* Tertiary text - 3.1:1 contrast */
+  --color-text-inverse: #ffffff; /* Text on dark backgrounds */
+
   /* Dark Theme Text */
   --color-text-primary-dark: #f9fafb;
   --color-text-secondary-dark: #d1d5db;
@@ -63,14 +66,15 @@ Design tokens are the foundational elements of our design system, providing a co
 ```
 
 #### Border Colors
+
 ```css
 :root {
   /* Border and Divider Colors */
-  --color-border-subtle: #e5e7eb;       /* Subtle borders */
-  --color-border-default: #d1d5db;      /* Default borders */
-  --color-border-strong: #9ca3af;       /* Emphasized borders */
-  --color-border-interactive: #3b82f6;  /* Interactive elements */
-  
+  --color-border-subtle: #e5e7eb; /* Subtle borders */
+  --color-border-default: #d1d5db; /* Default borders */
+  --color-border-strong: #9ca3af; /* Emphasized borders */
+  --color-border-interactive: #3b82f6; /* Interactive elements */
+
   /* Dark Theme Borders */
   --color-border-subtle-dark: #374151;
   --color-border-default-dark: #4b5563;
@@ -82,6 +86,7 @@ Design tokens are the foundational elements of our design system, providing a co
 ### Typography
 
 #### Font Families
+
 ```css
 :root {
   --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -90,22 +95,24 @@ Design tokens are the foundational elements of our design system, providing a co
 ```
 
 #### Font Sizes
+
 ```css
 :root {
   /* Font Size Scale - Modular scale with 1.25 ratio */
-  --font-size-xs: 0.75rem;      /* 12px */
-  --font-size-sm: 0.875rem;     /* 14px */
-  --font-size-base: 1rem;       /* 16px - Base size */
-  --font-size-lg: 1.125rem;     /* 18px */
-  --font-size-xl: 1.25rem;      /* 20px */
-  --font-size-2xl: 1.5rem;      /* 24px */
-  --font-size-3xl: 1.875rem;    /* 30px */
-  --font-size-4xl: 2.25rem;     /* 36px */
-  --font-size-5xl: 3rem;        /* 48px */
+  --font-size-xs: 0.75rem; /* 12px */
+  --font-size-sm: 0.875rem; /* 14px */
+  --font-size-base: 1rem; /* 16px - Base size */
+  --font-size-lg: 1.125rem; /* 18px */
+  --font-size-xl: 1.25rem; /* 20px */
+  --font-size-2xl: 1.5rem; /* 24px */
+  --font-size-3xl: 1.875rem; /* 30px */
+  --font-size-4xl: 2.25rem; /* 36px */
+  --font-size-5xl: 3rem; /* 48px */
 }
 ```
 
 #### Font Weights
+
 ```css
 :root {
   --font-weight-light: 300;
@@ -118,49 +125,52 @@ Design tokens are the foundational elements of our design system, providing a co
 ```
 
 #### Line Heights
+
 ```css
 :root {
-  --line-height-tight: 1.25;      /* Headings */
-  --line-height-snug: 1.375;      /* Large text */
-  --line-height-normal: 1.5;      /* Body text */
-  --line-height-relaxed: 1.625;   /* Reading text */
-  --line-height-loose: 2;         /* Spaced text */
+  --line-height-tight: 1.25; /* Headings */
+  --line-height-snug: 1.375; /* Large text */
+  --line-height-normal: 1.5; /* Body text */
+  --line-height-relaxed: 1.625; /* Reading text */
+  --line-height-loose: 2; /* Spaced text */
 }
 ```
 
 ### Spacing System
 
 #### 8px Grid System
+
 ```css
 :root {
   /* Base spacing unit: 8px for predictable layouts */
   --space-px: 1px;
   --space-0: 0px;
-  --space-1: 0.25rem;    /* 4px - Half unit */
-  --space-2: 0.5rem;     /* 8px - Base unit */
-  --space-3: 0.75rem;    /* 12px */
-  --space-4: 1rem;       /* 16px - Standard spacing */
-  --space-5: 1.25rem;    /* 20px */
-  --space-6: 1.5rem;     /* 24px - Section spacing */
-  --space-8: 2rem;       /* 32px - Large spacing */
-  --space-10: 2.5rem;    /* 40px */
-  --space-12: 3rem;      /* 48px - Major sections */
-  --space-16: 4rem;      /* 64px */
-  --space-20: 5rem;      /* 80px */
-  --space-24: 6rem;      /* 96px - Page sections */
+  --space-1: 0.25rem; /* 4px - Half unit */
+  --space-2: 0.5rem; /* 8px - Base unit */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px - Standard spacing */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem; /* 24px - Section spacing */
+  --space-8: 2rem; /* 32px - Large spacing */
+  --space-10: 2.5rem; /* 40px */
+  --space-12: 3rem; /* 48px - Major sections */
+  --space-16: 4rem; /* 64px */
+  --space-20: 5rem; /* 80px */
+  --space-24: 6rem; /* 96px - Page sections */
 }
 ```
 
 #### Semantic Spacing
+
 ```css
 :root {
   /* Semantic spacing aliases for ADHD-friendly design */
-  --space-xs: var(--space-1);       /* Tight spacing */
-  --space-sm: var(--space-2);       /* Small gaps */
-  --space-md: var(--space-4);       /* Standard spacing */
-  --space-lg: var(--space-6);       /* Section separation */
-  --space-xl: var(--space-8);       /* Major sections */
-  --space-2xl: var(--space-12);     /* Page sections */
+  --space-xs: var(--space-1); /* Tight spacing */
+  --space-sm: var(--space-2); /* Small gaps */
+  --space-md: var(--space-4); /* Standard spacing */
+  --space-lg: var(--space-6); /* Section separation */
+  --space-xl: var(--space-8); /* Major sections */
+  --space-2xl: var(--space-12); /* Page sections */
 }
 ```
 
@@ -169,19 +179,20 @@ Design tokens are the foundational elements of our design system, providing a co
 ```css
 :root {
   --border-radius-none: 0px;
-  --border-radius-sm: 0.125rem;     /* 2px */
+  --border-radius-sm: 0.125rem; /* 2px */
   --border-radius-default: 0.25rem; /* 4px */
-  --border-radius-md: 0.375rem;     /* 6px */
-  --border-radius-lg: 0.5rem;       /* 8px */
-  --border-radius-xl: 0.75rem;      /* 12px */
-  --border-radius-2xl: 1rem;        /* 16px */
-  --border-radius-full: 9999px;     /* Circle */
+  --border-radius-md: 0.375rem; /* 6px */
+  --border-radius-lg: 0.5rem; /* 8px */
+  --border-radius-xl: 0.75rem; /* 12px */
+  --border-radius-2xl: 1rem; /* 16px */
+  --border-radius-full: 9999px; /* Circle */
 }
 ```
 
 ### Shadows
 
 #### Elevation System
+
 ```css
 :root {
   /* Shadow system for depth and hierarchy */
@@ -196,6 +207,7 @@ Design tokens are the foundational elements of our design system, providing a co
 ```
 
 #### Focus Shadows
+
 ```css
 :root {
   /* High-contrast focus indicators for accessibility */
@@ -208,16 +220,18 @@ Design tokens are the foundational elements of our design system, providing a co
 ### Animation & Transitions
 
 #### Duration
+
 ```css
 :root {
-  --duration-fast: 150ms;        /* Quick interactions */
-  --duration-normal: 200ms;      /* Standard transitions */
-  --duration-slow: 300ms;        /* Deliberate transitions */
-  --duration-slower: 500ms;      /* Page transitions */
+  --duration-fast: 150ms; /* Quick interactions */
+  --duration-normal: 200ms; /* Standard transitions */
+  --duration-slow: 300ms; /* Deliberate transitions */
+  --duration-slower: 500ms; /* Page transitions */
 }
 ```
 
 #### Easing Functions
+
 ```css
 :root {
   --ease-linear: linear;
@@ -229,6 +243,7 @@ Design tokens are the foundational elements of our design system, providing a co
 ```
 
 #### Motion Preferences
+
 ```css
 /* Respect user motion preferences - ADHD-friendly */
 @media (prefers-reduced-motion: reduce) {
@@ -255,11 +270,11 @@ Design tokens are the foundational elements of our design system, providing a co
 ```css
 :root {
   /* Mobile-first responsive breakpoints */
-  --breakpoint-sm: 640px;    /* Small devices */
-  --breakpoint-md: 768px;    /* Tablets */
-  --breakpoint-lg: 1024px;   /* Laptops */
-  --breakpoint-xl: 1280px;   /* Desktops */
-  --breakpoint-2xl: 1536px;  /* Large screens */
+  --breakpoint-sm: 640px; /* Small devices */
+  --breakpoint-md: 768px; /* Tablets */
+  --breakpoint-lg: 1024px; /* Laptops */
+  --breakpoint-xl: 1280px; /* Desktops */
+  --breakpoint-2xl: 1536px; /* Large screens */
 }
 ```
 
@@ -284,6 +299,7 @@ Design tokens are the foundational elements of our design system, providing a co
 ## 🧠 ADHD-Specific Token Usage
 
 ### Energy Level Color Mapping
+
 ```css
 /* Energy levels with semantic meaning and high contrast */
 .energy-high {
@@ -306,9 +322,11 @@ Design tokens are the foundational elements of our design system, providing a co
 ```
 
 ### Priority Indicators
+
 ```css
 /* Visual priority system using border weights and colors */
-.priority-1, .priority-2 {
+.priority-1,
+.priority-2 {
   border-left: 4px solid var(--color-error);
   border-left-color: #dc2626; /* High priority - red */
 }
@@ -318,13 +336,15 @@ Design tokens are the foundational elements of our design system, providing a co
   border-left-color: #d97706; /* Medium priority - amber */
 }
 
-.priority-4, .priority-5 {
+.priority-4,
+.priority-5 {
   border-left: 2px solid var(--color-success);
   border-left-color: #059669; /* Low priority - green */
 }
 ```
 
 ### Cognitive Load Indicators
+
 ```css
 /* Visual density control for ADHD-friendly interfaces */
 .density-comfortable {
@@ -349,6 +369,7 @@ Design tokens are the foundational elements of our design system, providing a co
 ## 💻 TypeScript Token Definitions
 
 ### Type-Safe Token Access
+
 ```typescript
 // src/lib/design-tokens.ts
 export const tokens = {
@@ -372,12 +393,12 @@ export const tokens = {
     },
   },
   spacing: {
-    xs: '0.25rem',  // 4px
-    sm: '0.5rem',   // 8px
-    md: '1rem',     // 16px
-    lg: '1.5rem',   // 24px
-    xl: '2rem',     // 32px
-    '2xl': '3rem',  // 48px
+    xs: '0.25rem', // 4px
+    sm: '0.5rem', // 8px
+    md: '1rem', // 16px
+    lg: '1.5rem', // 24px
+    xl: '2rem', // 32px
+    '2xl': '3rem', // 48px
   },
   typography: {
     fontSizes: {
@@ -439,22 +460,20 @@ export type SpacingToken = keyof typeof tokens.spacing;
 export type FontSizeToken = keyof typeof tokens.typography.fontSizes;
 
 // Utility function for type-safe token access
-export function getToken<T extends keyof typeof tokens>(
-  category: T,
-  path: string
-): string {
+export function getToken<T extends keyof typeof tokens>(category: T, path: string): string {
   const keys = path.split('.');
   let value: any = tokens[category];
-  
+
   for (const key of keys) {
     value = value?.[key];
   }
-  
+
   return value || '';
 }
 ```
 
 ### Usage in Components
+
 ```tsx
 import { tokens, getToken } from '@/lib/design-tokens';
 
@@ -470,18 +489,15 @@ const TaskCard = styled.div`
 // Dynamic token access
 const EnergyBadge = ({ level }: { level: 'high' | 'medium' | 'low' }) => {
   const bgColor = getToken('colors', `energy.${level}`);
-  
-  return (
-    <span style={{ backgroundColor: bgColor }}>
-      {level} Energy
-    </span>
-  );
+
+  return <span style={{ backgroundColor: bgColor }}>{level} Energy</span>;
 };
 ```
 
 ## 🎨 Tailwind CSS Integration
 
 ### Custom Token Classes
+
 ```javascript
 // tailwind.config.js
 const { tokens } = require('./src/lib/design-tokens');
@@ -509,25 +525,24 @@ module.exports = {
 ```
 
 ### Usage in Components
+
 ```tsx
 // Using Tailwind classes mapped to design tokens
 const TaskCard = ({ task, energyLevel }: TaskCardProps) => (
-  <article className={cn(
-    'p-md rounded-lg bg-surface-primary shadow-md',
-    'transition-all duration-normal ease-out',
-    'border-l-4',
-    {
-      'border-l-energy-high': energyLevel === 'HIGH',
-      'border-l-energy-medium': energyLevel === 'MEDIUM',
-      'border-l-energy-low': energyLevel === 'LOW',
-    }
-  )}>
-    <h3 className="text-lg font-semibold text-primary leading-tight">
-      {task.title}
-    </h3>
-    <p className="text-sm text-secondary leading-normal mt-sm">
-      {task.description}
-    </p>
+  <article
+    className={cn(
+      'p-md rounded-lg bg-surface-primary shadow-md',
+      'transition-all duration-normal ease-out',
+      'border-l-4',
+      {
+        'border-l-energy-high': energyLevel === 'HIGH',
+        'border-l-energy-medium': energyLevel === 'MEDIUM',
+        'border-l-energy-low': energyLevel === 'LOW',
+      }
+    )}
+  >
+    <h3 className="text-lg font-semibold text-primary leading-tight">{task.title}</h3>
+    <p className="text-sm text-secondary leading-normal mt-sm">{task.description}</p>
   </article>
 );
 ```
@@ -535,6 +550,7 @@ const TaskCard = ({ task, energyLevel }: TaskCardProps) => (
 ## 🧪 Token Validation & Testing
 
 ### Contrast Validation
+
 ```typescript
 // src/lib/token-validation.ts
 import { tokens } from './design-tokens';
@@ -567,6 +583,7 @@ export const contrastTests = [
 ```
 
 ### Token Usage Analytics
+
 ```typescript
 // Track token usage across components
 export function trackTokenUsage(component: string, tokens: string[]) {
@@ -582,6 +599,7 @@ export function trackTokenUsage(component: string, tokens: string[]) {
 ## 📊 Token Metrics & Monitoring
 
 ### Design System Health
+
 ```typescript
 // Monitor design system consistency
 export const designSystemMetrics = {
@@ -595,6 +613,7 @@ export const designSystemMetrics = {
 ## 🔄 Token Evolution & Versioning
 
 ### Semantic Versioning for Tokens
+
 ```json
 {
   "name": "@helmsman/design-tokens",
@@ -618,6 +637,7 @@ export const designSystemMetrics = {
 ```
 
 ### Migration Guidelines
+
 ```typescript
 // Token migration utilities
 export const tokenMigrations = {

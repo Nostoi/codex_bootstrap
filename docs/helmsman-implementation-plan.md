@@ -1,10 +1,10 @@
-
 # Helmsman Dashboard - Complete Implementation Plan
 
 > **Note (July 2025):**
 > This document contains both implementation specifications and forward-looking plans. Status tables and completion markers may not reflect the actual codebase. For a reality-based audit of what is truly implemented, see `/docs/IMPLEMENTATION_STATUS_AUDIT.md`.
 
 ## Table of Contents
+
 1. [Spec Crosswalk](#1-spec-crosswalk)
 2. [Target Architecture & Data Model](#2-target-architecture--data-model)
 3. [API Surface](#3-api-surface)
@@ -20,36 +20,37 @@
 
 ### Core Requirements Analysis
 
-| Requirement | Status | Current Files | Impact if Missing | Work Needed |
-|-------------|--------|---------------|-------------------|-------------|
-| **Project & Task Management** |
-| Project → Area → Purpose hierarchy | Missing | schema.prisma:85-92 | No task organization | Add Area/Purpose fields to Project model |
-| Task metadata (energy, focus, time) | Partial | Dashboard.tsx:5-14 | No intelligent scheduling | Enhance Task interface + schema |
-| Soft vs Hard deadlines | Missing | schema.prisma:98 | Poor deadline management | Add both deadline types |
-| Task dependencies | Schema only | schema.prisma:112-120 | No blocking logic | Implement dependency resolver |
-| Assignment source tracking | Missing | None | No workload attribution | Add source enum to Task |
-| **Daily/Weekly Focus View** |
-| "Today's Plan" generation | Mock | Dashboard.tsx:130-150 | No AI scheduling | Implement planning algorithm |
-| Energy-based scheduling | Missing | None | Suboptimal productivity | Build energy-aware scheduler |
-| Blocked/unblocked indicators | Missing | TaskCard.tsx | Poor task visibility | Add status chips |
-| **AI Assistant Integration** |
-| Task extraction from text | Mock | Dashboard.tsx:210-230 | No productivity gains | Real OpenAI integration |
-| Automatic classification | Missing | None | Manual metadata entry | ML classification service |
-| Project summarization | Mock | ChatGPTIntegration.tsx | No project insights | Implement summary endpoints |
-| Proactive suggestions | Mock | Dashboard.tsx:125-145 | No intelligent nudges | Context-aware suggestion engine |
-| **Semantic Memory (Mem0)** |
-| Interaction logging | Schema only | schema.prisma:130-140 | No learning/context | Implement Mem0 integration |
-| RAG queries | Missing | None | No contextual help | Vector search + retrieval |
-| **Reflection & Feedback** |
-| Daily activity logging | Basic | page.tsx | No improvement tracking | Enhanced logging system |
-| Reflective prompts | Static | page.tsx | No guided reflection | Dynamic prompt engine |
-| **Technical Requirements** |
-| JWT Authentication | Complete | auth/ modules | Security risk | ✅ Done |
-| PostgreSQL + Prisma | Partial | schema.prisma | Data consistency | Schema enhancements |
-| Next.js + Tailwind | Complete | Frontend structure | UI limitations | ✅ Done |
-| ChatGPT API integration | Mock | AI services | No real intelligence | OpenAI client implementation |
+| Requirement                         | Status      | Current Files          | Impact if Missing         | Work Needed                              |
+| ----------------------------------- | ----------- | ---------------------- | ------------------------- | ---------------------------------------- |
+| **Project & Task Management**       |
+| Project → Area → Purpose hierarchy  | Missing     | schema.prisma:85-92    | No task organization      | Add Area/Purpose fields to Project model |
+| Task metadata (energy, focus, time) | Partial     | Dashboard.tsx:5-14     | No intelligent scheduling | Enhance Task interface + schema          |
+| Soft vs Hard deadlines              | Missing     | schema.prisma:98       | Poor deadline management  | Add both deadline types                  |
+| Task dependencies                   | Schema only | schema.prisma:112-120  | No blocking logic         | Implement dependency resolver            |
+| Assignment source tracking          | Missing     | None                   | No workload attribution   | Add source enum to Task                  |
+| **Daily/Weekly Focus View**         |
+| "Today's Plan" generation           | Mock        | Dashboard.tsx:130-150  | No AI scheduling          | Implement planning algorithm             |
+| Energy-based scheduling             | Missing     | None                   | Suboptimal productivity   | Build energy-aware scheduler             |
+| Blocked/unblocked indicators        | Missing     | TaskCard.tsx           | Poor task visibility      | Add status chips                         |
+| **AI Assistant Integration**        |
+| Task extraction from text           | Mock        | Dashboard.tsx:210-230  | No productivity gains     | Real OpenAI integration                  |
+| Automatic classification            | Missing     | None                   | Manual metadata entry     | ML classification service                |
+| Project summarization               | Mock        | ChatGPTIntegration.tsx | No project insights       | Implement summary endpoints              |
+| Proactive suggestions               | Mock        | Dashboard.tsx:125-145  | No intelligent nudges     | Context-aware suggestion engine          |
+| **Semantic Memory (Mem0)**          |
+| Interaction logging                 | Schema only | schema.prisma:130-140  | No learning/context       | Implement Mem0 integration               |
+| RAG queries                         | Missing     | None                   | No contextual help        | Vector search + retrieval                |
+| **Reflection & Feedback**           |
+| Daily activity logging              | Basic       | page.tsx               | No improvement tracking   | Enhanced logging system                  |
+| Reflective prompts                  | Static      | page.tsx               | No guided reflection      | Dynamic prompt engine                    |
+| **Technical Requirements**          |
+| JWT Authentication                  | Complete    | auth/ modules          | Security risk             | ✅ Done                                  |
+| PostgreSQL + Prisma                 | Partial     | schema.prisma          | Data consistency          | Schema enhancements                      |
+| Next.js + Tailwind                  | Complete    | Frontend structure     | UI limitations            | ✅ Done                                  |
+| ChatGPT API integration             | Mock        | AI services            | No real intelligence      | OpenAI client implementation             |
 
 ### Missing Critical Components
+
 - **Backend Schema Gaps**: 70% of required metadata missing
 - **AI Service Layer**: No real OpenAI integration
 - **Planning Algorithm**: No intelligent scheduling logic
@@ -66,7 +67,7 @@ erDiagram
     User ||--o{ Task : owns
     User ||--o{ UserSettings : has
     User ||--o{ InteractionLog : generates
-    
+
     Project ||--o{ Task : contains
     Project {
         string id
@@ -75,7 +76,7 @@ erDiagram
         string purpose
         datetime createdAt
     }
-    
+
     Task ||--o{ TaskDependency : blocks
     Task ||--o{ TaskTag : tagged
     Task {
@@ -102,38 +103,38 @@ model Task {
   id          String   @id @default(cuid())
   title       String
   description String?
-  
+
   // Status and Progress
   status      TaskStatus @default(TODO)
   completed   Boolean    @default(false)
-  
+
   // Timing and Deadlines
   estimatedMinutes Int?
   softDeadline     DateTime?
   hardDeadline     DateTime?
   dueDate          DateTime?  // Keep for backward compatibility
-  
+
   // Metadata for AI scheduling
   energyLevel   EnergyLevel?
   focusType     FocusType?
   priority      Int          @default(3)  // 1-5 scale
   source        TaskSource   @default(SELF)
-  
+
   // AI and Context
   aiSuggestion  String?
-  
+
   // Relationships
   projectId   String?
   project     Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
   ownerId     String
   owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  
+
   // Dependencies
   dependencies TaskDependency[] @relation("TaskDependencies")
   dependents   TaskDependency[] @relation("TaskDependents")
   tags         Tag[]
   notifications Notification[]
-  
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -146,42 +147,42 @@ model Project {
   area      String?   // Higher-level grouping
   purpose   String?   // Highest-level purpose
   description String?
-  
+
   // Relationships
   ownerId   String
   owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   tasks     Task[]
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@map("projects")
 }
 
 model UserSettings {
   userId                   String @id
   user                     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   // Energy patterns
   morningEnergyLevel       EnergyLevel @default(MEDIUM)
   afternoonEnergyLevel     EnergyLevel @default(MEDIUM)
   eveningEnergyLevel       EnergyLevel @default(LOW)
-  
+
   // Work preferences
   preferredWorkHours       Int         @default(8)
   focusSessionLength       Int         @default(90)  // minutes
   breakLength              Int         @default(15)  // minutes
-  
+
   // AI preferences
   aiSuggestionsEnabled     Boolean     @default(true)
   proactiveReminders       Boolean     @default(true)
-  
+
   // Notification settings
   notificationPreferences  Json        @default("{}")
-  
+
   createdAt                DateTime    @default(now())
   updatedAt                DateTime    @updatedAt
-  
+
   @@map("user_settings")
 }
 
@@ -189,18 +190,18 @@ model InteractionLog {
   id          String   @id @default(cuid())
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   // Context and content
   interaction String   // The user's input or action
   context     Json     // Surrounding context
   source      String   // 'chat', 'email', 'note', etc.
-  
+
   // AI response tracking
   aiResponse  String?
   confidence  Float?
-  
+
   timestamp   DateTime @default(now())
-  
+
   @@map("interaction_logs")
 }
 
@@ -213,7 +214,7 @@ enum TaskStatus {
 
 enum EnergyLevel {
   LOW
-  MEDIUM  
+  MEDIUM
   HIGH
 }
 
@@ -235,6 +236,7 @@ enum TaskSource {
 ### Migration Strategy
 
 #### Phase 1: Additive Schema Changes (Safe)
+
 ```sql
 -- Add new columns as nullable first
 ALTER TABLE tasks ADD COLUMN energy_level VARCHAR(10);
@@ -252,20 +254,22 @@ CREATE TABLE interaction_logs (...);
 ```
 
 #### Phase 2: Data Backfill
+
 ```typescript
 // Backfill existing tasks with defaults
 await prisma.task.updateMany({
   where: { energyLevel: null },
-  data: { 
+  data: {
     energyLevel: 'MEDIUM',
     focusType: 'ADMINISTRATIVE',
     priority: 3,
-    source: 'SELF'
-  }
+    source: 'SELF',
+  },
 });
 ```
 
 #### Phase 3: Constraints and Cleanup
+
 ```sql
 -- Add NOT NULL constraints after backfill
 ALTER TABLE tasks ALTER COLUMN energy_level SET NOT NULL;
@@ -318,7 +322,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Task'
-    
+
     post:
       summary: Create new task
       requestBody:
@@ -644,76 +648,80 @@ class DailyPlannerService {
   async generatePlan(input: PlanningInput): Promise<DailyPlan> {
     // 1. Filter and prepare tasks
     const readyTasks = this.filterReadyTasks(input.availableTasks);
-    
+
     // 2. Score tasks based on multiple factors
     const scoredTasks = this.scoreTasks(readyTasks, input.date);
-    
+
     // 3. Generate available time slots
     const timeSlots = this.generateTimeSlots(
       input.workingHours,
       input.existingCommitments,
       input.userSettings
     );
-    
+
     // 4. Assign tasks to optimal time slots
     const assignments = this.assignTasksToSlots(scoredTasks, timeSlots);
-    
+
     // 5. Create schedule blocks
     const scheduleBlocks = this.createScheduleBlocks(assignments);
-    
+
     return {
       date: input.date,
       scheduleBlocks,
       unscheduledTasks: scoredTasks.filter(t => !assignments.has(t.id)),
-      totalEstimatedMinutes: scheduleBlocks.reduce((sum, block) => 
-        sum + (block.task.estimatedMinutes || 30), 0
+      totalEstimatedMinutes: scheduleBlocks.reduce(
+        (sum, block) => sum + (block.task.estimatedMinutes || 30),
+        0
       ),
       energyOptimization: this.calculateEnergyOptimization(scheduleBlocks),
       focusOptimization: this.calculateFocusOptimization(scheduleBlocks),
-      deadlineRisk: this.calculateDeadlineRisk(assignments)
+      deadlineRisk: this.calculateDeadlineRisk(assignments),
     };
   }
 
   private scoreTasks(tasks: Task[], targetDate: Date): ScoredTask[] {
-    return tasks.map(task => ({
-      ...task,
-      score: this.calculateTaskScore(task, targetDate)
-    })).sort((a, b) => b.score - a.score);
+    return tasks
+      .map(task => ({
+        ...task,
+        score: this.calculateTaskScore(task, targetDate),
+      }))
+      .sort((a, b) => b.score - a.score);
   }
 
   private calculateTaskScore(task: Task, targetDate: Date): number {
     let score = 0;
-    
+
     // Priority weight (0-40 points)
     score += (task.priority || 3) * 8;
-    
+
     // Deadline urgency (0-30 points)
     if (task.hardDeadline) {
-      const daysUntilDeadline = Math.max(0, 
+      const daysUntilDeadline = Math.max(
+        0,
         (task.hardDeadline.getTime() - targetDate.getTime()) / (1000 * 60 * 60 * 24)
       );
-      score += Math.max(0, 30 - (daysUntilDeadline * 5));
+      score += Math.max(0, 30 - daysUntilDeadline * 5);
     }
-    
+
     // Energy level bonus (0-20 points)
     // Higher energy tasks get bonus if scheduled during high energy periods
     const energyBonus = {
       [EnergyLevel.HIGH]: 20,
       [EnergyLevel.MEDIUM]: 15,
-      [EnergyLevel.LOW]: 10
+      [EnergyLevel.LOW]: 10,
     };
     score += energyBonus[task.energyLevel || EnergyLevel.MEDIUM];
-    
+
     // Focus type clustering bonus (0-10 points)
     // Tasks get bonus for being scheduled with similar focus types
     const focusBonus = {
       [FocusType.CREATIVE]: 8,
       [FocusType.TECHNICAL]: 8,
       [FocusType.ADMINISTRATIVE]: 6,
-      [FocusType.SOCIAL]: 10
+      [FocusType.SOCIAL]: 10,
     };
     score += focusBonus[task.focusType || FocusType.ADMINISTRATIVE];
-    
+
     return score;
   }
 
@@ -723,22 +731,22 @@ class DailyPlannerService {
   ): Map<string, ScheduleAssignment> {
     const assignments = new Map<string, ScheduleAssignment>();
     const usedSlots = new Set<string>();
-    
+
     for (const task of scoredTasks) {
       const bestSlot = this.findBestSlotForTask(task, timeSlots, usedSlots);
-      
+
       if (bestSlot) {
         assignments.set(task.id, {
           task,
           timeSlot: bestSlot,
           energyMatch: this.calculateEnergyMatch(task, bestSlot),
-          focusMatch: this.calculateFocusMatch(task, bestSlot)
+          focusMatch: this.calculateFocusMatch(task, bestSlot),
         });
-        
+
         usedSlots.add(bestSlot.id);
       }
     }
-    
+
     return assignments;
   }
 }
@@ -747,15 +755,17 @@ class DailyPlannerService {
 ### Worked Example
 
 **Input:**
+
 - User: John Doe
-- Date: 2025-07-28  
+- Date: 2025-07-28
 - Available hours: 8 (9 AM - 5 PM)
 - Energy pattern: High morning, Medium afternoon
 - 5 pending tasks
 
 **Tasks:**
+
 1. "Write project proposal" (Creative, High energy, 90 min, Priority 5, Due today)
-2. "Review team PRs" (Technical, Medium energy, 45 min, Priority 3)  
+2. "Review team PRs" (Technical, Medium energy, 45 min, Priority 3)
 3. "Update expense reports" (Administrative, Low energy, 30 min, Priority 2)
 4. "Client strategy call" (Social, High energy, 60 min, Priority 4, Hard deadline 2 PM)
 5. "Code review cleanup" (Technical, Medium energy, 30 min, Priority 3)
@@ -766,7 +776,7 @@ class DailyPlannerService {
 
 2. **Task Scoring:**
    - Project proposal: 40 (priority) + 30 (deadline) + 20 (energy match) + 8 (focus) = 98
-   - Client call: 32 + 30 + 20 + 6 = 88  
+   - Client call: 32 + 30 + 20 + 6 = 88
    - Review PRs: 24 + 0 + 15 + 8 = 47
    - Code cleanup: 24 + 0 + 15 + 8 = 47
    - Expense reports: 16 + 0 + 10 + 10 = 36
@@ -774,7 +784,7 @@ class DailyPlannerService {
 3. **Time Slot Generation:**
    - 9:00-10:30 AM: High energy, Creative/Technical preferred
    - 10:45-12:00 PM: High energy, Any focus
-   - 1:00-2:30 PM: Medium energy, Social/Administrative  
+   - 1:00-2:30 PM: Medium energy, Social/Administrative
    - 2:45-5:00 PM: Medium energy, Administrative/Technical
 
 4. **Task Assignment:**
@@ -785,13 +795,14 @@ class DailyPlannerService {
    - 3:30-4:00 PM: Update expense reports (30 min, low energy work in afternoon)
 
 **Output Plan:**
+
 ```json
 {
   "date": "2025-07-28",
   "scheduleBlocks": [
     {
       "startTime": "09:00",
-      "endTime": "10:30", 
+      "endTime": "10:30",
       "task": "Write project proposal",
       "energyMatch": 1.0,
       "focusMatch": 1.0,
@@ -807,18 +818,21 @@ class DailyPlannerService {
 ### Fallback Strategies
 
 **Missing Metadata Handling:**
+
 - Default energy level: MEDIUM
-- Default focus type: ADMINISTRATIVE  
+- Default focus type: ADMINISTRATIVE
 - Default estimated time: 30 minutes
 - Default priority: 3
 
 **Overcommitted Schedule:**
+
 - Prioritize hard deadlines
 - Defer low-priority tasks
 - Suggest task decomposition
 - Recommend delegation
 
 **Dependency Conflicts:**
+
 - Block dependent tasks until prerequisites complete
 - Suggest dependency removal
 - Reorder task priorities
@@ -831,7 +845,7 @@ class DailyPlannerService {
 // src/lib/ai/openai.service.ts
 export class OpenAIService {
   private client: OpenAI;
-  
+
   constructor() {
     this.client = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
@@ -840,15 +854,15 @@ export class OpenAIService {
 
   async extractTasks(text: string, context?: string): Promise<ExtractedTask[]> {
     const prompt = this.buildTaskExtractionPrompt(text, context);
-    
+
     const response = await this.client.chat.completions.create({
-      model: "gpt-4-turbo-preview",
+      model: 'gpt-4-turbo-preview',
       messages: [
-        { role: "system", content: TASK_EXTRACTION_SYSTEM_PROMPT },
-        { role: "user", content: prompt }
+        { role: 'system', content: TASK_EXTRACTION_SYSTEM_PROMPT },
+        { role: 'user', content: prompt },
       ],
       functions: [TASK_EXTRACTION_FUNCTION],
-      function_call: { name: "extract_tasks" },
+      function_call: { name: 'extract_tasks' },
       temperature: 0.3,
     });
 
@@ -857,15 +871,15 @@ export class OpenAIService {
 
   async classifyTask(title: string, description?: string): Promise<TaskClassification> {
     const prompt = `Task: ${title}\nDescription: ${description || 'N/A'}`;
-    
+
     const response = await this.client.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: 'gpt-3.5-turbo',
       messages: [
-        { role: "system", content: TASK_CLASSIFICATION_SYSTEM_PROMPT },
-        { role: "user", content: prompt }
+        { role: 'system', content: TASK_CLASSIFICATION_SYSTEM_PROMPT },
+        { role: 'user', content: prompt },
       ],
       functions: [TASK_CLASSIFICATION_FUNCTION],
-      function_call: { name: "classify_task" },
+      function_call: { name: 'classify_task' },
       temperature: 0.1,
     });
 
@@ -878,15 +892,15 @@ export class OpenAIService {
     context: InteractionLog[]
   ): Promise<AIRecommendation[]> {
     const contextPrompt = this.buildContextPrompt(tasks, completedTasks, context);
-    
+
     const response = await this.client.chat.completions.create({
-      model: "gpt-4-turbo-preview",
+      model: 'gpt-4-turbo-preview',
       messages: [
-        { role: "system", content: PROACTIVE_SUGGESTIONS_SYSTEM_PROMPT },
-        { role: "user", content: contextPrompt }
+        { role: 'system', content: PROACTIVE_SUGGESTIONS_SYSTEM_PROMPT },
+        { role: 'user', content: contextPrompt },
       ],
       functions: [SUGGESTIONS_FUNCTION],
-      function_call: { name: "generate_suggestions" },
+      function_call: { name: 'generate_suggestions' },
       temperature: 0.7,
     });
 
@@ -898,6 +912,7 @@ export class OpenAIService {
 ### AI Prompts and Functions
 
 #### Task Extraction System Prompt
+
 ```typescript
 const TASK_EXTRACTION_SYSTEM_PROMPT = `
 You are an expert task extraction assistant for the Helmsman productivity system. 
@@ -943,72 +958,73 @@ Output: [
 `;
 
 const TASK_EXTRACTION_FUNCTION = {
-  name: "extract_tasks",
-  description: "Extract actionable tasks from unstructured text",
+  name: 'extract_tasks',
+  description: 'Extract actionable tasks from unstructured text',
   parameters: {
-    type: "object",
+    type: 'object',
     properties: {
       tasks: {
-        type: "array",
+        type: 'array',
         items: {
-          type: "object",
+          type: 'object',
           properties: {
-            title: { type: "string", description: "Clear, action-oriented task title" },
-            description: { type: "string", description: "Additional context or details" },
-            energyLevel: { 
-              type: "string", 
-              enum: ["LOW", "MEDIUM", "HIGH"],
-              description: "Required energy level"
+            title: { type: 'string', description: 'Clear, action-oriented task title' },
+            description: { type: 'string', description: 'Additional context or details' },
+            energyLevel: {
+              type: 'string',
+              enum: ['LOW', 'MEDIUM', 'HIGH'],
+              description: 'Required energy level',
             },
             focusType: {
-              type: "string",
-              enum: ["CREATIVE", "TECHNICAL", "ADMINISTRATIVE", "SOCIAL"],
-              description: "Type of cognitive focus required"
+              type: 'string',
+              enum: ['CREATIVE', 'TECHNICAL', 'ADMINISTRATIVE', 'SOCIAL'],
+              description: 'Type of cognitive focus required',
             },
-            estimatedDuration: { 
-              type: "integer", 
-              description: "Estimated duration in minutes" 
+            estimatedDuration: {
+              type: 'integer',
+              description: 'Estimated duration in minutes',
             },
-            priority: { 
-              type: "integer", 
-              minimum: 1, 
+            priority: {
+              type: 'integer',
+              minimum: 1,
               maximum: 5,
-              description: "Priority level (1=low, 5=urgent)"
+              description: 'Priority level (1=low, 5=urgent)',
             },
-            hardDeadline: { 
-              type: "string", 
-              format: "date-time",
-              description: "Hard deadline if mentioned"
+            hardDeadline: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Hard deadline if mentioned',
             },
             softDeadline: {
-              type: "string",
-              format: "date-time", 
-              description: "Preferred completion date"
+              type: 'string',
+              format: 'date-time',
+              description: 'Preferred completion date',
             },
             source: {
-              type: "string",
-              enum: ["SELF", "BOSS", "TEAM", "AI_GENERATED"],
-              description: "Who assigned or suggested this task"
+              type: 'string',
+              enum: ['SELF', 'BOSS', 'TEAM', 'AI_GENERATED'],
+              description: 'Who assigned or suggested this task',
             },
             project: {
-              type: "string",
-              description: "Project or area this task belongs to"
-            }
+              type: 'string',
+              description: 'Project or area this task belongs to',
+            },
           },
-          required: ["title", "energyLevel", "focusType", "estimatedDuration", "priority"]
-        }
+          required: ['title', 'energyLevel', 'focusType', 'estimatedDuration', 'priority'],
+        },
       },
       confidence: {
-        type: "number",
-        description: "Confidence score for the extraction (0-1)"
-      }
+        type: 'number',
+        description: 'Confidence score for the extraction (0-1)',
+      },
     },
-    required: ["tasks", "confidence"]
-  }
+    required: ['tasks', 'confidence'],
+  },
 };
 ```
 
 #### Task Classification System Prompt
+
 ```typescript
 const TASK_CLASSIFICATION_SYSTEM_PROMPT = `
 You are a task classification expert for the Helmsman productivity system.
@@ -1043,46 +1059,53 @@ Be realistic and conservative with estimates. When in doubt, choose moderate val
 `;
 
 const TASK_CLASSIFICATION_FUNCTION = {
-  name: "classify_task",
-  description: "Classify task metadata for optimal scheduling",
+  name: 'classify_task',
+  description: 'Classify task metadata for optimal scheduling',
   parameters: {
-    type: "object",
+    type: 'object',
     properties: {
-      energyLevel: { 
-        type: "string", 
-        enum: ["LOW", "MEDIUM", "HIGH"],
-        description: "Required energy level for this task"
+      energyLevel: {
+        type: 'string',
+        enum: ['LOW', 'MEDIUM', 'HIGH'],
+        description: 'Required energy level for this task',
       },
       focusType: {
-        type: "string",
-        enum: ["CREATIVE", "TECHNICAL", "ADMINISTRATIVE", "SOCIAL"],
-        description: "Type of cognitive focus required"
+        type: 'string',
+        enum: ['CREATIVE', 'TECHNICAL', 'ADMINISTRATIVE', 'SOCIAL'],
+        description: 'Type of cognitive focus required',
       },
-      estimatedDuration: { 
-        type: "integer", 
+      estimatedDuration: {
+        type: 'integer',
         minimum: 15,
         maximum: 240,
-        description: "Estimated duration in minutes" 
+        description: 'Estimated duration in minutes',
       },
-      priority: { 
-        type: "integer", 
-        minimum: 1, 
+      priority: {
+        type: 'integer',
+        minimum: 1,
         maximum: 5,
-        description: "Priority level (1=low, 5=urgent)"
+        description: 'Priority level (1=low, 5=urgent)',
       },
       reasoning: {
-        type: "string",
-        description: "Brief explanation of the classification choices"
+        type: 'string',
+        description: 'Brief explanation of the classification choices',
       },
       confidence: {
-        type: "number",
+        type: 'number',
         minimum: 0,
         maximum: 1,
-        description: "Confidence in the classification"
-      }
+        description: 'Confidence in the classification',
+      },
     },
-    required: ["energyLevel", "focusType", "estimatedDuration", "priority", "reasoning", "confidence"]
-  }
+    required: [
+      'energyLevel',
+      'focusType',
+      'estimatedDuration',
+      'priority',
+      'reasoning',
+      'confidence',
+    ],
+  },
 };
 ```
 
@@ -1096,7 +1119,7 @@ export class Mem0Service {
 
   constructor() {
     this.vectorStore = new ChromaClient({
-      path: process.env.CHROMA_DB_PATH || './chroma_db'
+      path: process.env.CHROMA_DB_PATH || './chroma_db',
     });
     this.openai = new OpenAI();
   }
@@ -1111,18 +1134,20 @@ export class Mem0Service {
     await this.vectorStore.add({
       ids: [interaction.id],
       embeddings: [embedding],
-      metadatas: [{
-        userId: interaction.userId,
-        source: interaction.source,
-        timestamp: interaction.timestamp.toISOString()
-      }],
-      documents: [interaction.interaction]
+      metadatas: [
+        {
+          userId: interaction.userId,
+          source: interaction.source,
+          timestamp: interaction.timestamp.toISOString(),
+        },
+      ],
+      documents: [interaction.interaction],
     });
   }
 
   async searchSimilarInteractions(
-    query: string, 
-    userId: string, 
+    query: string,
+    userId: string,
     limit: number = 5
   ): Promise<InteractionLog[]> {
     const queryEmbedding = await this.generateEmbedding(query);
@@ -1130,7 +1155,7 @@ export class Mem0Service {
     const results = await this.vectorStore.query({
       queryEmbeddings: [queryEmbedding],
       nResults: limit,
-      where: { userId: userId }
+      where: { userId: userId },
     });
 
     return this.convertToInteractionLogs(results);
@@ -1142,27 +1167,23 @@ export class Mem0Service {
     currentTasks: Task[]
   ): Promise<string> {
     // Retrieve relevant past interactions
-    const similarInteractions = await this.searchSimilarInteractions(
-      userMessage, 
-      userId, 
-      3
-    );
+    const similarInteractions = await this.searchSimilarInteractions(userMessage, userId, 3);
 
     // Build context from tasks and past interactions
     const context = this.buildRAGContext(currentTasks, similarInteractions);
 
     // Generate response using OpenAI with context
     const response = await this.openai.chat.completions.create({
-      model: "gpt-4-turbo-preview",
+      model: 'gpt-4-turbo-preview',
       messages: [
-        { 
-          role: "system", 
-          content: `${CONTEXTUAL_ASSISTANT_PROMPT}\n\nContext:\n${context}` 
+        {
+          role: 'system',
+          content: `${CONTEXTUAL_ASSISTANT_PROMPT}\n\nContext:\n${context}`,
         },
-        { role: "user", content: userMessage }
+        { role: 'user', content: userMessage },
       ],
       temperature: 0.7,
-      max_tokens: 500
+      max_tokens: 500,
     });
 
     return response.choices[0].message.content || "I couldn't generate a response.";
@@ -1170,8 +1191,8 @@ export class Mem0Service {
 
   private async generateEmbedding(text: string): Promise<number[]> {
     const response = await this.openai.embeddings.create({
-      model: "text-embedding-ada-002",
-      input: text
+      model: 'text-embedding-ada-002',
+      input: text,
     });
 
     return response.data[0].embedding;
@@ -1181,7 +1202,7 @@ export class Mem0Service {
 
 ### AI Accuracy Monitoring
 
-```typescript
+````typescript
 // src/lib/ai/monitoring.service.ts
 export class AIMonitoringService {
   async trackTaskExtractionAccuracy(
@@ -1221,7 +1242,7 @@ export class AIMonitoringService {
 
     // Store metrics for trend analysis
     await this.storeMetrics(metrics);
-    
+
     return metrics;
   }
 
@@ -1230,7 +1251,7 @@ export class AIMonitoringService {
     const baselineMetrics = await this.getBaselineMetrics();
 
     const driftScore = this.calculateDriftScore(recentMetrics, baselineMetrics);
-    
+
     return {
       driftScore,
       recommendation: driftScore > 0.1 ? 'RETRAIN' : 'CONTINUE',
@@ -1255,16 +1276,16 @@ interface EnhancedTaskCardProps {
   compact?: boolean;
 }
 
-export function EnhancedTaskCard({ 
-  task, 
-  onClick, 
+export function EnhancedTaskCard({
+  task,
+  onClick,
   onStatusChange,
   showDependencies = true,
-  compact = false 
+  compact = false
 }: EnhancedTaskCardProps) {
   const energyColors = {
     HIGH: 'bg-red-100 text-red-800',
-    MEDIUM: 'bg-yellow-100 text-yellow-800', 
+    MEDIUM: 'bg-yellow-100 text-yellow-800',
     LOW: 'bg-green-100 text-green-800'
   };
 
@@ -1284,7 +1305,7 @@ export function EnhancedTaskCard({
   };
 
   return (
-    <div 
+    <div
       className={`
         rounded-lg border-2 p-4 shadow-sm cursor-pointer transition-all duration-200
         ${priorityColors[task.priority] || priorityColors[3]}
@@ -1304,7 +1325,7 @@ export function EnhancedTaskCard({
             <p className="text-sm text-gray-600 mt-1">{task.description}</p>
           )}
         </div>
-        
+
         {/* Status indicator */}
         <div className="flex items-center gap-2 ml-2">
           {task.status === 'BLOCKED' && (
@@ -1318,7 +1339,7 @@ export function EnhancedTaskCard({
       <div className="flex items-center gap-2 mb-3 flex-wrap">
         {/* Energy level */}
         {task.energyLevel && (
-          <span 
+          <span
             className={`px-2 py-1 rounded-full text-xs font-medium ${energyColors[task.energyLevel]}`}
             title={`${task.energyLevel} energy required`}
           >
@@ -1328,7 +1349,7 @@ export function EnhancedTaskCard({
 
         {/* Focus type */}
         {task.focusType && (
-          <span 
+          <span
             className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium"
             title={`${task.focusType} work`}
           >
@@ -1338,7 +1359,7 @@ export function EnhancedTaskCard({
 
         {/* Estimated time */}
         {task.estimatedMinutes && (
-          <span 
+          <span
             className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium"
             title="Estimated duration"
           >
@@ -1353,7 +1374,7 @@ export function EnhancedTaskCard({
       {/* Deadlines */}
       {(task.hardDeadline || task.softDeadline) && (
         <div className="mb-3">
-          <DeadlineIndicator 
+          <DeadlineIndicator
             hardDeadline={task.hardDeadline}
             softDeadline={task.softDeadline}
           />
@@ -1387,7 +1408,7 @@ export function EnhancedTaskCard({
             <span>• {task.project.name}</span>
           )}
         </div>
-        
+
         <div className="flex items-center gap-1">
           <ActionButton
             icon="▶️"
@@ -1397,7 +1418,7 @@ export function EnhancedTaskCard({
           />
           <ActionButton
             icon="✅"
-            title="Complete task" 
+            title="Complete task"
             onClick={() => onStatusChange?.(TaskStatus.DONE)}
           />
         </div>
@@ -1405,7 +1426,7 @@ export function EnhancedTaskCard({
     </div>
   );
 }
-```
+````
 
 #### Enhanced Dashboard Layout
 
@@ -1423,7 +1444,7 @@ export function EnhancedDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header with controls */}
-      <DashboardHeader 
+      <DashboardHeader
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         filters={filters}
@@ -1436,7 +1457,7 @@ export function EnhancedDashboard() {
           {/* Primary view */}
           <div className="flex-1 p-6">
             {viewMode === 'focus' && <FocusView />}
-            {viewMode === 'list' && <TaskListView />}  
+            {viewMode === 'list' && <TaskListView />}
             {viewMode === 'calendar' && <CalendarView />}
           </div>
 
@@ -1467,7 +1488,7 @@ export class KeyboardNavigationManager {
   }
 
   private setupKeyboardListeners(): void {
-    document.addEventListener('keydown', (event) => {
+    document.addEventListener('keydown', event => {
       switch (event.key) {
         case 'Tab':
           // Handle tab navigation
@@ -1497,9 +1518,9 @@ export class KeyboardNavigationManager {
     announcement.setAttribute('aria-atomic', 'true');
     announcement.className = 'sr-only';
     announcement.textContent = message;
-    
+
     document.body.appendChild(announcement);
-    
+
     setTimeout(() => {
       document.body.removeChild(announcement);
     }, 1000);
@@ -1513,8 +1534,8 @@ export class KeyboardNavigationManager {
 // Enhanced TaskCard with accessibility
 export function AccessibleTaskCard({ task }: { task: Task }) {
   const ariaLabel = `
-    Task: ${task.title}. 
-    Status: ${task.status}. 
+    Task: ${task.title}.
+    Status: ${task.status}.
     Priority: ${task.priority} out of 5.
     ${task.energyLevel ? `Energy level: ${task.energyLevel}.` : ''}
     ${task.estimatedMinutes ? `Estimated time: ${task.estimatedMinutes} minutes.` : ''}
@@ -1594,10 +1615,10 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: 'Enhanced task card with full metadata display and accessibility support'
-      }
-    }
-  }
+        component: 'Enhanced task card with full metadata display and accessibility support',
+      },
+    },
+  },
 } as Meta;
 
 export const HighPriorityCreative: Story = {
@@ -1613,26 +1634,24 @@ export const HighPriorityCreative: Story = {
       priority: 5,
       hardDeadline: new Date('2025-07-29T17:00:00'),
       source: TaskSource.BOSS,
-      project: { name: 'Dashboard Redesign' }
-    }
-  }
+      project: { name: 'Dashboard Redesign' },
+    },
+  },
 };
 
 export const BlockedTechnical: Story = {
   args: {
     task: {
-      id: '2', 
+      id: '2',
       title: 'Implement API integration',
       status: TaskStatus.BLOCKED,
       energyLevel: EnergyLevel.MEDIUM,
       focusType: FocusType.TECHNICAL,
       estimatedMinutes: 90,
       priority: 4,
-      dependencies: [
-        { id: '3', title: 'API specifications complete', status: TaskStatus.TODO }
-      ]
-    }
-  }
+      dependencies: [{ id: '3', title: 'API specifications complete', status: TaskStatus.TODO }],
+    },
+  },
 };
 
 export const LowEnergyAdmin: Story = {
@@ -1646,9 +1665,9 @@ export const LowEnergyAdmin: Story = {
       estimatedMinutes: 30,
       priority: 2,
       source: TaskSource.SELF,
-      aiSuggestion: 'Best scheduled for end of day when energy is lower'
-    }
-  }
+      aiSuggestion: 'Best scheduled for end of day when energy is lower',
+    },
+  },
 };
 ```
 
@@ -1656,11 +1675,11 @@ export const LowEnergyAdmin: Story = {
 
 ### Test Pyramid Structure
 
-| Test Level | Coverage Goal | Tools | Focus |
-|------------|---------------|-------|-------|
-| Unit Tests | 85% | Jest, React Testing Library | Individual components, utilities, business logic |
-| Integration Tests | 70% | Jest, Supertest | API endpoints, database operations, AI services |
-| E2E Tests | Key user flows | Playwright | Critical user journeys, accessibility |
+| Test Level        | Coverage Goal  | Tools                       | Focus                                            |
+| ----------------- | -------------- | --------------------------- | ------------------------------------------------ |
+| Unit Tests        | 85%            | Jest, React Testing Library | Individual components, utilities, business logic |
+| Integration Tests | 70%            | Jest, Supertest             | API endpoints, database operations, AI services  |
+| E2E Tests         | Key user flows | Playwright                  | Critical user journeys, accessibility            |
 
 ### Unit Testing
 
@@ -1677,24 +1696,24 @@ describe('DailyPlannerService', () => {
       morningEnergyLevel: EnergyLevel.HIGH,
       afternoonEnergyLevel: EnergyLevel.MEDIUM,
       preferredWorkHours: 8,
-      focusSessionLength: 90
+      focusSessionLength: 90,
     };
-    
+
     mockTasks = [
       createMockTask({
         title: 'Write proposal',
         energyLevel: EnergyLevel.HIGH,
         focusType: FocusType.CREATIVE,
         estimatedMinutes: 90,
-        priority: 5
+        priority: 5,
       }),
       createMockTask({
-        title: 'Review emails', 
+        title: 'Review emails',
         energyLevel: EnergyLevel.LOW,
         focusType: FocusType.ADMINISTRATIVE,
         estimatedMinutes: 30,
-        priority: 2
-      })
+        priority: 2,
+      }),
     ];
   });
 
@@ -1706,13 +1725,11 @@ describe('DailyPlannerService', () => {
         availableTasks: mockTasks,
         userSettings: mockUserSettings,
         workingHours: createMockWorkingHours(),
-        existingCommitments: []
+        existingCommitments: [],
       });
 
-      const morningBlock = plan.scheduleBlocks.find(
-        block => block.startTime.getHours() < 12
-      );
-      
+      const morningBlock = plan.scheduleBlocks.find(block => block.startTime.getHours() < 12);
+
       expect(morningBlock?.task.energyLevel).toBe(EnergyLevel.HIGH);
     });
 
@@ -1720,7 +1737,7 @@ describe('DailyPlannerService', () => {
       const urgentTask = createMockTask({
         title: 'Urgent report',
         hardDeadline: new Date('2025-07-28T14:00:00'),
-        priority: 5
+        priority: 5,
       });
 
       const plan = await planner.generatePlan({
@@ -1729,22 +1746,18 @@ describe('DailyPlannerService', () => {
         availableTasks: [...mockTasks, urgentTask],
         userSettings: mockUserSettings,
         workingHours: createMockWorkingHours(),
-        existingCommitments: []
+        existingCommitments: [],
       });
 
-      const urgentBlock = plan.scheduleBlocks.find(
-        block => block.task.title === 'Urgent report'
-      );
-      
-      expect(urgentBlock?.startTime.getTime()).toBeLessThan(
-        urgentTask.hardDeadline!.getTime()
-      );
+      const urgentBlock = plan.scheduleBlocks.find(block => block.task.title === 'Urgent report');
+
+      expect(urgentBlock?.startTime.getTime()).toBeLessThan(urgentTask.hardDeadline!.getTime());
     });
 
     it('should handle blocked tasks correctly', async () => {
       const blockedTask = createMockTask({
         title: 'Blocked task',
-        status: TaskStatus.BLOCKED
+        status: TaskStatus.BLOCKED,
       });
 
       const plan = await planner.generatePlan({
@@ -1753,17 +1766,15 @@ describe('DailyPlannerService', () => {
         availableTasks: [...mockTasks, blockedTask],
         userSettings: mockUserSettings,
         workingHours: createMockWorkingHours(),
-        existingCommitments: []
+        existingCommitments: [],
       });
 
       const blockedInSchedule = plan.scheduleBlocks.some(
         block => block.task.title === 'Blocked task'
       );
-      
+
       expect(blockedInSchedule).toBe(false);
-      expect(plan.unscheduledTasks).toContain(
-        expect.objectContaining({ title: 'Blocked task' })
-      );
+      expect(plan.unscheduledTasks).toContain(expect.objectContaining({ title: 'Blocked task' }));
     });
   });
 
@@ -1781,10 +1792,10 @@ describe('DailyPlannerService', () => {
     it('should increase score for tasks due today', () => {
       const today = new Date('2025-07-28');
       const dueToday = createMockTask({
-        hardDeadline: new Date('2025-07-28T17:00:00')
+        hardDeadline: new Date('2025-07-28T17:00:00'),
       });
       const dueLater = createMockTask({
-        hardDeadline: new Date('2025-07-30T17:00:00')
+        hardDeadline: new Date('2025-07-30T17:00:00'),
       });
 
       const todayScore = planner.calculateTaskScore(dueToday, today);
@@ -1812,7 +1823,7 @@ describe('TasksController (Integration)', () => {
 
     app = moduleFixture.createNestApplication();
     prisma = moduleFixture.get<PrismaService>(PrismaService);
-    
+
     await app.init();
     authToken = await createTestAuthToken();
   });
@@ -1832,7 +1843,7 @@ describe('TasksController (Integration)', () => {
         focusType: FocusType.CREATIVE,
         estimatedMinutes: 60,
         priority: 4,
-        softDeadline: new Date('2025-07-30T17:00:00')
+        softDeadline: new Date('2025-07-30T17:00:00'),
       };
 
       const response = await request(app.getHttpServer())
@@ -1846,20 +1857,20 @@ describe('TasksController (Integration)', () => {
         energyLevel: 'HIGH',
         focusType: 'CREATIVE',
         estimatedMinutes: 60,
-        priority: 4
+        priority: 4,
       });
 
       const savedTask = await prisma.task.findUnique({
-        where: { id: response.body.id }
+        where: { id: response.body.id },
       });
-      
+
       expect(savedTask).toBeTruthy();
       expect(savedTask?.energyLevel).toBe('HIGH');
     });
 
     it('should validate required fields', async () => {
       const invalidDto = {
-        description: 'Missing title'
+        description: 'Missing title',
       };
 
       await request(app.getHttpServer())
@@ -1875,7 +1886,7 @@ describe('TasksController (Integration)', () => {
     it('should enforce enum constraints', async () => {
       const invalidDto = {
         title: 'Test task',
-        energyLevel: 'INVALID_LEVEL'
+        energyLevel: 'INVALID_LEVEL',
       };
 
       await request(app.getHttpServer())
@@ -1902,15 +1913,13 @@ describe('TasksController (Integration)', () => {
       expect(response.body).toHaveProperty('scheduleBlocks');
       expect(response.body).toHaveProperty('energyOptimization');
       expect(response.body).toHaveProperty('focusOptimization');
-      
+
       // Verify high-energy tasks scheduled in morning
       const morningBlocks = response.body.scheduleBlocks.filter(
         block => new Date(block.startTime).getHours() < 12
       );
-      
-      expect(morningBlocks.some(
-        block => block.task.energyLevel === 'HIGH'
-      )).toBe(true);
+
+      expect(morningBlocks.some(block => block.task.energyLevel === 'HIGH')).toBe(true);
     });
   });
 });
@@ -1929,20 +1938,21 @@ test.describe('Task Management Flow', () => {
   test('should create task with AI assistance', async ({ page }) => {
     // Open AI chat
     await page.click('[data-testid="ai-chat-button"]');
-    
+
     // Request task extraction
-    await page.fill('[data-testid="chat-input"]', 
+    await page.fill(
+      '[data-testid="chat-input"]',
       'I need to write a project proposal by Friday and schedule a team meeting next week'
     );
     await page.click('[data-testid="send-button"]');
-    
+
     // Wait for AI response
     await page.waitForSelector('[data-testid="extract-tasks-button"]');
     await page.click('[data-testid="extract-tasks-button"]');
-    
+
     // Verify tasks were created
     await expect(page.locator('[data-testid="task-card"]')).toHaveCount(2);
-    
+
     // Check metadata was assigned
     const taskCard = page.locator('[data-testid="task-card"]').first();
     await expect(taskCard.locator('[data-testid="energy-badge"]')).toBeVisible();
@@ -1952,40 +1962,42 @@ test.describe('Task Management Flow', () => {
   test('should generate optimized daily plan', async ({ page }) => {
     // Navigate to focus view
     await page.click('[data-testid="focus-view-tab"]');
-    
+
     // Generate today's plan
     await page.click('[data-testid="generate-plan-button"]');
-    
+
     // Verify plan was generated
     await expect(page.locator('[data-testid="schedule-block"]')).toHaveCount.greaterThan(0);
-    
+
     // Check energy optimization
     const morningBlocks = page.locator('[data-testid="schedule-block"]').filter({
-      hasText: /^(09|10|11):/
+      hasText: /^(09|10|11):/,
     });
-    
-    await expect(morningBlocks.locator('[data-testid="high-energy-task"]')).toHaveCount.greaterThan(0);
+
+    await expect(morningBlocks.locator('[data-testid="high-energy-task"]')).toHaveCount.greaterThan(
+      0
+    );
   });
 
   test('should handle dependencies correctly', async ({ page }) => {
     // Create dependent tasks
     await createDependentTasks(page);
-    
+
     // Verify blocked task is shown as blocked
     const blockedTask = page.locator('[data-testid="task-card"]').filter({
-      hasText: 'Dependent Task'
+      hasText: 'Dependent Task',
     });
-    
+
     await expect(blockedTask.locator('[data-testid="blocked-indicator"]')).toBeVisible();
-    
+
     // Complete prerequisite task
     const prerequisiteTask = page.locator('[data-testid="task-card"]').filter({
-      hasText: 'Prerequisite Task'
+      hasText: 'Prerequisite Task',
     });
-    
+
     await prerequisiteTask.click();
     await page.click('[data-testid="complete-task-button"]');
-    
+
     // Verify dependent task is unblocked
     await expect(blockedTask.locator('[data-testid="blocked-indicator"]')).not.toBeVisible();
   });
@@ -1994,30 +2006,30 @@ test.describe('Task Management Flow', () => {
 test.describe('Accessibility', () => {
   test('should support keyboard navigation', async ({ page }) => {
     await page.goto('/dashboard');
-    
+
     // Tab through focusable elements
     await page.keyboard.press('Tab');
     await page.keyboard.press('Tab');
     await page.keyboard.press('Tab');
-    
+
     // Verify focus is visible
     await expect(page.locator(':focus')).toBeVisible();
-    
+
     // Activate with Enter key
     await page.keyboard.press('Enter');
-    
+
     // Verify action was triggered
     await expect(page.locator('[data-testid="task-details"]')).toBeVisible();
   });
 
   test('should work with screen readers', async ({ page }) => {
     await page.goto('/dashboard');
-    
+
     // Check ARIA labels
     const taskCard = page.locator('[data-testid="task-card"]').first();
     await expect(taskCard).toHaveAttribute('aria-label');
     await expect(taskCard).toHaveAttribute('role', 'button');
-    
+
     // Check live regions for dynamic updates
     await page.click('[data-testid="complete-task-button"]');
     await expect(page.locator('[aria-live="polite"]')).toHaveText(/completed/i);
@@ -2032,10 +2044,10 @@ test.describe('Accessibility', () => {
 test.describe('Performance Tests', () => {
   test('dashboard should load within 2 seconds', async ({ page }) => {
     const startTime = Date.now();
-    
+
     await page.goto('/dashboard');
     await page.waitForLoadState('networkidle');
-    
+
     const loadTime = Date.now() - startTime;
     expect(loadTime).toBeLessThan(2000);
   });
@@ -2043,16 +2055,16 @@ test.describe('Performance Tests', () => {
   test('should handle 100 tasks without performance degradation', async ({ page }) => {
     // Create 100 test tasks
     await createManyTasks(100);
-    
+
     await page.goto('/dashboard');
-    
+
     // Measure rendering time
     const startTime = Date.now();
     await page.waitForSelector('[data-testid="task-card"]');
     const renderTime = Date.now() - startTime;
-    
+
     expect(renderTime).toBeLessThan(1000);
-    
+
     // Verify all tasks are rendered
     await expect(page.locator('[data-testid="task-card"]')).toHaveCount(100);
   });
@@ -2065,20 +2077,20 @@ test.describe('Performance Tests', () => {
 
 #### Key Performance Indicators
 
-| Metric | Target | Description | Collection Method |
-|--------|--------|-------------|-------------------|
-| **User Engagement** |
-| Daily Active Users | >80% | Users who interact with system daily | Page views, API calls |
-| Plan Adherence Rate | >70% | % of scheduled tasks completed on time | Task completion tracking |
-| AI Interaction Rate | >50% | Users engaging with AI features daily | Chat interactions, extractions |
-| **System Performance** |
-| API Response Time | <200ms p95 | 95th percentile API response time | OpenTelemetry traces |
-| Dashboard Load Time | <2s | Time to interactive for dashboard | Real User Monitoring |
-| AI Request Latency | <5s | Time for AI responses | Custom metrics |
-| **AI Accuracy** |
-| Task Extraction Accuracy | >85% | Correctly extracted tasks from text | User feedback tracking |
-| Classification Accuracy | >80% | Correct metadata prediction | User corrections tracking |
-| Suggestion Relevance | >75% | User-rated suggestion quality | Rating system |
+| Metric                   | Target     | Description                            | Collection Method              |
+| ------------------------ | ---------- | -------------------------------------- | ------------------------------ |
+| **User Engagement**      |
+| Daily Active Users       | >80%       | Users who interact with system daily   | Page views, API calls          |
+| Plan Adherence Rate      | >70%       | % of scheduled tasks completed on time | Task completion tracking       |
+| AI Interaction Rate      | >50%       | Users engaging with AI features daily  | Chat interactions, extractions |
+| **System Performance**   |
+| API Response Time        | <200ms p95 | 95th percentile API response time      | OpenTelemetry traces           |
+| Dashboard Load Time      | <2s        | Time to interactive for dashboard      | Real User Monitoring           |
+| AI Request Latency       | <5s        | Time for AI responses                  | Custom metrics                 |
+| **AI Accuracy**          |
+| Task Extraction Accuracy | >85%       | Correctly extracted tasks from text    | User feedback tracking         |
+| Classification Accuracy  | >80%       | Correct metadata prediction            | User corrections tracking      |
+| Suggestion Relevance     | >75%       | User-rated suggestion quality          | Rating system                  |
 
 #### Metrics Collection Implementation
 
@@ -2086,7 +2098,7 @@ test.describe('Performance Tests', () => {
 // src/lib/monitoring/metrics.service.ts
 export class MetricsService {
   private prometheus: PromClient;
-  
+
   constructor() {
     this.prometheus = PromClient;
     this.initializeMetrics();
@@ -2097,21 +2109,21 @@ export class MetricsService {
     this.taskCompletionRate = new this.prometheus.Gauge({
       name: 'helmsman_task_completion_rate',
       help: 'Rate of task completion',
-      labelNames: ['user_id', 'energy_level', 'focus_type']
+      labelNames: ['user_id', 'energy_level', 'focus_type'],
     });
 
     // AI accuracy metrics
     this.aiAccuracyGauge = new this.prometheus.Gauge({
       name: 'helmsman_ai_accuracy',
       help: 'AI prediction accuracy',
-      labelNames: ['feature', 'model_version']
+      labelNames: ['feature', 'model_version'],
     });
 
     // Plan adherence metrics
     this.planAdherenceGauge = new this.prometheus.Gauge({
       name: 'helmsman_plan_adherence',
       help: 'How well users follow generated plans',
-      labelNames: ['user_id', 'plan_date']
+      labelNames: ['user_id', 'plan_date'],
     });
 
     // API performance metrics
@@ -2119,7 +2131,7 @@ export class MetricsService {
       name: 'helmsman_api_duration_seconds',
       help: 'API request duration',
       labelNames: ['method', 'route', 'status'],
-      buckets: [0.01, 0.05, 0.1, 0.2, 0.5, 1, 2, 5]
+      buckets: [0.01, 0.05, 0.1, 0.2, 0.5, 1, 2, 5],
     });
   }
 
@@ -2127,22 +2139,16 @@ export class MetricsService {
     this.taskCompletionRate.inc({
       user_id: user.id,
       energy_level: task.energyLevel || 'unknown',
-      focus_type: task.focusType || 'unknown'
+      focus_type: task.focusType || 'unknown',
     });
   }
 
   recordAIAccuracy(feature: string, accuracy: number, modelVersion: string): void {
-    this.aiAccuracyGauge.set(
-      { feature, model_version: modelVersion },
-      accuracy
-    );
+    this.aiAccuracyGauge.set({ feature, model_version: modelVersion }, accuracy);
   }
 
   recordPlanAdherence(userId: string, planDate: string, adherenceRate: number): void {
-    this.planAdherenceGauge.set(
-      { user_id: userId, plan_date: planDate },
-      adherenceRate
-    );
+    this.planAdherenceGauge.set({ user_id: userId, plan_date: planDate }, adherenceRate);
   }
 }
 ```
@@ -2152,57 +2158,44 @@ export class MetricsService {
 ```yaml
 # grafana/dashboards/helmsman-overview.json
 {
-  "dashboard": {
-    "title": "Helmsman Overview",
-    "panels": [
-      {
-        "title": "Daily Active Users",
-        "type": "stat",
-        "targets": [
+  'dashboard':
+    {
+      'title': 'Helmsman Overview',
+      'panels':
+        [
           {
-            "expr": "count(increase(helmsman_user_sessions_total[1d]))"
-          }
-        ]
-      },
-      {
-        "title": "Plan Adherence Rate",
-        "type": "gauge",
-        "targets": [
+            'title': 'Daily Active Users',
+            'type': 'stat',
+            'targets': [{ 'expr': 'count(increase(helmsman_user_sessions_total[1d]))' }],
+          },
           {
-            "expr": "avg(helmsman_plan_adherence)"
-          }
+            'title': 'Plan Adherence Rate',
+            'type': 'gauge',
+            'targets': [{ 'expr': 'avg(helmsman_plan_adherence)' }],
+            'fieldConfig':
+              {
+                'min': 0,
+                'max': 1,
+                'thresholds':
+                  [
+                    { 'color': 'red', 'value': 0 },
+                    { 'color': 'yellow', 'value': 0.6 },
+                    { 'color': 'green', 'value': 0.8 },
+                  ],
+              },
+          },
+          {
+            'title': 'AI Accuracy Trends',
+            'type': 'timeseries',
+            'targets': [{ 'expr': 'helmsman_ai_accuracy', 'legendFormat': '{{feature}}' }],
+          },
+          {
+            'title': 'API Performance',
+            'type': 'heatmap',
+            'targets': [{ 'expr': 'rate(helmsman_api_duration_seconds_bucket[5m])' }],
+          },
         ],
-        "fieldConfig": {
-          "min": 0,
-          "max": 1,
-          "thresholds": [
-            { "color": "red", "value": 0 },
-            { "color": "yellow", "value": 0.6 },
-            { "color": "green", "value": 0.8 }
-          ]
-        }
-      },
-      {
-        "title": "AI Accuracy Trends",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "helmsman_ai_accuracy",
-            "legendFormat": "{{feature}}"
-          }
-        ]
-      },
-      {
-        "title": "API Performance",
-        "type": "heatmap",
-        "targets": [
-          {
-            "expr": "rate(helmsman_api_duration_seconds_bucket[5m])"
-          }
-        ]
-      }
-    ]
-  }
+    },
 }
 ```
 
@@ -2222,36 +2215,36 @@ export class RateLimitingMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction): Promise<void> {
     const key = `rate_limit:${req.ip}:${req.route?.path}`;
     const limit = this.getLimitForRoute(req.route?.path);
-    
+
     const current = await this.redis.incr(key);
-    
+
     if (current === 1) {
       await this.redis.expire(key, 60); // 1 minute window
     }
-    
+
     if (current > limit) {
       res.status(429).json({
         error: 'Rate limit exceeded',
-        retryAfter: await this.redis.ttl(key)
+        retryAfter: await this.redis.ttl(key),
       });
       return;
     }
-    
+
     // Add rate limit headers
     res.setHeader('X-RateLimit-Limit', limit);
     res.setHeader('X-RateLimit-Remaining', Math.max(0, limit - current));
-    
+
     next();
   }
 
   private getLimitForRoute(path?: string): number {
     const limits = {
-      '/api/ai/extract-tasks': 10,  // AI endpoints are expensive
+      '/api/ai/extract-tasks': 10, // AI endpoints are expensive
       '/api/ai/classify-task': 20,
       '/api/plans/today': 30,
-      default: 60
+      default: 60,
     };
-    
+
     return limits[path] || limits.default;
   }
 }
@@ -2280,8 +2273,8 @@ export class AuditLoggerService {
         changes: changes ? JSON.stringify(changes) : null,
         timestamp: new Date(),
         ipAddress: this.getClientIP(),
-        userAgent: this.getUserAgent()
-      }
+        userAgent: this.getUserAgent(),
+      },
     });
   }
 
@@ -2295,14 +2288,15 @@ export class AuditLoggerService {
       where: {
         ...(userId && { userId }),
         ...(entityType && { entityType }),
-        ...(startDate && endDate && {
-          timestamp: {
-            gte: startDate,
-            lte: endDate
-          }
-        })
+        ...(startDate &&
+          endDate && {
+            timestamp: {
+              gte: startDate,
+              lte: endDate,
+            },
+          }),
       },
-      orderBy: { timestamp: 'desc' }
+      orderBy: { timestamp: 'desc' },
     });
   }
 }
@@ -2333,7 +2327,7 @@ export class EncryptionService {
     return {
       iv: iv.toString('hex'),
       data: encrypted,
-      authTag: authTag.toString('hex')
+      authTag: authTag.toString('hex'),
     };
   }
 
@@ -2355,41 +2349,43 @@ export class EncryptionService {
 ### Sprint Planning (3 Sprints × 2 weeks each)
 
 #### Sprint 1: Foundation & Backend Enhancement
+
 **Duration**: 2 weeks
 **Focus**: Backend schema, API endpoints, basic AI integration
 
 ##### Week 1 Tasks
 
-| Task | Effort | Owner | Acceptance Criteria |
-|------|--------|-------|-------------------|
-| **Backend Schema Enhancement** |
-| Update Prisma schema with metadata fields | 2d | Backend Dev | All spec fields added, migrations work |
-| Create migration scripts with backfill | 1d | Backend Dev | Existing data preserved, defaults applied |
-| Update Task model interfaces | 0.5d | Backend Dev | TypeScript types match schema |
-| **API Development** |
-| Enhanced Tasks CRUD endpoints | 2d | Backend Dev | Full metadata support, validation |
-| Task dependency endpoints | 1d | Backend Dev | Create/read/delete dependencies |
-| User settings endpoints | 1d | Backend Dev | Energy patterns, preferences |
-| **Basic AI Integration** |
-| OpenAI service setup | 1d | AI/Backend Dev | API client configured, error handling |
-| Task extraction endpoint (basic) | 2d | AI/Backend Dev | Extract tasks from simple text input |
+| Task                                      | Effort | Owner          | Acceptance Criteria                       |
+| ----------------------------------------- | ------ | -------------- | ----------------------------------------- |
+| **Backend Schema Enhancement**            |
+| Update Prisma schema with metadata fields | 2d     | Backend Dev    | All spec fields added, migrations work    |
+| Create migration scripts with backfill    | 1d     | Backend Dev    | Existing data preserved, defaults applied |
+| Update Task model interfaces              | 0.5d   | Backend Dev    | TypeScript types match schema             |
+| **API Development**                       |
+| Enhanced Tasks CRUD endpoints             | 2d     | Backend Dev    | Full metadata support, validation         |
+| Task dependency endpoints                 | 1d     | Backend Dev    | Create/read/delete dependencies           |
+| User settings endpoints                   | 1d     | Backend Dev    | Energy patterns, preferences              |
+| **Basic AI Integration**                  |
+| OpenAI service setup                      | 1d     | AI/Backend Dev | API client configured, error handling     |
+| Task extraction endpoint (basic)          | 2d     | AI/Backend Dev | Extract tasks from simple text input      |
 
 ##### Week 2 Tasks
 
-| Task | Effort | Owner | Acceptance Criteria |
-|------|--------|-------|-------------------|
-| **AI Services** |
-| Task classification service | 2d | AI Dev | Predict metadata from title/description |
-| Basic prompt engineering | 1d | AI Dev | Consistent, accurate responses |
-| Error handling & fallbacks | 1d | Backend Dev | Graceful degradation when AI fails |
-| **Infrastructure** |
-| Rate limiting implementation | 1d | Backend Dev | Protect AI endpoints from abuse |
-| Basic monitoring setup | 1d | DevOps | Prometheus metrics, health checks |
-| **Testing** |
-| Unit tests for new services | 2d | All Devs | 80% coverage for new code |
-| Integration tests for APIs | 1d | Backend Dev | Key endpoints tested end-to-end |
+| Task                         | Effort | Owner       | Acceptance Criteria                     |
+| ---------------------------- | ------ | ----------- | --------------------------------------- |
+| **AI Services**              |
+| Task classification service  | 2d     | AI Dev      | Predict metadata from title/description |
+| Basic prompt engineering     | 1d     | AI Dev      | Consistent, accurate responses          |
+| Error handling & fallbacks   | 1d     | Backend Dev | Graceful degradation when AI fails      |
+| **Infrastructure**           |
+| Rate limiting implementation | 1d     | Backend Dev | Protect AI endpoints from abuse         |
+| Basic monitoring setup       | 1d     | DevOps      | Prometheus metrics, health checks       |
+| **Testing**                  |
+| Unit tests for new services  | 2d     | All Devs    | 80% coverage for new code               |
+| Integration tests for APIs   | 1d     | Backend Dev | Key endpoints tested end-to-end         |
 
 **Sprint 1 Definition of Done:**
+
 - [ ] Enhanced Prisma schema deployed
 - [ ] All existing tasks migrated with defaults
 - [ ] Task CRUD APIs support full metadata
@@ -2399,38 +2395,40 @@ export class EncryptionService {
 - [ ] 80% test coverage for new code
 
 #### Sprint 2: Planning Algorithm & Frontend Enhancement
+
 **Duration**: 2 weeks  
 **Focus**: Daily planning algorithm, enhanced UI components
 
 ##### Week 3 Tasks
 
-| Task | Effort | Owner | Acceptance Criteria |
-|------|--------|-------|-------------------|
-| **Planning Algorithm** |
-| Core scheduling algorithm | 3d | Backend/AI Dev | Score tasks, assign time slots |
-| Dependency resolution logic | 1d | Backend Dev | Handle blocking relationships |
-| Energy pattern optimization | 1d | AI Dev | Match tasks to user energy levels |
-| **Frontend Components** |
-| Enhanced TaskCard component | 2d | Frontend Dev | Display all metadata visually |
-| Priority/energy/focus indicators | 1d | Frontend Dev | Badges, colors, icons |
-| Dependency visualization | 1d | Frontend Dev | Show blocking relationships |
+| Task                             | Effort | Owner          | Acceptance Criteria               |
+| -------------------------------- | ------ | -------------- | --------------------------------- |
+| **Planning Algorithm**           |
+| Core scheduling algorithm        | 3d     | Backend/AI Dev | Score tasks, assign time slots    |
+| Dependency resolution logic      | 1d     | Backend Dev    | Handle blocking relationships     |
+| Energy pattern optimization      | 1d     | AI Dev         | Match tasks to user energy levels |
+| **Frontend Components**          |
+| Enhanced TaskCard component      | 2d     | Frontend Dev   | Display all metadata visually     |
+| Priority/energy/focus indicators | 1d     | Frontend Dev   | Badges, colors, icons             |
+| Dependency visualization         | 1d     | Frontend Dev   | Show blocking relationships       |
 
 ##### Week 4 Tasks
 
-| Task | Effort | Owner | Acceptance Criteria |
-|------|--------|-------|-------------------|
-| **Dashboard Enhancement** |
-| Focus view improvements | 2d | Frontend Dev | Show optimized daily plan |
-| Filter/sort functionality | 1d | Frontend Dev | Filter by metadata fields |
-| Real-time updates | 1d | Frontend Dev | WebSocket or polling updates |
-| **AI Integration** |
-| Connect frontend to AI services | 2d | Frontend/Backend | Real task extraction in UI |
-| Improved prompt engineering | 1d | AI Dev | Higher accuracy, better metadata |
-| **Accessibility** |
-| Keyboard navigation | 1d | Frontend Dev | Full keyboard accessibility |
-| Screen reader support | 1d | Frontend Dev | ARIA labels, announcements |
+| Task                            | Effort | Owner            | Acceptance Criteria              |
+| ------------------------------- | ------ | ---------------- | -------------------------------- |
+| **Dashboard Enhancement**       |
+| Focus view improvements         | 2d     | Frontend Dev     | Show optimized daily plan        |
+| Filter/sort functionality       | 1d     | Frontend Dev     | Filter by metadata fields        |
+| Real-time updates               | 1d     | Frontend Dev     | WebSocket or polling updates     |
+| **AI Integration**              |
+| Connect frontend to AI services | 2d     | Frontend/Backend | Real task extraction in UI       |
+| Improved prompt engineering     | 1d     | AI Dev           | Higher accuracy, better metadata |
+| **Accessibility**               |
+| Keyboard navigation             | 1d     | Frontend Dev     | Full keyboard accessibility      |
+| Screen reader support           | 1d     | Frontend Dev     | ARIA labels, announcements       |
 
 **Sprint 2 Definition of Done:**
+
 - [ ] Daily planning algorithm generates optimized schedules
 - [ ] TaskCard displays all metadata with proper UI
 - [ ] Focus view shows energy-optimized task ordering
@@ -2439,38 +2437,40 @@ export class EncryptionService {
 - [ ] Accessibility compliance (WCAG AA)
 
 #### Sprint 3: Advanced AI & Production Readiness
+
 **Duration**: 2 weeks
 **Focus**: Advanced AI features, production deployment, monitoring
 
 ##### Week 5 Tasks
 
-| Task | Effort | Owner | Acceptance Criteria |
-|------|--------|-------|-------------------|
-| **Advanced AI Features** |
-| Mem0 integration setup | 2d | AI/Backend Dev | Vector storage, embeddings |
-| Contextual responses | 2d | AI Dev | RAG-based AI responses |
-| Proactive suggestions | 1d | AI Dev | Generate helpful nudges |
+| Task                          | Effort | Owner          | Acceptance Criteria           |
+| ----------------------------- | ------ | -------------- | ----------------------------- |
+| **Advanced AI Features**      |
+| Mem0 integration setup        | 2d     | AI/Backend Dev | Vector storage, embeddings    |
+| Contextual responses          | 2d     | AI Dev         | RAG-based AI responses        |
+| Proactive suggestions         | 1d     | AI Dev         | Generate helpful nudges       |
 | **Production Infrastructure** |
-| Docker containerization | 1d | DevOps | All services containerized |
-| Kubernetes deployment | 2d | DevOps | Scalable, reliable deployment |
+| Docker containerization       | 1d     | DevOps         | All services containerized    |
+| Kubernetes deployment         | 2d     | DevOps         | Scalable, reliable deployment |
 
 ##### Week 6 Tasks
 
-| Task | Effort | Owner | Acceptance Criteria |
-|------|--------|-------|-------------------|
+| Task                      | Effort | Owner               | Acceptance Criteria                     |
+| ------------------------- | ------ | ------------------- | --------------------------------------- |
 | **Monitoring & Security** |
-| Comprehensive monitoring | 1d | DevOps | Grafana dashboards, alerts |
-| Security hardening | 1d | Backend Dev | Rate limits, encryption, audit logs |
-| Performance optimization | 1d | All Devs | Meet performance targets |
-| **Quality Assurance** |
-| End-to-end testing | 2d | QA/Frontend Dev | Critical user flows tested |
-| Load testing | 1d | DevOps | Performance under load |
-| Security testing | 1d | Security Specialist | Penetration testing, vulnerability scan |
-| **Documentation** |
-| API documentation | 0.5d | Backend Dev | OpenAPI specs complete |
-| User documentation | 0.5d | Frontend Dev | User guides, help content |
+| Comprehensive monitoring  | 1d     | DevOps              | Grafana dashboards, alerts              |
+| Security hardening        | 1d     | Backend Dev         | Rate limits, encryption, audit logs     |
+| Performance optimization  | 1d     | All Devs            | Meet performance targets                |
+| **Quality Assurance**     |
+| End-to-end testing        | 2d     | QA/Frontend Dev     | Critical user flows tested              |
+| Load testing              | 1d     | DevOps              | Performance under load                  |
+| Security testing          | 1d     | Security Specialist | Penetration testing, vulnerability scan |
+| **Documentation**         |
+| API documentation         | 0.5d   | Backend Dev         | OpenAPI specs complete                  |
+| User documentation        | 0.5d   | Frontend Dev        | User guides, help content               |
 
 **Sprint 3 Definition of Done:**
+
 - [ ] Mem0 semantic memory operational
 - [ ] Contextual AI responses working
 - [ ] Production deployment successful
@@ -2481,28 +2481,30 @@ export class EncryptionService {
 
 ### Risk Register & Mitigations
 
-| Risk | Probability | Impact | Mitigation Strategy |
-|------|-------------|--------|-------------------|
-| **Technical Risks** |
-| AI API rate limits/costs | Medium | High | Implement caching, request batching, fallback to simpler algorithms |
-| Schema migration failures | Low | High | Thorough testing in staging, rollback plans, incremental migrations |
-| Performance degradation | Medium | Medium | Load testing, database indexing, caching layer |
-| **Scope Risks** |
-| Feature creep | High | Medium | Strict scope management, defer nice-to-haves to post-MVP |
-| AI accuracy below targets | Medium | High | Extensive prompt engineering, user feedback loops, human fallbacks |
-| **Resource Risks** |
-| Key developer unavailable | Medium | High | Cross-training, documentation, pair programming |
-| Third-party service downtime | Low | High | Service redundancy, circuit breakers, graceful degradation |
+| Risk                         | Probability | Impact | Mitigation Strategy                                                 |
+| ---------------------------- | ----------- | ------ | ------------------------------------------------------------------- |
+| **Technical Risks**          |
+| AI API rate limits/costs     | Medium      | High   | Implement caching, request batching, fallback to simpler algorithms |
+| Schema migration failures    | Low         | High   | Thorough testing in staging, rollback plans, incremental migrations |
+| Performance degradation      | Medium      | Medium | Load testing, database indexing, caching layer                      |
+| **Scope Risks**              |
+| Feature creep                | High        | Medium | Strict scope management, defer nice-to-haves to post-MVP            |
+| AI accuracy below targets    | Medium      | High   | Extensive prompt engineering, user feedback loops, human fallbacks  |
+| **Resource Risks**           |
+| Key developer unavailable    | Medium      | High   | Cross-training, documentation, pair programming                     |
+| Third-party service downtime | Low         | High   | Service redundancy, circuit breakers, graceful degradation          |
 
 ### Critical Path Analysis
 
 **Dependencies:**
+
 1. Backend schema → API development → Frontend integration
-2. AI service setup → Prompt engineering → Frontend AI features  
+2. AI service setup → Prompt engineering → Frontend AI features
 3. Planning algorithm → Focus view → User testing
 4. Basic features → Advanced AI → Production deployment
 
 **Potential Bottlenecks:**
+
 - AI prompt engineering (iterative, hard to estimate)
 - Database migration with large datasets
 - Performance optimization under load
@@ -2512,6 +2514,7 @@ export class EncryptionService {
 ### Database Migrations
 
 #### Migration Strategy
+
 ```sql
 -- Phase 1: Add nullable columns (safe)
 ALTER TABLE tasks ADD COLUMN energy_level VARCHAR(10);
@@ -2523,7 +2526,7 @@ ALTER TABLE tasks ADD COLUMN source VARCHAR(20) DEFAULT 'SELF';
 ALTER TABLE tasks ADD COLUMN priority INTEGER DEFAULT 3;
 
 -- Phase 2: Backfill data (safe)
-UPDATE tasks SET 
+UPDATE tasks SET
   energy_level = 'MEDIUM',
   focus_type = 'ADMINISTRATIVE',
   priority = 3,
@@ -2536,6 +2539,7 @@ ALTER TABLE tasks ALTER COLUMN priority SET NOT NULL;
 ```
 
 #### Rollback Plan
+
 ```sql
 -- If rollback needed, drop new columns
 ALTER TABLE tasks DROP COLUMN energy_level;
@@ -2550,10 +2554,10 @@ ALTER TABLE tasks DROP COLUMN estimated_minutes;
 // src/lib/featureFlags/flags.ts
 export enum FeatureFlags {
   ENHANCED_TASK_METADATA = 'enhanced_task_metadata',
-  AI_TASK_EXTRACTION = 'ai_task_extraction', 
+  AI_TASK_EXTRACTION = 'ai_task_extraction',
   DAILY_PLANNING = 'daily_planning',
   MEM0_INTEGRATION = 'mem0_integration',
-  ADVANCED_AI_FEATURES = 'advanced_ai_features'
+  ADVANCED_AI_FEATURES = 'advanced_ai_features',
 }
 
 export class FeatureFlagService {
@@ -2577,6 +2581,7 @@ export class FeatureFlagService {
 ### Deployment Checklist
 
 #### Pre-Deployment
+
 - [ ] All tests passing (unit, integration, e2e)
 - [ ] Security scan completed
 - [ ] Performance testing passed
@@ -2586,6 +2591,7 @@ export class FeatureFlagService {
 - [ ] Rollback plan documented
 
 #### Deployment Process
+
 1. **Phase 1**: Deploy backend with feature flags disabled
 2. **Phase 2**: Run database migrations
 3. **Phase 3**: Deploy frontend with new features
@@ -2593,6 +2599,7 @@ export class FeatureFlagService {
 5. **Phase 5**: Monitor metrics and user feedback
 
 #### Post-Deployment
+
 - [ ] Health checks passing
 - [ ] Metrics within expected ranges
 - [ ] No error spikes in logs
@@ -2602,6 +2609,7 @@ export class FeatureFlagService {
 ### Monitoring & Alerting
 
 #### Critical Alerts
+
 ```yaml
 # alerts/helmsman-critical.yml
 groups:
@@ -2611,30 +2619,32 @@ groups:
         expr: rate(helmsman_api_errors_total[5m]) > 0.1
         for: 2m
         annotations:
-          summary: "High API error rate detected"
-          
+          summary: 'High API error rate detected'
+
       - alert: AIServiceDown
         expr: up{job="helmsman-ai"} == 0
         for: 1m
         annotations:
-          summary: "AI service is down"
-          
+          summary: 'AI service is down'
+
       - alert: DatabaseConnectionFail
         expr: helmsman_db_connections_failed_total > 5
         for: 30s
         annotations:
-          summary: "Database connection failures"
+          summary: 'Database connection failures'
 ```
 
 ### User Communication Plan
 
 #### Change Notifications
+
 - **Email Campaign**: Notify users of upcoming features
 - **In-App Notifications**: Feature tour for new UI
 - **Documentation Updates**: Help center articles
 - **Support Training**: Customer support team briefing
 
 #### Gradual Rollout Strategy
+
 1. **Internal Testing** (Week 1): Development team
 2. **Beta Users** (Week 2): Volunteer users, feedback collection
 3. **Gradual Release** (Week 3-4): 25% → 50% → 100% of users
@@ -2645,24 +2655,28 @@ groups:
 ## Assumptions & Constraints
 
 ### Technical Assumptions
+
 - Users have modern browsers supporting ES2020+
 - OpenAI API remains stable and cost-effective
 - PostgreSQL performance adequate for user base
 - Network connectivity reliable for AI features
 
-### Business Assumptions  
+### Business Assumptions
+
 - Users willing to provide task metadata for better scheduling
 - AI suggestions will be perceived as valuable
 - Productivity gains justify implementation cost
 - User base will grow to justify infrastructure investment
 
 ### Resource Constraints
+
 - 6-week delivery timeline is fixed
 - Development team of 4-5 people
 - Budget constraints for AI API usage
 - Limited QA resources for comprehensive testing
 
 ### Success Criteria
+
 - 80% user adoption of AI features within 3 months
 - 70% plan adherence rate achieved
 - 85% AI task extraction accuracy

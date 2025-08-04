@@ -242,7 +242,8 @@ export const WithManyTasks: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Dashboard with expanded task list demonstrating filtering and organization capabilities.',
+        story:
+          'Dashboard with expanded task list demonstrating filtering and organization capabilities.',
       },
     },
   },
@@ -361,7 +362,7 @@ export const ProductiveDay: Story = {
       },
       {
         id: 'remaining-1',
-        title: 'Prepare tomorrow\'s standup',
+        title: "Prepare tomorrow's standup",
         description: 'Review progress and plan discussion points',
         status: 'TODO',
         priority: 2,

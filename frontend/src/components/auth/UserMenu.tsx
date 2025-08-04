@@ -21,8 +21,12 @@ export function UserMenu() {
     return null;
   }
 
-  const initials = user.name 
-    ? user.name.split(' ').map(n => n[0]).join('').toUpperCase() 
+  const initials = user.name
+    ? user.name
+        .split(' ')
+        .map(n => n[0])
+        .join('')
+        .toUpperCase()
     : user.email[0].toUpperCase();
 
   return (
@@ -38,12 +42,8 @@ export function UserMenu() {
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">
-              {user.name || 'User'}
-            </p>
-            <p className="text-xs leading-none text-muted-foreground">
-              {user.email}
-            </p>
+            <p className="text-sm font-medium leading-none">{user.name || 'User'}</p>
+            <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

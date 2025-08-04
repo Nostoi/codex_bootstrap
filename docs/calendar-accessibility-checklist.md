@@ -3,6 +3,7 @@
 ## WCAG 2.2 AA Compliance Requirements
 
 ### ✅ Color and Contrast
+
 - [ ] All text has contrast ratio ≥4.5:1 (normal text) or ≥3:1 (large text 18px+)
 - [ ] Energy level colors maintain accessibility contrast ratios
 - [ ] Focus type colors are distinguishable for colorblind users
@@ -11,6 +12,7 @@
 - [ ] Colorblind-friendly alternatives available (deuteranopia, protanopia, tritanopia)
 
 ### ✅ Keyboard Navigation
+
 - [ ] All interactive elements are reachable via keyboard
 - [ ] Tab order is logical and predictable
 - [ ] Arrow keys navigate between calendar cells
@@ -23,6 +25,7 @@
 - [ ] Skip links allow bypassing repetitive navigation
 
 ### ✅ Screen Reader Support
+
 - [ ] Semantic HTML structure (nav, main, section, article)
 - [ ] ARIA roles correctly implemented (grid, gridcell, button, etc.)
 - [ ] ARIA labels provide context for all interactive elements
@@ -34,6 +37,7 @@
 - [ ] Error messages are associated with relevant fields
 
 ### ✅ Motion and Animation
+
 - [ ] Respects `prefers-reduced-motion` media query
 - [ ] Animations can be disabled via user settings
 - [ ] Essential motion (drag feedback) has static alternatives
@@ -44,6 +48,7 @@
 ## ADHD-Specific Accessibility
 
 ### ✅ Cognitive Load Management
+
 - [ ] Maximum 3 colors per view to prevent overwhelm
 - [ ] Consistent visual patterns across all components
 - [ ] Clear visual hierarchy with appropriate font sizing
@@ -53,6 +58,7 @@
 - [ ] Related information is grouped visually
 
 ### ✅ Interaction Predictability
+
 - [ ] 300ms drag delay prevents accidental operations
 - [ ] Confirmation dialogs for significant changes
 - [ ] Consistent button placement across views
@@ -62,6 +68,7 @@
 - [ ] Predictable response to user input
 
 ### ✅ Customization Options
+
 - [ ] Font size adjustment (12px-24px range)
 - [ ] High contrast mode toggle
 - [ ] Reduced motion preference setting
@@ -73,9 +80,10 @@
 ## Component-Specific Requirements
 
 ### CalendarView (Main Container)
+
 ```typescript
 // Required ARIA attributes
-<div 
+<div
   role="application"
   aria-label="Calendar view for task and event management"
   aria-describedby="calendar-instructions"
@@ -87,15 +95,17 @@
 ```
 
 **Checklist:**
+
 - [ ] Main container has application role
 - [ ] Instructions provided for screen readers
 - [ ] Keyboard shortcuts documented
 - [ ] Focus management on view changes
 
 ### CalendarHeader (Navigation)
+
 ```typescript
 <nav aria-label="Calendar navigation">
-  <button 
+  <button
     aria-label="Previous month"
     aria-describedby="nav-hint"
   >
@@ -107,14 +117,16 @@
 ```
 
 **Checklist:**
+
 - [ ] Navigation landmark role
 - [ ] Descriptive button labels
 - [ ] Current date announced with aria-live
 - [ ] View switcher uses radio button group pattern
 
 ### CalendarGrid (Main Calendar)
+
 ```typescript
-<div 
+<div
   role="grid"
   aria-label="Calendar grid showing July 2025"
   aria-rowcount={6}
@@ -122,8 +134,8 @@
 >
   <div role="rowgroup">
     <div role="row" aria-rowindex={1}>
-      <div 
-        role="columnheader" 
+      <div
+        role="columnheader"
         aria-label="Sunday"
       >
         Sun
@@ -134,12 +146,14 @@
 ```
 
 **Checklist:**
+
 - [ ] Grid role with row/column structure
 - [ ] Row and column headers properly labeled
 - [ ] Row and column indices provided
 - [ ] Cell selection state announced
 
 ### TimeSlot Components
+
 ```typescript
 <div
   role="gridcell"
@@ -153,6 +167,7 @@
 ```
 
 **Checklist:**
+
 - [ ] Gridcell role for time slots
 - [ ] Descriptive labels with time and date
 - [ ] Selection state communicated
@@ -160,6 +175,7 @@
 - [ ] Roving tabindex for keyboard navigation
 
 ### CalendarEvent Components
+
 ```typescript
 <div
   role="button"
@@ -176,12 +192,14 @@
 ```
 
 **Checklist:**
+
 - [ ] Button role for interactive events
 - [ ] Complete event information in aria-label
 - [ ] Drag state communicated with aria-grabbed
 - [ ] Instructions provided for interaction
 
 ### Modal Dialogs
+
 ```typescript
 <div
   role="dialog"
@@ -195,6 +213,7 @@
 ```
 
 **Checklist:**
+
 - [ ] Dialog role with aria-modal
 - [ ] Title and description properly associated
 - [ ] Focus trap implemented
@@ -204,6 +223,7 @@
 ## Testing Requirements
 
 ### Automated Testing
+
 - [ ] axe-core accessibility tests pass
 - [ ] Jest unit tests for keyboard navigation
 - [ ] Playwright E2E tests include accessibility checks
@@ -211,6 +231,7 @@
 - [ ] ARIA attribute validation
 
 ### Manual Testing
+
 - [ ] Screen reader testing (NVDA, JAWS, VoiceOver)
 - [ ] Keyboard-only navigation testing
 - [ ] High contrast mode verification
@@ -219,6 +240,7 @@
 - [ ] Cognitive load assessment with ADHD users
 
 ### Performance Requirements
+
 - [ ] Tab navigation latency <100ms
 - [ ] Screen reader announcement delays appropriate
 - [ ] Focus indicators render within 16ms
@@ -228,6 +250,7 @@
 ## Validation Tools
 
 ### Automated Tools
+
 - **axe-core**: Comprehensive accessibility testing
 - **lighthouse**: Performance and accessibility audit
 - **pa11y**: Command line accessibility tester
@@ -235,12 +258,14 @@
 - **WAVE**: Web accessibility evaluation
 
 ### Browser Extensions
+
 - **axe DevTools**: Real-time accessibility testing
 - **Accessibility Insights**: Microsoft accessibility testing
 - **Colour Contrast Analyser**: Manual contrast checking
 - **HeadingsMap**: Document structure validation
 
 ### Screen Readers
+
 - **NVDA** (Windows): Primary testing target
 - **JAWS** (Windows): Enterprise screen reader
 - **VoiceOver** (macOS/iOS): Apple ecosystem testing
@@ -249,6 +274,7 @@
 ## Implementation Notes
 
 ### CSS Considerations
+
 ```css
 /* Focus indicators must be clearly visible */
 .calendar-element:focus {
@@ -275,6 +301,7 @@
 ```
 
 ### JavaScript Considerations
+
 ```typescript
 // Respect user preferences
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;

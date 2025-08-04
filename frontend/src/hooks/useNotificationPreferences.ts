@@ -8,7 +8,7 @@ export interface NotificationTypePreference {
 
 export interface QuietHours {
   start: string; // 24-hour format "HH:MM"
-  end: string;   // 24-hour format "HH:MM"
+  end: string; // 24-hour format "HH:MM"
   enabled: boolean;
 }
 
@@ -75,7 +75,8 @@ export function useNotificationPreferences(options: UseNotificationPreferencesOp
       const data = await response.json();
       setPreferences(data.preferences);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch notification preferences';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to fetch notification preferences';
       setError(errorMessage);
       console.error('Error fetching notification preferences:', err);
     } finally {
@@ -104,40 +105,44 @@ export function useNotificationPreferences(options: UseNotificationPreferencesOp
   }, []);
 
   // Update notification preferences
-  const updatePreferences = useCallback(async (updates: Partial<NotificationPreferences>) => {
-    setSaving(true);
-    setError(null);
+  const updatePreferences = useCallback(
+    async (updates: Partial<NotificationPreferences>) => {
+      setSaving(true);
+      setError(null);
 
-    try {
-      const response = await fetch('/api/notifications/preferences', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(updates),
-      });
+      try {
+        const response = await fetch('/api/notifications/preferences', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(updates),
+        });
 
-      if (!response.ok) {
-        throw new Error(`Failed to update preferences: ${response.statusText}`);
+        if (!response.ok) {
+          throw new Error(`Failed to update preferences: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        setPreferences(data.preferences);
+
+        // Refresh summary after update
+        await fetchSummary();
+
+        return data.preferences;
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : 'Failed to update notification preferences';
+        setError(errorMessage);
+        console.error('Error updating notification preferences:', err);
+        throw err;
+      } finally {
+        setSaving(false);
       }
-
-      const data = await response.json();
-      setPreferences(data.preferences);
-      
-      // Refresh summary after update
-      await fetchSummary();
-      
-      return data.preferences;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update notification preferences';
-      setError(errorMessage);
-      console.error('Error updating notification preferences:', err);
-      throw err;
-    } finally {
-      setSaving(false);
-    }
-  }, [fetchSummary]);
+    },
+    [fetchSummary]
+  );
 
   // Reset preferences to defaults
   const resetToDefaults = useCallback(async () => {
@@ -159,10 +164,10 @@ export function useNotificationPreferences(options: UseNotificationPreferencesOp
 
       const data = await response.json();
       setPreferences(data.preferences);
-      
+
       // Refresh summary after reset
       await fetchSummary();
-      
+
       return data.preferences;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to reset preferences';
@@ -175,59 +180,71 @@ export function useNotificationPreferences(options: UseNotificationPreferencesOp
   }, [fetchSummary]);
 
   // Update specific notification type preference
-  const updateTypePreference = useCallback(async (
-    type: keyof NotificationPreferences['types'], 
-    preference: Partial<NotificationTypePreference>
-  ) => {
-    if (!preferences) return;
+  const updateTypePreference = useCallback(
+    async (
+      type: keyof NotificationPreferences['types'],
+      preference: Partial<NotificationTypePreference>
+    ) => {
+      if (!preferences) return;
 
-    const updatedTypes = {
-      ...preferences.types,
-      [type]: {
-        ...preferences.types[type],
-        ...preference
-      }
-    };
+      const updatedTypes = {
+        ...preferences.types,
+        [type]: {
+          ...preferences.types[type],
+          ...preference,
+        },
+      };
 
-    return updatePreferences({ types: updatedTypes });
-  }, [preferences, updatePreferences]);
+      return updatePreferences({ types: updatedTypes });
+    },
+    [preferences, updatePreferences]
+  );
 
   // Update quiet hours
-  const updateQuietHours = useCallback(async (quietHours: Partial<QuietHours>) => {
-    if (!preferences) return;
+  const updateQuietHours = useCallback(
+    async (quietHours: Partial<QuietHours>) => {
+      if (!preferences) return;
 
-    const updatedQuietHours = {
-      ...preferences.quietHours,
-      ...quietHours
-    };
+      const updatedQuietHours = {
+        ...preferences.quietHours,
+        ...quietHours,
+      };
 
-    return updatePreferences({ quietHours: updatedQuietHours });
-  }, [preferences, updatePreferences]);
+      return updatePreferences({ quietHours: updatedQuietHours });
+    },
+    [preferences, updatePreferences]
+  );
 
   // Update ADHD settings
-  const updateAdhdSettings = useCallback(async (adhdSettings: Partial<NotificationPreferences['adhd']>) => {
-    if (!preferences) return;
+  const updateAdhdSettings = useCallback(
+    async (adhdSettings: Partial<NotificationPreferences['adhd']>) => {
+      if (!preferences) return;
 
-    const updatedAdhd = {
-      ...preferences.adhd,
-      ...adhdSettings
-    };
+      const updatedAdhd = {
+        ...preferences.adhd,
+        ...adhdSettings,
+      };
 
-    return updatePreferences({ adhd: updatedAdhd });
-  }, [preferences, updatePreferences]);
+      return updatePreferences({ adhd: updatedAdhd });
+    },
+    [preferences, updatePreferences]
+  );
 
   // Toggle global notifications
-  const toggleGlobalNotifications = useCallback(async (enabled: boolean) => {
-    return updatePreferences({ globalEnabled: enabled });
-  }, [updatePreferences]);
+  const toggleGlobalNotifications = useCallback(
+    async (enabled: boolean) => {
+      return updatePreferences({ globalEnabled: enabled });
+    },
+    [updatePreferences]
+  );
 
   // Toggle specific notification type
-  const toggleNotificationType = useCallback(async (
-    type: keyof NotificationPreferences['types'], 
-    enabled: boolean
-  ) => {
-    return updateTypePreference(type, { enabled });
-  }, [updateTypePreference]);
+  const toggleNotificationType = useCallback(
+    async (type: keyof NotificationPreferences['types'], enabled: boolean) => {
+      return updateTypePreference(type, { enabled });
+    },
+    [updateTypePreference]
+  );
 
   // Validate time format
   const isValidTimeFormat = useCallback((time: string): boolean => {
@@ -241,7 +258,7 @@ export function useNotificationPreferences(options: UseNotificationPreferencesOp
 
     const now = new Date();
     const currentTime = now.getHours() * 60 + now.getMinutes(); // minutes since midnight
-    
+
     const parseTime = (timeString: string): number => {
       const [hours, minutes] = timeString.split(':').map(Number);
       return hours * 60 + minutes;
@@ -270,13 +287,13 @@ export function useNotificationPreferences(options: UseNotificationPreferencesOp
     // Data
     preferences,
     summary,
-    
+
     // State
     loading,
     error,
     saving,
     isInQuietHours: isInQuietHours(),
-    
+
     // Actions
     fetchPreferences,
     fetchSummary,
@@ -287,7 +304,7 @@ export function useNotificationPreferences(options: UseNotificationPreferencesOp
     updateAdhdSettings,
     toggleGlobalNotifications,
     toggleNotificationType,
-    
+
     // Helpers
     isValidTimeFormat,
     hasPreferences: preferences !== null,

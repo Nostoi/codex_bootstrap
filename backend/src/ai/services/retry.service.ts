@@ -1,10 +1,10 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger } from '@nestjs/common';
 import {
   OpenAIQuotaExceededException,
   OpenAIInvalidRequestException,
   OpenAIUnauthorizedException,
-} from "../exceptions/openai.exceptions";
-import { RetryConfig } from "../interfaces/openai.interfaces";
+} from '../exceptions/openai.exceptions';
+import { RetryConfig } from '../interfaces/openai.interfaces';
 
 @Injectable()
 export class RetryService {
@@ -13,16 +13,14 @@ export class RetryService {
   async executeWithRetry<T>(
     operation: () => Promise<T>,
     config: RetryConfig,
-    context: string = "Operation",
+    context: string = 'Operation'
   ): Promise<T> {
     let lastError: Error;
 
     for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
       try {
         if (attempt > 0) {
-          this.logger.warn(
-            `${context} - Retry attempt ${attempt}/${config.maxRetries}`,
-          );
+          this.logger.warn(`${context} - Retry attempt ${attempt}/${config.maxRetries}`);
         }
 
         return await operation();
@@ -31,17 +29,13 @@ export class RetryService {
 
         // Don't retry for certain error types
         if (this.shouldNotRetry(error)) {
-          this.logger.error(
-            `${context} - Non-retryable error: ${error.message}`,
-          );
+          this.logger.error(`${context} - Non-retryable error: ${error.message}`);
           throw error;
         }
 
         // Don't retry on the last attempt
         if (attempt === config.maxRetries) {
-          this.logger.error(
-            `${context} - Max retries (${config.maxRetries}) exceeded`,
-          );
+          this.logger.error(`${context} - Max retries (${config.maxRetries}) exceeded`);
           break;
         }
 
@@ -49,7 +43,7 @@ export class RetryService {
         const delay = this.calculateDelay(attempt, config);
 
         this.logger.warn(
-          `${context} - Attempt ${attempt + 1} failed: ${error.message}. Retrying in ${delay}ms`,
+          `${context} - Attempt ${attempt + 1} failed: ${error.message}. Retrying in ${delay}ms`
         );
 
         await this.sleep(delay);
@@ -79,8 +73,7 @@ export class RetryService {
   }
 
   private calculateDelay(attempt: number, config: RetryConfig): number {
-    const exponentialDelay =
-      config.baseDelay * Math.pow(config.backoffMultiplier, attempt);
+    const exponentialDelay = config.baseDelay * Math.pow(config.backoffMultiplier, attempt);
     const jitter = Math.random() * 0.1 * exponentialDelay; // Add 10% jitter
     const delay = Math.min(exponentialDelay + jitter, config.maxDelay);
 
@@ -88,6 +81,6 @@ export class RetryService {
   }
 
   private sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }

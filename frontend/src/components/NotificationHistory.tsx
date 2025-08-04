@@ -3,26 +3,32 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { useNotificationHistory, NotificationHistoryFilter } from '@/hooks/useNotificationHistory';
 import { NotificationData } from '@/contexts/WebSocketContext';
-import { 
-  Bell, 
-  BellOff, 
-  Clock, 
-  Check, 
-  CheckCheck, 
-  Trash2, 
-  Filter, 
+import {
+  Bell,
+  BellOff,
+  Clock,
+  Check,
+  CheckCheck,
+  Trash2,
+  Filter,
   RefreshCw,
   Calendar,
   AlertTriangle,
   CheckCircle,
   Info,
-  Loader2
+  Loader2,
 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 
@@ -68,7 +74,7 @@ const NotificationItem: React.FC<{
 
   const handleMarkRead = async () => {
     if (notification.read) return;
-    
+
     setIsMarking(true);
     await onMarkRead(notification.id);
     setIsMarking(false);
@@ -81,20 +87,20 @@ const NotificationItem: React.FC<{
   };
 
   return (
-    <div className={`p-4 border rounded-lg transition-colors ${
-      notification.read ? 'bg-muted/30' : 'bg-background border-primary/20'
-    }`}>
+    <div
+      className={`p-4 border rounded-lg transition-colors ${
+        notification.read ? 'bg-muted/30' : 'bg-background border-primary/20'
+      }`}
+    >
       <div className="flex items-start gap-3">
         <Checkbox
           checked={selected}
-          onCheckedChange={(checked) => onSelect(notification.id, !!checked)}
+          onCheckedChange={checked => onSelect(notification.id, !!checked)}
           className="mt-1"
         />
-        
-        <div className="flex-shrink-0 mt-1">
-          {getNotificationIcon(notification.type)}
-        </div>
-        
+
+        <div className="flex-shrink-0 mt-1">{getNotificationIcon(notification.type)}</div>
+
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <Badge variant={notification.read ? 'secondary' : 'default'} className="text-xs">
@@ -106,19 +112,23 @@ const NotificationItem: React.FC<{
               </Badge>
             )}
           </div>
-          
-          <h4 className={`font-medium text-sm mb-1 ${
-            notification.read ? 'text-muted-foreground' : 'text-foreground'
-          }`}>
+
+          <h4
+            className={`font-medium text-sm mb-1 ${
+              notification.read ? 'text-muted-foreground' : 'text-foreground'
+            }`}
+          >
             {notification.title}
           </h4>
-          
-          <p className={`text-sm mb-2 ${
-            notification.read ? 'text-muted-foreground' : 'text-foreground'
-          }`}>
+
+          <p
+            className={`text-sm mb-2 ${
+              notification.read ? 'text-muted-foreground' : 'text-foreground'
+            }`}
+          >
             {notification.message}
           </p>
-          
+
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
@@ -132,7 +142,7 @@ const NotificationItem: React.FC<{
                 </span>
               )}
             </div>
-            
+
             <div className="flex items-center gap-1">
               {!notification.read && (
                 <Button
@@ -150,7 +160,7 @@ const NotificationItem: React.FC<{
                   Mark Read
                 </Button>
               )}
-              
+
               <Button
                 variant="ghost"
                 size="sm"
@@ -201,7 +211,7 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ classN
   // Filter notifications by search term
   const filteredNotifications = useMemo(() => {
     if (!searchTerm) return notifications;
-    
+
     const term = searchTerm.toLowerCase();
     return notifications.filter(
       notification =>
@@ -233,7 +243,7 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ classN
       const notification = notifications.find(n => n.id === id);
       return notification && !notification.read;
     });
-    
+
     if (unreadSelected.length > 0) {
       await markMultipleAsRead(unreadSelected);
       setSelectedNotifications(new Set());
@@ -253,7 +263,8 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ classN
   };
 
   const hasSelection = selectedNotifications.size > 0;
-  const allFilteredSelected = filteredNotifications.length > 0 && 
+  const allFilteredSelected =
+    filteredNotifications.length > 0 &&
     filteredNotifications.every(n => selectedNotifications.has(n.id));
 
   return (
@@ -271,34 +282,25 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ classN
               </Badge>
             )}
           </div>
-          
+
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-            >
+            <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
               <Filter className="w-4 h-4" />
               Filters
             </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={refresh}
-              disabled={loading}
-            >
+
+            <Button variant="outline" size="sm" onClick={refresh} disabled={loading}>
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
           </div>
         </div>
-        
+
         {showFilters && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
             <Select
               value={filters.type || 'all'}
-              onValueChange={(value) => 
+              onValueChange={value =>
                 setFilters(prev => ({ ...prev, type: value === 'all' ? undefined : value }))
               }
             >
@@ -312,13 +314,13 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ classN
                 <SelectItem value="deadline-reminder">Deadline Reminders</SelectItem>
               </SelectContent>
             </Select>
-            
+
             <Select
               value={filters.read === undefined ? 'all' : filters.read ? 'read' : 'unread'}
-              onValueChange={(value) => 
-                setFilters(prev => ({ 
-                  ...prev, 
-                  read: value === 'all' ? undefined : value === 'read' 
+              onValueChange={value =>
+                setFilters(prev => ({
+                  ...prev,
+                  read: value === 'all' ? undefined : value === 'read',
                 }))
               }
             >
@@ -331,44 +333,33 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ classN
                 <SelectItem value="read">Read Only</SelectItem>
               </SelectContent>
             </Select>
-            
-            <Button onClick={() => handleApplyFilters(filters)}>
-              Apply Filters
-            </Button>
+
+            <Button onClick={() => handleApplyFilters(filters)}>Apply Filters</Button>
           </div>
         )}
-        
+
         <div className="flex items-center gap-4">
           <Input
             placeholder="Search notifications..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={e => setSearchTerm(e.target.value)}
             className="flex-1"
           />
-          
+
           {filteredNotifications.length > 0 && (
             <div className="flex items-center gap-2">
-              <Checkbox
-                checked={allFilteredSelected}
-                onCheckedChange={handleSelectAll}
-              />
+              <Checkbox checked={allFilteredSelected} onCheckedChange={handleSelectAll} />
               <span className="text-sm text-muted-foreground">
                 Select All ({selectedNotifications.size})
               </span>
             </div>
           )}
         </div>
-        
+
         {hasSelection && (
           <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
-            <span className="text-sm font-medium">
-              {selectedNotifications.size} selected
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleMarkSelectedAsRead}
-            >
+            <span className="text-sm font-medium">{selectedNotifications.size} selected</span>
+            <Button variant="outline" size="sm" onClick={handleMarkSelectedAsRead}>
               <CheckCheck className="w-4 h-4 mr-1" />
               Mark as Read
             </Button>
@@ -384,21 +375,21 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ classN
           </div>
         )}
       </CardHeader>
-      
+
       <CardContent>
         {error && (
           <div className="p-4 mb-4 text-sm text-destructive bg-destructive/10 rounded-lg border border-destructive/20">
             Error: {error}
           </div>
         )}
-        
+
         {loading && isEmpty && (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="w-6 h-6 animate-spin mr-2" />
             Loading notifications...
           </div>
         )}
-        
+
         {isEmpty && !loading && (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <BellOff className="w-12 h-12 text-muted-foreground mb-4" />
@@ -410,11 +401,11 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ classN
             </p>
           </div>
         )}
-        
+
         {filteredNotifications.length > 0 && (
           <ScrollArea className="h-[600px]">
             <div className="space-y-3">
-              {filteredNotifications.map((notification) => (
+              {filteredNotifications.map(notification => (
                 <NotificationItem
                   key={notification.id}
                   notification={notification}
@@ -424,17 +415,11 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ classN
                   onSelect={handleSelectNotification}
                 />
               ))}
-              
+
               {hasMore && (
                 <div className="flex justify-center pt-4">
-                  <Button
-                    variant="outline"
-                    onClick={loadMore}
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    ) : null}
+                  <Button variant="outline" onClick={loadMore} disabled={loading}>
+                    {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                     Load More
                   </Button>
                 </div>
@@ -442,7 +427,7 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ classN
             </div>
           </ScrollArea>
         )}
-        
+
         {filteredNotifications.length > 0 && (
           <div className="flex items-center justify-between pt-4 border-t text-sm text-muted-foreground">
             <span>

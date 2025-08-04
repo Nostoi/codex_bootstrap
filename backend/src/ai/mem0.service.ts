@@ -1,12 +1,12 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class Mem0Service {
   async storeInteraction(text: string): Promise<void> {
     await fetch(`${process.env.MEM0_URL}/store`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${process.env.MEM0_API_KEY}`,
       },
       body: JSON.stringify({ text }),
@@ -15,9 +15,9 @@ export class Mem0Service {
 
   async search(query: string): Promise<string[]> {
     const res = await fetch(`${process.env.MEM0_URL}/search`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${process.env.MEM0_API_KEY}`,
       },
       body: JSON.stringify({ query }),

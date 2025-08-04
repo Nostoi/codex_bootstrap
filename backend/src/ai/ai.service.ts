@@ -1,8 +1,8 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import OpenAI from "openai";
-import { Mem0Service } from "./mem0.service";
-import { RetryService } from "./services/retry.service";
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import OpenAI from 'openai';
+import { Mem0Service } from './mem0.service';
+import { RetryService } from './services/retry.service';
 import {
   OpenAIException,
   OpenAIRateLimitException,
@@ -11,7 +11,7 @@ import {
   OpenAIUnauthorizedException,
   OpenAIServerException,
   OpenAITimeoutException,
-} from "./exceptions/openai.exceptions";
+} from './exceptions/openai.exceptions';
 import {
   OpenAIConfig,
   OpenAIResponse,
@@ -21,17 +21,14 @@ import {
   Suggestion,
   SummaryResponse,
   ChatMessage,
-} from "./interfaces/openai.interfaces";
+} from './interfaces/openai.interfaces';
 import {
   TaskGenerationDto,
   TaskExtractionDto,
   SuggestionRequestDto,
   SummarizationDto,
-} from "./dto/openai.dto";
-import {
-  getTaskExtractionValidator,
-  getTaskClassificationValidator,
-} from "./schemas/validate";
+} from './dto/openai.dto';
+import { getTaskExtractionValidator, getTaskClassificationValidator } from './schemas/validate';
 
 @Injectable()
 export class AiService {
@@ -44,7 +41,7 @@ export class AiService {
   constructor(
     private configService: ConfigService,
     private mem0Service: Mem0Service,
-    private retryService: RetryService,
+    private retryService: RetryService
   ) {
     this.config = this.loadConfig();
     this.openai = new OpenAI({
@@ -62,24 +59,18 @@ export class AiService {
 
   private loadConfig(): OpenAIConfig {
     return {
-      apiKey: this.configService.get<string>("OPENAI_API_KEY"),
-      baseURL: this.configService.get<string>("OPENAI_BASE_URL"),
-      organization: this.configService.get<string>("OPENAI_ORGANIZATION"),
-      project: this.configService.get<string>("OPENAI_PROJECT"),
-      timeout: this.configService.get<number>("OPENAI_TIMEOUT", 30000),
-      maxTokens: this.configService.get<number>("OPENAI_MAX_TOKENS", 4096),
-      defaultModel: this.configService.get<string>(
-        "OPENAI_DEFAULT_MODEL",
-        "gpt-4o-mini",
-      ),
+      apiKey: this.configService.get<string>('OPENAI_API_KEY'),
+      baseURL: this.configService.get<string>('OPENAI_BASE_URL'),
+      organization: this.configService.get<string>('OPENAI_ORGANIZATION'),
+      project: this.configService.get<string>('OPENAI_PROJECT'),
+      timeout: this.configService.get<number>('OPENAI_TIMEOUT', 30000),
+      maxTokens: this.configService.get<number>('OPENAI_MAX_TOKENS', 4096),
+      defaultModel: this.configService.get<string>('OPENAI_DEFAULT_MODEL', 'gpt-4o-mini'),
       retry: {
-        maxRetries: this.configService.get<number>("OPENAI_MAX_RETRIES", 3),
-        baseDelay: this.configService.get<number>("OPENAI_BASE_DELAY", 1000),
-        maxDelay: this.configService.get<number>("OPENAI_MAX_DELAY", 10000),
-        backoffMultiplier: this.configService.get<number>(
-          "OPENAI_BACKOFF_MULTIPLIER",
-          2,
-        ),
+        maxRetries: this.configService.get<number>('OPENAI_MAX_RETRIES', 3),
+        baseDelay: this.configService.get<number>('OPENAI_BASE_DELAY', 1000),
+        maxDelay: this.configService.get<number>('OPENAI_MAX_DELAY', 10000),
+        backoffMultiplier: this.configService.get<number>('OPENAI_BACKOFF_MULTIPLIER', 2),
         retryableStatusCodes: [429, 500, 502, 503, 504],
       },
     };
@@ -89,12 +80,12 @@ export class AiService {
     const prompt = this.buildTaskGenerationPrompt(dto);
     const messages: ChatMessage[] = [
       {
-        role: "system",
+        role: 'system',
         content:
-          "You are a project management assistant. Generate actionable tasks in valid JSON format.",
+          'You are a project management assistant. Generate actionable tasks in valid JSON format.',
       },
       {
-        role: "user",
+        role: 'user',
         content: prompt,
       },
     ];
@@ -113,7 +104,7 @@ export class AiService {
 
       // Store context in memory
       await this.mem0Service.storeInteraction(
-        `Task generation for project: ${dto.projectDescription}. Generated ${tasks.length} tasks.`,
+        `Task generation for project: ${dto.projectDescription}. Generated ${tasks.length} tasks.`
       );
 
       return {
@@ -124,7 +115,7 @@ export class AiService {
         processingTimeMs: Date.now() - startTime,
       };
     } catch (error) {
-      this.logger.error("Error generating tasks:", error);  
+      this.logger.error('Error generating tasks:', error);
       throw this.handleError(error);
     }
   }
@@ -133,12 +124,12 @@ export class AiService {
     const prompt = this.buildTaskExtractionPrompt(dto);
     const messages: ChatMessage[] = [
       {
-        role: "system",
+        role: 'system',
         content:
-          "You are an AI assistant that extracts actionable tasks from conversational text. Analyze the provided text and identify specific, actionable tasks mentioned or implied. Return results in valid JSON format.",
+          'You are an AI assistant that extracts actionable tasks from conversational text. Analyze the provided text and identify specific, actionable tasks mentioned or implied. Return results in valid JSON format.',
       },
       {
-        role: "user",
+        role: 'user',
         content: prompt,
       },
     ];
@@ -157,7 +148,7 @@ export class AiService {
 
       // Store context in memory
       await this.mem0Service.storeInteraction(
-        `Task extraction from conversation text. Extracted ${tasks.length} tasks.`,
+        `Task extraction from conversation text. Extracted ${tasks.length} tasks.`
       );
 
       return {
@@ -168,7 +159,7 @@ export class AiService {
         processingTimeMs: Date.now() - startTime,
       };
     } catch (error) {
-      this.logger.error("Error extracting tasks:", error);
+      this.logger.error('Error extracting tasks:', error);
       throw this.handleError(error);
     }
   }
@@ -177,12 +168,12 @@ export class AiService {
     const prompt = this.buildTaskClassificationPrompt(taskDescription);
     const messages: ChatMessage[] = [
       {
-        role: "system",
+        role: 'system',
         content:
-          "You are a task classification assistant. Analyze the task and predict metadata in valid JSON format.",
+          'You are a task classification assistant. Analyze the task and predict metadata in valid JSON format.',
       },
       {
-        role: "user",
+        role: 'user',
         content: prompt,
       },
     ];
@@ -197,13 +188,11 @@ export class AiService {
         jsonMode: true,
       });
 
-      const classification = this.parseTaskClassificationResponse(
-        response.data,
-      );
+      const classification = this.parseTaskClassificationResponse(response.data);
 
       // Store context in memory
       await this.mem0Service.storeInteraction(
-        `Task classification for: ${taskDescription}. Predicted metadata.`,
+        `Task classification for: ${taskDescription}. Predicted metadata.`
       );
 
       return {
@@ -214,23 +203,21 @@ export class AiService {
         processingTimeMs: Date.now() - startTime,
       };
     } catch (error) {
-      this.logger.error("Error classifying task:", error);
+      this.logger.error('Error classifying task:', error);
       throw this.handleError(error);
     }
   }
 
-  async getSuggestions(
-    dto: SuggestionRequestDto,
-  ): Promise<OpenAIResponse<Suggestion[]>> {
+  async getSuggestions(dto: SuggestionRequestDto): Promise<OpenAIResponse<Suggestion[]>> {
     const prompt = this.buildSuggestionsPrompt(dto);
     const messages: ChatMessage[] = [
       {
-        role: "system",
+        role: 'system',
         content:
-          "You are a technical advisor. Provide actionable suggestions in valid JSON format.",
+          'You are a technical advisor. Provide actionable suggestions in valid JSON format.',
       },
       {
-        role: "user",
+        role: 'user',
         content: prompt,
       },
     ];
@@ -255,23 +242,21 @@ export class AiService {
         processingTimeMs: Date.now() - startTime,
       };
     } catch (error) {
-      this.logger.error("Error getting suggestions:", error);
+      this.logger.error('Error getting suggestions:', error);
       throw this.handleError(error);
     }
   }
 
-  async summarize(
-    dto: SummarizationDto,
-  ): Promise<OpenAIResponse<SummaryResponse>> {
+  async summarize(dto: SummarizationDto): Promise<OpenAIResponse<SummaryResponse>> {
     const prompt = this.buildSummarizationPrompt(dto);
     const messages: ChatMessage[] = [
       {
-        role: "system",
+        role: 'system',
         content:
-          "You are a summarization expert. Provide concise summaries in the requested format.",
+          'You are a summarization expert. Provide concise summaries in the requested format.',
       },
       {
-        role: "user",
+        role: 'user',
         content: prompt,
       },
     ];
@@ -296,14 +281,12 @@ export class AiService {
         processingTimeMs: Date.now() - startTime,
       };
     } catch (error) {
-      this.logger.error("Error summarizing text:", error);
+      this.logger.error('Error summarizing text:', error);
       throw this.handleError(error);
     }
   }
 
-  async chatCompletion(
-    request: ChatCompletionRequest,
-  ): Promise<OpenAIResponse<string>> {
+  async chatCompletion(request: ChatCompletionRequest): Promise<OpenAIResponse<string>> {
     const operation = async () => {
       try {
         const completion = await this.openai.chat.completions.create({
@@ -312,18 +295,15 @@ export class AiService {
           temperature: request.temperature || 0.7,
           max_tokens: request.maxTokens || this.config.maxTokens,
           stream: false, // Force non-streaming to handle types properly
-          response_format: request.jsonMode
-            ? { type: "json_object" }
-            : undefined,
+          response_format: request.jsonMode ? { type: 'json_object' } : undefined,
           stop: request.stop,
         });
 
         // Type assertion for non-streaming response
-        const nonStreamCompletion =
-          completion as OpenAI.Chat.Completions.ChatCompletion;
+        const nonStreamCompletion = completion as OpenAI.Chat.Completions.ChatCompletion;
 
         return {
-          data: nonStreamCompletion.choices[0].message.content || "",
+          data: nonStreamCompletion.choices[0].message.content || '',
           usage: {
             promptTokens: nonStreamCompletion.usage?.prompt_tokens || 0,
             completionTokens: nonStreamCompletion.usage?.completion_tokens || 0,
@@ -341,7 +321,7 @@ export class AiService {
     return this.retryService.executeWithRetry(
       operation,
       this.config.retry,
-      "OpenAI Chat Completion",
+      'OpenAI Chat Completion'
     );
   }
 
@@ -354,7 +334,7 @@ export class AiService {
       // Test a simple completion to verify OpenAI connectivity
       const testMessages: ChatMessage[] = [
         {
-          role: "user",
+          role: 'user',
           content: "Respond with 'OK' if you can hear me.",
         },
       ];
@@ -366,30 +346,27 @@ export class AiService {
         maxTokens: 10,
       });
 
-      const isHealthy =
-        response.data && response.data.trim().toLowerCase().includes("ok");
+      const isHealthy = response.data && response.data.trim().toLowerCase().includes('ok');
 
       return {
-        status: isHealthy ? "healthy" : "degraded",
+        status: isHealthy ? 'healthy' : 'degraded',
         timestamp: new Date(),
-        version: "1.0.0",
+        version: '1.0.0',
       };
     } catch (error) {
-      this.logger.error("Health check failed:", error.message);
+      this.logger.error('Health check failed:', error.message);
       return {
-        status: "unhealthy",
+        status: 'unhealthy',
         timestamp: new Date(),
-        version: "1.0.0",
+        version: '1.0.0',
       };
     }
   }
 
-  async completion(
-    request: CompletionRequest,
-  ): Promise<OpenAIResponse<string>> {
+  async completion(request: CompletionRequest): Promise<OpenAIResponse<string>> {
     // Note: Completions API is legacy, but including for completeness
     const chatRequest: ChatCompletionRequest = {
-      messages: [{ role: "user", content: request.prompt }],
+      messages: [{ role: 'user', content: request.prompt }],
       model: request.model,
       temperature: request.temperature,
       maxTokens: request.maxTokens,
@@ -402,10 +379,10 @@ export class AiService {
 
   private buildTaskGenerationPrompt(dto: TaskGenerationDto): string {
     return `
-Based on the following project description${dto.context ? " and context" : ""}, generate ${dto.maxTasks || 10} actionable tasks:
+Based on the following project description${dto.context ? ' and context' : ''}, generate ${dto.maxTasks || 10} actionable tasks:
 
 Project: ${dto.projectDescription}
-${dto.context ? `Context: ${dto.context}` : ""}
+${dto.context ? `Context: ${dto.context}` : ''}
 
 Generate specific, actionable tasks that would help complete this project.
 Return as a JSON object with a "tasks" array containing objects with:
@@ -478,7 +455,7 @@ Example format:
 Based on the following context, provide ${dto.type} suggestions:
 
 Context: ${dto.context}
-${dto.codebase ? `Codebase: ${dto.codebase}` : ""}
+${dto.codebase ? `Codebase: ${dto.codebase}` : ''}
 
 Generate 3-5 specific suggestions for ${dto.type}.
 Return as a JSON object with a "suggestions" array containing objects with:
@@ -507,7 +484,7 @@ Example format:
 
   private buildSummarizationPrompt(dto: SummarizationDto): string {
     return `
-Summarize the following text in ${dto.maxLength || 200} words or less, using ${dto.format || "paragraph"} format:
+Summarize the following text in ${dto.maxLength || 200} words or less, using ${dto.format || 'paragraph'} format:
 
 ${dto.text}
 
@@ -568,40 +545,37 @@ Return only valid JSON in this format:
 
       if (!isValid) {
         this.logger.warn(
-          "Task classification response failed schema validation:",
-          this.taskClassificationValidator.errors,
+          'Task classification response failed schema validation:',
+          this.taskClassificationValidator.errors
         );
 
         // Return defaults if validation fails
         return {
-          energyLevel: "MEDIUM",
-          focusType: "TECHNICAL",
+          energyLevel: 'MEDIUM',
+          focusType: 'TECHNICAL',
           estimatedMinutes: 60,
           priority: 3,
           softDeadline: null,
           hardDeadline: null,
-          source: "AI_GENERATED",
-          aiSuggestion: "Task classification data unavailable",
+          source: 'AI_GENERATED',
+          aiSuggestion: 'Task classification data unavailable',
         };
       }
 
       return parsed;
     } catch (error) {
-      this.logger.warn(
-        "Failed to parse task classification response as JSON:",
-        error.message,
-      );
+      this.logger.warn('Failed to parse task classification response as JSON:', error.message);
 
       // Return defaults if parsing fails
       return {
-        energyLevel: "MEDIUM",
-        focusType: "TECHNICAL",
+        energyLevel: 'MEDIUM',
+        focusType: 'TECHNICAL',
         estimatedMinutes: 60,
         priority: 3,
         softDeadline: null,
         hardDeadline: null,
-        source: "AI_GENERATED",
-        aiSuggestion: "Task classification data unavailable",
+        source: 'AI_GENERATED',
+        aiSuggestion: 'Task classification data unavailable',
       };
     }
   }
@@ -615,16 +589,14 @@ Return only valid JSON in this format:
 
       if (!isValid) {
         this.logger.warn(
-          "Task extraction response failed schema validation:",
-          this.taskExtractionValidator.errors,
+          'Task extraction response failed schema validation:',
+          this.taskExtractionValidator.errors
         );
 
         // Try to repair common issues
         const repairedTasks = this.repairTasksResponse(parsed);
         if (repairedTasks.length > 0) {
-          this.logger.log(
-            `Repaired ${repairedTasks.length} tasks from malformed response`,
-          );
+          this.logger.log(`Repaired ${repairedTasks.length} tasks from malformed response`);
           return repairedTasks;
         }
 
@@ -634,10 +606,7 @@ Return only valid JSON in this format:
 
       return parsed.tasks || [];
     } catch (error) {
-      this.logger.warn(
-        "Failed to parse tasks response as JSON:",
-        error.message,
-      );
+      this.logger.warn('Failed to parse tasks response as JSON:', error.message);
       return [];
     }
   }
@@ -655,7 +624,7 @@ Return only valid JSON in this format:
         .map((task: any) => this.repairSingleTask(task))
         .filter((task: Task | null) => task !== null);
     } catch (error) {
-      this.logger.warn("Failed to repair tasks response:", error.message);
+      this.logger.warn('Failed to repair tasks response:', error.message);
       return [];
     }
   }
@@ -663,20 +632,18 @@ Return only valid JSON in this format:
   private repairSingleTask(task: any): Task | null {
     try {
       // Skip if not an object
-      if (!task || typeof task !== "object") {
+      if (!task || typeof task !== 'object') {
         return null;
       }
 
       // Provide default values for required fields
       const repairedTask: Task = {
-        id:
-          task.id ||
-          `generated_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        name: task.name || task.title || "Untitled Task",
-        description: task.description || "",
+        id: task.id || `generated_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        name: task.name || task.title || 'Untitled Task',
+        description: task.description || '',
         priority: this.validatePriority(task.priority) ? task.priority : 3,
         estimatedHours:
-          typeof task.estimatedHours === "number" && task.estimatedHours > 0
+          typeof task.estimatedHours === 'number' && task.estimatedHours > 0
             ? task.estimatedHours
             : 2,
         dependencies: Array.isArray(task.dependencies) ? task.dependencies : [],
@@ -685,13 +652,13 @@ Return only valid JSON in this format:
 
       return repairedTask;
     } catch (error) {
-      this.logger.warn("Failed to repair single task:", error.message);
+      this.logger.warn('Failed to repair single task:', error.message);
       return null;
     }
   }
 
   private validatePriority(priority: any): boolean {
-    return typeof priority === "number" && priority >= 1 && priority <= 5;
+    return typeof priority === 'number' && priority >= 1 && priority <= 5;
   }
 
   private parseSuggestionsResponse(response: string): Suggestion[] {
@@ -699,17 +666,12 @@ Return only valid JSON in this format:
       const parsed = JSON.parse(response);
       return parsed.suggestions || [];
     } catch (error) {
-      this.logger.warn(
-        "Failed to parse suggestions response as JSON, falling back to text",
-      );
+      this.logger.warn('Failed to parse suggestions response as JSON, falling back to text');
       return [];
     }
   }
 
-  private parseSummaryResponse(
-    response: string,
-    originalText: string,
-  ): SummaryResponse {
+  private parseSummaryResponse(response: string, originalText: string): SummaryResponse {
     try {
       const parsed = JSON.parse(response);
       return {
@@ -717,13 +679,10 @@ Return only valid JSON in this format:
         keyPoints: parsed.keyPoints || [],
         originalLength: originalText.length,
         summaryLength: parsed.summary?.length || response.length,
-        compressionRatio:
-          parsed.compressionRatio || response.length / originalText.length,
+        compressionRatio: parsed.compressionRatio || response.length / originalText.length,
       };
     } catch (error) {
-      this.logger.warn(
-        "Failed to parse summary response as JSON, falling back to text",
-      );
+      this.logger.warn('Failed to parse summary response as JSON, falling back to text');
       return {
         summary: response,
         keyPoints: [],
@@ -742,27 +701,24 @@ Return only valid JSON in this format:
     // Handle OpenAI SDK errors
     if (error.type) {
       switch (error.type) {
-        case "insufficient_quota":
+        case 'insufficient_quota':
           return new OpenAIQuotaExceededException(error);
-        case "rate_limit_exceeded":
-          return new OpenAIRateLimitException(
-            error.headers?.["retry-after"],
-            error,
-          );
-        case "invalid_request_error":
+        case 'rate_limit_exceeded':
+          return new OpenAIRateLimitException(error.headers?.['retry-after'], error);
+        case 'invalid_request_error':
           return new OpenAIInvalidRequestException(error.message, error);
-        case "authentication_error":
+        case 'authentication_error':
           return new OpenAIUnauthorizedException(error);
-        case "server_error":
+        case 'server_error':
           return new OpenAIServerException(error.message, error);
-        case "timeout":
+        case 'timeout':
           return new OpenAITimeoutException(error);
         default:
           return new OpenAIException(
-            error.message || "Unknown OpenAI error",
+            error.message || 'Unknown OpenAI error',
             undefined,
             error.type,
-            error,
+            error
           );
       }
     }
@@ -773,10 +729,7 @@ Return only valid JSON in this format:
         case 401:
           return new OpenAIUnauthorizedException(error);
         case 429:
-          return new OpenAIRateLimitException(
-            error.headers?.["retry-after"],
-            error,
-          );
+          return new OpenAIRateLimitException(error.headers?.['retry-after'], error);
         case 402:
           return new OpenAIQuotaExceededException(error);
         case 400:
@@ -789,20 +742,15 @@ Return only valid JSON in this format:
           return new OpenAIServerException(error.message, error);
         default:
           return new OpenAIException(
-            error.message || "HTTP error",
+            error.message || 'HTTP error',
             undefined,
             `HTTP_${error.status}`,
-            error,
+            error
           );
       }
     }
 
     // Generic error
-    return new OpenAIException(
-      error.message || "Unknown error",
-      undefined,
-      "UNKNOWN_ERROR",
-      error,
-    );
+    return new OpenAIException(error.message || 'Unknown error', undefined, 'UNKNOWN_ERROR', error);
   }
 }

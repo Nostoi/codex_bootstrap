@@ -44,7 +44,7 @@ export function LoginForm({ onSuccess, redirectUri }: LoginFormProps) {
           <FcGoogle className="mr-2 h-5 w-5" />
           Continue with Google
         </Button>
-        
+
         {/* Temporarily commented out until SiMicrosoft import is fixed
         <Button
           variant="outline"
@@ -57,10 +57,10 @@ export function LoginForm({ onSuccess, redirectUri }: LoginFormProps) {
           Continue with Microsoft
         </Button>
         */}
-        
+
         <div className="text-xs text-gray-500 text-center mt-4">
-          By signing in, you agree to our Terms of Service and Privacy Policy.
-          We&apos;ll request access to your calendar to sync your tasks and events.
+          By signing in, you agree to our Terms of Service and Privacy Policy. We&apos;ll request
+          access to your calendar to sync your tasks and events.
         </div>
       </CardContent>
     </Card>

@@ -6,23 +6,20 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Dashboard, { Task } from '../ui/Dashboard';
 
 // Create a test query client
-const createTestQueryClient = () => new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-      staleTime: Infinity,
+const createTestQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        staleTime: Infinity,
+      },
     },
-  },
-});
+  });
 
 // Test wrapper component
 const TestWrapper = ({ children }: { children: React.ReactNode }) => {
   const queryClient = createTestQueryClient();
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  );
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 };
 
 // Mock the API hooks
@@ -95,7 +92,7 @@ vi.mock('../ui/FilterBar', () => ({
       <input
         data-testid="search-input"
         value={filters.search}
-        onChange={(e) => onFiltersChange({ ...filters, search: e.target.value })}
+        onChange={e => onFiltersChange({ ...filters, search: e.target.value })}
         placeholder="Search tasks..."
       />
       <button data-testid="clear-filters" onClick={onClear}>
@@ -273,7 +270,7 @@ describe('Enhanced Dashboard', () => {
       // Should show TaskCards in grid view
       expect(screen.getByTestId('task-card-task-1')).toBeInTheDocument();
       expect(screen.getByTestId('task-card-task-2')).toBeInTheDocument();
-      
+
       // Should not show FocusView
       expect(screen.queryByTestId('focus-view')).not.toBeInTheDocument();
     });
@@ -413,7 +410,9 @@ describe('Enhanced Dashboard', () => {
       const user = userEvent.setup();
       render(<Dashboard initialTasks={mockTasks} onTaskUpdate={mockOnTaskUpdate} />);
 
-      const markDoneButton = screen.getByTestId('task-card-task-1').querySelector('button:last-child');
+      const markDoneButton = screen
+        .getByTestId('task-card-task-1')
+        .querySelector('button:last-child');
       if (markDoneButton) {
         await user.click(markDoneButton);
       }
@@ -437,7 +436,9 @@ describe('Enhanced Dashboard', () => {
       render(<Dashboard initialTasks={[]} />);
 
       expect(screen.getByText('No tasks yet')).toBeInTheDocument();
-      expect(screen.getByText('Start by adding some tasks or ask AI to help plan your day.')).toBeInTheDocument();
+      expect(
+        screen.getByText('Start by adding some tasks or ask AI to help plan your day.')
+      ).toBeInTheDocument();
     });
 
     it('displays filtered empty state when no tasks match filters', async () => {
@@ -449,7 +450,9 @@ describe('Enhanced Dashboard', () => {
 
       await waitFor(() => {
         expect(screen.getByText('No tasks match your filters')).toBeInTheDocument();
-        expect(screen.getByText('Try adjusting your filters to see more tasks.')).toBeInTheDocument();
+        expect(
+          screen.getByText('Try adjusting your filters to see more tasks.')
+        ).toBeInTheDocument();
         expect(screen.getByText('Clear Filters')).toBeInTheDocument();
       });
     });
@@ -460,10 +463,10 @@ describe('Enhanced Dashboard', () => {
       render(<Dashboard initialTasks={mockTasks} />);
 
       const taskCards = screen.getAllByText(/Priority:/);
-      
+
       // First task should be highest priority (5)
       expect(taskCards[0]).toHaveTextContent('Priority: 5');
-      
+
       // Should be followed by task with priority 4
       expect(taskCards[1]).toHaveTextContent('Priority: 4');
     });
@@ -501,7 +504,7 @@ describe('Enhanced Dashboard', () => {
       render(<Dashboard initialTasks={tasksWithSamePriority} />);
 
       const taskCards = screen.getAllByTestId(/task-card-/);
-      
+
       // In-progress task should come first
       expect(taskCards[0]).toHaveAttribute('data-testid', 'task-card-task-b');
       expect(taskCards[1]).toHaveAttribute('data-testid', 'task-card-task-a');
@@ -592,7 +595,7 @@ describe('Enhanced Dashboard', () => {
       }));
 
       const { container } = render(<Dashboard initialTasks={largeMockTasks} />);
-      
+
       // Should render without performance issues
       expect(container).toBeInTheDocument();
       expect(screen.getByText('100')).toBeInTheDocument(); // Task count

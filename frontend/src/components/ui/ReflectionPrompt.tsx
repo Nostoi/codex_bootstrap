@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 export interface ReflectionPromptProps {
   question: string;
@@ -6,18 +6,20 @@ export interface ReflectionPromptProps {
 }
 
 export default function ReflectionPrompt({ question, onSubmit }: ReflectionPromptProps) {
-  const [answer, setAnswer] = useState("");
+  const [answer, setAnswer] = useState('');
   return (
     <form
       className="rounded-md border-2 p-4 shadow-sm bg-neutral"
       onSubmit={e => {
         e.preventDefault();
         onSubmit(answer);
-        setAnswer("");
+        setAnswer('');
       }}
       aria-label="Reflection prompt"
     >
-      <label className="block font-semibold mb-2" htmlFor="reflection-input">{question}</label>
+      <label className="block font-semibold mb-2" htmlFor="reflection-input">
+        {question}
+      </label>
       <textarea
         id="reflection-input"
         className="w-full p-2 rounded border border-secondary mb-2"
@@ -27,7 +29,9 @@ export default function ReflectionPrompt({ question, onSubmit }: ReflectionPromp
         required
         aria-required="true"
       />
-      <button type="submit" className="bg-primary text-white px-4 py-2 rounded">Submit</button>
+      <button type="submit" className="bg-primary text-white px-4 py-2 rounded">
+        Submit
+      </button>
     </form>
   );
 }

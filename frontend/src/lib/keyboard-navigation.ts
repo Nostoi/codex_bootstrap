@@ -1,6 +1,6 @@
 /**
  * Advanced keyboard navigation utilities for ADHD-friendly interfaces
- * 
+ *
  * This module provides sophisticated keyboard navigation patterns that reduce
  * cognitive load and provide consistent, predictable interactions.
  */
@@ -103,7 +103,7 @@ export class KeyboardNavigationManager {
     this.items.sort((a, b) => (b.priority || 0) - (a.priority || 0));
 
     // Initialize tabindex values if not already set
-    const availableItems = this.options.skipDisabled 
+    const availableItems = this.options.skipDisabled
       ? this.items.filter(item => !item.disabled)
       : this.items;
 
@@ -137,7 +137,7 @@ export class KeyboardNavigationManager {
     // Check for registered shortcuts first
     const shortcutKey = this.getShortcutKey(key, ctrlKey, altKey, shiftKey, metaKey);
     const shortcut = this.shortcuts.get(shortcutKey);
-    
+
     if (shortcut) {
       if (shortcut.preventDefault !== false) {
         event.preventDefault();
@@ -211,7 +211,7 @@ export class KeyboardNavigationManager {
   }
 
   private moveNext() {
-    const availableItems = this.options.skipDisabled 
+    const availableItems = this.options.skipDisabled
       ? this.items.filter(item => !item.disabled)
       : this.items;
 
@@ -229,7 +229,7 @@ export class KeyboardNavigationManager {
   }
 
   private movePrevious() {
-    const availableItems = this.options.skipDisabled 
+    const availableItems = this.options.skipDisabled
       ? this.items.filter(item => !item.disabled)
       : this.items;
 
@@ -247,7 +247,7 @@ export class KeyboardNavigationManager {
   }
 
   private moveToFirst() {
-    const availableItems = this.options.skipDisabled 
+    const availableItems = this.options.skipDisabled
       ? this.items.filter(item => !item.disabled)
       : this.items;
 
@@ -257,7 +257,7 @@ export class KeyboardNavigationManager {
   }
 
   private moveToLast() {
-    const availableItems = this.options.skipDisabled 
+    const availableItems = this.options.skipDisabled
       ? this.items.filter(item => !item.disabled)
       : this.items;
 
@@ -272,22 +272,24 @@ export class KeyboardNavigationManager {
 
     const groups = [...new Set(this.items.map(item => item.group).filter(Boolean))];
     const currentGroupIndex = groups.indexOf(currentItem.group);
-    
-    let nextGroupIndex = reverse 
-      ? currentGroupIndex - 1 
-      : currentGroupIndex + 1;
+
+    let nextGroupIndex = reverse ? currentGroupIndex - 1 : currentGroupIndex + 1;
 
     if (this.options.loop) {
       nextGroupIndex = reverse
-        ? (nextGroupIndex < 0 ? groups.length - 1 : nextGroupIndex)
-        : (nextGroupIndex >= groups.length ? 0 : nextGroupIndex);
+        ? nextGroupIndex < 0
+          ? groups.length - 1
+          : nextGroupIndex
+        : nextGroupIndex >= groups.length
+          ? 0
+          : nextGroupIndex;
     } else {
       nextGroupIndex = Math.max(0, Math.min(nextGroupIndex, groups.length - 1));
     }
 
     const targetGroup = groups[nextGroupIndex];
     const firstItemInGroup = this.items.find(item => item.group === targetGroup && !item.disabled);
-    
+
     if (firstItemInGroup) {
       const index = this.items.indexOf(firstItemInGroup);
       this.setCurrentIndex(index);
@@ -318,14 +320,16 @@ export class KeyboardNavigationManager {
   }
 
   private getItemText(element: HTMLElement): string {
-    return element.getAttribute('aria-label') || 
-           element.textContent || 
-           element.getAttribute('title') || 
-           '';
+    return (
+      element.getAttribute('aria-label') ||
+      element.textContent ||
+      element.getAttribute('title') ||
+      ''
+    );
   }
 
   private setCurrentIndex(index: number) {
-    const availableItems = this.options.skipDisabled 
+    const availableItems = this.options.skipDisabled
       ? this.items.filter(item => !item.disabled)
       : this.items;
 
@@ -343,7 +347,7 @@ export class KeyboardNavigationManager {
     const currentItem = availableItems[this.currentIndex];
     currentItem.element.setAttribute('tabindex', '0');
     currentItem.element.classList.add('kb-focused');
-    
+
     // Try to focus with error handling for test environments
     try {
       currentItem.element.focus();
@@ -388,7 +392,7 @@ export class KeyboardNavigationManager {
     if (altKey) modifiers.push('Alt');
     if (shiftKey) modifiers.push('Shift');
     if (metaKey) modifiers.push('Meta');
-    
+
     return [...modifiers, key].join('+');
   }
 
@@ -417,7 +421,7 @@ export class KeyboardNavigationManager {
   }
 
   public getCurrentItem(): NavigationItem | null {
-    const availableItems = this.options.skipDisabled 
+    const availableItems = this.options.skipDisabled
       ? this.items.filter(item => !item.disabled)
       : this.items;
 
@@ -442,7 +446,7 @@ export class KeyboardNavigationManager {
     if (this.container) {
       this.container.removeEventListener('keydown', this.handleKeyDown.bind(this));
     }
-    
+
     if (this.typeaheadTimeout) {
       clearTimeout(this.typeaheadTimeout);
     }
@@ -476,15 +480,12 @@ export function useKeyboardNavigation(
     managerRef.current?.addShortcut(shortcut);
   }, []);
 
-  const removeShortcut = useCallback((
-    key: string,
-    ctrlKey = false,
-    altKey = false,
-    shiftKey = false,
-    metaKey = false
-  ) => {
-    managerRef.current?.removeShortcut(key, ctrlKey, altKey, shiftKey, metaKey);
-  }, []);
+  const removeShortcut = useCallback(
+    (key: string, ctrlKey = false, altKey = false, shiftKey = false, metaKey = false) => {
+      managerRef.current?.removeShortcut(key, ctrlKey, altKey, shiftKey, metaKey);
+    },
+    []
+  );
 
   const setCurrentItem = useCallback((id: string) => {
     managerRef.current?.setCurrentItem(id);
@@ -505,34 +506,40 @@ export function useGlobalShortcuts() {
   const shortcuts = useRef<Map<string, KeyboardShortcut>>(new Map());
   const [isEnabled, setIsEnabled] = useState(true);
 
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    if (!isEnabled) return;
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (!isEnabled) return;
 
-    const key = [
-      event.ctrlKey && 'Ctrl',
-      event.altKey && 'Alt', 
-      event.shiftKey && 'Shift',
-      event.metaKey && 'Meta',
-      event.key
-    ].filter(Boolean).join('+');
+      const key = [
+        event.ctrlKey && 'Ctrl',
+        event.altKey && 'Alt',
+        event.shiftKey && 'Shift',
+        event.metaKey && 'Meta',
+        event.key,
+      ]
+        .filter(Boolean)
+        .join('+');
 
-    const shortcut = shortcuts.current.get(key);
-    if (shortcut) {
-      // Check if we're in an input element
-      const target = event.target as HTMLElement;
-      const isInInput = target.tagName === 'INPUT' || 
-                       target.tagName === 'TEXTAREA' ||
-                       target.contentEditable === 'true';
+      const shortcut = shortcuts.current.get(key);
+      if (shortcut) {
+        // Check if we're in an input element
+        const target = event.target as HTMLElement;
+        const isInInput =
+          target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.contentEditable === 'true';
 
-      // Only prevent default for non-input contexts or explicitly marked shortcuts
-      if (!isInInput || shortcut.context === 'global') {
-        if (shortcut.preventDefault !== false) {
-          event.preventDefault();
+        // Only prevent default for non-input contexts or explicitly marked shortcuts
+        if (!isInInput || shortcut.context === 'global') {
+          if (shortcut.preventDefault !== false) {
+            event.preventDefault();
+          }
+          shortcut.action();
         }
-        shortcut.action();
       }
-    }
-  }, [isEnabled]);
+    },
+    [isEnabled]
+  );
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
@@ -543,31 +550,32 @@ export function useGlobalShortcuts() {
     const key = [
       shortcut.ctrlKey && 'Ctrl',
       shortcut.altKey && 'Alt',
-      shortcut.shiftKey && 'Shift', 
+      shortcut.shiftKey && 'Shift',
       shortcut.metaKey && 'Meta',
-      shortcut.key
-    ].filter(Boolean).join('+');
+      shortcut.key,
+    ]
+      .filter(Boolean)
+      .join('+');
 
     shortcuts.current.set(key, shortcut);
   }, []);
 
-  const removeShortcut = useCallback((
-    key: string,
-    ctrlKey = false,
-    altKey = false,
-    shiftKey = false,
-    metaKey = false
-  ) => {
-    const shortcutKey = [
-      ctrlKey && 'Ctrl',
-      altKey && 'Alt',
-      shiftKey && 'Shift',
-      metaKey && 'Meta',
-      key
-    ].filter(Boolean).join('+');
+  const removeShortcut = useCallback(
+    (key: string, ctrlKey = false, altKey = false, shiftKey = false, metaKey = false) => {
+      const shortcutKey = [
+        ctrlKey && 'Ctrl',
+        altKey && 'Alt',
+        shiftKey && 'Shift',
+        metaKey && 'Meta',
+        key,
+      ]
+        .filter(Boolean)
+        .join('+');
 
-    shortcuts.current.delete(shortcutKey);
-  }, []);
+      shortcuts.current.delete(shortcutKey);
+    },
+    []
+  );
 
   const getShortcuts = useCallback(() => {
     return Array.from(shortcuts.current.values());
@@ -586,11 +594,13 @@ export function useGlobalShortcuts() {
  * Hook for skip links navigation
  */
 export function useSkipLinks() {
-  const [skipLinks, setSkipLinks] = useState<Array<{
-    id: string;
-    label: string;
-    target: string;
-  }>>([]);
+  const [skipLinks, setSkipLinks] = useState<
+    Array<{
+      id: string;
+      label: string;
+      target: string;
+    }>
+  >([]);
 
   const addSkipLink = useCallback((id: string, label: string, target: string) => {
     setSkipLinks(prev => {
@@ -625,10 +635,7 @@ export function useSkipLinks() {
 /**
  * Hook for implementing roving tabindex pattern
  */
-export function useRovingTabIndex(
-  items: HTMLElement[],
-  defaultIndex = 0
-) {
+export function useRovingTabIndex(items: HTMLElement[], defaultIndex = 0) {
   const [currentIndex, setCurrentIndex] = useState(defaultIndex);
 
   useEffect(() => {
@@ -637,12 +644,15 @@ export function useRovingTabIndex(
     });
   }, [items, currentIndex]);
 
-  const setCurrentItem = useCallback((index: number) => {
-    if (index >= 0 && index < items.length) {
-      setCurrentIndex(index);
-      items[index].focus();
-    }
-  }, [items]);
+  const setCurrentItem = useCallback(
+    (index: number) => {
+      if (index >= 0 && index < items.length) {
+        setCurrentIndex(index);
+        items[index].focus();
+      }
+    },
+    [items]
+  );
 
   const moveNext = useCallback(() => {
     const nextIndex = (currentIndex + 1) % items.length;

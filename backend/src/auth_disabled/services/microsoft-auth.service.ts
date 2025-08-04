@@ -1,19 +1,26 @@
-import { Injectable, Logger, BadRequestException, UnauthorizedException, Inject, forwardRef } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  BadRequestException,
+  UnauthorizedException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { GraphAuthService } from '../../integrations/graph/auth/graph-auth.service';
 import { SessionManagerService } from './session-manager.service';
 import * as crypto from 'crypto-js';
-import { 
-  OAuthProfile, 
-  SessionTokens, 
+import {
+  OAuthProfile,
+  SessionTokens,
   IAuthService,
   OAuthTokens,
   UserWithProvider,
   AuthResult,
   OAuthState,
-  CalendarPermissions
+  CalendarPermissions,
 } from '../types/auth.types';
 
 @Injectable()
@@ -26,7 +33,7 @@ export class MicrosoftAuthService implements IAuthService {
     private configService: ConfigService,
     private graphAuthService: GraphAuthService,
     @Inject(forwardRef(() => SessionManagerService))
-    private sessionManager: SessionManagerService,
+    private sessionManager: SessionManagerService
   ) {}
 
   async initiateOAuth(
@@ -44,20 +51,19 @@ export class MicrosoftAuthService implements IAuthService {
         provider: 'microsoft',
         redirectUri: options?.redirectUri,
         userId: options?.userId,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
 
       // Store state in cache/database for validation
       // For now, we'll use the userId directly as state
       const userId = options?.userId || 'anonymous_' + Date.now();
-      
+
       const authUrl = await this.graphAuthService.getAuthorizationUrl(userId, state);
 
       return {
         authUrl,
-        state
+        state,
       };
-
     } catch (error) {
       this.logger.error(`Failed to initiate Microsoft OAuth: ${error.message}`, error.stack);
       throw new BadRequestException('Failed to initiate OAuth flow');
@@ -76,10 +82,10 @@ export class MicrosoftAuthService implements IAuthService {
     try {
       // For now, use state as userId (this should be improved with proper state management)
       const userId = state;
-      
+
       // Exchange code for tokens using GraphAuthService
       const authResult = await this.graphAuthService.exchangeCodeForTokens(code, userId, state);
-      
+
       if (!authResult || !authResult.account) {
         throw new UnauthorizedException('Failed to authenticate with Microsoft');
       }
@@ -95,18 +101,18 @@ export class MicrosoftAuthService implements IAuthService {
         picture: undefined,
         accessToken: authResult.accessToken,
         refreshToken: undefined, // MSAL handles refresh internally
-        scopes: authResult.scopes || []
+        scopes: authResult.scopes || [],
       };
 
       // Find or create user
       const user = await this.findOrCreateUser(oauthProfile);
-      
+
       // Create session
       const tokens = await this.createSession(user);
 
       // Check if user was created recently (within 1 minute)
-      const isNewUser = user.oauthProviders.some(provider => 
-        (Date.now() - provider.createdAt.getTime()) < 60000
+      const isNewUser = user.oauthProviders.some(
+        provider => Date.now() - provider.createdAt.getTime() < 60000
       );
 
       return {
@@ -114,12 +120,11 @@ export class MicrosoftAuthService implements IAuthService {
           id: user.id,
           email: user.email,
           name: user.name,
-          avatar: user.avatar
+          avatar: user.avatar,
         },
         tokens,
-        isNewUser
+        isNewUser,
       };
-
     } catch (error) {
       this.logger.error(`Microsoft OAuth callback failed: ${error.message}`, error.stack);
       throw new UnauthorizedException('OAuth callback failed');
@@ -127,7 +132,7 @@ export class MicrosoftAuthService implements IAuthService {
   }
 
   async createSession(
-    user: any, 
+    user: any,
     metadata?: { userAgent?: string; ipAddress?: string }
   ): Promise<SessionTokens> {
     try {
@@ -174,7 +179,7 @@ export class MicrosoftAuthService implements IAuthService {
       // Try to find existing user
       let user = await this.prisma.user.findUnique({
         where: { email: oauthProfile.email },
-        include: { oauthProviders: true }
+        include: { oauthProviders: true },
       });
 
       if (!user) {
@@ -190,14 +195,14 @@ export class MicrosoftAuthService implements IAuthService {
                 providerId: oauthProfile.providerId,
                 email: oauthProfile.email,
                 accessToken: this.encryptToken(oauthProfile.accessToken),
-                refreshToken: oauthProfile.refreshToken 
-                  ? this.encryptToken(oauthProfile.refreshToken) 
+                refreshToken: oauthProfile.refreshToken
+                  ? this.encryptToken(oauthProfile.refreshToken)
                   : null,
                 scopes: oauthProfile.scopes,
-              }
-            }
+              },
+            },
           },
-          include: { oauthProviders: true }
+          include: { oauthProviders: true },
         });
 
         this.logger.log(`Created new user: ${user.email}`);
@@ -208,7 +213,6 @@ export class MicrosoftAuthService implements IAuthService {
       }
 
       return user;
-
     } catch (error) {
       this.logger.error(`User creation/update failed: ${error.message}`, error.stack);
       throw new BadRequestException('User management failed');
@@ -232,10 +236,10 @@ export class MicrosoftAuthService implements IAuthService {
 
     try {
       await this.prisma.oAuthProvider.deleteMany({
-        where: { 
+        where: {
           userId,
-          provider: 'microsoft'
-        }
+          provider: 'microsoft',
+        },
       });
 
       this.logger.log(`Unlinked Microsoft provider for user: ${userId}`);
@@ -253,12 +257,12 @@ export class MicrosoftAuthService implements IAuthService {
       throw new BadRequestException('This service only handles Microsoft OAuth');
     }
 
-    return this.initiateOAuth('microsoft', { 
+    return this.initiateOAuth('microsoft', {
       userId,
       scopes: [
         'https://graph.microsoft.com/Calendars.ReadWrite',
-        'https://graph.microsoft.com/Calendars.Read'
-      ]
+        'https://graph.microsoft.com/Calendars.Read',
+      ],
     });
   }
 
@@ -267,25 +271,26 @@ export class MicrosoftAuthService implements IAuthService {
       const oauthProvider = await this.prisma.oAuthProvider.findFirst({
         where: {
           userId,
-          provider: 'microsoft'
-        }
+          provider: 'microsoft',
+        },
       });
 
       if (!oauthProvider) {
         return [];
       }
 
-      const hasCalendarAccess = oauthProvider.scopes.some(scopes => 
-        scopes.includes('Calendars.Read') || scopes.includes('Calendars.ReadWrite')
+      const hasCalendarAccess = oauthProvider.scopes.some(
+        scopes => scopes.includes('Calendars.Read') || scopes.includes('Calendars.ReadWrite')
       );
 
-      return [{
-        hasCalendarAccess,
-        scopes: oauthProvider.scopes,
-        provider: 'microsoft',
-        lastSyncAt: oauthProvider.updatedAt
-      }];
-
+      return [
+        {
+          hasCalendarAccess,
+          scopes: oauthProvider.scopes,
+          provider: 'microsoft',
+          lastSyncAt: oauthProvider.updatedAt,
+        },
+      ];
     } catch (error) {
       this.logger.error(`Failed to get calendar permissions: ${error.message}`, error.stack);
       return [];
@@ -297,8 +302,8 @@ export class MicrosoftAuthService implements IAuthService {
     const existingProvider = await this.prisma.oAuthProvider.findFirst({
       where: {
         userId,
-        provider: profile.provider
-      }
+        provider: profile.provider,
+      },
     });
 
     if (existingProvider) {
@@ -307,11 +312,9 @@ export class MicrosoftAuthService implements IAuthService {
         where: { id: existingProvider.id },
         data: {
           accessToken: this.encryptToken(profile.accessToken),
-          refreshToken: profile.refreshToken 
-            ? this.encryptToken(profile.refreshToken) 
-            : null,
+          refreshToken: profile.refreshToken ? this.encryptToken(profile.refreshToken) : null,
           scopes: profile.scopes,
-        }
+        },
       });
     } else {
       // Create new provider
@@ -322,11 +325,9 @@ export class MicrosoftAuthService implements IAuthService {
           providerId: profile.providerId,
           email: profile.email,
           accessToken: this.encryptToken(profile.accessToken),
-          refreshToken: profile.refreshToken 
-            ? this.encryptToken(profile.refreshToken) 
-            : null,
+          refreshToken: profile.refreshToken ? this.encryptToken(profile.refreshToken) : null,
           scopes: profile.scopes,
-        }
+        },
       });
     }
   }

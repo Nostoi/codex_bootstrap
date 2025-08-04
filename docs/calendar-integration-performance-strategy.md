@@ -111,12 +111,12 @@ class CalendarCacheManager implements CalendarCacheManager {
   get(userId: string, date: Date): CalendarCache | null {
     const key = this.getCacheKey(userId, date);
     const cached = this.cache.get(key);
-    
+
     if (!cached || cached.expiresAt < new Date()) {
       this.cache.delete(key);
       return null;
     }
-    
+
     return cached;
   }
 
@@ -127,9 +127,9 @@ class CalendarCacheManager implements CalendarCacheManager {
       date: date.toISOString().split('T')[0],
       events,
       fetchedAt: new Date(),
-      expiresAt: new Date(Date.now() + this.TTL)
+      expiresAt: new Date(Date.now() + this.TTL),
     };
-    
+
     this.cache.set(key, cache);
   }
 
@@ -148,30 +148,32 @@ class CalendarApiClient {
 
   async getEventsWithRetry(userId: string, date: Date): Promise<GoogleCalendarListResponse> {
     let lastError: Error;
-    
+
     for (let attempt = 0; attempt < this.maxRetries; attempt++) {
       try {
         return await this.googleService.getCalendarEvents(userId);
       } catch (error) {
         lastError = error;
-        
+
         if (!this.isRetryableError(error) || attempt === this.maxRetries - 1) {
           throw error;
         }
-        
+
         const delay = this.calculateRetryDelay(attempt);
         await this.sleep(delay);
       }
     }
-    
+
     throw lastError;
   }
 
   private isRetryableError(error: any): boolean {
     const retryableCodes = [429, 500, 502, 503, 504];
-    return retryableCodes.includes(error.code) || 
-           error.message?.includes('timeout') ||
-           error.message?.includes('network');
+    return (
+      retryableCodes.includes(error.code) ||
+      error.message?.includes('timeout') ||
+      error.message?.includes('network')
+    );
   }
 
   private calculateRetryDelay(attempt: number): number {
@@ -196,18 +198,18 @@ class CalendarEventProcessor {
 
   async processEvents(events: GoogleCalendarEvent[]): Promise<TimeSlot[]> {
     const results: TimeSlot[] = [];
-    
+
     for (let i = 0; i < events.length; i += this.BATCH_SIZE) {
       const batch = events.slice(i, i + this.BATCH_SIZE);
       const processed = await this.processBatch(batch);
       results.push(...processed);
-      
+
       // Allow event loop to process other tasks
       if (i + this.BATCH_SIZE < events.length) {
         await this.yield();
       }
     }
-    
+
     return results;
   }
 
@@ -234,12 +236,12 @@ interface CalendarMetrics {
   apiResponseTime: HistogramMetric;
   cacheHitRate: GaugeMetric;
   eventsProcessedPerSecond: CounterMetric;
-  
-  // Error metrics  
+
+  // Error metrics
   apiErrorRate: CounterMetric;
   parsingErrorRate: CounterMetric;
   authenticationErrors: CounterMetric;
-  
+
   // Business metrics
   activeCalendarIntegrations: GaugeMetric;
   averageEventsPerUser: GaugeMetric;
@@ -251,7 +253,7 @@ class CalendarMetricsCollector {
 
   recordApiCall(duration: number, success: boolean): void {
     this.metrics.apiResponseTime.observe(duration);
-    
+
     if (success) {
       this.metrics.apiErrorRate.inc({ status: 'success' });
     } else {
@@ -277,19 +279,19 @@ class CalendarHealthCheck {
     const checks = await Promise.allSettled([
       this.checkGoogleApiConnectivity(),
       this.checkDatabaseConnectivity(),
-      this.checkCacheStatus()
+      this.checkCacheStatus(),
     ]);
 
     const healthy = checks.every(check => check.status === 'fulfilled');
-    
+
     return {
       status: healthy ? 'healthy' : 'unhealthy',
       checks: checks.map((check, index) => ({
         name: ['google_api', 'database', 'cache'][index],
         status: check.status,
-        message: check.status === 'rejected' ? check.reason.message : 'OK'
+        message: check.status === 'rejected' ? check.reason.message : 'OK',
       })),
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
 
@@ -332,7 +334,7 @@ function loadCalendarConfig(): CalendarConfig {
     apiTimeout: parseInt(process.env.CALENDAR_API_TIMEOUT || '10000'), // 10 seconds
     batchSize: parseInt(process.env.CALENDAR_BATCH_SIZE || '20'),
     healthCheckInterval: parseInt(process.env.CALENDAR_HEALTH_CHECK_INTERVAL || '60000'), // 1 minute
-    metricsEnabled: process.env.CALENDAR_METRICS_ENABLED === 'true'
+    metricsEnabled: process.env.CALENDAR_METRICS_ENABLED === 'true',
   };
 }
 ```
@@ -344,7 +346,7 @@ enum CalendarFeatureFlag {
   CALENDAR_INTEGRATION = 'calendar_integration',
   ENERGY_INFERENCE = 'calendar_energy_inference',
   SMART_BUFFERING = 'calendar_smart_buffering',
-  ADVANCED_CACHING = 'calendar_advanced_caching'
+  ADVANCED_CACHING = 'calendar_advanced_caching',
 }
 
 class FeatureFlagService {
@@ -354,12 +356,12 @@ class FeatureFlagService {
     if (envFlag !== undefined) {
       return envFlag === 'true';
     }
-    
+
     // Check user-specific flags in database
     if (userId) {
       return this.checkUserFeatureFlag(userId, flag);
     }
-    
+
     // Default to disabled
     return false;
   }
@@ -379,38 +381,38 @@ class MockCalendarDataFactory {
         start: '2025-07-28T09:00:00-07:00',
         end: '2025-07-28T09:30:00-07:00',
         attendees: 5,
-        type: 'meeting'
+        type: 'meeting',
       },
       {
         summary: 'Focus Time - Development',
-        start: '2025-07-28T10:00:00-07:00', 
+        start: '2025-07-28T10:00:00-07:00',
         end: '2025-07-28T12:00:00-07:00',
         attendees: 1,
-        type: 'focus'
+        type: 'focus',
       },
       {
         summary: 'Client Review Meeting',
         start: '2025-07-28T14:00:00-07:00',
         end: '2025-07-28T15:00:00-07:00',
         attendees: 8,
-        type: 'meeting'
-      }
+        type: 'meeting',
+      },
     ];
   }
 
   static createHighVolumeDay(): MockCalendarEvent[] {
     const events: MockCalendarEvent[] = [];
-    
+
     for (let hour = 9; hour < 17; hour++) {
       events.push({
         summary: `Meeting ${hour - 8}`,
         start: `2025-07-28T${hour.toString().padStart(2, '0')}:00:00-07:00`,
         end: `2025-07-28T${hour.toString().padStart(2, '0')}:30:00-07:00`,
         attendees: Math.floor(Math.random() * 10) + 1,
-        type: 'meeting'
+        type: 'meeting',
       });
     }
-    
+
     return events;
   }
 }
@@ -423,12 +425,12 @@ describe('Calendar Integration Performance', () => {
   test('should handle 100+ events without performance degradation', async () => {
     const startTime = Date.now();
     const events = MockCalendarDataFactory.createHighVolumeEvents(150);
-    
+
     const timeSlots = await calendarIntegration.processEvents(events);
-    
+
     const endTime = Date.now();
     const duration = endTime - startTime;
-    
+
     expect(timeSlots).toHaveLength(150);
     expect(duration).toBeLessThan(5000); // Should complete in under 5 seconds
   });
@@ -436,17 +438,17 @@ describe('Calendar Integration Performance', () => {
   test('should maintain cache efficiency under load', async () => {
     const userId = 'test-user';
     const date = new Date('2025-07-28');
-    
+
     // First call should miss cache
     const start1 = Date.now();
     await calendarIntegration.getExistingCommitments(userId, date);
     const duration1 = Date.now() - start1;
-    
+
     // Second call should hit cache
     const start2 = Date.now();
     await calendarIntegration.getExistingCommitments(userId, date);
     const duration2 = Date.now() - start2;
-    
+
     expect(duration2).toBeLessThan(duration1 * 0.1); // Cache should be 10x faster
   });
 });

@@ -1,6 +1,6 @@
 /**
  * Accessibility Utility Functions
- * 
+ *
  * This module provides utility functions for implementing accessible
  * user interfaces with special consideration for ADHD-friendly patterns.
  */
@@ -40,7 +40,7 @@ export class FocusTrap {
       'iframe',
       'object',
       'embed',
-      '[contenteditable="true"]'
+      '[contenteditable="true"]',
     ].join(', ');
 
     const elements = Array.from(
@@ -69,8 +69,7 @@ export class FocusTrap {
    * Checks if an element is not inert
    */
   private isNotInert(element: HTMLElement): boolean {
-    return !element.hasAttribute('inert') && 
-           !element.closest('[inert]');
+    return !element.hasAttribute('inert') && !element.closest('[inert]');
   }
 
   /**
@@ -88,7 +87,7 @@ export class FocusTrap {
   activate(): void {
     this.previousFocus = document.activeElement as HTMLElement;
     this.updateFocusableElements();
-    
+
     if (this.firstFocusable) {
       this.firstFocusable.focus();
     }
@@ -101,7 +100,7 @@ export class FocusTrap {
    */
   deactivate(): void {
     this.container.removeEventListener('keydown', this.handleKeyDown);
-    
+
     if (this.previousFocus) {
       this.previousFocus.focus();
     }
@@ -155,11 +154,11 @@ export function announceToScreenReader(
   delay: number = 100
 ): void {
   const announcer = getOrCreateAnnouncer(priority);
-  
+
   // Clear the announcer first, then add the message after a brief delay
   // This ensures the message is properly announced
   announcer.textContent = '';
-  
+
   setTimeout(() => {
     announcer.textContent = message;
   }, delay);
@@ -171,7 +170,7 @@ export function announceToScreenReader(
 function getOrCreateAnnouncer(priority: 'polite' | 'assertive'): HTMLElement {
   const id = `a11y-announcer-${priority}`;
   let announcer = document.getElementById(id);
-  
+
   if (!announcer) {
     announcer = document.createElement('div');
     announcer.id = id;
@@ -185,10 +184,10 @@ function getOrCreateAnnouncer(priority: 'polite' | 'assertive'): HTMLElement {
       height: 1px !important;
       overflow: hidden !important;
     `;
-    
+
     document.body.appendChild(announcer);
   }
-  
+
   return announcer;
 }
 
@@ -197,7 +196,7 @@ function getOrCreateAnnouncer(priority: 'polite' | 'assertive'): HTMLElement {
  */
 export function updatePageTitle(newTitle: string, announce: boolean = true): void {
   document.title = newTitle;
-  
+
   if (announce) {
     announceToScreenReader(`Page title updated: ${newTitle}`, 'polite');
   }
@@ -215,7 +214,10 @@ export class RovingTabindex {
   private items: HTMLElement[];
   private currentIndex: number = 0;
 
-  constructor(container: HTMLElement, itemSelector: string = '[role="option"], [role="menuitem"], [role="tab"]') {
+  constructor(
+    container: HTMLElement,
+    itemSelector: string = '[role="option"], [role="menuitem"], [role="tab"]'
+  ) {
     this.container = container;
     this.items = Array.from(container.querySelectorAll(itemSelector)) as HTMLElement[];
     this.initialize();
@@ -249,23 +251,23 @@ export class RovingTabindex {
         event.preventDefault();
         newIndex = (this.currentIndex + 1) % this.items.length;
         break;
-      
+
       case 'ArrowUp':
       case 'ArrowLeft':
         event.preventDefault();
         newIndex = this.currentIndex === 0 ? this.items.length - 1 : this.currentIndex - 1;
         break;
-      
+
       case 'Home':
         event.preventDefault();
         newIndex = 0;
         break;
-      
+
       case 'End':
         event.preventDefault();
         newIndex = this.items.length - 1;
         break;
-      
+
       default:
         return;
     }
@@ -279,7 +281,7 @@ export class RovingTabindex {
   private handleFocusIn = (event: Event): void => {
     const target = event.target as HTMLElement;
     const index = this.items.indexOf(target);
-    
+
     if (index !== -1) {
       this.moveTo(index);
     }
@@ -294,7 +296,7 @@ export class RovingTabindex {
     // Update tabindex values
     this.items[this.currentIndex].tabIndex = -1;
     this.items[index].tabIndex = 0;
-    
+
     // Move focus
     this.items[index].focus();
     this.currentIndex = index;
@@ -345,12 +347,12 @@ export function createADHDFriendlyFocus(element: HTMLElement): void {
     outline: '3px solid #0066cc',
     outlineOffset: '2px',
     borderRadius: '4px',
-    transition: prefersReducedMotion() ? 'none' : 'outline 0.15s ease'
+    transition: prefersReducedMotion() ? 'none' : 'outline 0.15s ease',
   };
 
   const blurStyle = {
     outline: 'none',
-    transition: prefersReducedMotion() ? 'none' : 'outline 0.15s ease'
+    transition: prefersReducedMotion() ? 'none' : 'outline 0.15s ease',
   };
 
   element.addEventListener('focus', () => {
@@ -371,7 +373,7 @@ export function createADHDFriendlyFocus(element: HTMLElement): void {
  */
 export function enhanceFormAccessibility(form: HTMLFormElement): void {
   const inputs = form.querySelectorAll('input, select, textarea');
-  
+
   inputs.forEach(input => {
     const inputElement = input as HTMLInputElement;
     const id = inputElement.id || `input-${Math.random().toString(36).substr(2, 9)}`;
@@ -400,7 +402,8 @@ export function enhanceFormAccessibility(form: HTMLFormElement): void {
     // Associate with error container
     const describedBy = inputElement.getAttribute('aria-describedby') || '';
     if (!describedBy.includes(`${id}-error`)) {
-      inputElement.setAttribute('aria-describedby', 
+      inputElement.setAttribute(
+        'aria-describedby',
         describedBy ? `${describedBy} ${id}-error` : `${id}-error`
       );
     }
@@ -413,12 +416,12 @@ export function enhanceFormAccessibility(form: HTMLFormElement): void {
 export function setFieldError(fieldId: string, errorMessage: string): void {
   const field = document.getElementById(fieldId) as HTMLInputElement;
   const errorContainer = document.getElementById(`${fieldId}-error`);
-  
+
   if (field && errorContainer) {
     field.setAttribute('aria-invalid', 'true');
     errorContainer.textContent = errorMessage;
     errorContainer.className = errorContainer.className.replace('sr-only', '');
-    
+
     // Announce error to screen readers
     announceToScreenReader(`Error in ${field.name || fieldId}: ${errorMessage}`, 'assertive');
   }
@@ -430,7 +433,7 @@ export function setFieldError(fieldId: string, errorMessage: string): void {
 export function clearFieldError(fieldId: string): void {
   const field = document.getElementById(fieldId) as HTMLInputElement;
   const errorContainer = document.getElementById(`${fieldId}-error`);
-  
+
   if (field && errorContainer) {
     field.setAttribute('aria-invalid', 'false');
     errorContainer.textContent = '';
@@ -471,24 +474,26 @@ export function calculateContrastRatio(color1: string, color2: string): number {
  */
 function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ? {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16)
-  } : null;
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : null;
 }
 
 /**
  * Checks if a color combination meets WCAG contrast requirements
  */
 export function meetsContrastRequirements(
-  foreground: string, 
-  background: string, 
+  foreground: string,
+  background: string,
   level: 'AA' | 'AAA' = 'AA',
   isLargeText: boolean = false
 ): boolean {
   const ratio = calculateContrastRatio(foreground, background);
-  
+
   if (level === 'AAA') {
     return isLargeText ? ratio >= 4.5 : ratio >= 7;
   } else {
@@ -511,11 +516,11 @@ export function highlightFocusableElements(): void {
     'textarea:not([disabled])',
     'a[href]',
     '[tabindex]:not([tabindex="-1"])',
-    'details summary'
+    'details summary',
   ].join(', ');
 
   const elements = document.querySelectorAll(focusableSelectors);
-  
+
   elements.forEach((element, index) => {
     const htmlElement = element as HTMLElement;
     htmlElement.style.outline = '2px solid red';
@@ -537,7 +542,7 @@ export function logAccessibilityInfo(element: HTMLElement): void {
     tabIndex: element.tabIndex,
     focusable: element.tabIndex >= 0 || element.matches('a[href], button, input, select, textarea'),
     visible: element.offsetParent !== null,
-    computedRole: element.getAttribute('role') || getImplicitRole(element.tagName)
+    computedRole: element.getAttribute('role') || getImplicitRole(element.tagName),
   };
 
   console.table(info);
@@ -548,24 +553,24 @@ export function logAccessibilityInfo(element: HTMLElement): void {
  */
 function getImplicitRole(tagName: string): string {
   const roleMap: Record<string, string> = {
-    'BUTTON': 'button',
-    'A': 'link',
-    'INPUT': 'textbox',
-    'SELECT': 'combobox',
-    'TEXTAREA': 'textbox',
-    'H1': 'heading',
-    'H2': 'heading',
-    'H3': 'heading',
-    'H4': 'heading',
-    'H5': 'heading',
-    'H6': 'heading',
-    'NAV': 'navigation',
-    'MAIN': 'main',
-    'SECTION': 'region',
-    'ARTICLE': 'article',
-    'ASIDE': 'complementary',
-    'HEADER': 'banner',
-    'FOOTER': 'contentinfo'
+    BUTTON: 'button',
+    A: 'link',
+    INPUT: 'textbox',
+    SELECT: 'combobox',
+    TEXTAREA: 'textbox',
+    H1: 'heading',
+    H2: 'heading',
+    H3: 'heading',
+    H4: 'heading',
+    H5: 'heading',
+    H6: 'heading',
+    NAV: 'navigation',
+    MAIN: 'main',
+    SECTION: 'region',
+    ARTICLE: 'article',
+    ASIDE: 'complementary',
+    HEADER: 'banner',
+    FOOTER: 'contentinfo',
   };
 
   return roleMap[tagName.toUpperCase()] || 'generic';

@@ -20,16 +20,20 @@ GET /auth/{provider}/login
 ```
 
 **Parameters:**
+
 - `provider` (path): `google` | `microsoft`
 
 **Query Parameters:**
+
 - `redirect_uri` (optional): Frontend URL to redirect after successful auth
 - `scopes` (optional): Comma-separated list of additional scopes
 
 **Response:**
+
 - `302 Redirect` to OAuth provider authorization URL
 
 **Example:**
+
 ```bash
 curl -X GET "http://localhost:3001/api/auth/google/login?redirect_uri=http://localhost:3000/dashboard"
 # Returns 302 redirect to Google OAuth
@@ -44,19 +48,23 @@ GET /auth/{provider}/callback
 ```
 
 **Parameters:**
+
 - `provider` (path): `google` | `microsoft`
 
 **Query Parameters:**
+
 - `code` (required): Authorization code from OAuth provider
 - `state` (required): State parameter for CSRF protection
 - `error` (optional): Error code if OAuth failed
 
 **Response:**
+
 - `302 Redirect` to frontend with session token
 - Success: `{frontend_url}?token={jwt_token}&refresh={refresh_token}`
 - Error: `{frontend_url}/login?error={error_code}`
 
 **Example Success Response:**
+
 ```http
 302 Found
 Location: http://localhost:3000?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&refresh=rt_abc123...
@@ -73,6 +81,7 @@ POST /auth/refresh
 ```
 
 **Request Body:**
+
 ```json
 {
   "refreshToken": "rt_abc123..."
@@ -80,6 +89,7 @@ POST /auth/refresh
 ```
 
 **Response:**
+
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -89,6 +99,7 @@ POST /auth/refresh
 ```
 
 **Error Response:**
+
 ```json
 {
   "error": {
@@ -107,11 +118,13 @@ POST /auth/logout
 ```
 
 **Headers:**
+
 ```
 Authorization: Bearer {access_token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -128,11 +141,13 @@ POST /auth/logout-all
 ```
 
 **Headers:**
+
 ```
 Authorization: Bearer {access_token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -152,11 +167,13 @@ GET /auth/profile
 ```
 
 **Headers:**
+
 ```
 Authorization: Bearer {access_token}
 ```
 
 **Response:**
+
 ```json
 {
   "id": "usr_123abc",
@@ -188,11 +205,13 @@ PATCH /auth/profile
 ```
 
 **Headers:**
+
 ```
 Authorization: Bearer {access_token}
 ```
 
 **Request Body:**
+
 ```json
 {
   "name": "John Smith",
@@ -201,6 +220,7 @@ Authorization: Bearer {access_token}
 ```
 
 **Response:**
+
 ```json
 {
   "id": "usr_123abc",
@@ -222,11 +242,13 @@ POST /auth/calendar-permissions
 ```
 
 **Headers:**
+
 ```
 Authorization: Bearer {access_token}
 ```
 
 **Request Body:**
+
 ```json
 {
   "provider": "google",
@@ -238,6 +260,7 @@ Authorization: Bearer {access_token}
 ```
 
 **Response:**
+
 ```json
 {
   "authUrl": "https://accounts.google.com/oauth/authorize?client_id=...",
@@ -254,11 +277,13 @@ GET /auth/calendar-permissions
 ```
 
 **Headers:**
+
 ```
 Authorization: Bearer {access_token}
 ```
 
 **Response:**
+
 ```json
 {
   "permissions": [
@@ -292,14 +317,17 @@ POST /auth/providers/{provider}/link
 ```
 
 **Parameters:**
+
 - `provider` (path): `google` | `microsoft`
 
 **Headers:**
+
 ```
 Authorization: Bearer {access_token}
 ```
 
 **Response:**
+
 ```json
 {
   "authUrl": "https://accounts.google.com/oauth/authorize?client_id=...",
@@ -316,14 +344,17 @@ DELETE /auth/providers/{provider}
 ```
 
 **Parameters:**
+
 - `provider` (path): `google` | `microsoft`
 
 **Headers:**
+
 ```
 Authorization: Bearer {access_token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -332,6 +363,7 @@ Authorization: Bearer {access_token}
 ```
 
 **Error Response (if only provider):**
+
 ```json
 {
   "error": {
@@ -352,11 +384,13 @@ GET /auth/sessions
 ```
 
 **Headers:**
+
 ```
 Authorization: Bearer {access_token}
 ```
 
 **Response:**
+
 ```json
 {
   "sessions": [
@@ -383,14 +417,17 @@ DELETE /auth/sessions/{sessionId}
 ```
 
 **Parameters:**
+
 - `sessionId` (path): Session ID to revoke
 
 **Headers:**
+
 ```
 Authorization: Bearer {access_token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -416,19 +453,19 @@ All endpoints return standardized error responses:
 
 ### Common Error Codes
 
-| Code | HTTP Status | Description |
-|------|-------------|-------------|
-| `auth/invalid-provider` | 400 | Unsupported OAuth provider |
-| `auth/oauth-failed` | 400 | OAuth flow failed |
-| `auth/token-expired` | 401 | Access token expired |
-| `auth/token-invalid` | 401 | Token is malformed or invalid |
-| `auth/session-invalid` | 401 | Session not found or expired |
-| `auth/insufficient-permissions` | 403 | Missing required scopes |
-| `auth/state-mismatch` | 400 | OAuth state parameter mismatch |
-| `auth/user-not-found` | 404 | User account not found |
-| `auth/provider-error` | 502 | OAuth provider returned error |
-| `auth/rate-limited` | 429 | Too many requests |
-| `auth/internal-error` | 500 | Internal server error |
+| Code                            | HTTP Status | Description                    |
+| ------------------------------- | ----------- | ------------------------------ |
+| `auth/invalid-provider`         | 400         | Unsupported OAuth provider     |
+| `auth/oauth-failed`             | 400         | OAuth flow failed              |
+| `auth/token-expired`            | 401         | Access token expired           |
+| `auth/token-invalid`            | 401         | Token is malformed or invalid  |
+| `auth/session-invalid`          | 401         | Session not found or expired   |
+| `auth/insufficient-permissions` | 403         | Missing required scopes        |
+| `auth/state-mismatch`           | 400         | OAuth state parameter mismatch |
+| `auth/user-not-found`           | 404         | User account not found         |
+| `auth/provider-error`           | 502         | OAuth provider returned error  |
+| `auth/rate-limited`             | 429         | Too many requests              |
+| `auth/internal-error`           | 500         | Internal server error          |
 
 ## Rate Limiting
 

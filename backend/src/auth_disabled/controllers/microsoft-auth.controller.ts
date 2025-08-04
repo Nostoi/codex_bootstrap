@@ -12,7 +12,7 @@ export class MicrosoftAuthController {
 
   constructor(
     private microsoftAuthService: MicrosoftAuthService,
-    private configService: ConfigService,
+    private configService: ConfigService
   ) {}
 
   @Get('login')
@@ -32,8 +32,8 @@ export class MicrosoftAuthController {
           'profile',
           'email',
           'https://graph.microsoft.com/Calendars.ReadWrite',
-          'https://graph.microsoft.com/Calendars.Read'
-        ]
+          'https://graph.microsoft.com/Calendars.Read',
+        ],
       });
 
       // Store state in session or cookie for validation
@@ -49,15 +49,14 @@ export class MicrosoftAuthController {
       }
 
       return { authUrl, state };
-
     } catch (error) {
       this.logger.error(`Microsoft OAuth initiation failed: ${error.message}`, error.stack);
-      
+
       if (res) {
         const errorUrl = `${this.configService.get('FRONTEND_URL')}/login?error=auth_init_failed`;
         return res.redirect(errorUrl);
       }
-      
+
       throw error;
     }
   }
@@ -113,24 +112,23 @@ export class MicrosoftAuthController {
         // Redirect to frontend dashboard
         const redirectParams = authResult.isNewUser ? '?welcome=true' : '?auth=success';
         const redirectUrl = `${this.configService.get('FRONTEND_URL')}/dashboard${redirectParams}`;
-        
+
         this.logger.log(`Redirecting authenticated user to: ${redirectUrl}`);
         return res.redirect(redirectUrl);
       }
 
       return authResult;
-
     } catch (error) {
       this.logger.error(`Microsoft OAuth callback failed: ${error.message}`, error.stack);
-      
+
       if (res) {
         // Clear the OAuth state cookie
         res.clearCookie('oauth_state');
-        
+
         const errorUrl = `${this.configService.get('FRONTEND_URL')}/login?error=auth_failed`;
         return res.redirect(errorUrl);
       }
-      
+
       throw error;
     }
   }
@@ -143,29 +141,28 @@ export class MicrosoftAuthController {
       if (!refreshToken) {
         return res.status(HttpStatus.UNAUTHORIZED).json({
           error: 'MISSING_REFRESH_TOKEN',
-          message: 'Refresh token not found'
+          message: 'Refresh token not found',
         });
       }
 
       const tokens = await this.microsoftAuthService.refreshSession(refreshToken);
-      
+
       // Set new cookies
       this.setAuthCookies(res, tokens);
 
       return res.json({
         message: 'Tokens refreshed successfully',
-        expiresAt: tokens.expiresAt
+        expiresAt: tokens.expiresAt,
       });
-
     } catch (error) {
       this.logger.error(`Token refresh failed: ${error.message}`, error.stack);
-      
+
       // Clear potentially invalid cookies
       this.clearAuthCookies(res);
-      
+
       return res.status(HttpStatus.UNAUTHORIZED).json({
         error: 'TOKEN_REFRESH_FAILED',
-        message: 'Failed to refresh authentication tokens'
+        message: 'Failed to refresh authentication tokens',
       });
     }
   }
@@ -174,7 +171,7 @@ export class MicrosoftAuthController {
   async logout(@Req() req: Request, @Res() res: Response) {
     try {
       const refreshToken = req.cookies?.refresh_token;
-      
+
       if (refreshToken) {
         // Extract user ID from refresh token to revoke all sessions
         try {
@@ -192,23 +189,19 @@ export class MicrosoftAuthController {
 
       const logoutUrl = `${this.configService.get('FRONTEND_URL')}/login?logout=success`;
       return res.redirect(logoutUrl);
-
     } catch (error) {
       this.logger.error(`Logout failed: ${error.message}`, error.stack);
-      
+
       // Still clear cookies even if logout fails
       this.clearAuthCookies(res);
-      
+
       const errorUrl = `${this.configService.get('FRONTEND_URL')}/login?error=logout_failed`;
       return res.redirect(errorUrl);
     }
   }
 
   @Get('permissions/calendar')
-  async requestCalendarPermissions(
-    @Query('user_id') userId: string,
-    @Res() res?: Response
-  ) {
+  async requestCalendarPermissions(@Query('user_id') userId: string, @Res() res?: Response) {
     try {
       if (!userId) {
         const error = { error: 'MISSING_USER_ID', message: 'User ID is required' };
@@ -233,15 +226,14 @@ export class MicrosoftAuthController {
       }
 
       return { authUrl, state };
-
     } catch (error) {
       this.logger.error(`Calendar permissions request failed: ${error.message}`, error.stack);
-      
+
       if (res) {
         const errorUrl = `${this.configService.get('FRONTEND_URL')}/settings?error=calendar_auth_failed`;
         return res.redirect(errorUrl);
       }
-      
+
       throw error;
     }
   }
@@ -255,7 +247,6 @@ export class MicrosoftAuthController {
 
       const permissions = await this.microsoftAuthService.getCalendarPermissions(userId);
       return { permissions };
-
     } catch (error) {
       this.logger.error(`Get calendar permissions failed: ${error.message}`, error.stack);
       return { error: 'PERMISSION_CHECK_FAILED', message: 'Failed to check calendar permissions' };
@@ -264,9 +255,9 @@ export class MicrosoftAuthController {
 
   private setAuthCookies(res: Response, tokens: any) {
     const isProduction = this.configService.get('NODE_ENV') === 'production';
-    
+
     // Calculate expiry time for access token (default 15 minutes if not provided)
-    const accessTokenExpiry = tokens.expiresAt 
+    const accessTokenExpiry = tokens.expiresAt
       ? tokens.expiresAt.getTime() - Date.now()
       : 15 * 60 * 1000; // 15 minutes default
 
@@ -293,7 +284,8 @@ export class MicrosoftAuthController {
     const cookieOptions = {
       httpOnly: true,
       secure: this.configService.get('NODE_ENV') === 'production',
-      sameSite: this.configService.get('NODE_ENV') === 'production' ? 'none' as const : 'lax' as const,
+      sameSite:
+        this.configService.get('NODE_ENV') === 'production' ? ('none' as const) : ('lax' as const),
       path: '/',
     };
 

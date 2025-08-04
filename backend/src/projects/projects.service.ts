@@ -1,7 +1,7 @@
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
-import { CreateProjectDto, UpdateProjectDto } from "./dto/project.dto";
-import { Project } from "@prisma/client";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
+import { Project } from '@prisma/client';
 
 @Injectable()
 export class ProjectsService {
@@ -12,7 +12,7 @@ export class ProjectsService {
   }
 
   async findAll(): Promise<Project[]> {
-    return this.prisma.project.findMany({ orderBy: { createdAt: "desc" } });
+    return this.prisma.project.findMany({ orderBy: { createdAt: 'desc' } });
   }
 
   async findOne(id: string): Promise<Project | null> {

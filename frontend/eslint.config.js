@@ -1,13 +1,10 @@
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-import storybook from "eslint-plugin-storybook";
+import storybook from 'eslint-plugin-storybook';
 
 const { ESLint } = require('eslint');
 
 module.exports = {
-  extends: [
-    'next/core-web-vitals',
-    '@typescript-eslint/recommended',
-  ],
+  extends: ['next/core-web-vitals', '@typescript-eslint/recommended'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 2021,
@@ -34,4 +31,4 @@ module.exports = {
     es2021: true,
     node: true,
   },
-}
+};

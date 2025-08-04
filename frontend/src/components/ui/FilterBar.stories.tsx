@@ -178,7 +178,8 @@ export const EnergyFiltering: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Shows energy level filtering with high energy tasks selected. Energy levels use ADHD-friendly color coding.',
+        story:
+          'Shows energy level filtering with high energy tasks selected. Energy levels use ADHD-friendly color coding.',
       },
     },
   },
@@ -213,7 +214,8 @@ export const WithSearch: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Shows search functionality with debounced input. Search terms are applied after 300ms of typing pause.',
+        story:
+          'Shows search functionality with debounced input. Search terms are applied after 300ms of typing pause.',
       },
     },
   },
@@ -269,7 +271,8 @@ export const FocusTypeFiltering: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Focus type filtering with creative and technical tasks selected, showing icon-based visual indicators.',
+        story:
+          'Focus type filtering with creative and technical tasks selected, showing icon-based visual indicators.',
       },
     },
   },
@@ -331,7 +334,8 @@ export const AllFiltersActive: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Comprehensive example with all filter types active, showing filter count and clear functionality.',
+        story:
+          'Comprehensive example with all filter types active, showing filter count and clear functionality.',
       },
     },
   },

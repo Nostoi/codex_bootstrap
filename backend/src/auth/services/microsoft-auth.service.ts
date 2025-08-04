@@ -27,7 +27,7 @@ export class MicrosoftAuthService {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaService
   ) {}
 
   /**
@@ -47,7 +47,7 @@ export class MicrosoftAuthService {
       }
 
       const authProvider = new CustomAuthProvider(oauthProvider.accessToken);
-      
+
       return Client.initWithMiddleware({
         authProvider,
       });
@@ -75,7 +75,7 @@ export class MicrosoftAuthService {
 
       // Microsoft Graph token refresh
       const tokenEndpoint = `https://login.microsoftonline.com/${this.configService.get('MICROSOFT_TENANT_ID', 'common')}/oauth2/v2.0/token`;
-      
+
       const params = new URLSearchParams({
         client_id: this.configService.get<string>('MICROSOFT_CLIENT_ID')!,
         client_secret: this.configService.get<string>('MICROSOFT_CLIENT_SECRET')!,
@@ -106,7 +106,9 @@ export class MicrosoftAuthService {
         data: {
           accessToken: tokens.access_token,
           refreshToken: tokens.refresh_token || oauthProvider.refreshToken,
-          tokenExpiry: tokens.expires_in ? new Date(Date.now() + tokens.expires_in * 1000) : undefined,
+          tokenExpiry: tokens.expires_in
+            ? new Date(Date.now() + tokens.expires_in * 1000)
+            : undefined,
           updatedAt: new Date(),
         },
       });
@@ -122,7 +124,11 @@ export class MicrosoftAuthService {
   /**
    * Get Microsoft Calendar events for a user
    */
-  async getCalendarEvents(userId: string, timeMin?: Date, timeMax?: Date): Promise<MicrosoftCalendarEvent[]> {
+  async getCalendarEvents(
+    userId: string,
+    timeMin?: Date,
+    timeMax?: Date
+  ): Promise<MicrosoftCalendarEvent[]> {
     try {
       const graphClient = await this.getMicrosoftGraphClient(userId);
 
@@ -144,8 +150,10 @@ export class MicrosoftAuthService {
 
       const response = await graphClient.api(url).get();
 
-      this.logger.debug(`Retrieved ${response.value?.length || 0} Microsoft Calendar events for user: ${userId}`);
-      
+      this.logger.debug(
+        `Retrieved ${response.value?.length || 0} Microsoft Calendar events for user: ${userId}`
+      );
+
       return (response.value || []).map((event: any) => ({
         id: event.id,
         subject: event.subject || 'No title',
@@ -156,7 +164,7 @@ export class MicrosoftAuthService {
       }));
     } catch (error) {
       this.logger.error(`Failed to get Microsoft Calendar events for user: ${userId}`, error.stack);
-      
+
       // Try to refresh tokens if unauthorized
       if (error.code === 401 || error.statusCode === 401) {
         const refreshed = await this.refreshMicrosoftTokens(userId);
@@ -165,7 +173,7 @@ export class MicrosoftAuthService {
           return this.getCalendarEvents(userId, timeMin, timeMax);
         }
       }
-      
+
       throw error;
     }
   }
@@ -226,14 +234,14 @@ export class MicrosoftAuthService {
   async getUserProfile(userId: string): Promise<any> {
     try {
       const graphClient = await this.getMicrosoftGraphClient(userId);
-      
+
       const profile = await graphClient.api('/me').get();
-      
+
       this.logger.debug(`Retrieved Microsoft profile for user: ${userId}`);
       return profile;
     } catch (error) {
       this.logger.error(`Failed to get Microsoft profile for user: ${userId}`, error.stack);
-      
+
       // Try to refresh tokens if unauthorized
       if (error.code === 401 || error.statusCode === 401) {
         const refreshed = await this.refreshMicrosoftTokens(userId);
@@ -242,7 +250,7 @@ export class MicrosoftAuthService {
           return this.getUserProfile(userId);
         }
       }
-      
+
       throw error;
     }
   }

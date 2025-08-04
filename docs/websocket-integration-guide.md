@@ -7,6 +7,7 @@ The WebSocket Real-Time Notification System provides instant, bidirectional comm
 ## 🏗️ Architecture
 
 ### Backend Components
+
 - **NotificationsGateway** (`/backend/src/notifications/notifications.gateway.ts`)
   - WebSocket server running on port 8001
   - JWT authentication integration
@@ -14,6 +15,7 @@ The WebSocket Real-Time Notification System provides instant, bidirectional comm
   - Offline message queueing
 
 ### Frontend Components
+
 - **WebSocketContext** (`/frontend/src/contexts/WebSocketContext.tsx`)
   - React context for WebSocket management
   - Auto-reconnection with exponential backoff
@@ -22,12 +24,15 @@ The WebSocket Real-Time Notification System provides instant, bidirectional comm
 ## 🚀 Production Deployment
 
 ### Docker Configuration
+
 The system is configured for production deployment with:
+
 - Backend WebSocket port 8001 exposed
 - Environment variables for WebSocket configuration
 - Health checks and monitoring
 
 ### Kubernetes Deployment
+
 - WebSocket port exposed in backend deployment
 - Service configuration updated
 - Resource limits and health checks configured
@@ -35,12 +40,14 @@ The system is configured for production deployment with:
 ## 🧪 Testing Instructions
 
 ### Manual Testing
+
 1. Start both servers:
+
    ```bash
    # Backend
    cd backend && pnpm run start:dev
-   
-   # Frontend  
+
+   # Frontend
    cd frontend && pnpm run dev
    ```
 
@@ -54,6 +61,7 @@ The system is configured for production deployment with:
    - Check notification batching for ADHD optimization
 
 ### Automated Testing
+
 ```bash
 # Run WebSocket integration tests
 cd backend && npm test -- websocket
@@ -63,6 +71,7 @@ cd frontend && npm test -- websocket
 ## 🔧 Configuration
 
 ### Environment Variables
+
 ```env
 # Backend
 WEBSOCKET_PORT=8001
@@ -74,6 +83,7 @@ NEXT_PUBLIC_WEBSOCKET_URL=ws://localhost:8001
 ```
 
 ### ADHD-Friendly Features
+
 - **Notification Batching**: Groups notifications to prevent overwhelm
 - **Focus Mode**: Respects user's concentration periods
 - **Gentle Alerts**: Non-intrusive notification delivery
@@ -82,11 +92,13 @@ NEXT_PUBLIC_WEBSOCKET_URL=ws://localhost:8001
 ## 📊 Monitoring
 
 ### Health Checks
+
 - Connection status monitoring
 - Message delivery confirmation
 - Performance metrics tracking
 
 ### Logging
+
 - Connection lifecycle events
 - Message routing and delivery
 - Error conditions and recovery
@@ -94,12 +106,15 @@ NEXT_PUBLIC_WEBSOCKET_URL=ws://localhost:8001
 ## 🐛 Troubleshooting
 
 ### Common Issues
+
 1. **Connection Failed**: Check if backend is running on port 8001
 2. **Authentication Error**: Verify JWT token is valid
 3. **Message Not Received**: Check network connectivity and CORS settings
 
 ### Debug Mode
+
 Enable debug logging:
+
 ```env
 DEBUG=websocket:*
 ```

@@ -2,7 +2,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { NotificationsGateway } from './notifications.gateway';
 import { NotificationHistoryService } from './notification-history.service';
 import { NotificationPreferencesService } from './notification-preferences.service';
-import { NotificationTemplatesService, TemplateContext, UserContext, TaskContext } from './notification-templates.service';
+import {
+  NotificationTemplatesService,
+  TemplateContext,
+  UserContext,
+  TaskContext,
+} from './notification-templates.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 export interface TaskUpdateData {
@@ -47,11 +52,11 @@ export class NotificationsService {
   // Task notification methods
   async notifyTaskUpdate(userId: string, taskData: TaskUpdateData) {
     this.logger.log(`Notifying task update for user ${userId}: ${taskData.title}`);
-    
+
     // Check user preferences before sending notification
     const shouldSend = await this.notificationPreferencesService.shouldSendNotification(
-      userId, 
-      'task-update', 
+      userId,
+      'task-update',
       this.getTaskUrgency(taskData.priority)
     );
 
@@ -59,7 +64,7 @@ export class NotificationsService {
       this.logger.log(`Notification suppressed by user preferences for user ${userId}`);
       return;
     }
-    
+
     // Get user context for personalization
     const userContext = await this.getUserContext(userId);
     const taskContext: TaskContext = {
@@ -68,7 +73,7 @@ export class NotificationsService {
       status: taskData.status as any,
       priority: taskData.priority,
       dueDate: taskData.dueDate,
-      updatedBy: taskData.updatedBy
+      updatedBy: taskData.updatedBy,
     };
 
     const templateContext: TemplateContext = {
@@ -76,7 +81,7 @@ export class NotificationsService {
       task: taskContext,
       currentTime: new Date(),
       timeOfDay: this.getTimeOfDay(),
-      urgencyLevel: this.getTaskUrgency(taskData.priority)
+      urgencyLevel: this.getTaskUrgency(taskData.priority),
     };
 
     // Generate personalized message using templates
@@ -85,7 +90,7 @@ export class NotificationsService {
       templateContext,
       'body'
     );
-    
+
     // Save to database first
     await this.notificationHistoryService.saveNotificationToDatabase({
       message,
@@ -97,29 +102,31 @@ export class NotificationsService {
         priority: taskData.priority,
         dueDate: taskData.dueDate,
         updatedBy: taskData.updatedBy,
-        personalizedMessage: true
-      }
+        personalizedMessage: true,
+      },
     });
-    
+
     // Send real-time notification
     this.notificationsGateway.notifyTaskUpdate(userId, taskData);
   }
 
   async notifyTaskCreated(userId: string, taskData: TaskUpdateData) {
     this.logger.log(`Notifying task creation for user ${userId}: ${taskData.title}`);
-    
+
     // Check user preferences before sending notification
     const shouldSend = await this.notificationPreferencesService.shouldSendNotification(
-      userId, 
-      'task-update', 
+      userId,
+      'task-update',
       this.getTaskUrgency(taskData.priority)
     );
 
     if (!shouldSend) {
-      this.logger.log(`Task creation notification suppressed by user preferences for user ${userId}`);
+      this.logger.log(
+        `Task creation notification suppressed by user preferences for user ${userId}`
+      );
       return;
     }
-    
+
     // Get user context for personalization
     const userContext = await this.getUserContext(userId);
     const taskContext: TaskContext = {
@@ -128,7 +135,7 @@ export class NotificationsService {
       status: taskData.status as any,
       priority: taskData.priority,
       dueDate: taskData.dueDate,
-      updatedBy: taskData.updatedBy
+      updatedBy: taskData.updatedBy,
     };
 
     const templateContext: TemplateContext = {
@@ -136,7 +143,7 @@ export class NotificationsService {
       task: taskContext,
       currentTime: new Date(),
       timeOfDay: this.getTimeOfDay(),
-      urgencyLevel: this.getTaskUrgency(taskData.priority)
+      urgencyLevel: this.getTaskUrgency(taskData.priority),
     };
 
     // Generate personalized message using templates
@@ -145,7 +152,7 @@ export class NotificationsService {
       templateContext,
       'body'
     );
-    
+
     // Save to database first
     await this.notificationHistoryService.saveNotificationToDatabase({
       message,
@@ -157,28 +164,30 @@ export class NotificationsService {
         priority: taskData.priority,
         dueDate: taskData.dueDate,
         updatedBy: taskData.updatedBy,
-        personalizedMessage: true
-      }
+        personalizedMessage: true,
+      },
     });
-    
+
     this.notificationsGateway.notifyTaskCreated(userId, taskData);
   }
 
   async notifyTaskDeleted(userId: string, taskId: string, taskTitle: string) {
     this.logger.log(`Notifying task deletion for user ${userId}: ${taskTitle}`);
-    
+
     // Check user preferences before sending notification
     const shouldSend = await this.notificationPreferencesService.shouldSendNotification(
-      userId, 
-      'task-update', 
+      userId,
+      'task-update',
       'low' // Deletions are typically low urgency
     );
 
     if (!shouldSend) {
-      this.logger.log(`Task deletion notification suppressed by user preferences for user ${userId}`);
+      this.logger.log(
+        `Task deletion notification suppressed by user preferences for user ${userId}`
+      );
       return;
     }
-    
+
     // Save to database first
     const message = `Task "${taskTitle}" was deleted`;
     await this.notificationHistoryService.saveNotificationToDatabase({
@@ -186,28 +195,30 @@ export class NotificationsService {
       userId,
       taskId,
       notificationType: 'task-deleted',
-      metadata: { taskTitle }
+      metadata: { taskTitle },
     });
-    
+
     this.notificationsGateway.notifyTaskDeleted(userId, taskId);
   }
 
   // Calendar notification methods
   async notifyCalendarSync(userId: string, syncData: CalendarSyncData) {
     this.logger.log(`Notifying calendar sync for user ${userId}: ${syncData.events.length} events`);
-    
+
     // Check user preferences before sending notification
     const shouldSend = await this.notificationPreferencesService.shouldSendNotification(
-      userId, 
-      'calendar-sync', 
+      userId,
+      'calendar-sync',
       syncData.conflicts.length > 0 ? 'medium' : 'low'
     );
 
     if (!shouldSend) {
-      this.logger.log(`Calendar sync notification suppressed by user preferences for user ${userId}`);
+      this.logger.log(
+        `Calendar sync notification suppressed by user preferences for user ${userId}`
+      );
       return;
     }
-    
+
     // Save to database first
     const message = `Calendar sync completed: ${syncData.events.length} events from ${syncData.source}`;
     await this.notificationHistoryService.saveNotificationToDatabase({
@@ -219,9 +230,9 @@ export class NotificationsService {
         conflictCount: syncData.conflicts.length,
         source: syncData.source,
         lastSyncTime: syncData.lastSyncTime,
-      }
+      },
     });
-    
+
     this.notificationsGateway.notifyCalendarSync(userId, syncData);
 
     // If there are conflicts, send separate conflict notification
@@ -231,20 +242,24 @@ export class NotificationsService {
   }
 
   async notifyCalendarConflicts(userId: string, conflicts: any[]) {
-    this.logger.log(`Notifying calendar conflicts for user ${userId}: ${conflicts.length} conflicts`);
-    
+    this.logger.log(
+      `Notifying calendar conflicts for user ${userId}: ${conflicts.length} conflicts`
+    );
+
     // Check user preferences before sending notification
     const shouldSend = await this.notificationPreferencesService.shouldSendNotification(
-      userId, 
-      'conflict-alert', 
+      userId,
+      'conflict-alert',
       'high' // Conflicts are high urgency
     );
 
     if (!shouldSend) {
-      this.logger.log(`Calendar conflict notification suppressed by user preferences for user ${userId}`);
+      this.logger.log(
+        `Calendar conflict notification suppressed by user preferences for user ${userId}`
+      );
       return;
     }
-    
+
     const conflictData = {
       conflicts: conflicts.map(conflict => ({
         eventId: conflict.eventId,
@@ -261,7 +276,7 @@ export class NotificationsService {
   // Daily plan regeneration notifications
   async notifyDailyPlanRegeneration(userId: string, planData: any) {
     this.logger.log(`Notifying plan regeneration for user ${userId}`);
-    
+
     const optimizedPlanData = {
       scheduledTasks: planData.scheduledTasks || [],
       unscheduledTasks: planData.unscheduledTasks || [],
@@ -279,19 +294,21 @@ export class NotificationsService {
   // Deadline reminder system
   async sendDeadlineReminder(userId: string, reminderData: DeadlineReminderData) {
     this.logger.log(`Sending deadline reminder for user ${userId}: ${reminderData.task.title}`);
-    
+
     // Check user preferences before sending notification
     const shouldSend = await this.notificationPreferencesService.shouldSendNotification(
-      userId, 
-      'deadline-reminder', 
+      userId,
+      'deadline-reminder',
       reminderData.urgencyLevel
     );
 
     if (!shouldSend) {
-      this.logger.log(`Deadline reminder notification suppressed by user preferences for user ${userId}`);
+      this.logger.log(
+        `Deadline reminder notification suppressed by user preferences for user ${userId}`
+      );
       return;
     }
-    
+
     // Save to database first
     const message = `Deadline reminder: "${reminderData.task.title}" is due ${reminderData.timeUntilDeadline}`;
     await this.notificationHistoryService.saveNotificationToDatabase({
@@ -304,26 +321,26 @@ export class NotificationsService {
         timeUntilDeadline: reminderData.timeUntilDeadline,
         priority: reminderData.task.priority,
         dueDate: reminderData.task.dueDate,
-      }
+      },
     });
-    
+
     this.notificationsGateway.notifyDeadlineReminder(userId, reminderData);
   }
 
   // Method for checking upcoming deadlines (can be called periodically)
   async checkUpcomingDeadlines() {
     this.logger.log('Checking for upcoming deadlines...');
-    
+
     try {
       // Note: This would need to integrate with your task service to get actual tasks
       // For now, this is a placeholder structure
-      
+
       const upcomingTasks = await this.getTasksWithUpcomingDeadlines();
-      
+
       for (const task of upcomingTasks) {
         const timeUntilDeadline = this.calculateTimeUntilDeadline(task.dueDate);
         const urgencyLevel = this.determineUrgencyLevel(timeUntilDeadline);
-        
+
         if (this.shouldSendReminder(urgencyLevel, task.lastReminderSent)) {
           await this.sendDeadlineReminder(task.userId, {
             task: {
@@ -335,7 +352,7 @@ export class NotificationsService {
             timeUntilDeadline: this.formatTimeUntilDeadline(timeUntilDeadline),
             urgencyLevel,
           });
-          
+
           // Update last reminder sent timestamp
           await this.updateLastReminderSent(task.id);
         }
@@ -348,7 +365,7 @@ export class NotificationsService {
   // Broadcast system messages
   async broadcastSystemNotification(message: string, type: 'info' | 'warning' | 'error' = 'info') {
     this.logger.log(`Broadcasting system notification: ${message}`);
-    
+
     this.notificationsGateway.broadcast({
       type: 'deadline-reminder', // Reusing existing type for system messages
       data: {
@@ -375,9 +392,11 @@ export class NotificationsService {
     return dueDate.getTime() - Date.now();
   }
 
-  private determineUrgencyLevel(millisecondsUntilDeadline: number): 'low' | 'medium' | 'high' | 'critical' {
+  private determineUrgencyLevel(
+    millisecondsUntilDeadline: number
+  ): 'low' | 'medium' | 'high' | 'critical' {
     const hoursUntilDeadline = millisecondsUntilDeadline / (1000 * 60 * 60);
-    
+
     if (hoursUntilDeadline < 2) return 'critical';
     if (hoursUntilDeadline < 24) return 'high';
     if (hoursUntilDeadline < 72) return 'medium';
@@ -396,9 +415,9 @@ export class NotificationsService {
 
   private shouldSendReminder(urgencyLevel: string, lastReminderSent?: Date): boolean {
     if (!lastReminderSent) return true;
-    
+
     const hoursSinceLastReminder = (Date.now() - lastReminderSent.getTime()) / (1000 * 60 * 60);
-    
+
     switch (urgencyLevel) {
       case 'critical':
         return hoursSinceLastReminder >= 0.5; // Every 30 minutes
@@ -421,8 +440,8 @@ export class NotificationsService {
       const user = await this.prisma.user.findUnique({
         where: { id: userId },
         include: {
-          settings: true
-        }
+          settings: true,
+        },
       });
 
       if (!user) {
@@ -441,7 +460,7 @@ export class NotificationsService {
         afternoonEnergyLevel: user.settings?.afternoonEnergyLevel,
         workStartTime: user.settings?.workStartTime,
         workEndTime: user.settings?.workEndTime,
-        preferredFocusTypes: user.settings?.preferredFocusTypes as any[]
+        preferredFocusTypes: user.settings?.preferredFocusTypes as any[],
       };
     } catch (error) {
       this.logger.error(`Error getting user context for ${userId}:`, error);
@@ -449,7 +468,7 @@ export class NotificationsService {
       return {
         id: userId,
         email: 'user@example.com',
-        name: 'User'
+        name: 'User',
       };
     }
   }
@@ -469,9 +488,9 @@ export class NotificationsService {
    */
   private getCurrentEnergyLevel(settings: any): any {
     if (!settings) return 'MEDIUM';
-    
+
     const timeOfDay = this.getTimeOfDay();
-    
+
     if (timeOfDay === 'morning') {
       return settings.morningEnergyLevel || 'HIGH';
     } else if (timeOfDay === 'afternoon') {
@@ -485,7 +504,7 @@ export class NotificationsService {
   private formatTimeUntilDeadline(milliseconds: number): string {
     const hours = Math.floor(milliseconds / (1000 * 60 * 60));
     const minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
-    
+
     if (hours > 24) {
       const days = Math.floor(hours / 24);
       return `${days} day${days > 1 ? 's' : ''}`;

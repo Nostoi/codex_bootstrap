@@ -82,14 +82,14 @@ export interface ConflictResolutionRequest {
 export enum SyncDirection {
   PULL_FROM_GRAPH = 'PULL_FROM_GRAPH',
   PUSH_TO_GRAPH = 'PUSH_TO_GRAPH',
-  BIDIRECTIONAL = 'BIDIRECTIONAL'
+  BIDIRECTIONAL = 'BIDIRECTIONAL',
 }
 
 export enum SyncTrigger {
   MANUAL = 'MANUAL',
   SCHEDULED = 'SCHEDULED',
   WEBHOOK = 'WEBHOOK',
-  USER_ACTION = 'USER_ACTION'
+  USER_ACTION = 'USER_ACTION',
 }
 
 export interface SyncOptions {

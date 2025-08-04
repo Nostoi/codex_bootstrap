@@ -1,12 +1,4 @@
-import {
-  IsString,
-  IsOptional,
-  IsArray,
-  IsNumber,
-  Min,
-  Max,
-  IsBoolean,
-} from "class-validator";
+import { IsString, IsOptional, IsArray, IsNumber, Min, Max, IsBoolean } from 'class-validator';
 
 export class OpenAICompletionDto {
   @IsString()
@@ -14,7 +6,7 @@ export class OpenAICompletionDto {
 
   @IsOptional()
   @IsString()
-  model?: string = "gpt-4o-mini";
+  model?: string = 'gpt-4o-mini';
 
   @IsOptional()
   @IsNumber()
@@ -40,7 +32,7 @@ export class OpenAICompletionDto {
 
 export class OpenAIChatMessageDto {
   @IsString()
-  role: "system" | "user" | "assistant";
+  role: 'system' | 'user' | 'assistant';
 
   @IsString()
   content: string;
@@ -52,7 +44,7 @@ export class OpenAIChatCompletionDto {
 
   @IsOptional()
   @IsString()
-  model?: string = "gpt-4o-mini";
+  model?: string = 'gpt-4o-mini';
 
   @IsOptional()
   @IsNumber()
@@ -94,7 +86,7 @@ export class SuggestionRequestDto {
   context: string;
 
   @IsString()
-  type: "improvement" | "feature" | "optimization" | "bug-fix";
+  type: 'improvement' | 'feature' | 'optimization' | 'bug-fix';
 
   @IsOptional()
   @IsString()
@@ -124,5 +116,5 @@ export class SummarizationDto {
 
   @IsOptional()
   @IsString()
-  format?: "paragraph" | "bullet-points" | "key-points" = "paragraph";
+  format?: 'paragraph' | 'bullet-points' | 'key-points' = 'paragraph';
 }

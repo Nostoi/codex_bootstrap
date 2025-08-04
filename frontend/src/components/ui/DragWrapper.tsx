@@ -11,9 +11,7 @@ import {
   closestCenter,
   DragOverlay,
 } from '@dnd-kit/core';
-import {
-  restrictToParentElement,
-} from '@dnd-kit/modifiers';
+import { restrictToParentElement } from '@dnd-kit/modifiers';
 import { CalendarEvent, TaskWithMetadata, ADHDCalendarSettings } from '../../types/calendar';
 
 export interface DragItem {
@@ -63,10 +61,10 @@ export const DragWrapper: React.FC<DragWrapperProps> = ({
     useSensor(KeyboardSensor, {
       coordinateGetter: (event, { context: { active, collisionRect } }) => {
         if (!active || !collisionRect) return;
-        
+
         const { code } = event;
         const { left, top } = collisionRect;
-        
+
         switch (code) {
           case 'ArrowDown':
             return { x: left, y: top + 30 }; // Move down one time slot (30 minutes)
@@ -83,136 +81,146 @@ export const DragWrapper: React.FC<DragWrapperProps> = ({
     })
   );
 
-  const handleDragStart = useCallback((event: DragStartEvent) => {
-    const { active } = event;
-    
-    if (!active.data.current) return;
-    
-    const dragItem: DragItem = {
-      id: active.id as string,
-      type: active.data.current.type,
-      data: active.data.current.data,
-    };
-    
-    setActiveDragItem(dragItem);
-    onDragStart?.(dragItem);
-    
-    // Add dragging class to body for global styles
-    document.body.classList.add('dragging-calendar-item');
-    
-    // Announce drag start to screen readers
-    if (adhdSettings?.enableSounds && 'speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(`Started dragging ${dragItem.data.title}`);
-      utterance.volume = 0.3;
-      speechSynthesis.speak(utterance);
-    }
-  }, [onDragStart, adhdSettings]);
+  const handleDragStart = useCallback(
+    (event: DragStartEvent) => {
+      const { active } = event;
 
-  const handleDragOver = useCallback((event: DragOverEvent) => {
-    const { over } = event;
-    
-    if (!over || !activeDragItem) {
-      setIsValidDrop(false);
-      return;
-    }
-    
-    const dropData = over.data.current;
-    const isValid = dropData?.canAccept?.(activeDragItem) ?? true;
-    
-    setIsValidDrop(isValid);
-  }, [activeDragItem]);
+      if (!active.data.current) return;
 
-  const handleDragEnd = useCallback(async (event: DragEndEvent) => {
-    const { over } = event;
-    
-    document.body.classList.remove('dragging-calendar-item');
-    
-    if (!activeDragItem) return;
-    
-    if (!over) {
-      // Drag cancelled - no drop target
-      onDragCancel?.();
-      setActiveDragItem(null);
-      setIsValidDrop(false);
-      return;
-    }
-    
-    const dropTarget: DropTarget = {
-      id: over.id as string,
-      type: 'timeslot',
-      startTime: over.data.current?.startTime || new Date(),
-      endTime: over.data.current?.endTime || new Date(),
-      isValid: isValidDrop,
-    };
-    
-    if (!isValidDrop) {
-      // Invalid drop - show warning if ADHD confirmations enabled
-      if (adhdSettings?.confirmTimeChanges) {
-        alert('Cannot drop item here. Please try a different time slot.');
+      const dragItem: DragItem = {
+        id: active.id as string,
+        type: active.data.current.type,
+        data: active.data.current.data,
+      };
+
+      setActiveDragItem(dragItem);
+      onDragStart?.(dragItem);
+
+      // Add dragging class to body for global styles
+      document.body.classList.add('dragging-calendar-item');
+
+      // Announce drag start to screen readers
+      if (adhdSettings?.enableSounds && 'speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(`Started dragging ${dragItem.data.title}`);
+        utterance.volume = 0.3;
+        speechSynthesis.speak(utterance);
       }
-      onDragCancel?.();
-      setActiveDragItem(null);
-      setIsValidDrop(false);
-      return;
-    }
-    
-    // Show confirmation for significant time changes if enabled
-    if (adhdSettings?.confirmTimeChanges && activeDragItem) {
-      const originalTime = 'startTime' in activeDragItem.data 
-        ? activeDragItem.data.startTime 
-        : activeDragItem.data.scheduledTime;
-        
-      if (originalTime) {
-        const timeDiff = Math.abs(dropTarget.startTime.getTime() - originalTime.getTime());
-        const hoursDiff = timeDiff / (1000 * 60 * 60);
-        
-        if (hoursDiff > 2) {
-          const confirmed = confirm(
-            `This will move "${activeDragItem.data.title}" by ${Math.round(hoursDiff)} hours. Continue?`
-          );
-          
-          if (!confirmed) {
-            onDragCancel?.();
-            setActiveDragItem(null);
-            setIsValidDrop(false);
-            return;
+    },
+    [onDragStart, adhdSettings]
+  );
+
+  const handleDragOver = useCallback(
+    (event: DragOverEvent) => {
+      const { over } = event;
+
+      if (!over || !activeDragItem) {
+        setIsValidDrop(false);
+        return;
+      }
+
+      const dropData = over.data.current;
+      const isValid = dropData?.canAccept?.(activeDragItem) ?? true;
+
+      setIsValidDrop(isValid);
+    },
+    [activeDragItem]
+  );
+
+  const handleDragEnd = useCallback(
+    async (event: DragEndEvent) => {
+      const { over } = event;
+
+      document.body.classList.remove('dragging-calendar-item');
+
+      if (!activeDragItem) return;
+
+      if (!over) {
+        // Drag cancelled - no drop target
+        onDragCancel?.();
+        setActiveDragItem(null);
+        setIsValidDrop(false);
+        return;
+      }
+
+      const dropTarget: DropTarget = {
+        id: over.id as string,
+        type: 'timeslot',
+        startTime: over.data.current?.startTime || new Date(),
+        endTime: over.data.current?.endTime || new Date(),
+        isValid: isValidDrop,
+      };
+
+      if (!isValidDrop) {
+        // Invalid drop - show warning if ADHD confirmations enabled
+        if (adhdSettings?.confirmTimeChanges) {
+          alert('Cannot drop item here. Please try a different time slot.');
+        }
+        onDragCancel?.();
+        setActiveDragItem(null);
+        setIsValidDrop(false);
+        return;
+      }
+
+      // Show confirmation for significant time changes if enabled
+      if (adhdSettings?.confirmTimeChanges && activeDragItem) {
+        const originalTime =
+          'startTime' in activeDragItem.data
+            ? activeDragItem.data.startTime
+            : activeDragItem.data.scheduledTime;
+
+        if (originalTime) {
+          const timeDiff = Math.abs(dropTarget.startTime.getTime() - originalTime.getTime());
+          const hoursDiff = timeDiff / (1000 * 60 * 60);
+
+          if (hoursDiff > 2) {
+            const confirmed = confirm(
+              `This will move "${activeDragItem.data.title}" by ${Math.round(hoursDiff)} hours. Continue?`
+            );
+
+            if (!confirmed) {
+              onDragCancel?.();
+              setActiveDragItem(null);
+              setIsValidDrop(false);
+              return;
+            }
           }
         }
       }
-    }
-    
-    try {
-      await onDragEnd?.(activeDragItem, dropTarget);
-      
-      // Success feedback
-      if (adhdSettings?.enableSounds && 'speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(`Moved ${activeDragItem.data.title}`);
-        utterance.volume = 0.3;
-        speechSynthesis.speak(utterance);
+
+      try {
+        await onDragEnd?.(activeDragItem, dropTarget);
+
+        // Success feedback
+        if (adhdSettings?.enableSounds && 'speechSynthesis' in window) {
+          const utterance = new SpeechSynthesisUtterance(`Moved ${activeDragItem.data.title}`);
+          utterance.volume = 0.3;
+          speechSynthesis.speak(utterance);
+        }
+      } catch (error) {
+        console.error('Failed to handle drag end:', error);
+
+        // Error feedback
+        if (adhdSettings?.enableSounds && 'speechSynthesis' in window) {
+          const utterance = new SpeechSynthesisUtterance('Failed to move item');
+          utterance.volume = 0.3;
+          speechSynthesis.speak(utterance);
+        }
+      } finally {
+        setActiveDragItem(null);
+        setIsValidDrop(false);
       }
-    } catch (error) {
-      console.error('Failed to handle drag end:', error);
-      
-      // Error feedback
-      if (adhdSettings?.enableSounds && 'speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance('Failed to move item');
-        utterance.volume = 0.3;
-        speechSynthesis.speak(utterance);
-      }
-    } finally {
-      setActiveDragItem(null);
-      setIsValidDrop(false);
-    }
-  }, [activeDragItem, isValidDrop, onDragEnd, onDragCancel, adhdSettings]);
+    },
+    [activeDragItem, isValidDrop, onDragEnd, onDragCancel, adhdSettings]
+  );
 
   // Render drag overlay with appropriate styling
   const renderDragOverlay = () => {
     if (!activeDragItem) return null;
-    
+
     const item = activeDragItem.data;
-    
+
     return (
-      <div 
+      <div
         className={`
           drag-overlay
           bg-primary/90 
@@ -232,22 +240,18 @@ export const DragWrapper: React.FC<DragWrapperProps> = ({
           pointerEvents: 'none',
         }}
       >
-        <div className="text-sm font-medium truncate">
-          {item.title}
-        </div>
+        <div className="text-sm font-medium truncate">{item.title}</div>
         {activeDragItem.type === 'event' && 'startTime' in item && (
           <div className="text-xs opacity-80">
-            {item.startTime.toLocaleTimeString('en-US', { 
-              hour: 'numeric', 
+            {item.startTime.toLocaleTimeString('en-US', {
+              hour: 'numeric',
               minute: '2-digit',
-              hour12: true 
+              hour12: true,
             })}
           </div>
         )}
         {activeDragItem.type === 'task' && 'estimatedDuration' in item && (
-          <div className="text-xs opacity-80">
-            {item.estimatedDuration} min
-          </div>
+          <div className="text-xs opacity-80">{item.estimatedDuration} min</div>
         )}
       </div>
     );
@@ -262,10 +266,8 @@ export const DragWrapper: React.FC<DragWrapperProps> = ({
       onDragEnd={handleDragEnd}
       modifiers={[restrictToParentElement]}
     >
-      <div className={`drag-wrapper ${className}`}>
-        {children}
-      </div>
-      
+      <div className={`drag-wrapper ${className}`}>{children}</div>
+
       <DragOverlay
         dropAnimation={{
           duration: adhdSettings?.reducedMotion ? 0 : 200,

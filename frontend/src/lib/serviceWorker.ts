@@ -58,7 +58,7 @@ class ServiceWorkerManagerImpl implements ServiceWorkerManager {
 
     try {
       console.log('Registering service worker...');
-      
+
       const registration = await navigator.serviceWorker.register('/sw.js', {
         scope: '/',
         updateViaCache: 'none', // Always check for updates
@@ -85,7 +85,7 @@ class ServiceWorkerManagerImpl implements ServiceWorkerManager {
       });
 
       console.log('Service worker registered successfully:', registration);
-      
+
       // Start performance monitoring
       this.startPerformanceMonitoring();
 
@@ -149,8 +149,8 @@ class ServiceWorkerManagerImpl implements ServiceWorkerManager {
 
     return new Promise((resolve, reject) => {
       const messageChannel = new MessageChannel();
-      
-      messageChannel.port1.onmessage = (event) => {
+
+      messageChannel.port1.onmessage = event => {
         const { type, payload } = event.data;
         if (type === 'METRICS_RESPONSE') {
           resolve(payload);
@@ -159,10 +159,9 @@ class ServiceWorkerManagerImpl implements ServiceWorkerManager {
         }
       };
 
-      navigator.serviceWorker.controller.postMessage(
-        { type: 'GET_METRICS' },
-        [messageChannel.port2]
-      );
+      navigator.serviceWorker.controller.postMessage({ type: 'GET_METRICS' }, [
+        messageChannel.port2,
+      ]);
 
       // Timeout after 5 seconds
       setTimeout(() => {
@@ -179,10 +178,10 @@ class ServiceWorkerManagerImpl implements ServiceWorkerManager {
       return false;
     }
 
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const messageChannel = new MessageChannel();
-      
-      messageChannel.port1.onmessage = (event) => {
+
+      messageChannel.port1.onmessage = event => {
         const { type: responseType, payload } = event.data;
         if (responseType === 'CACHE_CLEARED') {
           resolve(payload.success);
@@ -209,10 +208,10 @@ class ServiceWorkerManagerImpl implements ServiceWorkerManager {
       return false;
     }
 
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const messageChannel = new MessageChannel();
-      
-      messageChannel.port1.onmessage = (event) => {
+
+      messageChannel.port1.onmessage = event => {
         const { type, payload } = event.data;
         if (type === 'PREFETCH_COMPLETE') {
           resolve(payload.success);
@@ -236,9 +235,9 @@ class ServiceWorkerManagerImpl implements ServiceWorkerManager {
    */
   private setupEventListeners(registration: ServiceWorkerRegistration): void {
     // Listen for messages from service worker
-    navigator.serviceWorker.addEventListener('message', (event) => {
+    navigator.serviceWorker.addEventListener('message', event => {
       const { type, payload } = event.data;
-      
+
       switch (type) {
         case 'CACHE_UPDATED':
           this.handleCacheUpdate(payload);
@@ -313,12 +312,14 @@ class ServiceWorkerManagerImpl implements ServiceWorkerManager {
    */
   private showUpdateNotification(): void {
     // Dispatch custom event for app to handle
-    window.dispatchEvent(new CustomEvent('sw-update-available', {
-      detail: {
-        skipWaiting: () => this.skipWaiting(),
-        reload: () => window.location.reload(),
-      },
-    }));
+    window.dispatchEvent(
+      new CustomEvent('sw-update-available', {
+        detail: {
+          skipWaiting: () => this.skipWaiting(),
+          reload: () => window.location.reload(),
+        },
+      })
+    );
   }
 
   /**
@@ -379,7 +380,8 @@ class ServiceWorkerManagerImpl implements ServiceWorkerManager {
     setInterval(async () => {
       try {
         const metrics = await this.getMetrics();
-        this.performanceMonitor.logMetric('sw-cache-hit-rate', 
+        this.performanceMonitor.logMetric(
+          'sw-cache-hit-rate',
           metrics.cacheHits / (metrics.cacheHits + metrics.cacheMisses) || 0
         );
         this.performanceMonitor.logMetric('sw-avg-response-time', metrics.averageResponseTime);
@@ -399,13 +401,15 @@ export const serviceWorkerManager = new ServiceWorkerManagerImpl();
 export const useServiceWorker = () => {
   const [isRegistered, setIsRegistered] = useState(serviceWorkerManager.isRegistered);
   const [metrics, setMetrics] = useState<ServiceWorkerMetrics | null>(null);
-  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const [isOnline, setIsOnline] = useState(
+    typeof navigator !== 'undefined' ? navigator.onLine : true
+  );
 
   useEffect(() => {
     if (!serviceWorkerManager.isSupported) return;
 
     // Register service worker
-    serviceWorkerManager.register().then((registration) => {
+    serviceWorkerManager.register().then(registration => {
       setIsRegistered(!!registration);
     });
 

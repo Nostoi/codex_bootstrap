@@ -47,14 +47,26 @@ export interface CalendarEvent {
     };
   };
   responseStatus?: {
-    response: 'none' | 'organizer' | 'tentativelyAccepted' | 'accepted' | 'declined' | 'notResponded';
+    response:
+      | 'none'
+      | 'organizer'
+      | 'tentativelyAccepted'
+      | 'accepted'
+      | 'declined'
+      | 'notResponded';
     time?: string;
   };
   webLink?: string;
   lastModifiedDateTime?: string;
   recurrence?: {
     pattern: {
-      type: 'daily' | 'weekly' | 'absoluteMonthly' | 'relativeMonthly' | 'absoluteYearly' | 'relativeYearly';
+      type:
+        | 'daily'
+        | 'weekly'
+        | 'absoluteMonthly'
+        | 'relativeMonthly'
+        | 'absoluteYearly'
+        | 'relativeYearly';
       interval: number;
       daysOfWeek?: string[];
       dayOfMonth?: number;
@@ -124,7 +136,15 @@ export interface CalendarPermission {
     address: string;
     name?: string;
   };
-  role: 'none' | 'freeBusyRead' | 'limitedRead' | 'read' | 'write' | 'delegateWithoutPrivateEventAccess' | 'delegateWithPrivateEventAccess' | 'custom';
+  role:
+    | 'none'
+    | 'freeBusyRead'
+    | 'limitedRead'
+    | 'read'
+    | 'write'
+    | 'delegateWithoutPrivateEventAccess'
+    | 'delegateWithPrivateEventAccess'
+    | 'custom';
   isRemovable: boolean;
   isInsideOrganization: boolean;
 }
@@ -141,7 +161,13 @@ export interface AttendeeResponseStats {
   attendees: Array<{
     email: string;
     name?: string;
-    response: 'none' | 'organizer' | 'tentativelyAccepted' | 'accepted' | 'declined' | 'notResponded';
+    response:
+      | 'none'
+      | 'organizer'
+      | 'tentativelyAccepted'
+      | 'accepted'
+      | 'declined'
+      | 'notResponded';
     responseTime?: string;
   }>;
 }
@@ -156,19 +182,19 @@ export const GRAPH_ENDPOINTS = {
   EVENTS: '/me/events',
   CALENDAR_EVENTS: (calendarId: string) => `/me/calendars/${calendarId}/events`,
   EVENT: (eventId: string) => `/me/events/${eventId}`,
-  CALENDAR_EVENT: (calendarId: string, eventId: string) => 
+  CALENDAR_EVENT: (calendarId: string, eventId: string) =>
     `/me/calendars/${calendarId}/events/${eventId}`,
-  
+
   // Enhanced endpoints for advanced functionality
   CALENDAR_PERMISSIONS: (calendarId: string) => `/me/calendars/${calendarId}/calendarPermissions`,
   DEFAULT_CALENDAR_PERMISSIONS: '/me/calendar/calendarPermissions',
   EVENT_FORWARD: (eventId: string) => `/me/events/${eventId}/forward`,
-  CALENDAR_EVENT_FORWARD: (calendarId: string, eventId: string) => 
+  CALENDAR_EVENT_FORWARD: (calendarId: string, eventId: string) =>
     `/me/calendars/${calendarId}/events/${eventId}/forward`,
   EVENT_INSTANCES: (eventId: string) => `/me/events/${eventId}/instances`,
   CALENDAR_VIEW: '/me/calendarView',
   BATCH: '/$batch',
-  
+
   // Free/Busy and availability endpoints
   GET_SCHEDULE: '/me/calendar/getSchedule',
   FIND_MEETING_TIMES: '/me/findMeetingTimes',

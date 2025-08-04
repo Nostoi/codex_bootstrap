@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect } from "react";
-import { aiService } from "@/lib/aiService";
+import React, { useState, useRef, useEffect } from 'react';
+import { aiService } from '@/lib/aiService';
 
 export interface ChatMessage {
   id: string;
-  role: "user" | "assistant" | "system";
+  role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: Date;
   metadata?: {
@@ -14,7 +14,7 @@ export interface ChatMessage {
 
 export interface ExtractedTask {
   title: string;
-  priority: "low" | "medium" | "high";
+  priority: 'low' | 'medium' | 'high';
   dueDate?: string;
   project?: string;
   estimatedDuration?: number;
@@ -38,12 +38,12 @@ const ChatGPTIntegration: React.FC<ChatGPTIntegrationProps> = ({
   onExtractTasks,
   isLoading = false,
   isConnected = true,
-  placeholder = "Ask AI to help plan your day or extract tasks...",
-  maxHeight = "400px",
+  placeholder = 'Ask AI to help plan your day or extract tasks...',
+  maxHeight = '400px',
   showTaskExtraction = true,
   onClearChat,
 }) => {
-  const [inputMessage, setInputMessage] = useState("");
+  const [inputMessage, setInputMessage] = useState('');
   const [extractedTasks, setExtractedTasks] = useState<ExtractedTask[]>([]);
   const [isExtracting, setIsExtracting] = useState(false);
   const [aiServiceConnected, setAiServiceConnected] = useState(isConnected);
@@ -51,7 +51,7 @@ const ChatGPTIntegration: React.FC<ChatGPTIntegrationProps> = ({
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
@@ -82,12 +82,12 @@ const ChatGPTIntegration: React.FC<ChatGPTIntegrationProps> = ({
   const handleSendMessage = () => {
     if (inputMessage.trim() && !isLoading && isConnected && aiServiceConnected) {
       onSendMessage(inputMessage.trim());
-      setInputMessage("");
+      setInputMessage('');
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
@@ -95,20 +95,18 @@ const ChatGPTIntegration: React.FC<ChatGPTIntegrationProps> = ({
 
   const handleTaskExtraction = async () => {
     if (messages.length === 0 || isExtracting) return;
-    
+
     setIsExtracting(true);
-    
+
     // Combine all conversation messages into text for extraction
-    const conversationText = messages
-      .map(msg => `${msg.role}: ${msg.content}`)
-      .join('\n');
-    
+    const conversationText = messages.map(msg => `${msg.role}: ${msg.content}`).join('\n');
+
     try {
       const tasks = await aiService.extractTasks({
         text: conversationText,
-        maxTasks: 10
+        maxTasks: 10,
       });
-      
+
       setExtractedTasks(tasks);
       onExtractTasks(tasks);
     } catch (error) {
@@ -126,14 +124,14 @@ const ChatGPTIntegration: React.FC<ChatGPTIntegrationProps> = ({
 
   const getMessageIcon = (role: string) => {
     switch (role) {
-      case "user":
-        return "👤";
-      case "assistant":
-        return "🤖";
-      case "system":
-        return "⚙️";
+      case 'user':
+        return '👤';
+      case 'assistant':
+        return '🤖';
+      case 'system':
+        return '⚙️';
       default:
-        return "💬";
+        return '💬';
     }
   };
 
@@ -143,11 +141,13 @@ const ChatGPTIntegration: React.FC<ChatGPTIntegrationProps> = ({
       <div className="flex items-center justify-between p-4 border-b border-base-300">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <div className={`w-3 h-3 rounded-full ${isConnected && aiServiceConnected ? 'bg-success' : 'bg-error'}`} />
+            <div
+              className={`w-3 h-3 rounded-full ${isConnected && aiServiceConnected ? 'bg-success' : 'bg-error'}`}
+            />
             <h3 className="font-semibold text-lg">AI Assistant</h3>
           </div>
           {(!isConnected || !aiServiceConnected) && (
-            <span className="text-xs text-error">
+            <span className="text-xs text-red-700">
               {!isConnected ? 'Disconnected' : 'AI Service Unavailable'}
             </span>
           )}
@@ -183,7 +183,7 @@ const ChatGPTIntegration: React.FC<ChatGPTIntegrationProps> = ({
       </div>
 
       {/* Messages */}
-      <div 
+      <div
         className="flex-1 overflow-y-auto p-4 space-y-4"
         style={{ maxHeight }}
         role="log"
@@ -193,27 +193,27 @@ const ChatGPTIntegration: React.FC<ChatGPTIntegrationProps> = ({
           <div className="text-center text-base-content/60 py-8">
             <div className="text-4xl mb-2">🤖</div>
             <p className="font-medium">AI Assistant Ready</p>
-            <p className="text-sm mt-1">Ask me to help plan your day, extract tasks, or organize your work!</p>
+            <p className="text-sm mt-1">
+              Ask me to help plan your day, extract tasks, or organize your work!
+            </p>
           </div>
         ) : (
-          messages.map((message) => (
+          messages.map(message => (
             <div
               key={message.id}
-              className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
                 className={`max-w-[80%] p-3 rounded-lg ${
-                  message.role === "user"
-                    ? "bg-primary text-primary-content"
-                    : message.role === "system"
-                    ? "bg-base-200 text-base-content/80"
-                    : "bg-base-200 text-base-content"
+                  message.role === 'user'
+                    ? 'bg-primary text-primary-content'
+                    : message.role === 'system'
+                      ? 'bg-base-200 text-base-content/80'
+                      : 'bg-base-200 text-base-content'
                 }`}
               >
                 <div className="flex items-start gap-2">
-                  <span className="text-lg leading-none">
-                    {getMessageIcon(message.role)}
-                  </span>
+                  <span className="text-lg leading-none">{getMessageIcon(message.role)}</span>
                   <div className="flex-1">
                     <p className="whitespace-pre-wrap">{message.content}</p>
                     {message.metadata?.suggestedActions && (
@@ -230,16 +230,14 @@ const ChatGPTIntegration: React.FC<ChatGPTIntegrationProps> = ({
                         ))}
                       </div>
                     )}
-                    <p className="text-xs opacity-60 mt-1">
-                      {formatTime(message.timestamp)}
-                    </p>
+                    <p className="text-xs opacity-60 mt-1">{formatTime(message.timestamp)}</p>
                   </div>
                 </div>
               </div>
             </div>
           ))
         )}
-        
+
         {isLoading && (
           <div className="flex justify-start">
             <div className="bg-base-200 p-3 rounded-lg">
@@ -247,8 +245,14 @@ const ChatGPTIntegration: React.FC<ChatGPTIntegrationProps> = ({
                 <span className="text-lg">🤖</span>
                 <div className="flex gap-1">
                   <div className="w-2 h-2 bg-current rounded-full animate-bounce" />
-                  <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                  <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                  <div
+                    className="w-2 h-2 bg-current rounded-full animate-bounce"
+                    style={{ animationDelay: '0.1s' }}
+                  />
+                  <div
+                    className="w-2 h-2 bg-current rounded-full animate-bounce"
+                    style={{ animationDelay: '0.2s' }}
+                  />
                 </div>
               </div>
             </div>
@@ -270,10 +274,15 @@ const ChatGPTIntegration: React.FC<ChatGPTIntegrationProps> = ({
                 <div className="flex-1">
                   <p className="font-medium text-sm">{task.title}</p>
                   <div className="flex gap-2 text-xs text-base-content/60">
-                    <span className={`badge badge-xs ${
-                      task.priority === 'high' ? 'badge-error' :
-                      task.priority === 'medium' ? 'badge-warning' : 'badge-info'
-                    }`}>
+                    <span
+                      className={`badge badge-xs ${
+                        task.priority === 'high'
+                          ? 'badge-error'
+                          : task.priority === 'medium'
+                            ? 'badge-warning'
+                            : 'badge-info'
+                      }`}
+                    >
                       {task.priority}
                     </span>
                     {task.dueDate && <span>Due: {task.dueDate}</span>}
@@ -302,15 +311,17 @@ const ChatGPTIntegration: React.FC<ChatGPTIntegrationProps> = ({
           <textarea
             ref={inputRef}
             value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
+            onChange={e => setInputMessage(e.target.value)}
             onKeyDown={handleKeyPress}
-            placeholder={isConnected && aiServiceConnected ? placeholder : "AI Assistant is disconnected..."}
+            placeholder={
+              isConnected && aiServiceConnected ? placeholder : 'AI Assistant is disconnected...'
+            }
             disabled={!isConnected || !aiServiceConnected || isLoading}
             className="textarea textarea-bordered flex-1 resize-none"
             rows={1}
             style={{
               minHeight: '2.5rem',
-              maxHeight: '6rem'
+              maxHeight: '6rem',
             }}
             aria-label="Type your message"
           />
@@ -320,11 +331,7 @@ const ChatGPTIntegration: React.FC<ChatGPTIntegrationProps> = ({
             className="btn btn-primary"
             aria-label="Send message"
           >
-            {isLoading ? (
-              <span className="loading loading-spinner loading-sm" />
-            ) : (
-              "📤"
-            )}
+            {isLoading ? <span className="loading loading-spinner loading-sm" /> : '📤'}
           </button>
         </div>
         <div className="flex justify-between items-center mt-2 text-xs text-base-content/60">

@@ -47,24 +47,14 @@ describe('FilterBar', () => {
 
   describe('Basic Rendering', () => {
     it('renders without crashing', () => {
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       expect(screen.getByRole('toolbar')).toBeInTheDocument();
       expect(screen.getByLabelText('Filter tasks')).toBeInTheDocument();
     });
 
     it('renders all filter sections', () => {
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       expect(screen.getByText('Energy Level')).toBeInTheDocument();
       expect(screen.getByText('Focus Type')).toBeInTheDocument();
@@ -73,12 +63,7 @@ describe('FilterBar', () => {
     });
 
     it('renders search input with proper accessibility', () => {
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const searchInput = screen.getByLabelText('Search tasks by title or description');
       expect(searchInput).toBeInTheDocument();
@@ -87,12 +72,7 @@ describe('FilterBar', () => {
     });
 
     it('renders energy level buttons with proper ARIA attributes', () => {
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const highEnergyButton = screen.getByLabelText('Filter by High Energy');
       expect(highEnergyButton).toHaveAttribute('aria-pressed', 'false');
@@ -104,13 +84,8 @@ describe('FilterBar', () => {
   describe('Search Functionality', () => {
     it('updates search input value immediately', async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const searchInput = screen.getByLabelText('Search tasks by title or description');
       await user.type(searchInput, 'test');
@@ -120,13 +95,8 @@ describe('FilterBar', () => {
 
     it('debounces search changes with 300ms delay', async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const searchInput = screen.getByLabelText('Search tasks by title or description');
       await user.type(searchInput, 'test');
@@ -146,10 +116,7 @@ describe('FilterBar', () => {
 
     it('updates search input when filters change externally', () => {
       const { rerender } = render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
+        <FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />
       );
 
       const searchInput = screen.getByLabelText('Search tasks by title or description');
@@ -226,35 +193,20 @@ describe('FilterBar', () => {
 
   describe('Filter Count and Management', () => {
     it('displays active filter count', () => {
-      render(
-        <FilterBar
-          filters={activeFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+      render(<FilterBar filters={activeFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const filterCountBadge = screen.getByLabelText(/active filter/);
       expect(filterCountBadge).toBeInTheDocument();
     });
 
     it('shows clear button when filters are active', () => {
-      render(
-        <FilterBar
-          filters={activeFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+      render(<FilterBar filters={activeFilters} onFiltersChange={mockOnFiltersChange} />);
 
       expect(screen.getByLabelText('Clear all filters')).toBeInTheDocument();
     });
 
     it('does not show clear button when no filters are active', () => {
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       expect(screen.queryByLabelText('Clear all filters')).not.toBeInTheDocument();
     });
@@ -275,11 +227,7 @@ describe('FilterBar', () => {
   describe('Compact Mode', () => {
     it('shows expand/collapse button in compact mode', () => {
       render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-          compact={true}
-        />
+        <FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} compact={true} />
       );
 
       expect(screen.getByLabelText('Expand filters')).toBeInTheDocument();
@@ -287,17 +235,13 @@ describe('FilterBar', () => {
 
     it('toggles filter visibility in compact mode', async () => {
       const user = userEvent.setup();
-      
+
       render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-          compact={true}
-        />
+        <FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} compact={true} />
       );
 
       const expandButton = screen.getByLabelText('Expand filters');
-      
+
       // Check initial state - in compact mode, the filter sections should be collapsed
       // We'll check if the expand button shows 'Expand' initially
       expect(expandButton).toHaveAttribute('aria-label', 'Expand filters');
@@ -312,11 +256,7 @@ describe('FilterBar', () => {
 
     it('does not show expand/collapse button in non-compact mode', () => {
       render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-          compact={false}
-        />
+        <FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} compact={false} />
       );
 
       expect(screen.queryByLabelText('Expand filters')).not.toBeInTheDocument();
@@ -327,11 +267,7 @@ describe('FilterBar', () => {
   describe('Loading State', () => {
     it('displays loading overlay when loading is true', () => {
       render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-          loading={true}
-        />
+        <FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} loading={true} />
       );
 
       expect(screen.getByLabelText('Applying filters')).toBeInTheDocument();
@@ -340,11 +276,7 @@ describe('FilterBar', () => {
 
     it('disables search input when loading', () => {
       render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-          loading={true}
-        />
+        <FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} loading={true} />
       );
 
       const searchInput = screen.getByLabelText('Search tasks by title or description');
@@ -353,11 +285,7 @@ describe('FilterBar', () => {
 
     it('does not show loading overlay when loading is false', () => {
       render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-          loading={false}
-        />
+        <FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} loading={false} />
       );
 
       expect(screen.queryByLabelText('Applying filters')).not.toBeInTheDocument();
@@ -366,12 +294,7 @@ describe('FilterBar', () => {
 
   describe('Accessibility', () => {
     it('has proper ARIA roles and attributes', () => {
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const toolbar = screen.getByRole('toolbar');
       expect(toolbar).toHaveAttribute('aria-label', 'Filter tasks');
@@ -396,12 +319,7 @@ describe('FilterBar', () => {
     });
 
     it('provides screen reader help for search input', () => {
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const helpText = screen.getByText(/search will automatically filter tasks/i);
       expect(helpText).toHaveClass('sr-only');
@@ -423,12 +341,7 @@ describe('FilterBar', () => {
 
   describe('Edge Cases', () => {
     it('handles missing callback functions gracefully', () => {
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       // Should render without errors even without onClear and onReset
       expect(screen.getByRole('toolbar')).toBeInTheDocument();
@@ -465,9 +378,18 @@ describe('FilterBar', () => {
         />
       );
 
-      expect(screen.getByLabelText('Filter by High Energy')).toHaveAttribute('aria-pressed', 'true');
-      expect(screen.getByLabelText('Filter by Medium Energy')).toHaveAttribute('aria-pressed', 'true');
-      expect(screen.getByLabelText('Filter by Low Energy')).toHaveAttribute('aria-pressed', 'false');
+      expect(screen.getByLabelText('Filter by High Energy')).toHaveAttribute(
+        'aria-pressed',
+        'true'
+      );
+      expect(screen.getByLabelText('Filter by Medium Energy')).toHaveAttribute(
+        'aria-pressed',
+        'true'
+      );
+      expect(screen.getByLabelText('Filter by Low Energy')).toHaveAttribute(
+        'aria-pressed',
+        'false'
+      );
     });
 
     it('shows correct button states for focus types', () => {
@@ -478,8 +400,14 @@ describe('FilterBar', () => {
         />
       );
 
-      expect(screen.getByLabelText('Filter by Creative tasks')).toHaveAttribute('aria-pressed', 'true');
-      expect(screen.getByLabelText('Filter by Technical tasks')).toHaveAttribute('aria-pressed', 'false');
+      expect(screen.getByLabelText('Filter by Creative tasks')).toHaveAttribute(
+        'aria-pressed',
+        'true'
+      );
+      expect(screen.getByLabelText('Filter by Technical tasks')).toHaveAttribute(
+        'aria-pressed',
+        'false'
+      );
     });
 
     it('shows correct button states for status filters', () => {
@@ -490,9 +418,18 @@ describe('FilterBar', () => {
         />
       );
 
-      expect(screen.getByLabelText('Filter by To Do status')).toHaveAttribute('aria-pressed', 'true');
-      expect(screen.getByLabelText('Filter by In Progress status')).toHaveAttribute('aria-pressed', 'true');
-      expect(screen.getByLabelText('Filter by Done status')).toHaveAttribute('aria-pressed', 'false');
+      expect(screen.getByLabelText('Filter by To Do status')).toHaveAttribute(
+        'aria-pressed',
+        'true'
+      );
+      expect(screen.getByLabelText('Filter by In Progress status')).toHaveAttribute(
+        'aria-pressed',
+        'true'
+      );
+      expect(screen.getByLabelText('Filter by Done status')).toHaveAttribute(
+        'aria-pressed',
+        'false'
+      );
     });
 
     it('shows correct priority range values', () => {
@@ -532,24 +469,14 @@ describe('FilterBar', () => {
 
   describe('Basic Rendering', () => {
     it('renders without crashing', () => {
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       expect(screen.getByRole('toolbar')).toBeInTheDocument();
       expect(screen.getByLabelText('Filter tasks')).toBeInTheDocument();
     });
 
     it('renders all filter sections', () => {
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       expect(screen.getByText('Energy Level')).toBeInTheDocument();
       expect(screen.getByText('Focus Type')).toBeInTheDocument();
@@ -558,12 +485,7 @@ describe('FilterBar', () => {
     });
 
     it('renders search input with proper accessibility', () => {
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const searchInput = screen.getByLabelText('Search tasks by title or description');
       expect(searchInput).toBeInTheDocument();
@@ -572,12 +494,7 @@ describe('FilterBar', () => {
     });
 
     it('renders energy level buttons with proper ARIA attributes', () => {
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const highEnergyButton = screen.getByLabelText('Filter by High Energy');
       expect(highEnergyButton).toHaveAttribute('aria-pressed', 'false');
@@ -589,13 +506,8 @@ describe('FilterBar', () => {
   describe('Search Functionality', () => {
     it('updates search input value immediately', async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const searchInput = screen.getByLabelText('Search tasks by title or description');
       await user.type(searchInput, 'test');
@@ -605,13 +517,8 @@ describe('FilterBar', () => {
 
     it('debounces search changes with 300ms delay', async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const searchInput = screen.getByLabelText('Search tasks by title or description');
       await user.type(searchInput, 'test');
@@ -631,10 +538,7 @@ describe('FilterBar', () => {
 
     it('updates search input when filters change externally', () => {
       const { rerender } = render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
+        <FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />
       );
 
       const searchInput = screen.getByLabelText('Search tasks by title or description');
@@ -654,16 +558,11 @@ describe('FilterBar', () => {
   describe('Energy Level Filtering', () => {
     it('toggles energy level filters', async () => {
       const user = userEvent.setup();
-      
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const highEnergyButton = screen.getByLabelText('Filter by High Energy');
-      
+
       await waitFor(async () => {
         await user.click(highEnergyButton);
       });
@@ -676,7 +575,7 @@ describe('FilterBar', () => {
 
     it('removes energy level when already selected', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <FilterBar
           filters={{ ...defaultFilters, energyLevels: ['HIGH'] }}
@@ -697,7 +596,7 @@ describe('FilterBar', () => {
 
     it('adds multiple energy levels', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <FilterBar
           filters={{ ...defaultFilters, energyLevels: ['HIGH'] }}
@@ -718,13 +617,8 @@ describe('FilterBar', () => {
   describe('Focus Type Filtering', () => {
     it('toggles focus type filters', async () => {
       const user = userEvent.setup();
-      
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const creativeButton = screen.getByLabelText('Filter by Creative tasks');
       await user.click(creativeButton);
@@ -737,7 +631,7 @@ describe('FilterBar', () => {
 
     it('handles multiple focus type selections', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <FilterBar
           filters={{ ...defaultFilters, focusTypes: ['CREATIVE'] }}
@@ -758,13 +652,8 @@ describe('FilterBar', () => {
   describe('Status Filtering', () => {
     it('toggles status filters', async () => {
       const user = userEvent.setup();
-      
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const todoButton = screen.getByLabelText('Filter by To Do status');
       await user.click(todoButton);
@@ -777,7 +666,7 @@ describe('FilterBar', () => {
 
     it('handles multiple status selections', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <FilterBar
           filters={{ ...defaultFilters, statuses: ['TODO'] }}
@@ -798,13 +687,8 @@ describe('FilterBar', () => {
   describe('Priority Range Filtering', () => {
     it('updates minimum priority', async () => {
       const user = userEvent.setup();
-      
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const minPrioritySelect = screen.getByLabelText('Minimum priority level');
       await user.selectOptions(minPrioritySelect, '3');
@@ -817,13 +701,8 @@ describe('FilterBar', () => {
 
     it('updates maximum priority', async () => {
       const user = userEvent.setup();
-      
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const maxPrioritySelect = screen.getByLabelText('Maximum priority level');
       await user.selectOptions(maxPrioritySelect, '4');
@@ -848,42 +727,27 @@ describe('FilterBar', () => {
 
   describe('Filter Count and Management', () => {
     it('displays active filter count', () => {
-      render(
-        <FilterBar
-          filters={activeFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+      render(<FilterBar filters={activeFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const filterCountBadge = screen.getByLabelText(/active filter/);
       expect(filterCountBadge).toBeInTheDocument();
     });
 
     it('shows clear button when filters are active', () => {
-      render(
-        <FilterBar
-          filters={activeFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+      render(<FilterBar filters={activeFilters} onFiltersChange={mockOnFiltersChange} />);
 
       expect(screen.getByLabelText('Clear all filters')).toBeInTheDocument();
     });
 
     it('does not show clear button when no filters are active', () => {
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       expect(screen.queryByLabelText('Clear all filters')).not.toBeInTheDocument();
     });
 
     it('calls onClear when clear button is clicked', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <FilterBar
           filters={activeFilters}
@@ -900,13 +764,8 @@ describe('FilterBar', () => {
 
     it('uses default clear implementation when onClear not provided', async () => {
       const user = userEvent.setup();
-      
-      render(
-        <FilterBar
-          filters={activeFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+
+      render(<FilterBar filters={activeFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const clearButton = screen.getByLabelText('Clear all filters');
       await user.click(clearButton);
@@ -935,7 +794,7 @@ describe('FilterBar', () => {
 
     it('calls onReset when reset button is clicked', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <FilterBar
           filters={activeFilters}
@@ -954,11 +813,7 @@ describe('FilterBar', () => {
   describe('Compact Mode', () => {
     it('shows expand/collapse button in compact mode', () => {
       render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-          compact={true}
-        />
+        <FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} compact={true} />
       );
 
       expect(screen.getByLabelText('Expand filters')).toBeInTheDocument();
@@ -966,17 +821,13 @@ describe('FilterBar', () => {
 
     it('toggles filter visibility in compact mode', async () => {
       const user = userEvent.setup();
-      
+
       render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-          compact={true}
-        />
+        <FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} compact={true} />
       );
 
       const expandButton = screen.getByLabelText('Expand filters');
-      
+
       // Check initial state - in compact mode, the filter sections should be collapsed
       // Initially the grid container should have hidden class or be visually hidden
       // We'll check if the expand button shows 'Expand' initially
@@ -992,11 +843,7 @@ describe('FilterBar', () => {
 
     it('does not show expand/collapse button in non-compact mode', () => {
       render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-          compact={false}
-        />
+        <FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} compact={false} />
       );
 
       expect(screen.queryByLabelText('Expand filters')).not.toBeInTheDocument();
@@ -1007,11 +854,7 @@ describe('FilterBar', () => {
   describe('Loading State', () => {
     it('displays loading overlay when loading is true', () => {
       render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-          loading={true}
-        />
+        <FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} loading={true} />
       );
 
       expect(screen.getByLabelText('Applying filters')).toBeInTheDocument();
@@ -1020,11 +863,7 @@ describe('FilterBar', () => {
 
     it('disables search input when loading', () => {
       render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-          loading={true}
-        />
+        <FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} loading={true} />
       );
 
       const searchInput = screen.getByLabelText('Search tasks by title or description');
@@ -1033,11 +872,7 @@ describe('FilterBar', () => {
 
     it('does not show loading overlay when loading is false', () => {
       render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-          loading={false}
-        />
+        <FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} loading={false} />
       );
 
       expect(screen.queryByLabelText('Applying filters')).not.toBeInTheDocument();
@@ -1047,13 +882,8 @@ describe('FilterBar', () => {
   describe('Keyboard Navigation', () => {
     it('clears filters when Escape is pressed', async () => {
       const user = userEvent.setup();
-      
-      render(
-        <FilterBar
-          filters={activeFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+
+      render(<FilterBar filters={activeFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const toolbar = screen.getByRole('toolbar');
       toolbar.focus();
@@ -1071,33 +901,23 @@ describe('FilterBar', () => {
 
     it('supports Tab navigation between filter elements', async () => {
       const user = userEvent.setup();
-      
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const searchInput = screen.getByLabelText('Search tasks by title or description');
       const highEnergyButton = screen.getByLabelText('Filter by High Energy');
-      
+
       searchInput.focus();
       await user.tab();
-      
+
       // Should be able to navigate to energy filter buttons
       expect(document.activeElement).toBe(highEnergyButton);
     });
 
     it('supports Space key to toggle filter buttons', async () => {
       const user = userEvent.setup();
-      
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const highEnergyButton = screen.getByLabelText('Filter by High Energy');
       highEnergyButton.focus();
@@ -1112,12 +932,7 @@ describe('FilterBar', () => {
 
   describe('Accessibility', () => {
     it('has proper ARIA roles and attributes', () => {
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const toolbar = screen.getByRole('toolbar');
       expect(toolbar).toHaveAttribute('aria-label', 'Filter tasks');
@@ -1142,12 +957,7 @@ describe('FilterBar', () => {
     });
 
     it('provides screen reader help for search input', () => {
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const helpText = screen.getByText(/search will automatically filter tasks/i);
       expect(helpText).toHaveClass('sr-only');
@@ -1169,12 +979,7 @@ describe('FilterBar', () => {
 
   describe('Edge Cases', () => {
     it('handles missing callback functions gracefully', () => {
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       // Should render without errors even without onClear and onReset
       expect(screen.getByRole('toolbar')).toBeInTheDocument();
@@ -1202,13 +1007,8 @@ describe('FilterBar', () => {
 
     it('handles rapid filter changes without errors', async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      
-      render(
-        <FilterBar
-          filters={defaultFilters}
-          onFiltersChange={mockOnFiltersChange}
-        />
-      );
+
+      render(<FilterBar filters={defaultFilters} onFiltersChange={mockOnFiltersChange} />);
 
       const buttons = [
         screen.getByLabelText('Filter by High Energy'),

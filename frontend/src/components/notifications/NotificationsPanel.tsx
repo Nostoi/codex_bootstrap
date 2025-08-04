@@ -1,8 +1,22 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { Bell, BellOff, X, Check, CheckCheck, Clock, AlertTriangle, Calendar, Target } from 'lucide-react';
-import { useNotifications, useDeadlineReminders, useCalendarConflicts } from '../../hooks/useNotifications';
+import {
+  Bell,
+  BellOff,
+  X,
+  Check,
+  CheckCheck,
+  Clock,
+  AlertTriangle,
+  Calendar,
+  Target,
+} from 'lucide-react';
+import {
+  useNotifications,
+  useDeadlineReminders,
+  useCalendarConflicts,
+} from '../../hooks/useNotifications';
 import { NotificationData } from '../../contexts/WebSocketContext';
 
 interface NotificationsPanelProps {
@@ -85,36 +99,39 @@ export function NotificationsPanel({ className = '' }: NotificationsPanelProps) 
     return time.toLocaleDateString();
   }, []);
 
-  const handleNotificationClick = useCallback((notification: NotificationData) => {
-    markNotificationAsRead(notification.id);
-    
-    // Handle different notification types
-    switch (notification.type) {
-      case 'task-update':
-        // Navigate to task
-        if (notification.data?.taskId) {
-          window.location.href = `/tasks/${notification.data.taskId}`;
-        }
-        break;
-      case 'calendar-sync':
-        // Navigate to calendar
-        window.location.href = '/calendar';
-        break;
-      case 'deadline-reminder':
-        // Navigate to task with deadline
-        if (notification.data?.taskId) {
-          window.location.href = `/tasks/${notification.data.taskId}`;
-        }
-        break;
-      case 'conflict-alert':
-        // Handle conflict resolution
-        if (notification.data?.conflictId) {
-          // Show conflict resolution modal or navigate to resolution page
-          console.log('Handle conflict:', notification.data.conflictId);
-        }
-        break;
-    }
-  }, [markNotificationAsRead]);
+  const handleNotificationClick = useCallback(
+    (notification: NotificationData) => {
+      markNotificationAsRead(notification.id);
+
+      // Handle different notification types
+      switch (notification.type) {
+        case 'task-update':
+          // Navigate to task
+          if (notification.data?.taskId) {
+            window.location.href = `/tasks/${notification.data.taskId}`;
+          }
+          break;
+        case 'calendar-sync':
+          // Navigate to calendar
+          window.location.href = '/calendar';
+          break;
+        case 'deadline-reminder':
+          // Navigate to task with deadline
+          if (notification.data?.taskId) {
+            window.location.href = `/tasks/${notification.data.taskId}`;
+          }
+          break;
+        case 'conflict-alert':
+          // Handle conflict resolution
+          if (notification.data?.conflictId) {
+            // Show conflict resolution modal or navigate to resolution page
+            console.log('Handle conflict:', notification.data.conflictId);
+          }
+          break;
+      }
+    },
+    [markNotificationAsRead]
+  );
 
   return (
     <div className={`relative ${className}`}>
@@ -130,7 +147,7 @@ export function NotificationsPanel({ className = '' }: NotificationsPanelProps) 
         aria-label={`Notifications ${unreadCount > 0 ? `(${unreadCount} unread)` : ''}`}
       >
         {focusMode ? <BellOff className="w-5 h-5" /> : <Bell className="w-5 h-5" />}
-        
+
         {/* Unread Badge */}
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center min-w-[20px]">
@@ -139,9 +156,11 @@ export function NotificationsPanel({ className = '' }: NotificationsPanelProps) 
         )}
 
         {/* Connection Status Indicator */}
-        <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
-          isConnected ? 'bg-green-500' : 'bg-red-500'
-        }`} />
+        <div
+          className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
+            isConnected ? 'bg-green-500' : 'bg-red-500'
+          }`}
+        />
       </button>
 
       {/* Notifications Panel */}
@@ -156,8 +175,8 @@ export function NotificationsPanel({ className = '' }: NotificationsPanelProps) 
                 <button
                   onClick={focusMode ? disableFocusMode : () => enableFocusMode()}
                   className={`p-1 rounded text-sm ${
-                    focusMode 
-                      ? 'bg-purple-100 text-purple-600' 
+                    focusMode
+                      ? 'bg-purple-100 text-purple-600'
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
                   title={focusMode ? 'Disable Focus Mode' : 'Enable Focus Mode'}
@@ -177,7 +196,7 @@ export function NotificationsPanel({ className = '' }: NotificationsPanelProps) 
 
             {/* Filter Tabs */}
             <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
-              {(['all', 'unread', 'urgent'] as const).map((filterType) => (
+              {(['all', 'unread', 'urgent'] as const).map(filterType => (
                 <button
                   key={filterType}
                   onClick={() => setFilter(filterType)}
@@ -226,7 +245,7 @@ export function NotificationsPanel({ className = '' }: NotificationsPanelProps) 
                 Critical Deadlines
               </div>
               <div className="space-y-1">
-                {criticalDeadlines.slice(0, 2).map((deadline) => (
+                {criticalDeadlines.slice(0, 2).map(deadline => (
                   <div key={deadline.id} className="text-xs text-red-600">
                     {deadline.title} - {formatTimeAgo(deadline.deadline.toISOString())}
                   </div>
@@ -257,7 +276,7 @@ export function NotificationsPanel({ className = '' }: NotificationsPanelProps) 
               </div>
             ) : (
               <div className="divide-y">
-                {filteredNotifications.map((notification) => (
+                {filteredNotifications.map(notification => (
                   <div
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
@@ -274,15 +293,17 @@ export function NotificationsPanel({ className = '' }: NotificationsPanelProps) 
                       {/* Content */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between">
-                          <h4 className={`text-sm font-medium ${
-                            !notification.read ? 'text-gray-900' : 'text-gray-700'
-                          }`}>
+                          <h4
+                            className={`text-sm font-medium ${
+                              !notification.read ? 'text-gray-900' : 'text-gray-700'
+                            }`}
+                          >
                             {notification.title}
                           </h4>
                           <div className="flex items-center gap-1 ml-2">
                             {!notification.read && (
                               <button
-                                onClick={(e) => {
+                                onClick={e => {
                                   e.stopPropagation();
                                   markNotificationAsRead(notification.id);
                                 }}
@@ -297,33 +318,32 @@ export function NotificationsPanel({ className = '' }: NotificationsPanelProps) 
                             </span>
                           </div>
                         </div>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {notification.message}
-                        </p>
+                        <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
 
                         {/* Conflict Resolution Actions */}
-                        {notification.type === 'conflict-alert' && notification.data?.conflictId && (
-                          <div className="flex gap-2 mt-2">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                resolveConflict(notification.data.conflictId, 'reschedule');
-                              }}
-                              className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200"
-                            >
-                              Reschedule
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                resolveConflict(notification.data.conflictId, 'override');
-                              }}
-                              className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded hover:bg-orange-200"
-                            >
-                              Override
-                            </button>
-                          </div>
-                        )}
+                        {notification.type === 'conflict-alert' &&
+                          notification.data?.conflictId && (
+                            <div className="flex gap-2 mt-2">
+                              <button
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  resolveConflict(notification.data.conflictId, 'reschedule');
+                                }}
+                                className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200"
+                              >
+                                Reschedule
+                              </button>
+                              <button
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  resolveConflict(notification.data.conflictId, 'override');
+                                }}
+                                className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded hover:bg-orange-200"
+                              >
+                                Override
+                              </button>
+                            </div>
+                          )}
                       </div>
                     </div>
                   </div>
@@ -334,14 +354,8 @@ export function NotificationsPanel({ className = '' }: NotificationsPanelProps) 
 
           {/* Footer */}
           <div className="p-3 bg-gray-50 border-t text-xs text-gray-500 flex items-center justify-between">
-            <span>
-              Real-time sync {isConnected ? 'active' : 'disconnected'}
-            </span>
-            {focusMode && (
-              <span className="text-purple-600 font-medium">
-                Focus mode enabled
-              </span>
-            )}
+            <span>Real-time sync {isConnected ? 'active' : 'disconnected'}</span>
+            {focusMode && <span className="text-purple-600 font-medium">Focus mode enabled</span>}
           </div>
         </div>
       )}

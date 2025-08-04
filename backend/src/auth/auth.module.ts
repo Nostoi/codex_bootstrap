@@ -45,12 +45,6 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     MicrosoftStrategy,
     JwtStrategy,
   ],
-  exports: [
-    AuthService,
-    SessionManagerService,
-    TokenManagerService,
-    PassportModule,
-    JwtModule,
-  ],
+  exports: [AuthService, SessionManagerService, TokenManagerService, PassportModule, JwtModule],
 })
 export class AuthModule {}

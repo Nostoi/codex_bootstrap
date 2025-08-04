@@ -9,7 +9,7 @@ export interface NotificationTypePreference {
 
 export interface QuietHours {
   start: string; // 24-hour format "HH:MM"
-  end: string;   // 24-hour format "HH:MM"
+  end: string; // 24-hour format "HH:MM"
   enabled: boolean;
 }
 
@@ -40,29 +40,29 @@ export const DEFAULT_NOTIFICATION_PREFERENCES: NotificationPreferences = {
   types: {
     'task-update': {
       enabled: true,
-      urgencyThreshold: 'medium'
+      urgencyThreshold: 'medium',
     },
     'calendar-sync': {
       enabled: true,
-      urgencyThreshold: 'low'
+      urgencyThreshold: 'low',
     },
     'deadline-reminder': {
       enabled: true,
-      urgencyThreshold: 'high'
+      urgencyThreshold: 'high',
     },
     'conflict-alert': {
       enabled: true,
-      urgencyThreshold: 'high'
+      urgencyThreshold: 'high',
     },
     'plan-regeneration': {
       enabled: true,
-      urgencyThreshold: 'medium'
-    }
+      urgencyThreshold: 'medium',
+    },
   },
   quietHours: {
     start: '22:00',
     end: '08:00',
-    enabled: true
+    enabled: true,
   },
   audioEnabled: false, // ADHD-friendly default: visual only
   batchingEnabled: true,
@@ -71,8 +71,8 @@ export const DEFAULT_NOTIFICATION_PREFERENCES: NotificationPreferences = {
   adhd: {
     focusModeEnabled: false,
     gentleAlertsOnly: true,
-    progressCelebration: true
-  }
+    progressCelebration: true,
+  },
 };
 
 @Injectable()
@@ -87,7 +87,7 @@ export class NotificationPreferencesService {
   async getPreferences(userId: string): Promise<NotificationPreferences> {
     try {
       const userSettings = await this.prisma.userSettings.findUnique({
-        where: { userId }
+        where: { userId },
       });
 
       if (!userSettings) {
@@ -95,15 +95,18 @@ export class NotificationPreferencesService {
         const newSettings = await this.prisma.userSettings.create({
           data: {
             userId,
-            notificationPreferences: DEFAULT_NOTIFICATION_PREFERENCES as any
-          }
+            notificationPreferences: DEFAULT_NOTIFICATION_PREFERENCES as any,
+          },
         });
         return DEFAULT_NOTIFICATION_PREFERENCES;
       }
 
       // Return stored preferences or defaults if null
-      const preferences = userSettings.notificationPreferences as any as NotificationPreferences | null;
-      return preferences ? this.validateAndMergePreferences(preferences) : DEFAULT_NOTIFICATION_PREFERENCES;
+      const preferences =
+        userSettings.notificationPreferences as any as NotificationPreferences | null;
+      return preferences
+        ? this.validateAndMergePreferences(preferences)
+        : DEFAULT_NOTIFICATION_PREFERENCES;
     } catch (error) {
       this.logger.error(`Failed to get notification preferences for user ${userId}:`, error);
       return DEFAULT_NOTIFICATION_PREFERENCES;
@@ -113,14 +116,17 @@ export class NotificationPreferencesService {
   /**
    * Update notification preferences for a user
    */
-  async updatePreferences(userId: string, preferences: Partial<NotificationPreferences>): Promise<NotificationPreferences> {
+  async updatePreferences(
+    userId: string,
+    preferences: Partial<NotificationPreferences>
+  ): Promise<NotificationPreferences> {
     try {
       // Get current preferences
       const currentPreferences = await this.getPreferences(userId);
-      
+
       // Merge with new preferences
       const updatedPreferences = this.mergePreferences(currentPreferences, preferences);
-      
+
       // Validate merged preferences
       const validatedPreferences = this.validatePreferences(updatedPreferences);
 
@@ -129,12 +135,12 @@ export class NotificationPreferencesService {
         where: { userId },
         update: {
           notificationPreferences: validatedPreferences as any,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         },
         create: {
           userId,
-          notificationPreferences: validatedPreferences as any
-        }
+          notificationPreferences: validatedPreferences as any,
+        },
       });
 
       this.logger.log(`Updated notification preferences for user ${userId}`);
@@ -149,7 +155,7 @@ export class NotificationPreferencesService {
    * Check if notifications are allowed for a user and notification type
    */
   async shouldSendNotification(
-    userId: string, 
+    userId: string,
     notificationType: keyof NotificationPreferences['types'],
     urgency: 'low' | 'medium' | 'high' | 'critical' = 'medium'
   ): Promise<boolean> {
@@ -196,7 +202,7 @@ export class NotificationPreferencesService {
 
     const now = new Date();
     const currentTime = now.getHours() * 60 + now.getMinutes(); // minutes since midnight
-    
+
     const startTime = this.parseTimeString(quietHours.start);
     const endTime = this.parseTimeString(quietHours.end);
 
@@ -230,7 +236,9 @@ export class NotificationPreferencesService {
   /**
    * Validate and merge preferences with defaults
    */
-  private validateAndMergePreferences(preferences: Partial<NotificationPreferences>): NotificationPreferences {
+  private validateAndMergePreferences(
+    preferences: Partial<NotificationPreferences>
+  ): NotificationPreferences {
     const merged = this.mergePreferences(DEFAULT_NOTIFICATION_PREFERENCES, preferences);
     return this.validatePreferences(merged);
   }
@@ -239,7 +247,7 @@ export class NotificationPreferencesService {
    * Deep merge preferences objects
    */
   private mergePreferences(
-    base: NotificationPreferences, 
+    base: NotificationPreferences,
     updates: Partial<NotificationPreferences>
   ): NotificationPreferences {
     return {
@@ -247,16 +255,16 @@ export class NotificationPreferencesService {
       ...updates,
       types: {
         ...base.types,
-        ...(updates.types || {})
+        ...(updates.types || {}),
       },
       quietHours: {
         ...base.quietHours,
-        ...(updates.quietHours || {})
+        ...(updates.quietHours || {}),
       },
       adhd: {
         ...base.adhd,
-        ...(updates.adhd || {})
-      }
+        ...(updates.adhd || {}),
+      },
     };
   }
 
@@ -318,13 +326,13 @@ export class NotificationPreferencesService {
   }> {
     const preferences = await this.getPreferences(userId);
     const enabledTypes = Object.values(preferences.types).filter(type => type.enabled).length;
-    
+
     return {
       totalEnabled: enabledTypes,
       totalTypes: Object.keys(preferences.types).length,
       quietHoursEnabled: preferences.quietHours.enabled,
       batchingEnabled: preferences.batchingEnabled,
-      adhdOptimized: preferences.adhd.focusModeEnabled || preferences.adhd.gentleAlertsOnly
+      adhdOptimized: preferences.adhd.focusModeEnabled || preferences.adhd.gentleAlertsOnly,
     };
   }
 }

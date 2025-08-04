@@ -1,8 +1,8 @@
-import { Injectable, NestMiddleware, Logger } from "@nestjs/common";
-import { Request, Response, NextFunction } from "express";
-import * as rateLimit from "express-rate-limit";
-import { Redis } from "ioredis";
-import { AuditLoggerService, AuditAction } from "./audit-logger.service";
+import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
+import { Request, Response, NextFunction } from 'express';
+import * as rateLimit from 'express-rate-limit';
+import { Redis } from 'ioredis';
+import { AuditLoggerService, AuditAction } from './audit-logger.service';
 
 interface RateLimitConfig {
   windowMs: number;
@@ -28,7 +28,7 @@ export class RateLimitingMiddleware implements NestMiddleware {
   }
 
   private initializeRedis(): void {
-    const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+    const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
 
     try {
       this.redis = new Redis(redisUrl, {
@@ -37,78 +37,78 @@ export class RateLimitingMiddleware implements NestMiddleware {
         enableReadyCheck: false,
         lazyConnect: true,
       } as any);
-      this.redis.on("connect", () => {
-        this.logger.log("Connected to Redis for rate limiting");
+      this.redis.on('connect', () => {
+        this.logger.log('Connected to Redis for rate limiting');
       });
 
-      this.redis.on("error", (error) => {
-        this.logger.error("Redis connection error", error.stack);
+      this.redis.on('error', error => {
+        this.logger.error('Redis connection error', error.stack);
       });
     } catch (error) {
-      this.logger.error("Failed to initialize Redis", error.stack);
+      this.logger.error('Failed to initialize Redis', error.stack);
     }
   }
 
   private setupRateLimiters(): void {
     // AI endpoints - expensive operations
     this.rateLimiters.set(
-      "ai",
+      'ai',
       this.createRateLimit({
         windowMs: 60 * 1000, // 1 minute
         max: 10, // 10 requests per minute
-        message: "Too many AI requests, please try again later",
-      }),
+        message: 'Too many AI requests, please try again later',
+      })
     );
 
     // Task operations - standard CRUD
     this.rateLimiters.set(
-      "tasks",
+      'tasks',
       this.createRateLimit({
         windowMs: 60 * 1000, // 1 minute
         max: 60, // 60 requests per minute
-        message: "Too many task requests, please try again later",
-      }),
+        message: 'Too many task requests, please try again later',
+      })
     );
 
     // Authentication endpoints - prevent brute force
     this.rateLimiters.set(
-      "auth",
+      'auth',
       this.createRateLimit({
         windowMs: 60 * 1000, // 1 minute
         max: 5, // 5 requests per minute
-        message: "Too many authentication attempts, please try again later",
+        message: 'Too many authentication attempts, please try again later',
         keyGenerator: (req: Request) => `auth:${this.getClientIp(req)}`,
-      }),
+      })
     );
 
     // Project operations - moderate usage
     this.rateLimiters.set(
-      "projects",
+      'projects',
       this.createRateLimit({
         windowMs: 60 * 1000, // 1 minute
         max: 30, // 30 requests per minute
-        message: "Too many project requests, please try again later",
-      }),
+        message: 'Too many project requests, please try again later',
+      })
     );
 
     // User operations - moderate usage
     this.rateLimiters.set(
-      "users",
+      'users',
       this.createRateLimit({
         windowMs: 60 * 1000, // 1 minute
         max: 30, // 30 requests per minute
-        message: "Too many user requests, please try again later",
-      }),
+        message: 'Too many user requests, please try again later',
+      })
     );
 
     // Default fallback - general API
     this.rateLimiters.set(
-      "default",
+      'default',
       this.createRateLimit({
         windowMs: 60 * 1000, // 1 minute
         max: 100, // 100 requests per minute
-        message: "Too many requests, please try again later",
-      }),
+        message: 'Too many requests, please try again later',
+      })
     );
   }
 
@@ -117,11 +117,9 @@ export class RateLimitingMiddleware implements NestMiddleware {
       windowMs: config.windowMs,
       max: config.max,
       message: { error: config.message },
-      keyGenerator:
-        config.keyGenerator || ((req: Request) => this.getKeyForRequest(req)),
+      keyGenerator: config.keyGenerator || ((req: Request) => this.getKeyForRequest(req)),
       skip: (req: Request) => this.shouldSkipRateLimit(req),
-      handler: (req: Request, res: Response) =>
-        this.onRateLimitExceeded(req, res),
+      handler: (req: Request, res: Response) => this.onRateLimitExceeded(req, res),
       headers: true, // Send rate limit info in response headers
       standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
       legacyHeaders: false, // Disable the `X-RateLimit-*` headers
@@ -138,34 +136,25 @@ export class RateLimitingMiddleware implements NestMiddleware {
   }
 
   private getEndpointCategory(path: string): string {
-    if (path.startsWith("/api/ai/") || path === "/api/ai") return "ai";
-    if (path.startsWith("/api/tasks/") || path === "/api/tasks") return "tasks";
-    if (path.startsWith("/api/auth/") || path === "/api/auth") return "auth";
-    if (path.startsWith("/api/projects/") || path === "/api/projects")
-      return "projects";
-    if (path.startsWith("/api/users/") || path === "/api/users") return "users";
-    return "default";
+    if (path.startsWith('/api/ai/') || path === '/api/ai') return 'ai';
+    if (path.startsWith('/api/tasks/') || path === '/api/tasks') return 'tasks';
+    if (path.startsWith('/api/auth/') || path === '/api/auth') return 'auth';
+    if (path.startsWith('/api/projects/') || path === '/api/projects') return 'projects';
+    if (path.startsWith('/api/users/') || path === '/api/users') return 'users';
+    return 'default';
   }
 
   private getClientIp(req: Request): string {
-    return (
-      req.ip ||
-      req.connection?.remoteAddress ||
-      req.socket?.remoteAddress ||
-      "unknown"
-    );
+    return req.ip || req.connection?.remoteAddress || req.socket?.remoteAddress || 'unknown';
   }
 
   private shouldSkipRateLimit(req: Request): boolean {
     // Skip rate limiting for health checks and internal requests
-    const skipPaths = ["/health", "/metrics", "/status"];
-    return skipPaths.some((path) => req.path.startsWith(path));
+    const skipPaths = ['/health', '/metrics', '/status'];
+    return skipPaths.some(path => req.path.startsWith(path));
   }
 
-  private async onRateLimitExceeded(
-    req: ExtendedRequest,
-    res: Response,
-  ): Promise<void> {
+  private async onRateLimitExceeded(req: ExtendedRequest, res: Response): Promise<void> {
     const ip = this.getClientIp(req);
     const userId = req.user?.id;
     const path = req.path;
@@ -176,25 +165,25 @@ export class RateLimitingMiddleware implements NestMiddleware {
     // Log security event
     await this.auditLogger.logFailure(
       AuditAction.RATE_LIMIT_EXCEEDED,
-      "rate_limiter",
+      'rate_limiter',
       `Rate limit exceeded for ${category} endpoints`,
       {
         userId,
         ipAddress: ip,
-        userAgent: req.get("User-Agent"),
+        userAgent: req.get('User-Agent'),
         metadata: {
           path,
           category,
           method: req.method,
         },
         correlationId: req.correlationId,
-      },
+      }
     );
 
     // Add custom headers for client debugging
     res.set({
-      "X-Rate-Limit-Category": category,
-      "X-Rate-Limit-Reset": new Date(Date.now() + 60000).toISOString(),
+      'X-Rate-Limit-Category': category,
+      'X-Rate-Limit-Reset': new Date(Date.now() + 60000).toISOString(),
     });
   }
 
@@ -202,17 +191,16 @@ export class RateLimitingMiddleware implements NestMiddleware {
     // Add correlation ID if not present
     if (!req.correlationId) {
       req.correlationId = this.auditLogger.generateCorrelationId();
-      res.set("X-Correlation-ID", req.correlationId);
+      res.set('X-Correlation-ID', req.correlationId);
     }
 
     const category = this.getEndpointCategory(req.path);
-    const rateLimiter =
-      this.rateLimiters.get(category) || this.rateLimiters.get("default");
+    const rateLimiter = this.rateLimiters.get(category) || this.rateLimiters.get('default');
 
     // Apply rate limiting
     rateLimiter(req, res, (error?: any) => {
       if (error) {
-        this.logger.error("Rate limiting middleware error", error.stack);
+        this.logger.error('Rate limiting middleware error', error.stack);
       }
       next(error);
     });
@@ -223,7 +211,7 @@ export class RateLimitingMiddleware implements NestMiddleware {
    */
   async getRateLimitStatus(
     userId?: string,
-    ip?: string,
+    ip?: string
   ): Promise<
     {
       category: string;
@@ -235,20 +223,18 @@ export class RateLimitingMiddleware implements NestMiddleware {
 
     // Return empty array if Redis is not available
     if (!this.redis) {
-      this.logger.warn("Redis not available for rate limit status check");
+      this.logger.warn('Redis not available for rate limit status check');
       return results;
     }
 
     for (const [category] of this.rateLimiters) {
       try {
-        const key = userId
-          ? `user:${userId}:${category}`
-          : `ip:${ip}:${category}`;
+        const key = userId ? `user:${userId}:${category}` : `ip:${ip}:${category}`;
         const count = await this.redis.get(key);
         const ttl = await this.redis.ttl(key);
 
         const maxRequests = this.getMaxRequestsForCategory(category);
-        const remaining = Math.max(0, maxRequests - parseInt(count || "0"));
+        const remaining = Math.max(0, maxRequests - parseInt(count || '0'));
         const resetTime = new Date(Date.now() + ttl * 1000);
 
         results.push({
@@ -257,10 +243,7 @@ export class RateLimitingMiddleware implements NestMiddleware {
           resetTime,
         });
       } catch (error) {
-        this.logger.error(
-          `Failed to get rate limit status for ${category}`,
-          error.stack,
-        );
+        this.logger.error(`Failed to get rate limit status for ${category}`, error.stack);
       }
     }
 
@@ -284,22 +267,16 @@ export class RateLimitingMiddleware implements NestMiddleware {
    * Reset rate limit for a specific user/IP and category
    * Should be used carefully, typically for administrative purposes
    */
-  async resetRateLimit(
-    userId?: string,
-    ip?: string,
-    category?: string,
-  ): Promise<void> {
+  async resetRateLimit(userId?: string, ip?: string, category?: string): Promise<void> {
     // Return early if Redis is not available
     if (!this.redis) {
-      this.logger.warn("Redis not available for rate limit reset");
+      this.logger.warn('Redis not available for rate limit reset');
       return;
     }
 
     try {
       if (category) {
-        const key = userId
-          ? `user:${userId}:${category}`
-          : `ip:${ip}:${category}`;
+        const key = userId ? `user:${userId}:${category}` : `ip:${ip}:${category}`;
         await this.redis.del(key);
         this.logger.log(`Reset rate limit for ${key}`);
       } else {
@@ -312,8 +289,8 @@ export class RateLimitingMiddleware implements NestMiddleware {
         }
       }
     } catch (error) {
-      this.logger.error("Failed to reset rate limit", error.stack);
-      throw new Error("Failed to reset rate limit");
+      this.logger.error('Failed to reset rate limit', error.stack);
+      throw new Error('Failed to reset rate limit');
     }
   }
 }

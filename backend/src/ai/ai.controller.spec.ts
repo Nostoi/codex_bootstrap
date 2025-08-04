@@ -1,11 +1,11 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { AiController } from "./ai.controller";
-import { AiService } from "./ai.service";
-import { ConfigService } from "@nestjs/config";
-import { Mem0Service } from "./mem0.service";
-import { RetryService } from "./services/retry.service";
+import { Test, TestingModule } from '@nestjs/testing';
+import { AiController } from './ai.controller';
+import { AiService } from './ai.service';
+import { ConfigService } from '@nestjs/config';
+import { Mem0Service } from './mem0.service';
+import { RetryService } from './services/retry.service';
 
-describe("AiController", () => {
+describe('AiController', () => {
   let controller: AiController;
   let aiService: jest.Mocked<AiService>;
 
@@ -31,21 +31,21 @@ describe("AiController", () => {
     aiService = module.get(AiService);
   });
 
-  it("should be defined", () => {
+  it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 
-  describe("generateTasks", () => {
-    it("should call aiService.generateTasks", async () => {
+  describe('generateTasks', () => {
+    it('should call aiService.generateTasks', async () => {
       const dto = {
-        projectDescription: "Test project",
+        projectDescription: 'Test project',
         maxTasks: 5,
       };
 
       const expectedResult = {
         data: [],
         usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
-        model: "gpt-4o-mini",
+        model: 'gpt-4o-mini',
         processingTimeMs: 100,
       };
 
@@ -58,17 +58,17 @@ describe("AiController", () => {
     });
   });
 
-  describe("getSuggestions", () => {
-    it("should call aiService.getSuggestions", async () => {
+  describe('getSuggestions', () => {
+    it('should call aiService.getSuggestions', async () => {
       const dto = {
-        context: "Test context",
-        type: "improvement" as const,
+        context: 'Test context',
+        type: 'improvement' as const,
       };
 
       const expectedResult = {
         data: [],
         usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
-        model: "gpt-4o-mini",
+        model: 'gpt-4o-mini',
         processingTimeMs: 100,
       };
 
@@ -81,24 +81,24 @@ describe("AiController", () => {
     });
   });
 
-  describe("summarize", () => {
-    it("should call aiService.summarize", async () => {
+  describe('summarize', () => {
+    it('should call aiService.summarize', async () => {
       const dto = {
-        text: "Test text",
+        text: 'Test text',
         maxLength: 100,
-        format: "paragraph" as const,
+        format: 'paragraph' as const,
       };
 
       const expectedResult = {
         data: {
-          summary: "Test summary",
+          summary: 'Test summary',
           keyPoints: [],
           originalLength: 9,
           summaryLength: 12,
           compressionRatio: 0.75,
         },
         usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
-        model: "gpt-4o-mini",
+        model: 'gpt-4o-mini',
         processingTimeMs: 100,
       };
 
@@ -111,19 +111,19 @@ describe("AiController", () => {
     });
   });
 
-  describe("chatCompletion", () => {
-    it("should call aiService.chatCompletion", async () => {
+  describe('chatCompletion', () => {
+    it('should call aiService.chatCompletion', async () => {
       const dto = {
-        messages: [{ role: "user" as const, content: "Hello" }],
-        model: "gpt-4o-mini",
+        messages: [{ role: 'user' as const, content: 'Hello' }],
+        model: 'gpt-4o-mini',
         temperature: 0.7,
         maxTokens: 100,
       };
 
       const expectedResult = {
-        data: "Hello! How can I help you?",
+        data: 'Hello! How can I help you?',
         usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
-        model: "gpt-4o-mini",
+        model: 'gpt-4o-mini',
         processingTimeMs: 100,
       };
 

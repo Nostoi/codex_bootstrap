@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 /**
  * Keyboard Navigation Testing Suite
- * 
+ *
  * This test suite validates keyboard navigation patterns, focus management,
  * and accessibility shortcuts with special attention to ADHD-friendly
  * interaction patterns.
@@ -31,15 +31,15 @@ describe('Keyboard Navigation Tests', () => {
     expectedFocusOrder: string[]
   ) => {
     render(component);
-    
+
     // Start from the first focusable element
     const firstElement = screen.getByTestId(expectedFocusOrder[0]);
     firstElement.focus();
-    
+
     // Execute key sequence and verify focus order
     for (let i = 0; i < keySequence.length; i++) {
       await user.keyboard(keySequence[i]);
-      
+
       if (i + 1 < expectedFocusOrder.length) {
         const expectedElement = screen.getByTestId(expectedFocusOrder[i + 1]);
         expect(document.activeElement).toBe(expectedElement);
@@ -58,7 +58,9 @@ describe('Keyboard Navigation Tests', () => {
             <option value="2">Option 2</option>
           </select>
           <textarea data-testid="textarea1" placeholder="Text area" />
-          <a data-testid="link1" href="#test">Test Link</a>
+          <a data-testid="link1" href="#test">
+            Test Link
+          </a>
         </div>
       );
 
@@ -79,15 +81,15 @@ describe('Keyboard Navigation Tests', () => {
       );
 
       render(<ReverseTabComponent />);
-      
+
       // Start from the last button
       const lastButton = screen.getByTestId('button3');
       lastButton.focus();
-      
+
       // Navigate backwards
       await user.keyboard('{Shift>}{Tab}{/Shift}');
       expect(document.activeElement).toBe(screen.getByTestId('button2'));
-      
+
       await user.keyboard('{Shift>}{Tab}{/Shift}');
       expect(document.activeElement).toBe(screen.getByTestId('button1'));
     });
@@ -96,7 +98,9 @@ describe('Keyboard Navigation Tests', () => {
       const DisabledElementComponent = () => (
         <div>
           <button data-testid="button1">Enabled Button</button>
-          <button data-testid="button2" disabled>Disabled Button</button>
+          <button data-testid="button2" disabled>
+            Disabled Button
+          </button>
           <input data-testid="input1" type="text" />
           <input data-testid="input2" type="text" disabled />
           <button data-testid="button3">Final Button</button>
@@ -118,31 +122,15 @@ describe('Keyboard Navigation Tests', () => {
           <legend>Choose an option</legend>
           <div role="radiogroup" aria-labelledby="radio-group-label">
             <label>
-              <input 
-                data-testid="radio1" 
-                type="radio" 
-                name="option" 
-                value="1"
-                defaultChecked
-              />
+              <input data-testid="radio1" type="radio" name="option" value="1" defaultChecked />
               Option 1
             </label>
             <label>
-              <input 
-                data-testid="radio2" 
-                type="radio" 
-                name="option" 
-                value="2"
-              />
+              <input data-testid="radio2" type="radio" name="option" value="2" />
               Option 2
             </label>
             <label>
-              <input 
-                data-testid="radio3" 
-                type="radio" 
-                name="option" 
-                value="3"
-              />
+              <input data-testid="radio3" type="radio" name="option" value="3" />
               Option 3
             </label>
           </div>
@@ -150,21 +138,21 @@ describe('Keyboard Navigation Tests', () => {
       );
 
       render(<RadioGroupComponent />);
-      
+
       const firstRadio = screen.getByTestId('radio1');
       firstRadio.focus();
-      
+
       // Navigate with arrow keys
       await user.keyboard('{ArrowDown}');
       expect(document.activeElement).toBe(screen.getByTestId('radio2'));
-      
+
       await user.keyboard('{ArrowDown}');
       expect(document.activeElement).toBe(screen.getByTestId('radio3'));
-      
+
       // Should wrap around
       await user.keyboard('{ArrowDown}');
       expect(document.activeElement).toBe(screen.getByTestId('radio1'));
-      
+
       // Navigate backwards
       await user.keyboard('{ArrowUp}');
       expect(document.activeElement).toBe(screen.getByTestId('radio3'));
@@ -186,10 +174,10 @@ describe('Keyboard Navigation Tests', () => {
       );
 
       render(<MenuComponent />);
-      
+
       const firstItem = screen.getByTestId('menu-item-1');
       firstItem.focus();
-      
+
       // Simulate arrow key navigation (would need custom implementation)
       // This is testing the expected behavior
       expect(document.activeElement).toBe(firstItem);
@@ -201,13 +189,8 @@ describe('Keyboard Navigation Tests', () => {
       const ModalComponent = () => (
         <div>
           <button data-testid="open-modal">Open Modal</button>
-          
-          <div 
-            role="dialog" 
-            aria-modal="true" 
-            aria-labelledby="modal-title"
-            data-testid="modal"
-          >
+
+          <div role="dialog" aria-modal="true" aria-labelledby="modal-title" data-testid="modal">
             <h2 id="modal-title" tabIndex={-1} data-testid="modal-title">
               Modal Title
             </h2>
@@ -219,19 +202,19 @@ describe('Keyboard Navigation Tests', () => {
       );
 
       render(<ModalComponent />);
-      
+
       // Focus should move to modal title when opened
       const modalTitle = screen.getByTestId('modal-title');
       modalTitle.focus();
       expect(document.activeElement).toBe(modalTitle);
-      
+
       // Tab should cycle within modal
       await user.keyboard('{Tab}');
       expect(document.activeElement).toBe(screen.getByTestId('modal-input'));
-      
+
       await user.keyboard('{Tab}');
       expect(document.activeElement).toBe(screen.getByTestId('modal-close'));
-      
+
       await user.keyboard('{Tab}');
       expect(document.activeElement).toBe(screen.getByTestId('modal-save'));
     });
@@ -240,30 +223,26 @@ describe('Keyboard Navigation Tests', () => {
       const FocusTrapComponent = () => (
         <div data-testid="focus-trap-container">
           <button data-testid="outside-before">Outside Before</button>
-          
-          <div 
-            role="region" 
-            aria-label="Focus trapped area"
-            data-testid="focus-trap"
-          >
+
+          <div role="region" aria-label="Focus trapped area" data-testid="focus-trap">
             <button data-testid="trap-first">First in Trap</button>
             <input data-testid="trap-input" type="text" />
             <button data-testid="trap-last">Last in Trap</button>
           </div>
-          
+
           <button data-testid="outside-after">Outside After</button>
         </div>
       );
 
       render(<FocusTrapComponent />);
-      
+
       // Focus should stay within the trap when activated
       const firstTrapElement = screen.getByTestId('trap-first');
       firstTrapElement.focus();
-      
+
       await user.keyboard('{Tab}');
       expect(document.activeElement).toBe(screen.getByTestId('trap-input'));
-      
+
       await user.keyboard('{Tab}');
       expect(document.activeElement).toBe(screen.getByTestId('trap-last'));
     });
@@ -273,7 +252,7 @@ describe('Keyboard Navigation Tests', () => {
     it('should handle standard keyboard shortcuts', async () => {
       const ShortcutComponent = () => {
         const [status, setStatus] = React.useState('Ready');
-        
+
         const handleKeyDown = (e: React.KeyboardEvent) => {
           if (e.ctrlKey || e.metaKey) {
             switch (e.key) {
@@ -291,7 +270,7 @@ describe('Keyboard Navigation Tests', () => {
                 break;
             }
           }
-          
+
           if (e.key === 'Escape') {
             setStatus('Cancelled');
           }
@@ -306,18 +285,18 @@ describe('Keyboard Navigation Tests', () => {
       };
 
       render(<ShortcutComponent />);
-      
+
       const shortcutArea = screen.getByTestId('shortcut-area');
       shortcutArea.focus();
-      
+
       // Test Ctrl+S (Save)
       await user.keyboard('{Control>}s{/Control}');
       expect(screen.getByTestId('status')).toHaveTextContent('Status: Saved');
-      
+
       // Test Ctrl+Z (Undo)
       await user.keyboard('{Control>}z{/Control}');
       expect(screen.getByTestId('status')).toHaveTextContent('Status: Undone');
-      
+
       // Test Escape
       await user.keyboard('{Escape}');
       expect(screen.getByTestId('status')).toHaveTextContent('Status: Cancelled');
@@ -326,21 +305,21 @@ describe('Keyboard Navigation Tests', () => {
     it('should provide skip links for main content', async () => {
       const SkipLinkComponent = () => (
         <div>
-          <a 
-            href="#main-content" 
+          <a
+            href="#main-content"
             data-testid="skip-link"
             className="sr-only focus:not-sr-only"
-            onFocus={(e) => e.currentTarget.style.position = 'static'}
+            onFocus={e => (e.currentTarget.style.position = 'static')}
           >
             Skip to main content
           </a>
-          
+
           <nav data-testid="navigation">
             <a href="#page1">Page 1</a>
             <a href="#page2">Page 2</a>
             <a href="#page3">Page 3</a>
           </nav>
-          
+
           <main id="main-content" data-testid="main-content" tabIndex={-1}>
             <h1>Main Content</h1>
             <p>This is the main content area.</p>
@@ -349,11 +328,11 @@ describe('Keyboard Navigation Tests', () => {
       );
 
       render(<SkipLinkComponent />);
-      
+
       // Skip link should be first in tab order
       await user.keyboard('{Tab}');
       expect(document.activeElement).toBe(screen.getByTestId('skip-link'));
-      
+
       // Activating skip link should move focus to main content
       await user.keyboard('{Enter}');
       expect(document.activeElement).toBe(screen.getByTestId('main-content'));
@@ -364,36 +343,36 @@ describe('Keyboard Navigation Tests', () => {
     it('should provide clear focus indicators', async () => {
       const FocusIndicatorComponent = () => (
         <div>
-          <button 
+          <button
             data-testid="focus-button"
             style={{
               outline: '2px solid transparent',
-              outlineOffset: '2px'
+              outlineOffset: '2px',
             }}
-            onFocus={(e) => {
+            onFocus={e => {
               e.currentTarget.style.outline = '3px solid #0066cc';
               e.currentTarget.style.outlineOffset = '2px';
             }}
-            onBlur={(e) => {
+            onBlur={e => {
               e.currentTarget.style.outline = '2px solid transparent';
             }}
           >
             Button with Clear Focus
           </button>
-          
-          <input 
+
+          <input
             data-testid="focus-input"
             type="text"
             style={{
               border: '2px solid #ccc',
               borderRadius: '4px',
-              padding: '8px'
+              padding: '8px',
             }}
-            onFocus={(e) => {
+            onFocus={e => {
               e.currentTarget.style.borderColor = '#0066cc';
               e.currentTarget.style.boxShadow = '0 0 0 2px rgba(0, 102, 204, 0.2)';
             }}
-            onBlur={(e) => {
+            onBlur={e => {
               e.currentTarget.style.borderColor = '#ccc';
               e.currentTarget.style.boxShadow = 'none';
             }}
@@ -402,14 +381,14 @@ describe('Keyboard Navigation Tests', () => {
       );
 
       render(<FocusIndicatorComponent />);
-      
+
       const button = screen.getByTestId('focus-button');
       const input = screen.getByTestId('focus-input');
-      
+
       // Test focus indicators
       await user.click(button);
       expect(button.style.outline).toBe('3px solid rgb(0, 102, 204)');
-      
+
       await user.click(input);
       expect(input.style.borderColor).toBe('rgb(0, 102, 204)');
     });
@@ -419,32 +398,27 @@ describe('Keyboard Navigation Tests', () => {
         <div>
           {/* Consistent card navigation pattern */}
           <div role="group" aria-label="Task cards">
-            <div 
-              role="button" 
-              tabIndex={0} 
+            <div
+              role="button"
+              tabIndex={0}
               data-testid="card1"
               aria-label="Task 1: Complete project proposal"
             >
               <h3>Task 1</h3>
               <p>Complete project proposal</p>
             </div>
-            
-            <div 
-              role="button" 
-              tabIndex={0} 
+
+            <div
+              role="button"
+              tabIndex={0}
               data-testid="card2"
               aria-label="Task 2: Review documentation"
             >
               <h3>Task 2</h3>
               <p>Review documentation</p>
             </div>
-            
-            <div 
-              role="button" 
-              tabIndex={0} 
-              data-testid="card3"
-              aria-label="Task 3: Update tests"
-            >
+
+            <div role="button" tabIndex={0} data-testid="card3" aria-label="Task 3: Update tests">
               <h3>Task 3</h3>
               <p>Update tests</p>
             </div>
@@ -462,44 +436,50 @@ describe('Keyboard Navigation Tests', () => {
     it('should support customizable navigation preferences', async () => {
       const CustomNavigationComponent = () => {
         const [useArrowKeys, setUseArrowKeys] = React.useState(false);
-        
+
         return (
           <div>
             <label>
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 checked={useArrowKeys}
-                onChange={(e) => setUseArrowKeys(e.target.checked)}
+                onChange={e => setUseArrowKeys(e.target.checked)}
                 data-testid="arrow-keys-toggle"
               />
               Use arrow keys for card navigation
             </label>
-            
+
             <div role="group" aria-label="Customizable navigation">
-              <div tabIndex={0} data-testid="nav-item-1">Item 1</div>
-              <div tabIndex={useArrowKeys ? -1 : 0} data-testid="nav-item-2">Item 2</div>
-              <div tabIndex={useArrowKeys ? -1 : 0} data-testid="nav-item-3">Item 3</div>
+              <div tabIndex={0} data-testid="nav-item-1">
+                Item 1
+              </div>
+              <div tabIndex={useArrowKeys ? -1 : 0} data-testid="nav-item-2">
+                Item 2
+              </div>
+              <div tabIndex={useArrowKeys ? -1 : 0} data-testid="nav-item-3">
+                Item 3
+              </div>
             </div>
           </div>
         );
       };
 
       render(<CustomNavigationComponent />);
-      
+
       // Test default tab navigation
       const item1 = screen.getByTestId('nav-item-1');
       item1.focus();
-      
+
       await user.keyboard('{Tab}');
       expect(document.activeElement).toBe(screen.getByTestId('nav-item-2'));
-      
+
       // Toggle arrow key mode
       await user.click(screen.getByTestId('arrow-keys-toggle'));
-      
+
       // Now items 2 and 3 should have tabIndex={-1}
       const item2 = screen.getByTestId('nav-item-2');
       const item3 = screen.getByTestId('nav-item-3');
-      
+
       expect(item2.getAttribute('tabindex')).toBe('-1');
       expect(item3.getAttribute('tabindex')).toBe('-1');
     });

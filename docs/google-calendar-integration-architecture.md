@@ -62,10 +62,10 @@ interface CalendarIntegration {
 // Error handling patterns
 enum CalendarErrorType {
   API_UNAVAILABLE = 'api_unavailable',
-  AUTH_EXPIRED = 'auth_expired', 
+  AUTH_EXPIRED = 'auth_expired',
   RATE_LIMITED = 'rate_limited',
   NETWORK_ERROR = 'network_error',
-  PERMISSION_DENIED = 'permission_denied'
+  PERMISSION_DENIED = 'permission_denied',
 }
 
 interface CalendarErrorHandler {
@@ -83,37 +83,39 @@ interface CalendarErrorHandler {
 
 **Location**: `backend/src/planning/daily-planner.service.ts`
 
-**Dependencies**: 
+**Dependencies**:
+
 - Inject `GoogleService` in constructor
 - Import Google Calendar types
 
 **Implementation**:
+
 ```typescript
 private async getExistingCommitments(userId: string, date: Date): Promise<TimeSlot[]> {
   try {
     // Get calendar events for the target date
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
-    
+
     const endOfDay = new Date(date);
     endOfDay.setHours(23, 59, 59, 999);
-    
+
     const calendarData = await this.googleService.getCalendarEvents(
-      userId, 
+      userId,
       'primary',
       startOfDay,
       endOfDay
     );
-    
+
     // Parse calendar events to TimeSlots
     const timeSlots = calendarData.items
       ?.filter(event => this.isValidEvent(event))
       .map(event => this.parseCalendarEventToTimeSlot(event))
       || [];
-    
+
     this.logger.log(`Retrieved ${timeSlots.length} calendar commitments for ${date.toISOString()}`);
     return timeSlots;
-    
+
   } catch (error) {
     this.logger.warn(`Calendar integration failed: ${error.message}`);
     return this.handleCalendarFailure(error);
@@ -128,26 +130,26 @@ private async getExistingCommitments(userId: string, date: Date): Promise<TimeSl
 ```typescript
 private inferEnergyLevel(event: GoogleCalendarEvent): EnergyLevel {
   // Meeting type analysis
-  if (event.summary?.toLowerCase().includes('focus') || 
+  if (event.summary?.toLowerCase().includes('focus') ||
       event.summary?.toLowerCase().includes('deep work')) {
     return EnergyLevel.HIGH;
   }
-  
+
   // Large meetings (drain energy)
   if (event.attendees && event.attendees.length > 5) {
     return EnergyLevel.LOW;
   }
-  
+
   // 1:1 meetings or small groups
   if (event.attendees && event.attendees.length <= 3) {
     return EnergyLevel.MEDIUM;
   }
-  
+
   // All-day events
   if (event.start?.date && event.end?.date) {
     return EnergyLevel.LOW;
   }
-  
+
   // Default for regular meetings
   return EnergyLevel.MEDIUM;
 }
@@ -159,24 +161,24 @@ private inferEnergyLevel(event: GoogleCalendarEvent): EnergyLevel {
 private inferPreferredFocusTypes(event: GoogleCalendarEvent): FocusType[] {
   const summary = event.summary?.toLowerCase() || '';
   const description = event.description?.toLowerCase() || '';
-  
-  if (summary.includes('standup') || summary.includes('sync') || 
+
+  if (summary.includes('standup') || summary.includes('sync') ||
       summary.includes('meeting')) {
     return [FocusType.SOCIAL];
   }
-  
+
   if (summary.includes('review') || summary.includes('planning')) {
     return [FocusType.ADMINISTRATIVE];
   }
-  
+
   if (summary.includes('workshop') || summary.includes('brainstorm')) {
     return [FocusType.CREATIVE];
   }
-  
+
   if (summary.includes('technical') || summary.includes('coding')) {
     return [FocusType.TECHNICAL];
   }
-  
+
   // Default for unknown meetings
   return [FocusType.SOCIAL];
 }
@@ -186,7 +188,7 @@ private inferPreferredFocusTypes(event: GoogleCalendarEvent): FocusType[] {
 
 ```typescript
 private parseEventDateTime(
-  dateTime: GoogleCalendarDateTime, 
+  dateTime: GoogleCalendarDateTime,
   userTimezone: string
 ): Date {
   if (dateTime.dateTime) {
@@ -198,7 +200,7 @@ private parseEventDateTime(
     // Convert to user's timezone
     return new Date(date.toLocaleString('en-US', { timeZone: userTimezone }));
   }
-  
+
   throw new Error('Invalid calendar event date format');
 }
 ```
@@ -207,28 +209,28 @@ private parseEventDateTime(
 
 ```typescript
 private generateTimeSlots(
-  date: Date, 
-  userSettings: UserSettings, 
+  date: Date,
+  userSettings: UserSettings,
   existingCommitments: TimeSlot[]
 ): TimeSlot[] {
   // Generate base time slots
   const baseSlots = this.generateBaseTimeSlots(date, userSettings);
-  
+
   // Remove conflicting slots
   const availableSlots = this.removeConflictingSlots(baseSlots, existingCommitments);
-  
+
   // Add buffer time around meetings
   const bufferedSlots = this.addMeetingBuffers(availableSlots, existingCommitments);
-  
+
   return bufferedSlots;
 }
 
 private removeConflictingSlots(
-  baseSlots: TimeSlot[], 
+  baseSlots: TimeSlot[],
   commitments: TimeSlot[]
 ): TimeSlot[] {
   return baseSlots.filter(slot => {
-    return !commitments.some(commitment => 
+    return !commitments.some(commitment =>
       this.slotsOverlap(slot, commitment)
     );
   });
@@ -261,11 +263,11 @@ private calendarCache = new Map<string, CalendarCache>();
 ```typescript
 // Implement exponential backoff for Google Calendar API
 private async getCalendarEventsWithRetry(
-  userId: string, 
+  userId: string,
   maxRetries = 3
 ): Promise<any> {
   let attempt = 0;
-  
+
   while (attempt < maxRetries) {
     try {
       return await this.googleService.getCalendarEvents(userId);
@@ -293,16 +295,16 @@ const mockGoogleCalendarEvent = {
   description: 'Daily team sync meeting',
   start: {
     dateTime: '2025-07-28T09:00:00-07:00',
-    timeZone: 'America/Los_Angeles'
+    timeZone: 'America/Los_Angeles',
   },
   end: {
-    dateTime: '2025-07-28T09:30:00-07:00', 
-    timeZone: 'America/Los_Angeles'
+    dateTime: '2025-07-28T09:30:00-07:00',
+    timeZone: 'America/Los_Angeles',
   },
   attendees: [
     { email: 'user1@example.com', responseStatus: 'accepted' },
-    { email: 'user2@example.com', responseStatus: 'accepted' }
-  ]
+    { email: 'user2@example.com', responseStatus: 'accepted' },
+  ],
 };
 
 const expectedTimeSlot: TimeSlot = {
@@ -310,7 +312,7 @@ const expectedTimeSlot: TimeSlot = {
   endTime: new Date('2025-07-28T09:30:00-07:00'),
   energyLevel: EnergyLevel.MEDIUM,
   preferredFocusTypes: [FocusType.SOCIAL],
-  isAvailable: false
+  isAvailable: false,
 };
 ```
 

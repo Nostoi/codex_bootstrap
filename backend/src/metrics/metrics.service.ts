@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable } from '@nestjs/common';
 
 export interface MetricLog {
   id: number;
@@ -24,7 +24,7 @@ export class MetricsService {
   }
 
   countByAction(action: string): number {
-    return this.logs.filter((l) => l.action === action).length;
+    return this.logs.filter(l => l.action === action).length;
   }
 
   all(): MetricLog[] {

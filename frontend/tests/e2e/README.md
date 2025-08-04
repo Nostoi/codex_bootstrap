@@ -21,6 +21,7 @@ This directory contains comprehensive end-to-end tests for all Helmsman AI-Augme
 ## Test Coverage
 
 ### Task Metadata Features ✅
+
 - Task creation with all metadata fields (energy, focus, complexity, etc.)
 - Metadata editing and validation
 - Energy level color coding and visual indicators
@@ -29,6 +30,7 @@ This directory contains comprehensive end-to-end tests for all Helmsman AI-Augme
 - Bulk metadata operations
 
 ### Daily Planning Features ✅
+
 - Energy pattern-based scheduling
 - Manual drag-and-drop task scheduling
 - Time slot conflict detection and resolution
@@ -37,6 +39,7 @@ This directory contains comprehensive end-to-end tests for all Helmsman AI-Augme
 - Focus time and deep work blocks
 
 ### AI Integration Features ✅
+
 - Natural language task extraction
 - Automatic task classification and metadata suggestion
 - AI-powered improvement recommendations
@@ -45,6 +48,7 @@ This directory contains comprehensive end-to-end tests for all Helmsman AI-Augme
 - Privacy and security safeguards
 
 ### Accessibility Features ✅
+
 - WCAG 2.1 AA compliance testing
 - Keyboard navigation and focus management
 - Screen reader compatibility
@@ -53,6 +57,7 @@ This directory contains comprehensive end-to-end tests for all Helmsman AI-Augme
 - Reduced motion and high contrast support
 
 ### Dependency Management Features ✅
+
 - Visual dependency chain display
 - Automatic task blocking/unblocking
 - Circular dependency prevention
@@ -61,6 +66,7 @@ This directory contains comprehensive end-to-end tests for all Helmsman AI-Augme
 - Bulk dependency operations
 
 ### Performance Testing ✅
+
 - Page load time benchmarks
 - Large dataset handling
 - Memory usage monitoring
@@ -70,6 +76,7 @@ This directory contains comprehensive end-to-end tests for all Helmsman AI-Augme
 ## Running the Tests
 
 ### Prerequisites
+
 ```bash
 # Install dependencies
 pnpm install
@@ -79,11 +86,13 @@ pnpm dev
 ```
 
 ### Run All E2E Tests
+
 ```bash
 pnpm test:e2e:all
 ```
 
 ### Run Specific Test Suite
+
 ```bash
 pnpm test:e2e task-metadata.spec.ts
 pnpm test:e2e daily-planning.e2e.ts
@@ -94,11 +103,13 @@ pnpm test:e2e performance.e2e.ts
 ```
 
 ### Run with UI Mode
+
 ```bash
 pnpm test:e2e:ui
 ```
 
 ### Run in Headed Mode (See Browser)
+
 ```bash
 pnpm test:e2e:headed
 ```
@@ -106,6 +117,7 @@ pnpm test:e2e:headed
 ## Test Data and Mocking
 
 ### Mock Data Setup
+
 - `mockTasks`: Standard task dataset with various metadata
 - `mockTasksWithDependencies`: Tasks with dependency relationships
 - `mockLargeDashboardTasks`: Large dataset for performance testing
@@ -113,7 +125,9 @@ pnpm test:e2e:headed
 - `mockDailyPlans`: Daily planning scenarios
 
 ### API Mocking
+
 Tests use Playwright route interception to mock API responses, ensuring:
+
 - Consistent test data across runs
 - Fast test execution without real API calls
 - Error scenario testing
@@ -148,6 +162,7 @@ Tests use Playwright route interception to mock API responses, ensuring:
 ## Browser Support
 
 Tests run on:
+
 - Chromium (Desktop)
 - Firefox (Desktop)
 - WebKit/Safari (Desktop)
@@ -156,6 +171,7 @@ Tests run on:
 ## Continuous Integration
 
 The E2E test suite is designed to run in CI environments with:
+
 - Headless browser execution
 - Screenshot and video capture on failures
 - Performance regression detection
@@ -166,6 +182,7 @@ The E2E test suite is designed to run in CI environments with:
 ### Common Issues
 
 1. **Development server not running**
+
    ```bash
    pnpm dev
    ```
@@ -185,6 +202,7 @@ The E2E test suite is designed to run in CI environments with:
    - Verify proper cleanup in afterEach
 
 ### Debug Mode
+
 ```bash
 # Run with browser visible
 pnpm test:e2e:headed
@@ -210,6 +228,7 @@ When adding new E2E tests:
 ## Test Results
 
 All E2E tests validate the comprehensive functionality of the Helmsman system, ensuring:
+
 - Feature completeness and correctness
 - Performance within acceptable bounds
 - Accessibility compliance for all users

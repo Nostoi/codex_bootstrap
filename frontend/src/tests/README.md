@@ -48,11 +48,11 @@ pnpm test:a11y
 ### Using Utilities
 
 ```typescript
-import { 
-  FocusTrap, 
+import {
+  FocusTrap,
   announceToScreenReader,
   createADHDFriendlyFocus,
-  meetsContrastRequirements 
+  meetsContrastRequirements,
 } from '@/lib/a11y-utils';
 
 // Create focus trap for modal
@@ -129,24 +129,28 @@ See [accessibility-matrix.md](../docs/accessibility-matrix.md) for detailed comp
 ## 🧠 ADHD-Friendly Features
 
 ### Cognitive Load Reduction
+
 - Consistent visual hierarchy
 - Predictable layouts
 - Minimal distractions
 - Clear focus states (3px high-contrast outlines)
 
 ### Attention Management
+
 - `prefers-reduced-motion` support
 - Optional animations
 - Clear state changes
 - Progress indicators
 
 ### Executive Function Support
+
 - Error prevention
 - Clear instructions
 - Undo functionality (planned)
 - Auto-save capabilities (planned)
 
 ### Sensory Processing
+
 - High contrast mode (planned)
 - Font size controls
 - Color coding alternatives
@@ -160,7 +164,7 @@ The accessibility tests use a carefully configured axe-core setup:
 
 ```typescript
 export const axeConfig = {
-  tags: ['wcag2a', 'wcag2aa', 'wcag22aa']
+  tags: ['wcag2a', 'wcag2aa', 'wcag22aa'],
 };
 ```
 
@@ -178,12 +182,14 @@ export const axeConfig = {
 ## 📊 Metrics & Monitoring
 
 ### Automated Coverage
+
 - **12 accessibility test suites** with 100% pass rate
 - **12 keyboard navigation test suites** with 100% pass rate
 - **Storybook integration** for component-level testing
 - **CI/CD integration** for continuous validation
 
 ### Manual Testing Schedule
+
 - **Weekly**: Screen reader testing (NVDA, JAWS, VoiceOver)
 - **Weekly**: Keyboard-only navigation
 - **Monthly**: Color blindness simulation
@@ -210,7 +216,7 @@ const Modal = () => {
     focusTrap.activate();
     return () => focusTrap.deactivate();
   }, []);
-  
+
   return (
     <div role="dialog" aria-modal="true" ref={modalRef}>
       {/* Modal content */}
@@ -252,6 +258,7 @@ if (process.env.NODE_ENV === 'development') {
 ## 🚀 Future Enhancements
 
 ### Planned Features (Q1 2025)
+
 - [ ] Voice navigation support
 - [ ] Advanced keyboard shortcut customization
 - [ ] Cognitive load assessment tools
@@ -259,6 +266,7 @@ if (process.env.NODE_ENV === 'development') {
 - [ ] User preference persistence
 
 ### Integration Roadmap
+
 - [ ] Automated contrast checking in CI
 - [ ] Screen reader automation testing
 - [ ] Performance impact monitoring

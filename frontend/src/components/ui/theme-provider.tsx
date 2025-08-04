@@ -1,13 +1,13 @@
-'use client'
+'use client';
 
-import { ThemeProvider as NextThemesProvider } from 'next-themes'
-import type { ComponentProps } from 'react'
+import { ThemeProvider as NextThemesProvider } from 'next-themes';
+import type { ComponentProps } from 'react';
 
-type ThemeProviderProps = ComponentProps<typeof NextThemesProvider>
+type ThemeProviderProps = ComponentProps<typeof NextThemesProvider>;
 
 /**
  * Theme Provider Component
- * 
+ *
  * Provides theme context for ADHD-friendly design system with support for:
  * - Light/dark mode switching
  * - System preference detection
@@ -26,12 +26,12 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
     >
       {children}
     </NextThemesProvider>
-  )
+  );
 }
 
 /**
  * Theme Provider configuration options:
- * 
+ *
  * - attribute="class": Uses class-based theme switching (adds .dark class)
  * - defaultTheme="system": Respects user's OS preference by default
  * - enableSystem: Allows automatic system theme detection

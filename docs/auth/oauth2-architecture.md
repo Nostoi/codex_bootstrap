@@ -59,17 +59,17 @@ model User {
   avatar      String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   // OAuth provider information
   providers   OAuthProvider[]
   sessions    UserSession[]
-  
+
   // Existing relationships preserved
   documents   Document[]
   projects    Project[]
   tasks       Task[]
   // ... other existing relationships
-  
+
   @@map("users")
 }
 
@@ -84,11 +84,11 @@ model OAuthProvider {
   scopes       String[] // Requested permissions
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  
+
   // Relationships
   userId       String
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@unique([provider, providerId])
   @@unique([provider, userId]) // One provider per user
   @@map("oauth_providers")
@@ -102,16 +102,16 @@ model UserSession {
   expiresAt    DateTime
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  
+
   // Session metadata
   userAgent    String?
   ipAddress    String?
   isActive     Boolean  @default(true)
-  
+
   // Relationships
   userId       String
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@map("user_sessions")
 }
 
@@ -120,7 +120,7 @@ model BlacklistedToken {
   tokenId   String   @unique // JWT 'jti' claim
   expiresAt DateTime
   createdAt DateTime @default(now())
-  
+
   @@map("blacklisted_tokens")
 }
 ```
@@ -198,8 +198,8 @@ ERROR_CODES = {
   OAUTH_FAILED: 'auth/oauth-failed',
   TOKEN_EXPIRED: 'auth/token-expired',
   SESSION_INVALID: 'auth/session-invalid',
-  INSUFFICIENT_PERMISSIONS: 'auth/insufficient-permissions'
-}
+  INSUFFICIENT_PERMISSIONS: 'auth/insufficient-permissions',
+};
 ```
 
 ## Environment Configuration
@@ -239,14 +239,14 @@ FRONTEND_AUTH_ERROR_URL=/login?error=auth_failed
 ```typescript
 interface IAuthService {
   // OAuth flow management
-  initiateOAuth(provider: string, userId?: string): Promise<{ authUrl: string, state: string }>;
+  initiateOAuth(provider: string, userId?: string): Promise<{ authUrl: string; state: string }>;
   handleCallback(provider: string, code: string, state: string): Promise<AuthResult>;
-  
-  // Session management  
+
+  // Session management
   createSession(user: User, provider?: string): Promise<SessionTokens>;
   refreshSession(refreshToken: string): Promise<SessionTokens>;
   revokeSession(sessionId: string): Promise<void>;
-  
+
   // User management
   findOrCreateUser(oauthProfile: OAuthProfile): Promise<User>;
   linkProvider(userId: string, provider: OAuthProvider): Promise<void>;
@@ -261,11 +261,11 @@ interface ITokenManager {
   generateAccessToken(payload: JWTPayload): string;
   generateRefreshToken(): string;
   verifyAccessToken(token: string): JWTPayload;
-  
+
   // OAuth token management
   encryptToken(token: string): string;
   decryptToken(encryptedToken: string): string;
-  
+
   // Token blacklisting
   blacklistToken(tokenId: string, expiresAt: Date): Promise<void>;
   isTokenBlacklisted(tokenId: string): Promise<boolean>;
@@ -279,7 +279,7 @@ interface ISessionMiddleware {
   // Request authentication
   authenticate(req: Request, res: Response, next: NextFunction): void;
   requireAuth(req: AuthRequest, res: Response, next: NextFunction): void;
-  
+
   // Permission checking
   requireScopes(scopes: string[]): MiddlewareFunction;
   requireCalendarAccess(): MiddlewareFunction;
@@ -329,21 +329,25 @@ interface ISessionMiddleware {
 ## Migration Strategy
 
 ### Phase 1: Database Schema Updates
+
 - Add new authentication tables
 - Migrate existing users to new schema
 - Preserve existing integrations
 
 ### Phase 2: Backend Implementation
+
 - Implement OAuth services
 - Update existing auth service
 - Add session management
 
 ### Phase 3: Frontend Integration
+
 - Update auth components
 - Add OAuth login buttons
 - Implement session handling
 
 ### Phase 4: Testing & Deployment
+
 - Comprehensive security testing
 - Load testing authentication flows
 - Production deployment with monitoring
@@ -351,6 +355,7 @@ interface ISessionMiddleware {
 ## Monitoring and Observability
 
 ### Key Metrics to Track
+
 - Authentication success/failure rates
 - Token refresh frequency
 - Session duration patterns
@@ -358,6 +363,7 @@ interface ISessionMiddleware {
 - Security event frequencies
 
 ### Alerting Rules
+
 - High authentication failure rate (>10% for 5 minutes)
 - Token refresh failures
 - Suspicious login patterns

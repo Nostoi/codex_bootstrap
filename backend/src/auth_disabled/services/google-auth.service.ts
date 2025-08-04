@@ -4,13 +4,13 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { google } from 'googleapis';
 import * as crypto from 'crypto-js';
-import { 
-  OAuthProfile, 
-  SessionTokens, 
+import {
+  OAuthProfile,
+  SessionTokens,
   IAuthService,
   OAuthTokens,
   UserWithProvider,
-  AuthResult
+  AuthResult,
 } from '../types/auth.types';
 
 @Injectable()
@@ -21,12 +21,12 @@ export class GoogleAuthService implements IAuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-    private configService: ConfigService,
+    private configService: ConfigService
   ) {
     this.oauth2Client = new google.auth.OAuth2(
       this.configService.get('GOOGLE_CLIENT_ID'),
       this.configService.get('GOOGLE_CLIENT_SECRET'),
-      this.configService.get('GOOGLE_CALLBACK_URL'),
+      this.configService.get('GOOGLE_CALLBACK_URL')
     );
   }
 
@@ -37,7 +37,7 @@ export class GoogleAuthService implements IAuthService {
       // Find or create user
       let user = await this.prisma.user.findUnique({
         where: { email: profile.email },
-        include: { oauthProviders: true }
+        include: { oauthProviders: true },
       });
 
       if (!user) {
@@ -50,13 +50,12 @@ export class GoogleAuthService implements IAuthService {
 
       // Generate session tokens
       const tokens = await this.generateSessionTokens(user.id);
-      
+
       // Create session record
       await this.createUserSession(user.id, tokens.refreshToken);
 
       this.logger.log(`User authenticated successfully: ${user.email}`);
       return tokens;
-
     } catch (error) {
       this.logger.error(`Authentication failed: ${error.message}`, error.stack);
       throw new UnauthorizedException('Authentication failed');
@@ -68,7 +67,7 @@ export class GoogleAuthService implements IAuthService {
       // Find session
       const session = await this.prisma.userSession.findUnique({
         where: { refreshToken },
-        include: { user: true }
+        include: { user: true },
       });
 
       if (!session || session.expiresAt < new Date()) {
@@ -84,7 +83,7 @@ export class GoogleAuthService implements IAuthService {
         data: {
           refreshToken: newTokens.refreshToken,
           expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-        }
+        },
       });
 
       // Blacklist old refresh token
@@ -93,11 +92,10 @@ export class GoogleAuthService implements IAuthService {
           tokenId: refreshToken,
           reason: 'Token refreshed',
           expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
-        }
+        },
       });
 
       return newTokens;
-
     } catch (error) {
       this.logger.error(`Token refresh failed: ${error.message}`, error.stack);
       throw new UnauthorizedException('Token refresh failed');
@@ -108,7 +106,7 @@ export class GoogleAuthService implements IAuthService {
     try {
       // Get all user sessions
       const sessions = await this.prisma.userSession.findMany({
-        where: { userId }
+        where: { userId },
       });
 
       // Blacklist all refresh tokens
@@ -118,17 +116,16 @@ export class GoogleAuthService implements IAuthService {
             tokenId: session.refreshToken,
             reason: 'User logout',
             expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-          }
+          },
         });
       }
 
       // Delete all sessions
       await this.prisma.userSession.deleteMany({
-        where: { userId }
+        where: { userId },
       });
 
       this.logger.log(`All tokens revoked for user: ${userId}`);
-
     } catch (error) {
       this.logger.error(`Token revocation failed: ${error.message}`, error.stack);
       throw new BadRequestException('Token revocation failed');
@@ -138,10 +135,10 @@ export class GoogleAuthService implements IAuthService {
   async getOAuthTokens(userId: string): Promise<OAuthTokens | null> {
     try {
       const provider = await this.prisma.oAuthProvider.findFirst({
-        where: { 
+        where: {
           userId,
-          provider: 'google'
-        }
+          provider: 'google',
+        },
       });
 
       if (!provider) {
@@ -150,17 +147,14 @@ export class GoogleAuthService implements IAuthService {
 
       // Decrypt tokens
       const accessToken = this.decryptToken(provider.accessToken);
-      const refreshToken = provider.refreshToken 
-        ? this.decryptToken(provider.refreshToken)
-        : null;
+      const refreshToken = provider.refreshToken ? this.decryptToken(provider.refreshToken) : null;
 
       return {
         accessToken,
         refreshToken,
         expiresAt: provider.tokenExpiry,
-        scopes: provider.scopes
+        scopes: provider.scopes,
       };
-
     } catch (error) {
       this.logger.error(`Failed to get OAuth tokens: ${error.message}`, error.stack);
       return null;
@@ -170,10 +164,10 @@ export class GoogleAuthService implements IAuthService {
   async refreshOAuthTokens(userId: string): Promise<OAuthTokens | null> {
     try {
       const provider = await this.prisma.oAuthProvider.findFirst({
-        where: { 
+        where: {
           userId,
-          provider: 'google'
-        }
+          provider: 'google',
+        },
       });
 
       if (!provider || !provider.refreshToken) {
@@ -181,10 +175,10 @@ export class GoogleAuthService implements IAuthService {
       }
 
       const refreshToken = this.decryptToken(provider.refreshToken);
-      
+
       // Set refresh token and get new access token
       this.oauth2Client.setCredentials({
-        refresh_token: refreshToken
+        refresh_token: refreshToken,
       });
 
       const { credentials } = await this.oauth2Client.refreshAccessToken();
@@ -196,16 +190,15 @@ export class GoogleAuthService implements IAuthService {
           accessToken: this.encryptToken(credentials.access_token),
           tokenExpiry: credentials.expiry_date ? new Date(credentials.expiry_date) : null,
           lastRefreshed: new Date(),
-        }
+        },
       });
 
       return {
         accessToken: credentials.access_token,
         refreshToken: credentials.refresh_token || refreshToken,
         expiresAt: credentials.expiry_date ? new Date(credentials.expiry_date) : null,
-        scopes: provider.scopes
+        scopes: provider.scopes,
       };
-
     } catch (error) {
       this.logger.error(`OAuth token refresh failed: ${error.message}`, error.stack);
       return null;
@@ -226,15 +219,13 @@ export class GoogleAuthService implements IAuthService {
             provider: profile.provider,
             providerId: profile.providerId,
             accessToken: this.encryptToken(profile.accessToken),
-            refreshToken: profile.refreshToken 
-              ? this.encryptToken(profile.refreshToken) 
-              : null,
+            refreshToken: profile.refreshToken ? this.encryptToken(profile.refreshToken) : null,
             scopes: profile.scopes,
             tokenExpiry: null, // Will be updated on first refresh
-          }
-        }
+          },
+        },
       },
-      include: { oauthProviders: true }
+      include: { oauthProviders: true },
     });
   }
 
@@ -242,8 +233,8 @@ export class GoogleAuthService implements IAuthService {
     const existingProvider = await this.prisma.oAuthProvider.findFirst({
       where: {
         userId,
-        provider: profile.provider
-      }
+        provider: profile.provider,
+      },
     });
 
     if (existingProvider) {
@@ -252,12 +243,10 @@ export class GoogleAuthService implements IAuthService {
         where: { id: existingProvider.id },
         data: {
           accessToken: this.encryptToken(profile.accessToken),
-          refreshToken: profile.refreshToken 
-            ? this.encryptToken(profile.refreshToken) 
-            : null,
+          refreshToken: profile.refreshToken ? this.encryptToken(profile.refreshToken) : null,
           scopes: profile.scopes,
           lastRefreshed: new Date(),
-        }
+        },
       });
     } else {
       // Create new provider
@@ -267,40 +256,38 @@ export class GoogleAuthService implements IAuthService {
           provider: profile.provider,
           providerId: profile.providerId,
           accessToken: this.encryptToken(profile.accessToken),
-          refreshToken: profile.refreshToken 
-            ? this.encryptToken(profile.refreshToken) 
-            : null,
+          refreshToken: profile.refreshToken ? this.encryptToken(profile.refreshToken) : null,
           scopes: profile.scopes,
-        }
+        },
       });
     }
   }
 
   private async generateSessionTokens(userId: string): Promise<SessionTokens> {
-    const payload = { 
-      sub: userId, 
+    const payload = {
+      sub: userId,
       type: 'access',
-      iat: Math.floor(Date.now() / 1000)
+      iat: Math.floor(Date.now() / 1000),
     };
 
-    const accessToken = this.jwtService.sign(payload, { 
-      expiresIn: '15m' 
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: '15m',
     });
 
-    const refreshPayload = { 
-      sub: userId, 
+    const refreshPayload = {
+      sub: userId,
       type: 'refresh',
-      iat: Math.floor(Date.now() / 1000)
+      iat: Math.floor(Date.now() / 1000),
     };
 
-    const refreshToken = this.jwtService.sign(refreshPayload, { 
-      expiresIn: '7d' 
+    const refreshToken = this.jwtService.sign(refreshPayload, {
+      expiresIn: '7d',
     });
 
     return {
       accessToken,
       refreshToken,
-      expiresIn: 900 // 15 minutes
+      expiresIn: 900, // 15 minutes
     };
   }
 
@@ -312,7 +299,7 @@ export class GoogleAuthService implements IAuthService {
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
         userAgent: 'OAuth2 Client',
         ipAddress: '0.0.0.0', // Will be updated by middleware
-      }
+      },
     });
   }
 

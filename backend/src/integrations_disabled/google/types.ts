@@ -3,8 +3,8 @@
  * These interfaces define the contracts between DailyPlannerService and GoogleService
  */
 
-import { EnergyLevel, FocusType } from "@prisma/client";
-import { TimeSlot } from "../../planning/types";
+import { EnergyLevel, FocusType } from '@prisma/client';
+import { TimeSlot } from '../../planning/types';
 
 // Google Calendar API response types
 export interface GoogleCalendarEvent {
@@ -14,10 +14,10 @@ export interface GoogleCalendarEvent {
   start?: GoogleCalendarDateTime;
   end?: GoogleCalendarDateTime;
   attendees?: GoogleCalendarAttendee[];
-  status?: "confirmed" | "tentative" | "cancelled";
-  visibility?: "default" | "public" | "private" | "confidential";
-  transparency?: "opaque" | "transparent";
-  eventType?: "default" | "outOfOffice" | "focusTime" | "workingLocation";
+  status?: 'confirmed' | 'tentative' | 'cancelled';
+  visibility?: 'default' | 'public' | 'private' | 'confidential';
+  transparency?: 'opaque' | 'transparent';
+  eventType?: 'default' | 'outOfOffice' | 'focusTime' | 'workingLocation';
   location?: string;
   organizer?: GoogleCalendarOrganizer;
   recurringEventId?: string;
@@ -33,7 +33,7 @@ export interface GoogleCalendarDateTime {
 export interface GoogleCalendarAttendee {
   email?: string;
   displayName?: string;
-  responseStatus?: "needsAction" | "declined" | "tentative" | "accepted";
+  responseStatus?: 'needsAction' | 'declined' | 'tentative' | 'accepted';
   optional?: boolean;
   organizer?: boolean;
 }
@@ -45,7 +45,7 @@ export interface GoogleCalendarOrganizer {
 }
 
 export interface GoogleCalendarListResponse {
-  kind: "calendar#events";
+  kind: 'calendar#events';
   items?: GoogleCalendarEvent[];
   nextPageToken?: string;
   nextSyncToken?: string;
@@ -61,10 +61,7 @@ export interface CalendarIntegration {
   /**
    * Parse a Google Calendar event into a TimeSlot
    */
-  parseCalendarEvent(
-    event: GoogleCalendarEvent,
-    userTimezone?: string,
-  ): TimeSlot;
+  parseCalendarEvent(event: GoogleCalendarEvent, userTimezone?: string): TimeSlot;
 
   /**
    * Infer energy level required for a calendar event
@@ -89,13 +86,13 @@ export interface CalendarIntegration {
 
 // Error handling types
 export enum CalendarErrorType {
-  API_UNAVAILABLE = "api_unavailable",
-  AUTH_EXPIRED = "auth_expired",
-  RATE_LIMITED = "rate_limited",
-  NETWORK_ERROR = "network_error",
-  PERMISSION_DENIED = "permission_denied",
-  INVALID_EVENT_DATA = "invalid_event_data",
-  QUOTA_EXCEEDED = "quota_exceeded",
+  API_UNAVAILABLE = 'api_unavailable',
+  AUTH_EXPIRED = 'auth_expired',
+  RATE_LIMITED = 'rate_limited',
+  NETWORK_ERROR = 'network_error',
+  PERMISSION_DENIED = 'permission_denied',
+  INVALID_EVENT_DATA = 'invalid_event_data',
+  QUOTA_EXCEEDED = 'quota_exceeded',
 }
 
 export interface CalendarError extends Error {
@@ -144,14 +141,14 @@ export interface CalendarIntegrationConfig {
 
 export interface EnergyInferenceRule {
   pattern: string | RegExp;
-  field: "summary" | "description" | "location";
+  field: 'summary' | 'description' | 'location';
   energyLevel: EnergyLevel;
   priority: number; // Higher priority rules override lower priority
 }
 
 export interface FocusTypeRule {
   pattern: string | RegExp;
-  field: "summary" | "description" | "location";
+  field: 'summary' | 'description' | 'location';
   focusTypes: FocusType[];
   priority: number;
 }
@@ -187,13 +184,13 @@ export interface CalendarEventProcessingResult {
 // Extended TimeSlot for calendar integration
 export interface CalendarTimeSlot extends TimeSlot {
   sourceEventId?: string;
-  sourceType: "calendar" | "manual" | "system";
-  calendarProvider: "google" | "outlook" | "other";
+  sourceType: 'calendar' | 'manual' | 'system';
+  calendarProvider: 'google' | 'outlook' | 'other';
   eventSummary?: string;
   eventLocation?: string;
   attendeeCount?: number;
   isOrganizer?: boolean;
-  meetingType?: "focus" | "social" | "administrative" | "technical";
+  meetingType?: 'focus' | 'social' | 'administrative' | 'technical';
   bufferBefore?: number; // minutes
   bufferAfter?: number; // minutes
 }
@@ -204,13 +201,13 @@ export interface GoogleCalendarService {
     userId: string,
     calendarId?: string,
     timeMin?: Date,
-    timeMax?: Date,
+    timeMax?: Date
   ): Promise<GoogleCalendarListResponse>;
 
   createCalendarEvent(
     userId: string,
     eventData: Partial<GoogleCalendarEvent>,
-    calendarId?: string,
+    calendarId?: string
   ): Promise<GoogleCalendarEvent>;
 }
 
@@ -246,7 +243,7 @@ export interface MockCalendarEvent {
   start: string; // ISO datetime
   end: string; // ISO datetime
   attendees?: number;
-  type?: "meeting" | "focus" | "social" | "admin";
+  type?: 'meeting' | 'focus' | 'social' | 'admin';
   location?: string;
 }
 

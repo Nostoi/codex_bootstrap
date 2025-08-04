@@ -4,9 +4,9 @@ import { CalendarEvent } from '../../hooks/useApi';
 import { DailyGrid } from './DailyGrid';
 import { WeeklyGrid } from './WeeklyGrid';
 import { MonthlyGrid } from './MonthlyGrid';
-import { 
+import {
   getCalendarGridAriaProps,
-  useCalendarAccessibility 
+  useCalendarAccessibility,
 } from '../../lib/calendar-accessibility';
 
 interface CalendarGridProps {
@@ -42,15 +42,15 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   // Filter events based on current view and date
   const filteredEvents = useMemo(() => {
     const currentDateObj = new Date(currentDate.year, currentDate.month - 1, currentDate.day);
-    
+
     return events.filter(event => {
       const eventStart = new Date(event.startTime);
-      
+
       switch (currentView) {
         case 'daily':
           // Show events for the current day
           return eventStart.toDateString() === currentDateObj.toDateString();
-          
+
         case 'weekly':
           // Show events for the current week
           const startOfWeek = new Date(currentDateObj);
@@ -58,14 +58,16 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
           const endOfWeek = new Date(startOfWeek);
           endOfWeek.setDate(startOfWeek.getDate() + 6);
           endOfWeek.setHours(23, 59, 59, 999);
-          
+
           return eventStart >= startOfWeek && eventStart <= endOfWeek;
-          
+
         case 'monthly':
           // Show events for the current month
-          return eventStart.getFullYear() === currentDate.year &&
-                 eventStart.getMonth() === currentDate.month - 1;
-          
+          return (
+            eventStart.getFullYear() === currentDate.year &&
+            eventStart.getMonth() === currentDate.month - 1
+          );
+
         default:
           return false;
       }
@@ -75,18 +77,20 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   // Apply ADHD-specific CSS variables with accessibility preferences
   const gridStyles = {
     // Original ADHD settings
-    ...(adhdSettings ? {
-      '--calendar-reduce-motion': adhdSettings.reducedMotion ? '1' : '0',
-      '--calendar-enhance-focus': adhdSettings.enableFocusMode ? '1' : '0',
-      '--calendar-max-colors': adhdSettings.maxEventsPerView?.toString() || '3',
-    } : {}),
+    ...(adhdSettings
+      ? {
+          '--calendar-reduce-motion': adhdSettings.reducedMotion ? '1' : '0',
+          '--calendar-enhance-focus': adhdSettings.enableFocusMode ? '1' : '0',
+          '--calendar-max-colors': adhdSettings.maxEventsPerView?.toString() || '3',
+        }
+      : {}),
     // Accessibility preferences override
     ...(preferences.reducedMotion && {
-      '--calendar-reduce-motion': '1'
+      '--calendar-reduce-motion': '1',
     }),
     ...(preferences.highContrast && {
-      '--calendar-high-contrast': '1'
-    })
+      '--calendar-high-contrast': '1',
+    }),
   } as React.CSSProperties;
 
   // Calculate grid dimensions for ARIA
@@ -120,30 +124,18 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   };
 
   return (
-    <div 
+    <div
       className="calendar-grid"
       style={gridStyles}
       {...gridAriaProps}
       aria-busy={isLoading}
       {...ariaProps}
     >
-      {currentView === 'daily' && (
-        <DailyGrid
-          {...commonProps}
-        />
-      )}
-      
-      {currentView === 'weekly' && (
-        <WeeklyGrid
-          {...commonProps}
-        />
-      )}
-      
-      {currentView === 'monthly' && (
-        <MonthlyGrid
-          {...commonProps}
-        />
-      )}
+      {currentView === 'daily' && <DailyGrid {...commonProps} />}
+
+      {currentView === 'weekly' && <WeeklyGrid {...commonProps} />}
+
+      {currentView === 'monthly' && <MonthlyGrid {...commonProps} />}
     </div>
   );
 };

@@ -83,7 +83,7 @@ FRONTEND_URL=http://localhost:3000
 # Frontend Auth Success Redirect
 FRONTEND_AUTH_SUCCESS_URL=/dashboard
 
-# Frontend Auth Error Redirect  
+# Frontend Auth Error Redirect
 FRONTEND_AUTH_ERROR_URL=/login
 
 # Frontend Calendar Permission Success
@@ -172,7 +172,7 @@ GOOGLE_CLIENT_ID=staging-google-client-id
 GOOGLE_CLIENT_SECRET=staging-google-client-secret
 GOOGLE_REDIRECT_URI=https://api-staging.helmsman.app/api/auth/google/callback
 
-# Microsoft OAuth (staging app)  
+# Microsoft OAuth (staging app)
 MICROSOFT_CLIENT_ID=staging-microsoft-client-id
 MICROSOFT_CLIENT_SECRET=staging-microsoft-client-secret
 MICROSOFT_TENANT_ID=common
@@ -352,6 +352,7 @@ echo "All required environment variables are set ✅"
 ## 📝 Environment Checklist
 
 ### Development Environment
+
 - [ ] All OAuth applications created for localhost
 - [ ] Development database configured
 - [ ] HTTPS not required for OAuth callbacks
@@ -359,6 +360,7 @@ echo "All required environment variables are set ✅"
 - [ ] Debug logging enabled
 
 ### Staging Environment
+
 - [ ] OAuth applications configured for staging domains
 - [ ] HTTPS required for all OAuth callbacks
 - [ ] Production-like security settings
@@ -366,6 +368,7 @@ echo "All required environment variables are set ✅"
 - [ ] Load balancer SSL termination configured
 
 ### Production Environment
+
 - [ ] OAuth applications configured for production domains
 - [ ] All secrets stored in secure secret management system
 - [ ] HTTPS enforced everywhere

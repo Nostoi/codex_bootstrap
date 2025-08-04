@@ -2,12 +2,7 @@ import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TokenManagerService } from './token-manager.service';
-import { 
-  SessionTokens, 
-  AuthResult, 
-  JWTPayload,
-  UserWithProvider 
-} from '../types/auth.types';
+import { SessionTokens, AuthResult, JWTPayload, UserWithProvider } from '../types/auth.types';
 
 /**
  * SessionManager Service
@@ -24,7 +19,7 @@ export class SessionManagerService {
     private readonly prisma: PrismaService,
     @Inject(forwardRef(() => TokenManagerService))
     private readonly tokenManager: TokenManagerService,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {
     this.maxSessionsPerUser = this.configService.get<number>('MAX_SESSIONS_PER_USER') || 5;
     this.sessionTimeout = this.configService.get<number>('SESSION_TIMEOUT_HOURS') || 24;
@@ -34,7 +29,7 @@ export class SessionManagerService {
    * Create a new user session with JWT tokens
    */
   async createSession(
-    user: UserWithProvider, 
+    user: UserWithProvider,
     metadata?: { userAgent?: string; ipAddress?: string }
   ): Promise<SessionTokens> {
     try {
@@ -50,7 +45,7 @@ export class SessionManagerService {
       });
 
       const refreshToken = this.tokenManager.generateRefreshToken();
-      const expiresAt = new Date(Date.now() + (this.sessionTimeout * 60 * 60 * 1000));
+      const expiresAt = new Date(Date.now() + this.sessionTimeout * 60 * 60 * 1000);
 
       // Create session in database
       const session = await this.prisma.userSession.create({
@@ -71,6 +66,7 @@ export class SessionManagerService {
         accessToken,
         refreshToken,
         expiresAt,
+        scopes: [],
       };
     } catch (error) {
       this.logger.error(`Session creation failed for user ${user.id}: ${error.message}`);
@@ -115,7 +111,7 @@ export class SessionManagerService {
       });
 
       const newRefreshToken = this.tokenManager.generateRefreshToken();
-      const newExpiresAt = new Date(Date.now() + (this.sessionTimeout * 60 * 60 * 1000));
+      const newExpiresAt = new Date(Date.now() + this.sessionTimeout * 60 * 60 * 1000);
 
       // Update session with new tokens (token rotation)
       await this.prisma.userSession.update({
@@ -134,7 +130,7 @@ export class SessionManagerService {
           this.tokenManager.decryptToken(session.accessToken)
         );
         await this.tokenManager.blacklistToken(
-          oldTokenPayload.jti, 
+          oldTokenPayload.jti,
           new Date(oldTokenPayload.exp * 1000)
         );
       } catch (error) {
@@ -148,6 +144,7 @@ export class SessionManagerService {
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
         expiresAt: newExpiresAt,
+        scopes: [],
       };
     } catch (error) {
       this.logger.error(`Session refresh failed: ${error.message}`);
@@ -179,10 +176,7 @@ export class SessionManagerService {
       try {
         const decryptedToken = this.tokenManager.decryptToken(session.accessToken);
         const tokenPayload = this.tokenManager.verifyAccessToken(decryptedToken);
-        await this.tokenManager.blacklistToken(
-          tokenPayload.jti,
-          new Date(tokenPayload.exp * 1000)
-        );
+        await this.tokenManager.blacklistToken(tokenPayload.jti, new Date(tokenPayload.exp * 1000));
       } catch (error) {
         this.logger.warn(`Could not blacklist token during revocation: ${error.message}`);
       }
@@ -225,7 +219,9 @@ export class SessionManagerService {
             new Date(tokenPayload.exp * 1000)
           );
         } catch (error) {
-          this.logger.warn(`Could not blacklist token for session ${session.sessionId}: ${error.message}`);
+          this.logger.warn(
+            `Could not blacklist token for session ${session.sessionId}: ${error.message}`
+          );
         }
       }
 
@@ -239,14 +235,16 @@ export class SessionManagerService {
   /**
    * Get active sessions for a user
    */
-  async getUserSessions(userId: string): Promise<Array<{
-    sessionId: string;
-    createdAt: Date;
-    updatedAt: Date;
-    expiresAt: Date;
-    userAgent?: string;
-    ipAddress?: string;
-  }>> {
+  async getUserSessions(userId: string): Promise<
+    Array<{
+      sessionId: string;
+      createdAt: Date;
+      updatedAt: Date;
+      expiresAt: Date;
+      userAgent?: string;
+      ipAddress?: string;
+    }>
+  > {
     try {
       const sessions = await this.prisma.userSession.findMany({
         where: {
@@ -283,10 +281,7 @@ export class SessionManagerService {
     try {
       const result = await this.prisma.userSession.deleteMany({
         where: {
-          OR: [
-            { expiresAt: { lt: new Date() } },
-            { isActive: false },
-          ],
+          OR: [{ expiresAt: { lt: new Date() } }, { isActive: false }],
         },
       });
 
@@ -390,13 +385,15 @@ export class SessionManagerService {
         await this.revokeSession(session.sessionId);
       }
 
-      this.logger.debug(`Enforced session limit for user ${userId}: removed ${sessionsToRemove.length} old sessions`);
+      this.logger.debug(
+        `Enforced session limit for user ${userId}: removed ${sessionsToRemove.length} old sessions`
+      );
     }
   }
 
   private extractUserScopes(user: UserWithProvider): string[] {
     const scopes: string[] = [];
-    
+
     for (const provider of user.oauthProviders) {
       scopes.push(...provider.scopes);
     }
@@ -412,7 +409,10 @@ export class SessionManagerService {
   async terminateSession(refreshToken: string): Promise<boolean> {
     try {
       // First, blacklist the refresh token
-      await this.tokenManager.blacklistToken(refreshToken, 'refresh');
+      await this.tokenManager.blacklistToken(
+        refreshToken,
+        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      ); // 30 days
 
       // Find and revoke the session
       const session = await this.prisma.userSession.findFirst({
@@ -421,7 +421,9 @@ export class SessionManagerService {
 
       if (session) {
         await this.revokeSession(session.sessionId);
-        this.logger.log(`Session terminated for refresh token: ${refreshToken.substring(0, 10)}...`);
+        this.logger.log(
+          `Session terminated for refresh token: ${refreshToken.substring(0, 10)}...`
+        );
         return true;
       }
 
@@ -451,8 +453,11 @@ export class SessionManagerService {
       for (const session of sessions) {
         try {
           // Blacklist the refresh token
-          await this.tokenManager.blacklistToken(session.refreshToken, 'refresh');
-          
+          await this.tokenManager.blacklistToken(
+            session.refreshToken,
+            new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          ); // 30 days
+
           // Revoke the session
           await this.revokeSession(session.sessionId);
           revokedCount++;
@@ -486,7 +491,6 @@ export class SessionManagerService {
 
       return sessions.map(session => ({
         id: session.sessionId,
-        deviceInfo: session.deviceInfo,
         userAgent: session.userAgent,
         ipAddress: session.ipAddress,
         createdAt: session.createdAt,

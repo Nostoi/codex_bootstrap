@@ -7,7 +7,8 @@
 
 // Ensure DATABASE_URL is set
 if (!process.env.DATABASE_URL) {
-  process.env.DATABASE_URL = "postgresql://codex:codex@localhost:5487/codex_bootstrap?schema=public";
+  process.env.DATABASE_URL =
+    'postgresql://codex:codex@localhost:5487/codex_bootstrap?schema=public';
 }
 
 import { PrismaClient } from '@prisma/client';
@@ -20,7 +21,7 @@ async function createTestTasks() {
 
     // Get a user to assign tasks to
     const user = await prisma.user.findFirst();
-    
+
     if (!user) {
       console.error('❌ No users found. Please run db:seed first.');
       process.exit(1);
@@ -34,8 +35,8 @@ async function createTestTasks() {
         id: 'test-project-1',
         name: 'Test Project for Migration',
         description: 'A project to test task metadata migration',
-        ownerId: user.id
-      }
+        ownerId: user.id,
+      },
     });
 
     // Create tasks without metadata (using raw SQL to bypass defaults)
@@ -45,29 +46,29 @@ async function createTestTasks() {
         description: 'Review the recent pull request changes',
         completed: false,
         ownerId: user.id,
-        projectId: project.id
+        projectId: project.id,
       },
       {
         title: 'Update documentation',
         description: 'Update the API documentation with new endpoints',
         completed: false,
         ownerId: user.id,
-        projectId: project.id
+        projectId: project.id,
       },
       {
         title: 'Fix UI bug',
         description: 'Fix the layout issue on mobile devices',
         completed: true,
         ownerId: user.id,
-        projectId: project.id
+        projectId: project.id,
       },
       {
         title: 'Write unit tests',
         description: 'Add comprehensive unit tests for the new features',
         completed: false,
         ownerId: user.id,
-        projectId: null // No project assigned
-      }
+        projectId: null, // No project assigned
+      },
     ];
 
     for (const taskData of testTasks) {
@@ -78,30 +79,24 @@ async function createTestTasks() {
           energyLevel: null,
           focusType: null,
           source: null,
-          priority: null
-        }
+          priority: null,
+        },
       });
     }
 
     console.log(`✅ Created ${testTasks.length} test tasks without metadata`);
-    
+
     // Verify created tasks
     const tasksCount = await prisma.task.count();
     const tasksWithoutMetadata = await prisma.task.count({
       where: {
-        OR: [
-          { energyLevel: null },
-          { focusType: null },
-          { source: null },
-          { priority: null }
-        ]
-      }
+        OR: [{ energyLevel: null }, { focusType: null }, { source: null }, { priority: null }],
+      },
     });
 
     console.log(`📊 Total tasks: ${tasksCount}`);
     console.log(`🎯 Tasks without metadata: ${tasksWithoutMetadata}`);
     console.log('🚀 Ready for migration testing!');
-
   } catch (error) {
     console.error('❌ Error creating test tasks:', error);
     process.exit(1);

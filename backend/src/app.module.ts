@@ -1,21 +1,21 @@
-import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
-import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
-import { PrismaModule } from "./prisma/prisma.module";
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { PrismaModule } from './prisma/prisma.module';
 // import { UsersModule } from "./users/users.module"; // Temporarily disabled for WebSocket testing
 // import { CollaborationModule } from "./collaboration/collaboration.module"; // Temporarily disabled for WebSocket testing
-import { GraphModule } from "./integrations/graph/graph.module";
-import { GoogleModule } from "./integrations/google/google.module";
-import { TasksModule } from "./tasks/tasks.module";
-import { NotificationsModule } from "./notifications/notifications.module";
+import { GraphModule } from './integrations/graph/graph.module';
+import { GoogleModule } from './integrations/google/google.module';
+import { TasksModule } from './tasks/tasks.module';
+import { NotificationsModule } from './notifications/notifications.module';
 // import { ProjectsModule } from "./projects/projects.module"; // Temporarily disabled for WebSocket testing
-import { AuthModule } from "./auth/auth.module";
+import { AuthModule } from './auth/auth.module';
 // import { AiModule } from "./ai/ai.module"; // Temporarily disabled for WebSocket testing
 // import { MetricsModule } from "./metrics/metrics.module"; // Temporarily disabled for WebSocket testing
 // import { SecurityModule } from "./security/security.module"; // Re-enabled security services
-import { SecurityModule } from "./security/security.module";
-import { PlanningModule } from "./planning/planning.module";
+import { SecurityModule } from './security/security.module';
+import { PlanningModule } from './planning/planning.module';
 // import { FeatureFlagsModule } from "./features/feature-flags.module"; // Temporarily disabled for WebSocket testing
 
 @Module({

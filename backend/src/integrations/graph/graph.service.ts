@@ -1,18 +1,18 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { Client } from "@microsoft/microsoft-graph-client";
-import { PrismaService } from "../../prisma/prisma.service";
-import { GraphAuthService } from "./auth/graph-auth.service";
-import { 
-  CalendarEvent, 
+import { Injectable, Logger } from '@nestjs/common';
+import { Client } from '@microsoft/microsoft-graph-client';
+import { PrismaService } from '../../prisma/prisma.service';
+import { GraphAuthService } from './auth/graph-auth.service';
+import {
+  CalendarEvent,
   CalendarListOptions,
   EnhancedCalendarOptions,
   BatchResponse,
   MeetingInvitationResponse,
   CalendarPermission,
   AttendeeResponseStats,
-  GRAPH_ENDPOINTS, 
-  DEFAULT_CONFIG 
-} from "./types/calendar.types";
+  GRAPH_ENDPOINTS,
+  DEFAULT_CONFIG,
+} from './types/calendar.types';
 
 @Injectable()
 export class GraphService {
@@ -20,7 +20,7 @@ export class GraphService {
 
   constructor(
     private prisma: PrismaService,
-    private graphAuthService: GraphAuthService,
+    private graphAuthService: GraphAuthService
   ) {}
 
   /**
@@ -29,7 +29,7 @@ export class GraphService {
   private async createGraphClient(userId: string): Promise<Client> {
     try {
       const accessToken = await this.graphAuthService.getAccessToken(userId);
-      
+
       return Client.init({
         authProvider: {
           getAccessToken: async () => accessToken,
@@ -47,11 +47,11 @@ export class GraphService {
   async getUserProfile(userId: string) {
     try {
       const graphClient = await this.createGraphClient(userId);
-      const profile = await graphClient.api("/me").get();
+      const profile = await graphClient.api('/me').get();
 
       return profile;
     } catch (error) {
-      this.logger.error("Error fetching Microsoft Graph profile:", error);
+      this.logger.error('Error fetching Microsoft Graph profile:', error);
       throw error;
     }
   }
@@ -64,13 +64,13 @@ export class GraphService {
       const graphClient = await this.createGraphClient(userId);
       const endpoint = folderId
         ? `/me/drive/items/${folderId}/children`
-        : "/me/drive/root/children";
+        : '/me/drive/root/children';
 
       const files = await graphClient.api(endpoint).get();
 
       return files;
     } catch (error) {
-      this.logger.error("Error fetching OneDrive files:", error);
+      this.logger.error('Error fetching OneDrive files:', error);
       throw error;
     }
   }
@@ -82,13 +82,11 @@ export class GraphService {
     try {
       const graphClient = await this.createGraphClient(userId);
 
-      const file = await graphClient
-        .api(`/me/drive/root:/${filename}:/content`)
-        .put(content);
+      const file = await graphClient.api(`/me/drive/root:/${filename}:/content`).put(content);
 
       return file;
     } catch (error) {
-      this.logger.error("Error creating OneDrive file:", error);
+      this.logger.error('Error creating OneDrive file:', error);
       throw error;
     }
   }
@@ -99,11 +97,11 @@ export class GraphService {
   async getTeams(userId: string) {
     try {
       const graphClient = await this.createGraphClient(userId);
-      const teams = await graphClient.api("/me/joinedTeams").get();
+      const teams = await graphClient.api('/me/joinedTeams').get();
 
       return teams;
     } catch (error) {
-      this.logger.error("Error fetching Teams:", error);
+      this.logger.error('Error fetching Teams:', error);
       throw error;
     }
   }
@@ -116,12 +114,12 @@ export class GraphService {
     accessToken: string,
     refreshToken?: string,
     expiresAt?: Date,
-    scopes?: string[],
+    scopes?: string[]
   ) {
     return this.prisma.integrationConfig.upsert({
       where: {
         provider_userId: {
-          provider: "microsoft",
+          provider: 'microsoft',
           userId,
         },
       },
@@ -132,7 +130,7 @@ export class GraphService {
         scopes: scopes || [],
       },
       create: {
-        provider: "microsoft",
+        provider: 'microsoft',
         userId,
         accessToken,
         refreshToken,
@@ -156,7 +154,7 @@ export class GraphService {
 
       return calendars;
     } catch (error) {
-      this.logger.error("Error fetching calendars:", error);
+      this.logger.error('Error fetching calendars:', error);
       throw error;
     }
   }
@@ -165,65 +163,68 @@ export class GraphService {
    * Get calendar events with optional filtering - Enhanced for Google Calendar parity
    */
   async getCalendarEvents(
-    userId: string, 
-    calendarId = "primary",
+    userId: string,
+    calendarId = 'primary',
     timeMin?: Date,
     timeMax?: Date,
     options: CalendarListOptions = {}
   ) {
     const startTime = performance.now();
-    
+
     try {
-      this.logger.debug(
-        `Fetching calendar events for user ${userId}, calendar ${calendarId}`,
-        {
-          userId,
-          calendarId,
-          timeMin: timeMin?.toISOString(),
-          timeMax: timeMax?.toISOString(),
-          options,
-        },
-      );
+      this.logger.debug(`Fetching calendar events for user ${userId}, calendar ${calendarId}`, {
+        userId,
+        calendarId,
+        timeMin: timeMin?.toISOString(),
+        timeMax: timeMax?.toISOString(),
+        options,
+      });
 
       const graphClient = await this.createGraphClient(userId);
-      
+
       // Build query parameters
       const queryParams: string[] = [];
-      
+
       // Time range filtering (prioritize method params over options)
-      const startTimeFilter = timeMin || (options.startTime ? new Date(options.startTime) : new Date());
+      const startTimeFilter =
+        timeMin || (options.startTime ? new Date(options.startTime) : new Date());
       const endTimeFilter = timeMax || (options.endTime ? new Date(options.endTime) : undefined);
-      
+
       if (startTimeFilter) {
         queryParams.push(`start/dateTime ge '${startTimeFilter.toISOString()}'`);
       }
-      
+
       if (endTimeFilter) {
         queryParams.push(`end/dateTime le '${endTimeFilter.toISOString()}'`);
       }
-      
+
       if (queryParams.length > 0) {
         queryParams.unshift(`$filter=${queryParams.join(' and ')}`);
         queryParams.splice(1); // Remove individual filter components, keep combined $filter
       }
-      
+
       if (options.orderBy) {
-        queryParams.push(`$orderby=${options.orderBy === 'start' ? 'start/dateTime' : 'lastModifiedDateTime'}`);
+        queryParams.push(
+          `$orderby=${options.orderBy === 'start' ? 'start/dateTime' : 'lastModifiedDateTime'}`
+        );
       } else {
         queryParams.push(`$orderby=start/dateTime`);
       }
-      
+
       const maxResults = options.maxResults || DEFAULT_CONFIG.maxResults;
       queryParams.push(`$top=${maxResults}`);
 
       // Include additional properties for rich calendar data
-      queryParams.push(`$select=id,subject,body,start,end,location,attendees,isAllDay,showAs,importance,sensitivity,categories,recurrence,organizer,responseStatus,webLink,lastModifiedDateTime`);
+      queryParams.push(
+        `$select=id,subject,body,start,end,location,attendees,isAllDay,showAs,importance,sensitivity,categories,recurrence,organizer,responseStatus,webLink,lastModifiedDateTime`
+      );
 
       // Choose endpoint based on calendar
-      const baseEndpoint = calendarId === "primary" 
-        ? GRAPH_ENDPOINTS.EVENTS 
-        : GRAPH_ENDPOINTS.CALENDAR_EVENTS(calendarId);
-        
+      const baseEndpoint =
+        calendarId === 'primary'
+          ? GRAPH_ENDPOINTS.EVENTS
+          : GRAPH_ENDPOINTS.CALENDAR_EVENTS(calendarId);
+
       const endpoint = `${baseEndpoint}?${queryParams.join('&')}`;
 
       const response = await graphClient.api(endpoint).get();
@@ -238,7 +239,7 @@ export class GraphService {
           calendarId,
           eventCount,
           responseTimeMs: responseTime,
-        },
+        }
       );
 
       return {
@@ -248,27 +249,26 @@ export class GraphService {
       };
     } catch (error) {
       const responseTime = performance.now() - startTime;
-      
-      this.logger.error(
-        `Error fetching Microsoft Graph calendar events for user ${userId}:`,
-        {
-          userId,
-          calendarId,
-          error: error.message,
-          errorCode: error.code,
-          responseTimeMs: responseTime,
-        },
-      );
+
+      this.logger.error(`Error fetching Microsoft Graph calendar events for user ${userId}:`, {
+        userId,
+        calendarId,
+        error: error.message,
+        errorCode: error.code,
+        responseTimeMs: responseTime,
+      });
 
       // Handle specific Microsoft Graph API errors
       if (error.code === 'Forbidden' || error.code === 'Unauthorized') {
-        throw new Error(`Calendar access denied. Please check permissions for calendar: ${calendarId}`);
+        throw new Error(
+          `Calendar access denied. Please check permissions for calendar: ${calendarId}`
+        );
       }
-      
+
       if (error.code === 'TooManyRequests' || error.code === 'ThrottledRequest') {
         throw new Error('Calendar API rate limit exceeded. Please try again later.');
       }
-      
+
       if (error.code === 'NotFound') {
         throw new Error(`Calendar not found: ${calendarId}`);
       }
@@ -287,7 +287,7 @@ export class GraphService {
 
       return event;
     } catch (error) {
-      this.logger.error("Error fetching calendar event:", error);
+      this.logger.error('Error fetching calendar event:', error);
       throw error;
     }
   }
@@ -296,7 +296,7 @@ export class GraphService {
    * Create a new calendar event - Enhanced for Google Calendar parity
    */
   async createCalendarEvent(
-    userId: string, 
+    userId: string,
     eventData: {
       subject: string;
       body?: {
@@ -317,24 +317,21 @@ export class GraphService {
       categories?: string[];
       recurrence?: any;
     },
-    calendarId = "primary"
+    calendarId = 'primary'
   ) {
     const startTime = performance.now();
-    
+
     try {
-      this.logger.debug(
-        `Creating calendar event for user ${userId}`,
-        {
-          userId,
-          calendarId,
-          subject: eventData.subject,
-          startTime: eventData.start.dateTime,
-          endTime: eventData.end.dateTime,
-        },
-      );
+      this.logger.debug(`Creating calendar event for user ${userId}`, {
+        userId,
+        calendarId,
+        subject: eventData.subject,
+        startTime: eventData.start.dateTime,
+        endTime: eventData.end.dateTime,
+      });
 
       const graphClient = await this.createGraphClient(userId);
-      
+
       // Ensure required fields and apply defaults
       const event: CalendarEvent = {
         subject: eventData.subject,
@@ -364,9 +361,10 @@ export class GraphService {
       };
 
       // Choose endpoint based on calendar
-      const endpoint = calendarId === "primary" 
-        ? GRAPH_ENDPOINTS.EVENTS 
-        : GRAPH_ENDPOINTS.CALENDAR_EVENTS(calendarId);
+      const endpoint =
+        calendarId === 'primary'
+          ? GRAPH_ENDPOINTS.EVENTS
+          : GRAPH_ENDPOINTS.CALENDAR_EVENTS(calendarId);
 
       const createdEvent = await graphClient.api(endpoint).post(event);
 
@@ -380,33 +378,30 @@ export class GraphService {
           eventId: createdEvent.id,
           subject: createdEvent.subject,
           responseTimeMs: responseTime,
-        },
+        }
       );
 
       return createdEvent;
     } catch (error) {
       const responseTime = performance.now() - startTime;
-      
-      this.logger.error(
-        `Error creating calendar event for user ${userId}:`,
-        {
-          userId,
-          calendarId,
-          error: error.message,
-          errorCode: error.code,
-          responseTimeMs: responseTime,
-        },
-      );
+
+      this.logger.error(`Error creating calendar event for user ${userId}:`, {
+        userId,
+        calendarId,
+        error: error.message,
+        errorCode: error.code,
+        responseTimeMs: responseTime,
+      });
 
       // Handle specific Microsoft Graph API errors
       if (error.code === 'Forbidden' || error.code === 'Unauthorized') {
         throw new Error('Calendar write access denied. Please check permissions.');
       }
-      
+
       if (error.code === 'TooManyRequests' || error.code === 'ThrottledRequest') {
         throw new Error('Calendar API rate limit exceeded. Please try again later.');
       }
-      
+
       if (error.code === 'BadRequest') {
         throw new Error(`Invalid event data: ${error.message}`);
       }
@@ -421,13 +416,11 @@ export class GraphService {
   async updateCalendarEvent(userId: string, eventId: string, updates: Partial<CalendarEvent>) {
     try {
       const graphClient = await this.createGraphClient(userId);
-      const updatedEvent = await graphClient
-        .api(GRAPH_ENDPOINTS.EVENT(eventId))
-        .patch(updates);
+      const updatedEvent = await graphClient.api(GRAPH_ENDPOINTS.EVENT(eventId)).patch(updates);
 
       return updatedEvent;
     } catch (error) {
-      this.logger.error("Error updating calendar event:", error);
+      this.logger.error('Error updating calendar event:', error);
       throw error;
     }
   }
@@ -440,9 +433,9 @@ export class GraphService {
       const graphClient = await this.createGraphClient(userId);
       await graphClient.api(GRAPH_ENDPOINTS.EVENT(eventId)).delete();
 
-      return { success: true, message: "Event deleted successfully" };
+      return { success: true, message: 'Event deleted successfully' };
     } catch (error) {
-      this.logger.error("Error deleting calendar event:", error);
+      this.logger.error('Error deleting calendar event:', error);
       throw error;
     }
   }
@@ -451,37 +444,42 @@ export class GraphService {
    * Get events from a specific calendar
    */
   async getCalendarEventsByCalendarId(
-    userId: string, 
-    calendarId: string, 
+    userId: string,
+    calendarId: string,
     options: CalendarListOptions = {}
   ) {
     try {
       const graphClient = await this.createGraphClient(userId);
-      
+
       // Build query parameters
       const queryParams: string[] = [];
-      
+
       if (options.startTime && options.endTime) {
-        queryParams.push(`$filter=start/dateTime ge '${options.startTime}' and end/dateTime le '${options.endTime}'`);
+        queryParams.push(
+          `$filter=start/dateTime ge '${options.startTime}' and end/dateTime le '${options.endTime}'`
+        );
       }
-      
+
       if (options.orderBy) {
-        queryParams.push(`$orderby=${options.orderBy === 'start' ? 'start/dateTime' : 'lastModifiedDateTime'}`);
+        queryParams.push(
+          `$orderby=${options.orderBy === 'start' ? 'start/dateTime' : 'lastModifiedDateTime'}`
+        );
       }
-      
+
       if (options.maxResults) {
         queryParams.push(`$top=${options.maxResults}`);
       }
 
-      const endpoint = queryParams.length > 0 
-        ? `${GRAPH_ENDPOINTS.CALENDAR_EVENTS(calendarId)}?${queryParams.join('&')}`
-        : GRAPH_ENDPOINTS.CALENDAR_EVENTS(calendarId);
+      const endpoint =
+        queryParams.length > 0
+          ? `${GRAPH_ENDPOINTS.CALENDAR_EVENTS(calendarId)}?${queryParams.join('&')}`
+          : GRAPH_ENDPOINTS.CALENDAR_EVENTS(calendarId);
 
       const events = await graphClient.api(endpoint).get();
 
       return events;
     } catch (error) {
-      this.logger.error("Error fetching calendar events by calendar ID:", error);
+      this.logger.error('Error fetching calendar events by calendar ID:', error);
       throw error;
     }
   }
@@ -504,18 +502,19 @@ export class GraphService {
       isAllDay?: boolean;
       categories?: string[];
     }>,
-    calendarId = "primary"
+    calendarId = 'primary'
   ) {
     const startTime = performance.now();
-    
+
     try {
-      this.logger.debug(
-        `Batch creating ${events.length} calendar events for user ${userId}`,
-        { userId, calendarId, eventCount: events.length },
-      );
+      this.logger.debug(`Batch creating ${events.length} calendar events for user ${userId}`, {
+        userId,
+        calendarId,
+        eventCount: events.length,
+      });
 
       const graphClient = await this.createGraphClient(userId);
-      
+
       // Prepare batch requests
       const batchRequests = events.map((eventData, index) => {
         const event: CalendarEvent = {
@@ -544,7 +543,7 @@ export class GraphService {
         return {
           id: `${index + 1}`,
           method: 'POST',
-          url: calendarId === "primary" ? '/me/events' : `/me/calendars/${calendarId}/events`,
+          url: calendarId === 'primary' ? '/me/events' : `/me/calendars/${calendarId}/events`,
           body: event,
           headers: {
             'Content-Type': 'application/json',
@@ -576,7 +575,7 @@ export class GraphService {
           totalEvents: events.length,
           successCount,
           responseTimeMs: responseTime,
-        },
+        }
       );
 
       return {
@@ -586,17 +585,14 @@ export class GraphService {
       };
     } catch (error) {
       const responseTime = performance.now() - startTime;
-      
-      this.logger.error(
-        `Error batch creating calendar events for user ${userId}:`,
-        {
-          userId,
-          calendarId,
-          eventCount: events.length,
-          error: error.message,
-          responseTimeMs: responseTime,
-        },
-      );
+
+      this.logger.error(`Error batch creating calendar events for user ${userId}:`, {
+        userId,
+        calendarId,
+        eventCount: events.length,
+        error: error.message,
+        responseTimeMs: responseTime,
+      });
 
       throw error;
     }
@@ -609,48 +605,52 @@ export class GraphService {
     userId: string,
     eventId: string,
     message?: string,
-    calendarId = "primary"
+    calendarId = 'primary'
   ) {
     try {
-      this.logger.debug(
-        `Sending meeting invitation for event ${eventId}`,
-        { userId, eventId, calendarId },
-      );
+      this.logger.debug(`Sending meeting invitation for event ${eventId}`, {
+        userId,
+        eventId,
+        calendarId,
+      });
 
       const graphClient = await this.createGraphClient(userId);
-      
+
       // Get the event first to ensure it exists
-      const eventEndpoint = calendarId === "primary" 
-        ? GRAPH_ENDPOINTS.EVENT(eventId)
-        : GRAPH_ENDPOINTS.CALENDAR_EVENT(calendarId, eventId);
-      
+      const eventEndpoint =
+        calendarId === 'primary'
+          ? GRAPH_ENDPOINTS.EVENT(eventId)
+          : GRAPH_ENDPOINTS.CALENDAR_EVENT(calendarId, eventId);
+
       const event = await graphClient.api(eventEndpoint).get();
-      
+
       if (!event.attendees || event.attendees.length === 0) {
         throw new Error('Cannot send invitation: no attendees specified');
       }
 
       // Send invitation by updating the event with a comment
-      const response = await graphClient
-        .api(`${eventEndpoint}/forward`)
-        .post({
-          comment: message || 'Meeting invitation',
-          toRecipients: event.attendees.map(attendee => ({
-            emailAddress: attendee.emailAddress,
-          })),
-        });
+      const response = await graphClient.api(`${eventEndpoint}/forward`).post({
+        comment: message || 'Meeting invitation',
+        toRecipients: event.attendees.map(attendee => ({
+          emailAddress: attendee.emailAddress,
+        })),
+      });
 
-      this.logger.log(
-        `Successfully sent meeting invitation for event ${eventId}`,
-        { userId, eventId, calendarId, attendeeCount: event.attendees.length },
-      );
+      this.logger.log(`Successfully sent meeting invitation for event ${eventId}`, {
+        userId,
+        eventId,
+        calendarId,
+        attendeeCount: event.attendees.length,
+      });
 
       return response;
     } catch (error) {
-      this.logger.error(
-        `Error sending meeting invitation for event ${eventId}:`,
-        { userId, eventId, calendarId, error: error.message },
-      );
+      this.logger.error(`Error sending meeting invitation for event ${eventId}:`, {
+        userId,
+        eventId,
+        calendarId,
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -658,34 +658,38 @@ export class GraphService {
   /**
    * Get calendar permissions and sharing settings
    */
-  async getCalendarPermissions(userId: string, calendarId = "primary") {
+  async getCalendarPermissions(userId: string, calendarId = 'primary') {
     try {
-      this.logger.debug(
-        `Getting calendar permissions for calendar ${calendarId}`,
-        { userId, calendarId },
-      );
+      this.logger.debug(`Getting calendar permissions for calendar ${calendarId}`, {
+        userId,
+        calendarId,
+      });
 
       const graphClient = await this.createGraphClient(userId);
-      
-      const endpoint = calendarId === "primary"
-        ? '/me/calendar/calendarPermissions'
-        : `/me/calendars/${calendarId}/calendarPermissions`;
+
+      const endpoint =
+        calendarId === 'primary'
+          ? '/me/calendar/calendarPermissions'
+          : `/me/calendars/${calendarId}/calendarPermissions`;
 
       const permissions = await graphClient.api(endpoint).get();
 
       return permissions;
     } catch (error) {
-      this.logger.error(
-        `Error getting calendar permissions for calendar ${calendarId}:`,
-        { userId, calendarId, error: error.message },
-      );
-      
+      this.logger.error(`Error getting calendar permissions for calendar ${calendarId}:`, {
+        userId,
+        calendarId,
+        error: error.message,
+      });
+
       // Handle case where permissions endpoint is not available
       if (error.code === 'NotFound' || error.code === 'BadRequest') {
-        this.logger.warn('Calendar permissions endpoint not available, returning empty permissions');
+        this.logger.warn(
+          'Calendar permissions endpoint not available, returning empty permissions'
+        );
         return { value: [] };
       }
-      
+
       throw error;
     }
   }
@@ -697,19 +701,22 @@ export class GraphService {
     userId: string,
     recipientEmail: string,
     permission: 'read' | 'write' | 'owner' = 'read',
-    calendarId = "primary"
+    calendarId = 'primary'
   ) {
     try {
-      this.logger.debug(
-        `Sharing calendar ${calendarId} with ${recipientEmail}`,
-        { userId, calendarId, recipientEmail, permission },
-      );
+      this.logger.debug(`Sharing calendar ${calendarId} with ${recipientEmail}`, {
+        userId,
+        calendarId,
+        recipientEmail,
+        permission,
+      });
 
       const graphClient = await this.createGraphClient(userId);
-      
-      const endpoint = calendarId === "primary"
-        ? '/me/calendar/calendarPermissions'
-        : `/me/calendars/${calendarId}/calendarPermissions`;
+
+      const endpoint =
+        calendarId === 'primary'
+          ? '/me/calendar/calendarPermissions'
+          : `/me/calendars/${calendarId}/calendarPermissions`;
 
       const permissionData = {
         emailAddress: {
@@ -717,23 +724,29 @@ export class GraphService {
         },
         isRemovable: true,
         isInsideOrganization: false,
-        role: permission === 'read' ? 'limitedDetails' : permission === 'write' ? 'readWrite' : 'owner',
+        role:
+          permission === 'read' ? 'limitedDetails' : permission === 'write' ? 'readWrite' : 'owner',
       };
 
       const result = await graphClient.api(endpoint).post(permissionData);
 
-      this.logger.log(
-        `Successfully shared calendar ${calendarId} with ${recipientEmail}`,
-        { userId, calendarId, recipientEmail, permission },
-      );
+      this.logger.log(`Successfully shared calendar ${calendarId} with ${recipientEmail}`, {
+        userId,
+        calendarId,
+        recipientEmail,
+        permission,
+      });
 
       return result;
     } catch (error) {
-      this.logger.error(
-        `Error sharing calendar ${calendarId} with ${recipientEmail}:`,
-        { userId, calendarId, recipientEmail, permission, error: error.message },
-      );
-      
+      this.logger.error(`Error sharing calendar ${calendarId} with ${recipientEmail}:`, {
+        userId,
+        calendarId,
+        recipientEmail,
+        permission,
+        error: error.message,
+      });
+
       throw error;
     }
   }
@@ -744,20 +757,22 @@ export class GraphService {
   async getEventAttendeeResponses(
     userId: string,
     eventId: string,
-    calendarId = "primary"
+    calendarId = 'primary'
   ): Promise<AttendeeResponseStats> {
     try {
-      this.logger.debug(
-        `Getting attendee responses for event ${eventId}`,
-        { userId, eventId, calendarId },
-      );
+      this.logger.debug(`Getting attendee responses for event ${eventId}`, {
+        userId,
+        eventId,
+        calendarId,
+      });
 
       const graphClient = await this.createGraphClient(userId);
-      
-      const eventEndpoint = calendarId === "primary" 
-        ? GRAPH_ENDPOINTS.EVENT(eventId)
-        : GRAPH_ENDPOINTS.CALENDAR_EVENT(calendarId, eventId);
-      
+
+      const eventEndpoint =
+        calendarId === 'primary'
+          ? GRAPH_ENDPOINTS.EVENT(eventId)
+          : GRAPH_ENDPOINTS.CALENDAR_EVENT(calendarId, eventId);
+
       const event = await graphClient
         .api(eventEndpoint)
         .select('attendees,organizer,subject')
@@ -769,12 +784,13 @@ export class GraphService {
         declined: 0,
         tentative: 0,
         noResponse: 0,
-        attendees: event.attendees?.map(attendee => ({
-          email: attendee.emailAddress.address,
-          name: attendee.emailAddress.name,
-          response: attendee.status?.response || 'none',
-          responseTime: attendee.status?.time,
-        })) || [],
+        attendees:
+          event.attendees?.map(attendee => ({
+            email: attendee.emailAddress.address,
+            name: attendee.emailAddress.name,
+            response: attendee.status?.response || 'none',
+            responseTime: attendee.status?.time,
+          })) || [],
       };
 
       // Count responses
@@ -796,10 +812,12 @@ export class GraphService {
 
       return responseStats;
     } catch (error) {
-      this.logger.error(
-        `Error getting attendee responses for event ${eventId}:`,
-        { userId, eventId, calendarId, error: error.message },
-      );
+      this.logger.error(`Error getting attendee responses for event ${eventId}:`, {
+        userId,
+        eventId,
+        calendarId,
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -818,48 +836,53 @@ export class GraphService {
     }
   ) {
     try {
-      this.logger.debug(
-        `Finding meeting times for ${attendees.length} attendees`,
-        { userId, attendees: attendees.length, duration },
-      );
+      this.logger.debug(`Finding meeting times for ${attendees.length} attendees`, {
+        userId,
+        attendees: attendees.length,
+        duration,
+      });
 
       const graphClient = await this.createGraphClient(userId);
-      
+
       const requestBody = {
         attendees: attendees.map(email => ({
-          emailAddress: { address: email }
+          emailAddress: { address: email },
         })),
         timeConstraint: {
-          timeslots: [{
-            start: {
-              dateTime: timeConstraints?.startTime || new Date().toISOString(),
-              timeZone: DEFAULT_CONFIG.timeZone,
+          timeslots: [
+            {
+              start: {
+                dateTime: timeConstraints?.startTime || new Date().toISOString(),
+                timeZone: DEFAULT_CONFIG.timeZone,
+              },
+              end: {
+                dateTime:
+                  timeConstraints?.endTime ||
+                  new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                timeZone: DEFAULT_CONFIG.timeZone,
+              },
             },
-            end: {
-              dateTime: timeConstraints?.endTime || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-              timeZone: DEFAULT_CONFIG.timeZone,
-            }
-          }]
+          ],
         },
         meetingDuration: `PT${duration}M`,
         maxCandidates: timeConstraints?.maxCandidates || 20,
       };
 
-      const response = await graphClient
-        .api(GRAPH_ENDPOINTS.FIND_MEETING_TIMES)
-        .post(requestBody);
+      const response = await graphClient.api(GRAPH_ENDPOINTS.FIND_MEETING_TIMES).post(requestBody);
 
       this.logger.log(
         `Found ${response.meetingTimeSuggestions?.length || 0} meeting time suggestions`,
-        { userId, attendees: attendees.length, duration },
+        { userId, attendees: attendees.length, duration }
       );
 
       return response;
     } catch (error) {
-      this.logger.error(
-        `Error finding meeting times:`,
-        { userId, attendees: attendees.length, duration, error: error.message },
-      );
+      this.logger.error(`Error finding meeting times:`, {
+        userId,
+        attendees: attendees.length,
+        duration,
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -875,13 +898,15 @@ export class GraphService {
     intervalInMinutes = 30
   ) {
     try {
-      this.logger.debug(
-        `Getting free/busy info for ${attendees.length} attendees`,
-        { userId, attendees: attendees.length, startTime, endTime },
-      );
+      this.logger.debug(`Getting free/busy info for ${attendees.length} attendees`, {
+        userId,
+        attendees: attendees.length,
+        startTime,
+        endTime,
+      });
 
       const graphClient = await this.createGraphClient(userId);
-      
+
       const requestBody = {
         schedules: attendees,
         startTime: {
@@ -895,21 +920,20 @@ export class GraphService {
         availabilityViewInterval: intervalInMinutes,
       };
 
-      const response = await graphClient
-        .api(GRAPH_ENDPOINTS.GET_SCHEDULE)
-        .post(requestBody);
+      const response = await graphClient.api(GRAPH_ENDPOINTS.GET_SCHEDULE).post(requestBody);
 
-      this.logger.log(
-        `Retrieved free/busy info for ${response.value?.length || 0} attendees`,
-        { userId, attendees: attendees.length },
-      );
+      this.logger.log(`Retrieved free/busy info for ${response.value?.length || 0} attendees`, {
+        userId,
+        attendees: attendees.length,
+      });
 
       return response;
     } catch (error) {
-      this.logger.error(
-        `Error getting free/busy info:`,
-        { userId, attendees: attendees.length, error: error.message },
-      );
+      this.logger.error(`Error getting free/busy info:`, {
+        userId,
+        attendees: attendees.length,
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -924,57 +948,74 @@ export class GraphService {
     options: EnhancedCalendarOptions = {}
   ) {
     try {
-      this.logger.debug(
-        `Getting calendar view from ${startTime} to ${endTime}`,
-        { userId, startTime, endTime, options },
-      );
+      this.logger.debug(`Getting calendar view from ${startTime} to ${endTime}`, {
+        userId,
+        startTime,
+        endTime,
+        options,
+      });
 
       const graphClient = await this.createGraphClient(userId);
-      
+
       // Build query parameters
       const queryParams: string[] = [];
-      
+
       queryParams.push(`startDateTime=${encodeURIComponent(startTime)}`);
       queryParams.push(`endDateTime=${encodeURIComponent(endTime)}`);
-      
+
       if (options.maxResults) {
         queryParams.push(`$top=${options.maxResults}`);
       }
-      
+
       if (options.orderBy) {
-        queryParams.push(`$orderby=${options.orderBy === 'start' ? 'start/dateTime' : 'lastModifiedDateTime'}`);
+        queryParams.push(
+          `$orderby=${options.orderBy === 'start' ? 'start/dateTime' : 'lastModifiedDateTime'}`
+        );
       }
 
       // Select specific fields for efficiency
       const selectFields = [
-        'id', 'subject', 'start', 'end', 'location', 'isAllDay', 'showAs', 
-        'importance', 'sensitivity', 'categories', 'organizer'
+        'id',
+        'subject',
+        'start',
+        'end',
+        'location',
+        'isAllDay',
+        'showAs',
+        'importance',
+        'sensitivity',
+        'categories',
+        'organizer',
       ];
-      
+
       if (options.includeAttendees) {
         selectFields.push('attendees');
       }
-      
+
       if (options.includeRecurrence) {
         selectFields.push('recurrence');
       }
-      
+
       queryParams.push(`$select=${selectFields.join(',')}`);
 
       const endpoint = `${GRAPH_ENDPOINTS.CALENDAR_VIEW}?${queryParams.join('&')}`;
       const response = await graphClient.api(endpoint).get();
 
-      this.logger.log(
-        `Retrieved ${response.value?.length || 0} events from calendar view`,
-        { userId, startTime, endTime, eventCount: response.value?.length || 0 },
-      );
+      this.logger.log(`Retrieved ${response.value?.length || 0} events from calendar view`, {
+        userId,
+        startTime,
+        endTime,
+        eventCount: response.value?.length || 0,
+      });
 
       return response;
     } catch (error) {
-      this.logger.error(
-        `Error getting calendar view:`,
-        { userId, startTime, endTime, error: error.message },
-      );
+      this.logger.error(`Error getting calendar view:`, {
+        userId,
+        startTime,
+        endTime,
+        error: error.message,
+      });
       throw error;
     }
   }

@@ -7,7 +7,8 @@ const mockUser = {
   id: '1',
   name: 'Sarah Chen',
   email: 'sarah.chen@example.com',
-  avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b1fd?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facepad&facepad=2&w=256&h=256&q=80',
+  avatar:
+    'https://images.unsplash.com/photo-1494790108755-2616b612b1fd?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facepad&facepad=2&w=256&h=256&q=80',
 };
 
 const mockUserWithoutAvatar = {
@@ -20,24 +21,20 @@ const mockUserWithoutAvatar = {
 const SampleContent = () => (
   <div className="p-6 space-y-6">
     <div>
-      <h1 className="text-2xl font-bold text-text-primary mb-2">
-        Dashboard Overview
-      </h1>
+      <h1 className="text-2xl font-bold text-text-primary mb-2">Dashboard Overview</h1>
       <p className="text-text-secondary">
-        Welcome to your personal productivity dashboard. Here you can manage tasks, 
-        projects, and track your daily progress with ADHD-friendly tools.
+        Welcome to your personal productivity dashboard. Here you can manage tasks, projects, and
+        track your daily progress with ADHD-friendly tools.
       </p>
     </div>
-    
+
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {[1, 2, 3, 4, 5, 6].map((item) => (
+      {[1, 2, 3, 4, 5, 6].map(item => (
         <div
           key={item}
           className="p-4 bg-background-secondary rounded-lg border border-border-primary"
         >
-          <h3 className="font-semibold text-text-primary mb-2">
-            Task Card {item}
-          </h3>
+          <h3 className="font-semibold text-text-primary mb-2">Task Card {item}</h3>
           <p className="text-sm text-text-secondary">
             Sample task content with priority indicators and time estimates.
           </p>
@@ -52,7 +49,7 @@ const SampleContent = () => (
         </div>
       ))}
     </div>
-    
+
     <div className="h-96 bg-background-muted rounded-lg flex items-center justify-center">
       <p className="text-text-secondary">Sample content area for testing scroll behavior</p>
     </div>
@@ -245,12 +242,10 @@ export const MinimalContent: Story = {
   args: {
     children: (
       <div className="p-6">
-        <h1 className="text-2xl font-bold text-text-primary mb-4">
-          Minimal Content
-        </h1>
+        <h1 className="text-2xl font-bold text-text-primary mb-4">Minimal Content</h1>
         <p className="text-text-secondary">
-          This story demonstrates the AppShell with minimal content to test
-          the layout behavior when there&apos;s not much to display.
+          This story demonstrates the AppShell with minimal content to test the layout behavior when
+          there&apos;s not much to display.
         </p>
       </div>
     ),
@@ -273,7 +268,8 @@ export const AllPanelsOpen: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Tests the layout when all panels are visible, useful for checking spacing and interaction patterns.',
+        story:
+          'Tests the layout when all panels are visible, useful for checking spacing and interaction patterns.',
       },
     },
   },
@@ -286,17 +282,27 @@ export const AccessibilityTest: Story = {
   args: {
     children: (
       <div className="p-6 space-y-4">
-        <h1 className="text-2xl font-bold text-text-primary">
-          Accessibility Testing
-        </h1>
+        <h1 className="text-2xl font-bold text-text-primary">Accessibility Testing</h1>
         <p className="text-text-secondary">
           Use Tab to navigate through the interface. Try these keyboard shortcuts:
         </p>
         <ul className="list-disc list-inside space-y-2 text-text-secondary">
-          <li><kbd className="bg-background-muted px-2 py-1 rounded text-sm">Ctrl/Cmd + B</kbd> - Toggle sidebar</li>
-          <li><kbd className="bg-background-muted px-2 py-1 rounded text-sm">Ctrl/Cmd + I</kbd> - Toggle AI panel</li>
-          <li><kbd className="bg-background-muted px-2 py-1 rounded text-sm">Escape</kbd> - Close AI panel</li>
-          <li><kbd className="bg-background-muted px-2 py-1 rounded text-sm">Tab</kbd> - Navigate between elements</li>
+          <li>
+            <kbd className="bg-background-muted px-2 py-1 rounded text-sm">Ctrl/Cmd + B</kbd> -
+            Toggle sidebar
+          </li>
+          <li>
+            <kbd className="bg-background-muted px-2 py-1 rounded text-sm">Ctrl/Cmd + I</kbd> -
+            Toggle AI panel
+          </li>
+          <li>
+            <kbd className="bg-background-muted px-2 py-1 rounded text-sm">Escape</kbd> - Close AI
+            panel
+          </li>
+          <li>
+            <kbd className="bg-background-muted px-2 py-1 rounded text-sm">Tab</kbd> - Navigate
+            between elements
+          </li>
         </ul>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
           <button className="p-4 text-left bg-background-secondary rounded-lg border border-border-primary hover:bg-background-muted transition-colors focus:outline-none focus:ring-2 focus:ring-focus">
@@ -317,7 +323,8 @@ export const AccessibilityTest: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Interactive story for testing accessibility features including keyboard navigation, focus management, and screen reader compatibility.',
+        story:
+          'Interactive story for testing accessibility features including keyboard navigation, focus management, and screen reader compatibility.',
       },
     },
   },

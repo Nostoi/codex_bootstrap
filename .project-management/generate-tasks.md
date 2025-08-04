@@ -1,4 +1,3 @@
-
 # Rule: Generating a Task List from a PRD
 
 ## Goal
@@ -8,8 +7,8 @@ To guide an AI assistant in creating a detailed, step-by-step task list in Markd
 ## Output
 
 - **Format:** Markdown (`.md`)
-- **Location:** `/.project-management/current-prd/` 
-- **Filename:** `tasks-[prd-file-name].md` (e.g., `tasks-prd-user-profile-editing.md`)` 
+- **Location:** `/.project-management/current-prd/`
+- **Filename:** `tasks-[prd-file-name].md` (e.g., `tasks-prd-user-profile-editing.md`)`
 
 ## Process
 
@@ -28,15 +27,22 @@ The generated task list _must_ follow this structure:
 
 ```markdown
 ## Pre-Feature Development Project Tree
-- Use command line tools to get current project tree view, ommitting any directory that starts with `.` or verbose nested directories like venv, etc...  
+
+- Use command line tools to get current project tree view, ommitting any directory that starts with `.` or verbose nested directories like venv, etc...
+
 ## Relevant Files
-- Reference *existing* project files here
+
+- Reference _existing_ project files here
+
 ### Proposed New Files
+
 - `path/to/potential/file1.ts` - Brief description of why this file is relevant (e.g., Contains the main component for this feature).
 - `path/to/file1.test.ts` - Unit tests for `file1.ts`.
 - `path/to/another/file.tsx` - Brief description (e.g., API route handler for data submission).
 - `path/to/another/file.test.tsx` - Unit tests for `another/file.tsx`.
+
 ### Existing Files Modified
+
 - `lib/utils/helpers.ts` - Brief description (e.g., Utility functions needed for calculations).
 - `lib/utils/helpers.test.ts` - Unit tests for `helpers.ts`.
 
@@ -53,7 +59,7 @@ The generated task list _must_ follow this structure:
 - **External APIs**: Leverage Microsoft Graph and Google APIs SDKs for integration features.
 - Unit tests should typically be placed alongside the code files they are testing (e.g., `MyComponent.tsx` and `MyComponent.test.tsx` in the same directory).
 - `dev_init.sh` - This file is used by the user install dependencies and start backend/frontend for local dev. For tasks that add systems like databases, or third party components that need more nuanced installation above and beyond npm, update this script such that it leads to a full deployment in the local environment.
-- `.codex/install.sh` - This file stores the environment initialization script that sets up the sandbox environment for the Codex agent.  Generally, if the codex coding agent needs environment with systems like databases (as set up in `dev_init.sh`) that setup can be added here.
+- `.codex/install.sh` - This file stores the environment initialization script that sets up the sandbox environment for the Codex agent. Generally, if the codex coding agent needs environment with systems like databases (as set up in `dev_init.sh`) that setup can be added here.
 - `frontend/package.json`,`backend/package.json` - For any task that adds new dependencies, update these files.
 - Summarize Design and Technology considerations from the PRD not specifically referenced in tasks.
 
@@ -65,7 +71,7 @@ The generated task list _must_ follow this structure:
 - [ ] 2.0 Parent Task Title
   - [ ] 2.1 [Sub-task description 2.1]
 - [ ] 3.0 Parent Task Title (may not require sub-tasks if purely structural or configuration)
-*End of document*
+      _End of document_
 ```
 
 ## Interaction Model

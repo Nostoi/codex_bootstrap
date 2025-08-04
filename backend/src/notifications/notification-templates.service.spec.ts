@@ -1,6 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Logger } from '@nestjs/common';
-import { NotificationTemplatesService, TemplateContext, UserContext, TaskContext } from './notification-templates.service';
+import {
+  NotificationTemplatesService,
+  TemplateContext,
+  UserContext,
+  TaskContext,
+} from './notification-templates.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { EnergyLevel, FocusType, TaskStatus } from '@prisma/client';
 
@@ -83,7 +88,7 @@ describe('NotificationTemplatesService', () => {
 
     it('should generate personalized task-update message', async () => {
       const result = await service.generateMessage('task-update', mockTemplateContext);
-      
+
       expect(result).toContain('John Doe');
       expect(result).toContain('Complete project documentation');
       expect(result).toContain('was updated'); // Generic update message
@@ -95,9 +100,9 @@ describe('NotificationTemplatesService', () => {
         ...mockTemplateContext,
         task: { ...mockTaskContext, status: TaskStatus.TODO },
       };
-      
+
       const result = await service.generateMessage('task-created', context);
-      
+
       expect(result).toContain('John Doe');
       expect(result).toContain('Complete project documentation');
       expect(result).toContain('🎨 Creative Work'); // Focus type formatting
@@ -113,9 +118,9 @@ describe('NotificationTemplatesService', () => {
           dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Due tomorrow
         },
       };
-      
+
       const result = await service.generateMessage('deadline-reminder', context);
-      
+
       expect(result).toContain('John Doe');
       expect(result).toContain('Complete project documentation');
       expect(result).toContain('📅'); // Deadline reminder emoji
@@ -127,29 +132,29 @@ describe('NotificationTemplatesService', () => {
         ...mockTemplateContext,
         user: { ...mockUserContext, name: undefined },
       };
-      
+
       const result = await service.generateMessage('task-update', contextWithoutName);
-      
+
       expect(result).toBeTruthy();
       expect(result).not.toContain('undefined');
     });
 
     it('should fallback to basic message on template error', async () => {
       const result = await service.generateMessage('nonexistent-template', mockTemplateContext);
-      
+
       expect(result).toBe('Notification: nonexistent-template');
     });
 
     it('should generate fallback message format', async () => {
       const result = await service.generateMessage('task-update', mockTemplateContext, 'fallback');
-      
+
       expect(result).toContain('Complete project documentation');
       expect(result).toContain('was updated');
     });
 
     it('should generate subject line format', async () => {
       const result = await service.generateMessage('task-created', mockTemplateContext, 'subject');
-      
+
       expect(result).toContain('John Doe');
       expect(result).toContain('Complete project documentation');
       expect(result).toContain('ready');
@@ -232,19 +237,27 @@ describe('NotificationTemplatesService', () => {
 
     it('should generate appropriate encouragement based on progress', () => {
       const service_any = service as any;
-      
+
       expect(service_any.generateEncouragement(8, 10, EnergyLevel.HIGH)).toContain('crushing it');
-      expect(service_any.generateEncouragement(5, 10, EnergyLevel.MEDIUM)).toContain('Great progress');
-      expect(service_any.generateEncouragement(2, 10, EnergyLevel.LOW)).toContain('Every step counts');
-      expect(service_any.generateEncouragement(0, 5, EnergyLevel.LOW)).toContain('one step at a time');
+      expect(service_any.generateEncouragement(5, 10, EnergyLevel.MEDIUM)).toContain(
+        'Great progress'
+      );
+      expect(service_any.generateEncouragement(2, 10, EnergyLevel.LOW)).toContain(
+        'Every step counts'
+      );
+      expect(service_any.generateEncouragement(0, 5, EnergyLevel.LOW)).toContain(
+        'one step at a time'
+      );
     });
 
     it('should generate energy-appropriate motivation', () => {
       const service_any = service as any;
-      
+
       expect(service_any.generateMotivation(EnergyLevel.HIGH, 'morning')).toContain('high energy');
       expect(service_any.generateMotivation(EnergyLevel.LOW, 'morning')).toContain('gentle');
-      expect(service_any.generateMotivation(EnergyLevel.MEDIUM, 'evening')).toContain('Planning ahead');
+      expect(service_any.generateMotivation(EnergyLevel.MEDIUM, 'evening')).toContain(
+        'Planning ahead'
+      );
     });
   });
 
@@ -267,7 +280,7 @@ describe('NotificationTemplatesService', () => {
       const invalidContext = null as any;
 
       const result = await service.generateMessage('task-update', invalidContext);
-      
+
       expect(result).toContain('Task');
       expect(result).toContain('updated');
     });

@@ -58,19 +58,24 @@ const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({
     >
       {/* Error Icon */}
       <div className="w-16 h-16 mx-auto mb-4 text-red-400">
-        <svg fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+        <svg
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
           <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       </div>
 
       {/* Error Message */}
-      <h2 className="text-xl font-semibold text-red-800 mb-2">
-        Something went wrong
-      </h2>
-      
-              <p className="text-gray-600 mb-6">
-          We apologize for the inconvenience. Something didn&apos;t go as expected.
-        </p>
+      <h2 className="text-xl font-semibold text-red-800 mb-2">Something went wrong</h2>
+
+      <p className="text-gray-600 mb-6">
+        We apologize for the inconvenience. Something didn&apos;t go as expected.
+      </p>
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-3">
@@ -84,10 +89,11 @@ const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({
         >
           Try Again
         </button>
-        
+
         <button
           onClick={() => {
-            if (typeof window !== 'undefined') { // SSR check
+            if (typeof window !== 'undefined') {
+              // SSR check
               window.location.reload();
             }
           }}
@@ -112,7 +118,7 @@ const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({
             <pre className="text-xs text-red-700 whitespace-pre-wrap break-words mb-4">
               {error.message}
             </pre>
-            
+
             {error.stack && (
               <>
                 <h3 className="text-sm font-semibold text-red-800 mb-2">Stack Trace:</h3>
@@ -121,7 +127,7 @@ const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({
                 </pre>
               </>
             )}
-            
+
             {errorInfo?.componentStack && (
               <>
                 <h3 className="text-sm font-semibold text-red-800 mb-2">Component Stack:</h3>
@@ -139,7 +145,7 @@ const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({
 
 /**
  * Error Boundary Component - Catches JavaScript errors in component tree
- * 
+ *
  * Features:
  * - Catches and displays errors gracefully
  * - Custom fallback UI support
@@ -199,7 +205,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   render(): ReactNode {
     if (this.state.hasError) {
       const FallbackComponent = this.props.fallback || DefaultErrorFallback;
-      
+
       return (
         <div className={this.props.className}>
           <FallbackComponent
@@ -242,7 +248,7 @@ export const withErrorBoundary = <P extends object>(
   );
 
   WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name})`;
-  
+
   return WrappedComponent;
 };
 
@@ -281,19 +287,25 @@ export class NetworkError extends Error {
 export const NetworkErrorFallback: React.FC<ErrorFallbackProps> = ({ resetError }) => (
   <div className="min-h-64 flex flex-col items-center justify-center p-8 text-center bg-yellow-50 border border-yellow-200 rounded-lg">
     <div className="w-16 h-16 mx-auto mb-4 text-yellow-400">
-      <svg fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+      <svg
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
         <path d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
       </svg>
     </div>
-    
-    <h2 className="text-xl font-semibold text-yellow-800 mb-2">
-      Connection Problem
-    </h2>
-    
+
+    <h2 className="text-xl font-semibold text-yellow-800 mb-2">Connection Problem</h2>
+
     <p className="text-yellow-600 mb-6 max-w-md">
-      We&apos;re having trouble connecting to our servers. Please check your internet connection and try again.
+      We&apos;re having trouble connecting to our servers. Please check your internet connection and
+      try again.
     </p>
-    
+
     <button
       onClick={resetError}
       className="px-4 py-2 text-sm font-medium text-white bg-yellow-600 border border-yellow-600 rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
@@ -338,9 +350,9 @@ export const PageErrorBoundary: React.FC<{ children: ReactNode }> = ({ children 
 /**
  * Component-level Error Boundary (for smaller components)
  */
-export const ComponentErrorBoundary: React.FC<{ children: ReactNode; name?: string }> = ({ 
-  children, 
-  name = 'Component' 
+export const ComponentErrorBoundary: React.FC<{ children: ReactNode; name?: string }> = ({
+  children,
+  name = 'Component',
 }) => (
   <ErrorBoundary
     fallback={MinimalErrorFallback}

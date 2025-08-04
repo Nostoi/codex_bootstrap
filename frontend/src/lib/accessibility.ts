@@ -1,6 +1,6 @@
 /**
  * Accessibility utilities for WCAG 2.2 AA compliance and ADHD-friendly interfaces
- * 
+ *
  * This module provides comprehensive accessibility support including:
  * - Keyboard navigation management
  * - Focus management and indicators
@@ -22,7 +22,7 @@ export const ARIA_ROLES = {
   complementary: 'complementary',
   region: 'region',
   search: 'search',
-  
+
   // Widget roles
   button: 'button',
   link: 'link',
@@ -32,7 +32,7 @@ export const ARIA_ROLES = {
   option: 'option',
   tab: 'tab',
   tabpanel: 'tabpanel',
-  
+
   // Composite roles
   menu: 'menu',
   menubar: 'menubar',
@@ -42,7 +42,7 @@ export const ARIA_ROLES = {
   gridcell: 'gridcell',
   tree: 'tree',
   treeitem: 'treeitem',
-  
+
   // Document structure roles
   article: 'article',
   document: 'document',
@@ -50,13 +50,13 @@ export const ARIA_ROLES = {
   heading: 'heading',
   list: 'list',
   listitem: 'listitem',
-  
+
   // Live region roles
   alert: 'alert',
   log: 'log',
   status: 'status',
   timer: 'timer',
-  
+
   // Calendar-specific roles
   calendar: 'calendar',
   calendarday: 'calendarday',
@@ -137,8 +137,9 @@ export class FocusTrap {
       '[contenteditable="true"]',
     ].join(', ');
 
-    return Array.from(this.container.querySelectorAll(focusableSelectors))
-      .filter(el => !el.hasAttribute('aria-hidden')) as HTMLElement[];
+    return Array.from(this.container.querySelectorAll(focusableSelectors)).filter(
+      el => !el.hasAttribute('aria-hidden')
+    ) as HTMLElement[];
   }
 
   private handleKeyDown = (event: KeyboardEvent) => {
@@ -283,12 +284,9 @@ export class LiveAnnouncer {
 export function useLiveAnnouncer() {
   const announcer = useRef(LiveAnnouncer.getInstance());
 
-  const announce = useCallback(
-    (message: string, priority: 'polite' | 'assertive' = 'polite') => {
-      announcer.current.announce(message, priority);
-    },
-    []
-  );
+  const announce = useCallback((message: string, priority: 'polite' | 'assertive' = 'polite') => {
+    announcer.current.announce(message, priority);
+  }, []);
 
   return { announce };
 }
@@ -311,11 +309,13 @@ export class KeyboardNavigator {
   private wrap = true;
   private onSelectionChange?: (item: NavigationItem) => void;
 
-  constructor(options: {
-    orientation?: 'horizontal' | 'vertical' | 'both';
-    wrap?: boolean;
-    onSelectionChange?: (item: NavigationItem) => void;
-  } = {}) {
+  constructor(
+    options: {
+      orientation?: 'horizontal' | 'vertical' | 'both';
+      wrap?: boolean;
+      onSelectionChange?: (item: NavigationItem) => void;
+    } = {}
+  ) {
     this.orientation = options.orientation || 'vertical';
     this.wrap = options.wrap ?? true;
     this.onSelectionChange = options.onSelectionChange;
@@ -445,11 +445,13 @@ export class KeyboardNavigator {
 /**
  * React hook for keyboard navigation
  */
-export function useKeyboardNavigation(options: {
-  orientation?: 'horizontal' | 'vertical' | 'both';
-  wrap?: boolean;
-  onSelectionChange?: (item: NavigationItem) => void;
-} = {}) {
+export function useKeyboardNavigation(
+  options: {
+    orientation?: 'horizontal' | 'vertical' | 'both';
+    wrap?: boolean;
+    onSelectionChange?: (item: NavigationItem) => void;
+  } = {}
+) {
   const navigator = useRef(new KeyboardNavigator(options));
 
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
@@ -485,13 +487,15 @@ export const a11y = {
   /**
    * Button attributes with proper ARIA states
    */
-  button: (options: {
-    label?: string;
-    describedBy?: string;
-    expanded?: boolean;
-    pressed?: boolean;
-    disabled?: boolean;
-  } = {}) => ({
+  button: (
+    options: {
+      label?: string;
+      describedBy?: string;
+      expanded?: boolean;
+      pressed?: boolean;
+      disabled?: boolean;
+    } = {}
+  ) => ({
     role: ARIA_ROLES.button,
     'aria-label': options.label,
     'aria-describedby': options.describedBy,
@@ -504,10 +508,12 @@ export const a11y = {
   /**
    * Menu attributes for dropdown and context menus
    */
-  menu: (options: {
-    label?: string;
-    orientation?: 'horizontal' | 'vertical';
-  } = {}) => ({
+  menu: (
+    options: {
+      label?: string;
+      orientation?: 'horizontal' | 'vertical';
+    } = {}
+  ) => ({
     role: ARIA_ROLES.menu,
     'aria-label': options.label,
     'aria-orientation': options.orientation || 'vertical',
@@ -516,11 +522,13 @@ export const a11y = {
   /**
    * Menu item attributes
    */
-  menuitem: (options: {
-    label?: string;
-    disabled?: boolean;
-    selected?: boolean;
-  } = {}) => ({
+  menuitem: (
+    options: {
+      label?: string;
+      disabled?: boolean;
+      selected?: boolean;
+    } = {}
+  ) => ({
     role: ARIA_ROLES.menuitem,
     'aria-label': options.label,
     'aria-disabled': options.disabled,
@@ -531,11 +539,13 @@ export const a11y = {
   /**
    * Tab attributes for tab navigation
    */
-  tab: (options: {
-    selected?: boolean;
-    controls?: string;
-    label?: string;
-  } = {}) => ({
+  tab: (
+    options: {
+      selected?: boolean;
+      controls?: string;
+      label?: string;
+    } = {}
+  ) => ({
     role: ARIA_ROLES.tab,
     'aria-selected': options.selected,
     'aria-controls': options.controls,
@@ -546,10 +556,12 @@ export const a11y = {
   /**
    * Tab panel attributes
    */
-  tabpanel: (options: {
-    labelledBy?: string;
-    hidden?: boolean;
-  } = {}) => ({
+  tabpanel: (
+    options: {
+      labelledBy?: string;
+      hidden?: boolean;
+    } = {}
+  ) => ({
     role: ARIA_ROLES.tabpanel,
     'aria-labelledby': options.labelledBy,
     'aria-hidden': options.hidden,
@@ -559,12 +571,14 @@ export const a11y = {
   /**
    * Grid attributes for data tables and calendars
    */
-  grid: (options: {
-    label?: string;
-    rowCount?: number;
-    colCount?: number;
-    multiselectable?: boolean;
-  } = {}) => ({
+  grid: (
+    options: {
+      label?: string;
+      rowCount?: number;
+      colCount?: number;
+      multiselectable?: boolean;
+    } = {}
+  ) => ({
     role: ARIA_ROLES.grid,
     'aria-label': options.label,
     'aria-rowcount': options.rowCount,
@@ -575,12 +589,14 @@ export const a11y = {
   /**
    * Grid cell attributes
    */
-  gridcell: (options: {
-    rowIndex?: number;
-    colIndex?: number;
-    selected?: boolean;
-    label?: string;
-  } = {}) => ({
+  gridcell: (
+    options: {
+      rowIndex?: number;
+      colIndex?: number;
+      selected?: boolean;
+      label?: string;
+    } = {}
+  ) => ({
     role: ARIA_ROLES.gridcell,
     'aria-rowindex': options.rowIndex,
     'aria-colindex': options.colIndex,
@@ -592,11 +608,13 @@ export const a11y = {
   /**
    * Live region attributes for dynamic content
    */
-  liveRegion: (options: {
-    level?: 'polite' | 'assertive';
-    atomic?: boolean;
-    relevant?: string;
-  } = {}) => ({
+  liveRegion: (
+    options: {
+      level?: 'polite' | 'assertive';
+      atomic?: boolean;
+      relevant?: string;
+    } = {}
+  ) => ({
     'aria-live': options.level || 'polite',
     'aria-atomic': options.atomic,
     'aria-relevant': options.relevant || 'text',
@@ -607,7 +625,8 @@ export const a11y = {
    */
   skipLink: (targetId: string) => ({
     href: `#${targetId}`,
-    className: 'sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-md',
+    className:
+      'sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-md',
   }),
 };
 
@@ -766,10 +785,8 @@ export function initializeFocusVisible() {
  */
 export function announceFormError(message: string, fieldName?: string) {
   const announcer = LiveAnnouncer.getInstance();
-  const fullMessage = fieldName 
-    ? `Error in ${fieldName}: ${message}`
-    : `Error: ${message}`;
-  
+  const fullMessage = fieldName ? `Error in ${fieldName}: ${message}` : `Error: ${message}`;
+
   announcer.announce(fullMessage, 'assertive');
 }
 

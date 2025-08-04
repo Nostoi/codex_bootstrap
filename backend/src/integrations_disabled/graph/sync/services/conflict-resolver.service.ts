@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { 
-  ConflictInfo, 
+import {
+  ConflictInfo,
   ConflictResolutionStrategy,
   GraphCalendarEvent,
-  LocalCalendarEvent 
+  LocalCalendarEvent,
 } from '../types/calendar-sync.types';
 import { CalendarConflictType, CalendarConflictResolution } from '@prisma/client';
 
@@ -16,9 +16,7 @@ import { CalendarConflictType, CalendarConflictResolution } from '@prisma/client
 export class ConflictResolver {
   private readonly logger = new Logger(ConflictResolver.name);
 
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Detect conflicts between local and Graph events
@@ -39,7 +37,7 @@ export class ConflictResolver {
 
     if (localModified > lastSyncTime && graphModified > lastSyncTime) {
       // Both modified - check specific fields for conflicts
-      
+
       // Subject/Title conflict
       if (localEvent.subject !== graphEvent.subject) {
         conflicts.push(CalendarConflictType.TITLE);
@@ -141,7 +139,9 @@ export class ConflictResolver {
     resolution: CalendarConflictResolution;
     details: Record<string, any>;
   }> {
-    this.logger.log(`Auto-resolving conflict for event ${conflict.eventId} with strategy: ${strategy}`);
+    this.logger.log(
+      `Auto-resolving conflict for event ${conflict.eventId} with strategy: ${strategy}`
+    );
 
     let resolvedEvent: LocalCalendarEvent | GraphCalendarEvent;
     let resolution: CalendarConflictResolution;
@@ -271,21 +271,15 @@ export class ConflictResolver {
     remoteModified: Date
   ): ConflictResolutionStrategy {
     // If only time-based conflicts, suggest merge
-    const timeConflicts = [
-      CalendarConflictType.START_TIME,
-      CalendarConflictType.END_TIME,
-    ];
-    
+    const timeConflicts = [CalendarConflictType.START_TIME, CalendarConflictType.END_TIME];
+
     if (conflictTypes.every(type => timeConflicts.includes(type))) {
       return 'merge';
     }
 
     // If content conflicts (title, description), prefer latest
-    const contentConflicts = [
-      CalendarConflictType.TITLE,
-      CalendarConflictType.DESCRIPTION,
-    ];
-    
+    const contentConflicts = [CalendarConflictType.TITLE, CalendarConflictType.DESCRIPTION];
+
     if (conflictTypes.some(type => contentConflicts.includes(type))) {
       return 'prefer_latest';
     }
@@ -436,10 +430,13 @@ export class ConflictResolver {
       total,
       pending,
       resolved,
-      resolutionBreakdown: resolutionBreakdown.reduce((acc, item) => {
-        acc[item.resolution] = item._count;
-        return acc;
-      }, {} as Record<string, number>),
+      resolutionBreakdown: resolutionBreakdown.reduce(
+        (acc, item) => {
+          acc[item.resolution] = item._count;
+          return acc;
+        },
+        {} as Record<string, number>
+      ),
     };
   }
 }

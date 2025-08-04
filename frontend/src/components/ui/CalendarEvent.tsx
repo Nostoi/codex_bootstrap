@@ -38,13 +38,7 @@ export const CalendarEvent: React.FC<CalendarEventProps> = ({
   const [showTooltip, setShowTooltip] = useState(false);
 
   // Drag and drop setup
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    isDragging,
-  } = useDraggable({
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `calendar-event-${event.id}`,
     data: {
       type: 'calendar-event',
@@ -57,7 +51,7 @@ export const CalendarEvent: React.FC<CalendarEventProps> = ({
   const getEnergyLevelStyles = useCallback(() => {
     const energyLevel = event.energyLevel || 'MEDIUM';
     const colors = calendarTokens.colors.energyLevels[energyLevel];
-    
+
     return {
       backgroundColor: colors.secondary,
       borderLeftColor: colors.primary,
@@ -68,7 +62,7 @@ export const CalendarEvent: React.FC<CalendarEventProps> = ({
   // Get focus type styling
   const getFocusTypeStyles = useCallback(() => {
     if (!event.focusType) return {};
-    
+
     const colors = calendarTokens.colors.focusTypes[event.focusType];
     return {
       borderRightColor: colors.primary,
@@ -92,10 +86,10 @@ export const CalendarEvent: React.FC<CalendarEventProps> = ({
   // Format time display
   const formatTime = useCallback((dateTime: string) => {
     const date = new Date(dateTime);
-    return date.toLocaleTimeString([], { 
-      hour: '2-digit', 
+    return date.toLocaleTimeString([], {
+      hour: '2-digit',
       minute: '2-digit',
-      hour12: true 
+      hour12: true,
     });
   }, []);
 
@@ -104,7 +98,7 @@ export const CalendarEvent: React.FC<CalendarEventProps> = ({
     const start = new Date(event.startTime);
     const end = new Date(event.endTime);
     const diffMinutes = Math.round((end.getTime() - start.getTime()) / (1000 * 60));
-    
+
     if (diffMinutes < 60) {
       return `${diffMinutes}m`;
     } else {
@@ -115,20 +109,29 @@ export const CalendarEvent: React.FC<CalendarEventProps> = ({
   }, [event.startTime, event.endTime]);
 
   // Handle click events
-  const handleClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    onClick?.(event);
-  }, [onClick, event]);
+  const handleClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onClick?.(event);
+    },
+    [onClick, event]
+  );
 
-  const handleEdit = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    onEdit?.(event);
-  }, [onEdit, event]);
+  const handleEdit = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onEdit?.(event);
+    },
+    [onEdit, event]
+  );
 
-  const handleDelete = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDelete?.(event);
-  }, [onDelete, event]);
+  const handleDelete = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onDelete?.(event);
+    },
+    [onDelete, event]
+  );
 
   // Combine styles
   const combinedStyles = {
@@ -157,7 +160,9 @@ export const CalendarEvent: React.FC<CalendarEventProps> = ({
     isDragging ? 'shadow-lg scale-105' : 'shadow-sm',
     isHovered ? 'shadow-md scale-102' : '',
     className,
-  ].filter(Boolean).join(' ');
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <div
@@ -190,7 +195,7 @@ export const CalendarEvent: React.FC<CalendarEventProps> = ({
           <span className="text-xs flex-shrink-0" aria-label={`${event.source} calendar`}>
             {getSourceIcon()}
           </span>
-          
+
           {/* Event title */}
           <h4 className="font-medium truncate flex-1" title={event.title}>
             {event.title}
@@ -228,13 +233,11 @@ export const CalendarEvent: React.FC<CalendarEventProps> = ({
       {showTimeLabels && (
         <div className="flex items-center justify-between text-xs opacity-75">
           <span className="font-mono">
-            {event.isAllDay ? 'All day' : `${formatTime(event.startTime)} - ${formatTime(event.endTime)}`}
+            {event.isAllDay
+              ? 'All day'
+              : `${formatTime(event.startTime)} - ${formatTime(event.endTime)}`}
           </span>
-          {!event.isAllDay && (
-            <span className="text-xs ml-2">
-              {getDuration()}
-            </span>
-          )}
+          {!event.isAllDay && <span className="text-xs ml-2">{getDuration()}</span>}
         </div>
       )}
 
@@ -249,7 +252,7 @@ export const CalendarEvent: React.FC<CalendarEventProps> = ({
       <div className="flex items-center gap-1 mt-1">
         {/* Energy level badge */}
         {event.energyLevel && (
-          <span 
+          <span
             className="px-1.5 py-0.5 text-xs rounded-full border"
             style={{
               backgroundColor: calendarTokens.colors.energyLevels[event.energyLevel].secondary,
@@ -263,7 +266,7 @@ export const CalendarEvent: React.FC<CalendarEventProps> = ({
 
         {/* Focus type badge */}
         {event.focusType && (
-          <span 
+          <span
             className="px-1.5 py-0.5 text-xs rounded-full border"
             style={{
               backgroundColor: calendarTokens.colors.focusTypes[event.focusType].secondary,
@@ -283,12 +286,14 @@ export const CalendarEvent: React.FC<CalendarEventProps> = ({
           className="absolute z-50 p-2 mt-1 text-xs bg-gray-900 text-white rounded shadow-lg max-w-xs"
           style={{ top: '100%', left: '0' }}
         >
-          <div><strong>{event.title}</strong></div>
-          {event.description && (
-            <div className="mt-1 opacity-75">{event.description}</div>
-          )}
+          <div>
+            <strong>{event.title}</strong>
+          </div>
+          {event.description && <div className="mt-1 opacity-75">{event.description}</div>}
           <div className="mt-1">
-            <div>⏰ {formatTime(event.startTime)} - {formatTime(event.endTime)}</div>
+            <div>
+              ⏰ {formatTime(event.startTime)} - {formatTime(event.endTime)}
+            </div>
             <div>⚡ Energy: {event.energyLevel || 'Not set'}</div>
             <div>🎯 Focus: {event.focusType || 'Not set'}</div>
             <div>📅 Source: {event.source}</div>

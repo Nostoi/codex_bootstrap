@@ -18,7 +18,7 @@ export class GoogleAuthService {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaService
   ) {}
 
   /**
@@ -40,7 +40,7 @@ export class GoogleAuthService {
       const oauth2Client = new google.auth.OAuth2(
         this.configService.get<string>('GOOGLE_CLIENT_ID'),
         this.configService.get<string>('GOOGLE_CLIENT_SECRET'),
-        this.configService.get<string>('GOOGLE_CALLBACK_URL'),
+        this.configService.get<string>('GOOGLE_CALLBACK_URL')
       );
 
       oauth2Client.setCredentials({
@@ -61,9 +61,9 @@ export class GoogleAuthService {
   async refreshGoogleTokens(userId: string): Promise<boolean> {
     try {
       const oauth2Client = await this.getGoogleOAuthClient(userId);
-      
+
       const { credentials } = await oauth2Client.refreshAccessToken();
-      
+
       if (credentials.access_token) {
         await this.prisma.oAuthProvider.updateMany({
           where: {
@@ -92,7 +92,11 @@ export class GoogleAuthService {
   /**
    * Get Google Calendar events for a user
    */
-  async getCalendarEvents(userId: string, timeMin?: Date, timeMax?: Date): Promise<GoogleCalendarEvent[]> {
+  async getCalendarEvents(
+    userId: string,
+    timeMin?: Date,
+    timeMax?: Date
+  ): Promise<GoogleCalendarEvent[]> {
     try {
       const oauth2Client = await this.getGoogleOAuthClient(userId);
       const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
@@ -107,9 +111,9 @@ export class GoogleAuthService {
       });
 
       const events = response.data.items || [];
-      
+
       this.logger.debug(`Retrieved ${events.length} Google Calendar events for user: ${userId}`);
-      
+
       return events.map(event => ({
         id: event.id!,
         summary: event.summary || 'No title',
@@ -120,7 +124,7 @@ export class GoogleAuthService {
       }));
     } catch (error) {
       this.logger.error(`Failed to get Google Calendar events for user: ${userId}`, error.stack);
-      
+
       // Try to refresh tokens if unauthorized
       if (error.code === 401) {
         const refreshed = await this.refreshGoogleTokens(userId);
@@ -129,7 +133,7 @@ export class GoogleAuthService {
           return this.getCalendarEvents(userId, timeMin, timeMax);
         }
       }
-      
+
       throw error;
     }
   }
@@ -169,10 +173,10 @@ export class GoogleAuthService {
   async revokeGoogleAuth(userId: string): Promise<boolean> {
     try {
       const oauth2Client = await this.getGoogleOAuthClient(userId);
-      
+
       // Revoke the tokens with Google
       await oauth2Client.revokeCredentials();
-      
+
       // Remove from database
       await this.prisma.oAuthProvider.deleteMany({
         where: {

@@ -3,13 +3,13 @@ import { GraphAuthService } from '../integrations_disabled/graph/auth/graph-auth
 import { CalendarSyncService } from '../integrations/graph/sync/services/calendar-sync.service';
 import { ConflictResolver } from '../integrations/graph/sync/services/conflict-resolver.service';
 import { GraphConfigService } from '../integrations/graph/config/graph-config.service';
-import { 
-  SyncJob, 
-  SyncResult, 
+import {
+  SyncJob,
+  SyncResult,
   SyncOptions,
   ConflictInfo,
   SyncStatistics,
-  SyncDirection
+  SyncDirection,
 } from '../integrations/graph/sync/types/calendar-sync.types';
 import { MicrosoftGraphConfig } from '../integrations/graph/types/calendar.types';
 import { CalendarSyncStatus } from '@prisma/client';
@@ -68,10 +68,7 @@ export function createMockGoogleCalendarEvent(overrides: Partial<any> = {}) {
       timeZone: 'UTC',
     },
     location: 'Test Location',
-    attendees: [
-      { email: 'user1@example.com' },
-      { email: 'user2@example.com' },
-    ],
+    attendees: [{ email: 'user1@example.com' }, { email: 'user2@example.com' }],
     status: 'confirmed',
     created: '2025-01-15T08:00:00Z',
     updated: '2025-01-15T09:00:00Z',
@@ -280,7 +277,9 @@ export function createMockConflictInfo(overrides: Partial<ConflictInfo> = {}): C
 /**
  * Creates mock MicrosoftGraphConfig for testing
  */
-export function createMockMicrosoftGraphConfig(overrides: Partial<MicrosoftGraphConfig> = {}): MicrosoftGraphConfig {
+export function createMockMicrosoftGraphConfig(
+  overrides: Partial<MicrosoftGraphConfig> = {}
+): MicrosoftGraphConfig {
   return {
     clientId: 'test-client-id-123',
     clientSecret: 'test-client-secret-456',

@@ -1,8 +1,8 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { GraphAuthController } from "./graph-auth.controller";
-import { GraphAuthService } from "./graph-auth.service";
+import { Test, TestingModule } from '@nestjs/testing';
+import { GraphAuthController } from './graph-auth.controller';
+import { GraphAuthService } from './graph-auth.service';
 
-describe("GraphAuthController", () => {
+describe('GraphAuthController', () => {
   let controller: GraphAuthController;
   let authService: GraphAuthService;
 
@@ -30,16 +30,16 @@ describe("GraphAuthController", () => {
     authService = module.get<GraphAuthService>(GraphAuthService);
   });
 
-  it("should be defined", () => {
+  it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 
-  describe("authorize", () => {
-    it("should return authorization URL", async () => {
-      const userId = "test-user";
+  describe('authorize', () => {
+    it('should return authorization URL', async () => {
+      const userId = 'test-user';
       const mockResult = {
-        authUrl: "https://login.microsoftonline.com/...",
-        state: "test-state",
+        authUrl: 'https://login.microsoftonline.com/...',
+        state: 'test-state',
       };
 
       mockAuthService.getAuthorizationUrl.mockResolvedValue(mockResult);
@@ -51,11 +51,11 @@ describe("GraphAuthController", () => {
     });
   });
 
-  describe("callback", () => {
-    it("should handle OAuth callback", async () => {
-      const code = "auth-code";
-      const state = "test-state";
-      const userId = "test-user";
+  describe('callback', () => {
+    it('should handle OAuth callback', async () => {
+      const code = 'auth-code';
+      const state = 'test-state';
+      const userId = 'test-user';
       const mockResult = { success: true, user: {} };
 
       mockAuthService.handleCallback.mockResolvedValue(mockResult);
@@ -67,9 +67,9 @@ describe("GraphAuthController", () => {
     });
   });
 
-  describe("status", () => {
-    it("should return authentication status", async () => {
-      const userId = "test-user";
+  describe('status', () => {
+    it('should return authentication status', async () => {
+      const userId = 'test-user';
       mockAuthService.isUserAuthenticated.mockResolvedValue(true);
 
       const result = await controller.status(userId);
@@ -79,9 +79,9 @@ describe("GraphAuthController", () => {
     });
   });
 
-  describe("refresh", () => {
-    it("should refresh token", async () => {
-      const userId = "test-user";
+  describe('refresh', () => {
+    it('should refresh token', async () => {
+      const userId = 'test-user';
       const mockResult = { success: true };
 
       mockAuthService.refreshToken.mockResolvedValue(mockResult);
@@ -93,9 +93,9 @@ describe("GraphAuthController", () => {
     });
   });
 
-  describe("revoke", () => {
-    it("should revoke access", async () => {
-      const userId = "test-user";
+  describe('revoke', () => {
+    it('should revoke access', async () => {
+      const userId = 'test-user';
       const mockResult = { success: true };
 
       mockAuthService.revokeAccess.mockResolvedValue(mockResult);
@@ -107,13 +107,13 @@ describe("GraphAuthController", () => {
     });
   });
 
-  describe("profile", () => {
-    it("should return user profile", async () => {
-      const userId = "test-user";
+  describe('profile', () => {
+    it('should return user profile', async () => {
+      const userId = 'test-user';
       const mockProfile = {
-        id: "user-id",
-        displayName: "Test User",
-        mail: "test@example.com",
+        id: 'user-id',
+        displayName: 'Test User',
+        mail: 'test@example.com',
       };
 
       mockAuthService.getUserInfo.mockResolvedValue(mockProfile);

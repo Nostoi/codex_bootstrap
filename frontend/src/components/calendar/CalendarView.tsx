@@ -4,13 +4,13 @@ import { CalendarHeader } from './CalendarHeader';
 import { CalendarGrid } from './CalendarGrid';
 import { useCalendarEvents } from '../../hooks/useApi';
 import { calendarTokens } from '../../styles/calendar-tokens';
-import { 
+import {
   useCalendarAccessibility,
   useCalendarKeyboardNavigation,
   useCalendarFocusManagement,
   getCalendarAriaProps,
   generateCalendarInstructions,
-  CALENDAR_ANNOUNCEMENTS
+  CALENDAR_ANNOUNCEMENTS,
 } from '../../lib/calendar-accessibility';
 import { AccessibilityProvider } from '../accessibility/AccessibilityComponents';
 
@@ -30,7 +30,7 @@ const CalendarView: React.FC<CalendarViewComponentProps> = ({
 }) => {
   // Refs for accessibility
   const calendarRef = useRef<HTMLDivElement>(null);
-  
+
   // State management
   const [currentView, setCurrentView] = useState<CalendarViewType>(initialView);
   const [currentDate, setCurrentDate] = useState<CalendarDate>(
@@ -56,34 +56,30 @@ const CalendarView: React.FC<CalendarViewComponentProps> = ({
     announceLoading,
     announceError,
     announceTimeSlotSelection,
-    preferences
+    preferences,
   } = useCalendarAccessibility();
 
   // Focus management
-  const {
-    focusFirstElement,
-    focusGrid,
-    focusEvent,
-    focusTimeSlot
-  } = useCalendarFocusManagement(calendarRef);
+  const { focusFirstElement, focusGrid, focusEvent, focusTimeSlot } =
+    useCalendarFocusManagement(calendarRef);
 
   // Handle event move for drag and drop
   const handleEventMove = async (eventId: string, newStartTime: Date, newEndTime: Date) => {
     try {
       // Here you would call your API to update the event
       console.log('Moving event:', eventId, 'to', newStartTime, newEndTime);
-      
+
       // Find the event being moved for accessibility announcement
       const movedEvent = calendarData?.events?.find(e => e.id === eventId);
       if (movedEvent) {
         // TODO: Fix type mismatch between CalendarEvent types
         // announceEventMove(movedEvent, newStartTime);
       }
-      
+
       // For now, just log the action
       // In a real implementation, you'd call an API endpoint:
       // await updateCalendarEvent(eventId, { startTime: newStartTime, endTime: newEndTime });
-      
+
       // Refresh the calendar data after successful move
       await refetch();
     } catch (error) {
@@ -107,27 +103,33 @@ const CalendarView: React.FC<CalendarViewComponentProps> = ({
   };
 
   // Handle view changes
-  const handleViewChange = useCallback((view: CalendarViewType) => {
-    setCurrentView(view);
-    announceViewChange(view);
-    onViewChange?.(view);
-    
-    // Focus the grid after view change
-    setTimeout(() => focusGrid(), 100);
-  }, [onViewChange, announceViewChange, focusGrid]);
+  const handleViewChange = useCallback(
+    (view: CalendarViewType) => {
+      setCurrentView(view);
+      announceViewChange(view);
+      onViewChange?.(view);
+
+      // Focus the grid after view change
+      setTimeout(() => focusGrid(), 100);
+    },
+    [onViewChange, announceViewChange, focusGrid]
+  );
 
   // Handle date navigation
-  const handleDateChange = useCallback((date: CalendarDate) => {
-    setCurrentDate(date);
-    const dateObj = new Date(date.year, date.month - 1, date.day);
-    announceDateChange(dateObj);
-    onDateChange?.(date);
-  }, [onDateChange, announceDateChange]);
+  const handleDateChange = useCallback(
+    (date: CalendarDate) => {
+      setCurrentDate(date);
+      const dateObj = new Date(date.year, date.month - 1, date.day);
+      announceDateChange(dateObj);
+      onDateChange?.(date);
+    },
+    [onDateChange, announceDateChange]
+  );
 
   // Navigate to previous period
   const handlePrevious = useCallback(() => {
     const newDate = { ...currentDate };
-    
+
     switch (currentView) {
       case 'daily':
         // Go to previous day
@@ -156,14 +158,14 @@ const CalendarView: React.FC<CalendarViewComponentProps> = ({
         newDate.day = Math.min(currentDate.day, daysInMonth);
         break;
     }
-    
+
     handleDateChange(newDate);
   }, [currentDate, currentView, handleDateChange]);
 
   // Navigate to next period
   const handleNext = useCallback(() => {
     const newDate = { ...currentDate };
-    
+
     switch (currentView) {
       case 'daily':
         // Go to next day
@@ -192,7 +194,7 @@ const CalendarView: React.FC<CalendarViewComponentProps> = ({
         newDate.day = Math.min(currentDate.day, daysInMonth);
         break;
     }
-    
+
     handleDateChange(newDate);
   }, [currentDate, currentView, handleDateChange]);
 
@@ -216,7 +218,7 @@ const CalendarView: React.FC<CalendarViewComponentProps> = ({
     currentView,
     currentDate,
     calendarData?.events || [],
-    (direction) => {
+    direction => {
       if (direction === 'previous') handlePrevious();
       else if (direction === 'next') handleNext();
       else if (direction === 'today') handleToday();
@@ -249,39 +251,40 @@ const CalendarView: React.FC<CalendarViewComponentProps> = ({
   // Apply ADHD-specific CSS variables with accessibility preferences
   const adhdStyles = {
     // Original ADHD settings
-    ...(adhdSettings ? {
-      '--calendar-motion-duration': adhdSettings.reducedMotion ? '0ms' : calendarTokens.motion.durations.normal,
-      '--calendar-motion-easing': calendarTokens.motion.easing.gentle,
-      '--calendar-max-colors': adhdSettings.maxEventsPerView?.toString() || '3',
-      '--calendar-focus-ring': adhdSettings.enableFocusMode ? calendarTokens.accessibility.focusRing.width : '2px',
-    } : {}),
+    ...(adhdSettings
+      ? {
+          '--calendar-motion-duration': adhdSettings.reducedMotion
+            ? '0ms'
+            : calendarTokens.motion.durations.normal,
+          '--calendar-motion-easing': calendarTokens.motion.easing.gentle,
+          '--calendar-max-colors': adhdSettings.maxEventsPerView?.toString() || '3',
+          '--calendar-focus-ring': adhdSettings.enableFocusMode
+            ? calendarTokens.accessibility.focusRing.width
+            : '2px',
+        }
+      : {}),
     // Accessibility preferences from user settings
     ...(preferences.reducedMotion && {
       '--calendar-motion-duration': '0ms',
-      '--calendar-motion-easing': 'linear'
+      '--calendar-motion-easing': 'linear',
     }),
     ...(preferences.highContrast && {
-      '--calendar-contrast-mode': 'high'
+      '--calendar-contrast-mode': 'high',
     }),
     ...(preferences.prefersDarkMode && {
-      '--calendar-theme': 'dark'
-    })
+      '--calendar-theme': 'dark',
+    }),
   } as React.CSSProperties;
 
   // Generate accessibility props
-  const calendarAriaProps = getCalendarAriaProps(
-    currentView,
-    currentDate,
-    isLoading,
-    !!error
-  );
+  const calendarAriaProps = getCalendarAriaProps(currentView, currentDate, isLoading, !!error);
 
   // Generate screen reader instructions
   const screenReaderInstructions = generateCalendarInstructions(currentView);
 
   return (
     <AccessibilityProvider>
-      <div 
+      <div
         ref={calendarRef}
         className={`calendar-view ${className}`}
         style={adhdStyles}
@@ -294,26 +297,21 @@ const CalendarView: React.FC<CalendarViewComponentProps> = ({
 
         {/* Additional help text for complex interactions */}
         <div className="sr-only" id="calendar-help">
-          Calendar events can be selected and rescheduled. 
+          Calendar events can be selected and rescheduled.
           {enableDragAndDrop && 'Drag and drop is enabled for moving events. '}
           Use Tab to navigate between interactive elements.
         </div>
 
         {/* Live region for dynamic announcements */}
-        <div 
-          className="sr-only" 
-          aria-live="polite" 
+        <div
+          className="sr-only"
+          aria-live="polite"
           aria-atomic="true"
           id="calendar-announcements"
         />
 
         {/* Assertive live region for errors and important alerts */}
-        <div 
-          className="sr-only" 
-          aria-live="assertive" 
-          aria-atomic="true"
-          id="calendar-alerts"
-        />
+        <div className="sr-only" aria-live="assertive" aria-atomic="true" id="calendar-alerts" />
 
         {/* Calendar Header */}
         {showNavigation && (
@@ -334,21 +332,36 @@ const CalendarView: React.FC<CalendarViewComponentProps> = ({
 
         {/* Error State with enhanced accessibility */}
         {error && (
-          <div 
-            className="alert alert-error mb-4" 
+          <div
+            className="alert alert-error mb-4"
             role="alert"
             aria-live="assertive"
             aria-labelledby="error-title"
             aria-describedby="error-description"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="stroke-current shrink-0 h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             <div>
-              <h3 id="error-title" className="font-semibold">Calendar Error</h3>
-              <p id="error-description">Failed to load calendar events. Please check your connection and try again.</p>
+              <h3 id="error-title" className="font-semibold">
+                Calendar Error
+              </h3>
+              <p id="error-description">
+                Failed to load calendar events. Please check your connection and try again.
+              </p>
             </div>
-            <button 
+            <button
               className="btn btn-sm btn-outline"
               onClick={() => refetch()}
               aria-label="Retry loading calendar events"
@@ -375,17 +388,14 @@ const CalendarView: React.FC<CalendarViewComponentProps> = ({
 
         {/* Enhanced loading overlay with better accessibility */}
         {isLoading && (
-          <div 
+          <div
             className="absolute inset-0 bg-base-100/50 flex items-center justify-center z-10"
             role="status"
             aria-live="polite"
             aria-label="Loading calendar events"
           >
             <div className="flex items-center gap-2">
-              <span 
-                className="loading loading-spinner loading-md"
-                aria-hidden="true"
-              />
+              <span className="loading loading-spinner loading-md" aria-hidden="true" />
               <span id="loading-text">Loading calendar events...</span>
             </div>
           </div>

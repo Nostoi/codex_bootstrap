@@ -20,7 +20,7 @@ expect.extend(toHaveNoViolations);
 const mockCalendarDate = {
   year: 2025,
   month: 1,
-  day: 15
+  day: 15,
 };
 
 const mockCalendarEvents = [
@@ -32,7 +32,7 @@ const mockCalendarEvents = [
     source: 'google' as const,
     energyLevel: 'HIGH' as const,
     focusType: 'SOCIAL' as const,
-    isAllDay: false
+    isAllDay: false,
   },
   {
     id: '2',
@@ -42,8 +42,8 @@ const mockCalendarEvents = [
     source: 'task' as const,
     energyLevel: 'MEDIUM' as const,
     focusType: 'TECHNICAL' as const,
-    isAllDay: false
-  }
+    isAllDay: false,
+  },
 ];
 
 const mockADHDSettings = {
@@ -57,7 +57,7 @@ const mockADHDSettings = {
   showEnergyIndicators: true,
   enableFocusMode: false,
   reminderBuffer: 15,
-  gentleTransitions: true
+  gentleTransitions: true,
 };
 
 // Mock the useCalendarEvents hook
@@ -66,8 +66,8 @@ vi.mock('../hooks/useApi', () => ({
     data: { events: mockCalendarEvents },
     isLoading: false,
     error: null,
-    refetch: vi.fn()
-  })
+    refetch: vi.fn(),
+  }),
 }));
 
 describe('Calendar Accessibility Tests', () => {
@@ -75,7 +75,7 @@ describe('Calendar Accessibility Tests', () => {
 
   beforeEach(() => {
     accessibilityTester = new AccessibilityTester();
-    
+
     // Mock media queries for accessibility preferences
     Object.defineProperty(window, 'matchMedia', {
       writable: true,
@@ -121,14 +121,14 @@ describe('Calendar Accessibility Tests', () => {
 
       // Check main calendar application role
       expect(screen.getByRole('application')).toBeInTheDocument();
-      
+
       // Check navigation landmark
       expect(screen.getByRole('banner')).toBeInTheDocument();
       expect(screen.getByRole('navigation')).toBeInTheDocument();
-      
+
       // Check grid role for calendar grid
       expect(screen.getByRole('grid')).toBeInTheDocument();
-      
+
       // Check tablist for view selector
       expect(screen.getByRole('tablist')).toBeInTheDocument();
     });
@@ -148,9 +148,11 @@ describe('Calendar Accessibility Tests', () => {
       expect(screen.getByText(/Use arrow keys to navigate/)).toBeInTheDocument();
       expect(screen.getByText(/Press Enter or Space to select/)).toBeInTheDocument();
       expect(screen.getByText(/Press 1 for daily view/)).toBeInTheDocument();
-      
+
       // Check for help text
-      expect(screen.getByText(/Calendar events can be selected and rescheduled/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Calendar events can be selected and rescheduled/)
+      ).toBeInTheDocument();
     });
 
     test('has live regions for dynamic announcements', () => {
@@ -167,7 +169,7 @@ describe('Calendar Accessibility Tests', () => {
       // Check for polite live region
       const politeRegion = document.querySelector('[aria-live="polite"]');
       expect(politeRegion).toBeInTheDocument();
-      
+
       // Check for assertive live region
       const assertiveRegion = document.querySelector('[aria-live="assertive"]');
       expect(assertiveRegion).toBeInTheDocument();
@@ -176,7 +178,7 @@ describe('Calendar Accessibility Tests', () => {
     test('supports keyboard navigation', async () => {
       const user = userEvent.setup();
       const mockViewChange = jest.fn();
-      
+
       render(
         <AccessibilityProvider>
           <CalendarView
@@ -230,10 +232,10 @@ describe('Calendar Accessibility Tests', () => {
 
       const calendarElement = screen.getByRole('application');
       const styles = getComputedStyle(calendarElement);
-      
+
       // Should have reduced motion styles applied
       expect(calendarElement).toHaveStyle({
-        '--calendar-motion-duration': '0ms'
+        '--calendar-motion-duration': '0ms',
       });
     });
   });
@@ -251,7 +253,7 @@ describe('Calendar Accessibility Tests', () => {
         showViewSelector: true,
         disabled: false,
         isLoading: false,
-        onRefresh: jest.fn()
+        onRefresh: jest.fn(),
       };
 
       render(<CalendarHeader {...mockProps} />);
@@ -259,12 +261,12 @@ describe('Calendar Accessibility Tests', () => {
       // Check navigation roles
       expect(screen.getByRole('banner')).toBeInTheDocument();
       expect(screen.getByRole('navigation')).toBeInTheDocument();
-      
+
       // Check button accessibility
       expect(screen.getByLabelText(/Go to previous weekly/)).toBeInTheDocument();
       expect(screen.getByLabelText(/Go to next weekly/)).toBeInTheDocument();
       expect(screen.getByLabelText(/Go to today/)).toBeInTheDocument();
-      
+
       // Check view selector tablist
       expect(screen.getByRole('tablist')).toBeInTheDocument();
       expect(screen.getAllByRole('tab')).toHaveLength(3);
@@ -278,7 +280,7 @@ describe('Calendar Accessibility Tests', () => {
         onViewChange: jest.fn(),
         onPrevious: jest.fn(),
         onNext: jest.fn(),
-        onToday: jest.fn()
+        onToday: jest.fn(),
       };
 
       render(<CalendarHeader {...mockProps} />);
@@ -297,7 +299,7 @@ describe('Calendar Accessibility Tests', () => {
         onPrevious: jest.fn(),
         onNext: jest.fn(),
         onToday: jest.fn(),
-        showViewSelector: true
+        showViewSelector: true,
       };
 
       render(<CalendarHeader {...mockProps} />);
@@ -321,7 +323,7 @@ describe('Calendar Accessibility Tests', () => {
         enableDragAndDrop: true,
         adhdSettings: mockADHDSettings,
         onEventMove: jest.fn(),
-        onTimeSlotClick: jest.fn()
+        onTimeSlotClick: jest.fn(),
       };
 
       render(<CalendarGrid {...mockProps} />);
@@ -336,7 +338,7 @@ describe('Calendar Accessibility Tests', () => {
       const adhdSettings = {
         ...mockADHDSettings,
         reducedMotion: true,
-        highContrast: true
+        highContrast: true,
       };
 
       const mockProps = {
@@ -344,14 +346,14 @@ describe('Calendar Accessibility Tests', () => {
         currentView: 'weekly' as const,
         events: mockCalendarEvents,
         isLoading: false,
-        adhdSettings
+        adhdSettings,
       };
 
       render(<CalendarGrid {...mockProps} />);
 
       const grid = screen.getByRole('grid');
       expect(grid).toHaveStyle({
-        '--calendar-reduce-motion': '1'
+        '--calendar-reduce-motion': '1',
       });
     });
   });
@@ -401,7 +403,7 @@ describe('Calendar Accessibility Tests', () => {
 
       const calendarElement = screen.getByRole('application');
       expect(calendarElement).toHaveStyle({
-        '--calendar-high-contrast': '1'
+        '--calendar-high-contrast': '1',
       });
     });
   });
@@ -409,7 +411,7 @@ describe('Calendar Accessibility Tests', () => {
   describe('Focus Management', () => {
     test('manages focus correctly on view changes', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <AccessibilityProvider>
           <CalendarView
@@ -443,7 +445,9 @@ describe('Calendar Accessibility Tests', () => {
       );
 
       // Check for descriptive content that acts as skip navigation
-      expect(screen.getByText(/Use Tab to navigate between interactive elements/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Use Tab to navigate between interactive elements/)
+      ).toBeInTheDocument();
     });
   });
 
@@ -455,8 +459,8 @@ describe('Calendar Accessibility Tests', () => {
           data: null,
           isLoading: false,
           error: new Error('Failed to load'),
-          refetch: jest.fn()
-        })
+          refetch: jest.fn(),
+        }),
       }));
 
       render(
@@ -485,8 +489,8 @@ describe('Calendar Accessibility Tests', () => {
           data: null,
           isLoading: true,
           error: null,
-          refetch: jest.fn()
-        })
+          refetch: jest.fn(),
+        }),
       }));
 
       render(
@@ -511,7 +515,7 @@ describe('Keyboard Navigation Integration Tests', () => {
   test('complete keyboard workflow', async () => {
     const user = userEvent.setup();
     const mockEventClick = jest.fn();
-    
+
     render(
       <AccessibilityProvider>
         <CalendarView
@@ -524,7 +528,7 @@ describe('Keyboard Navigation Integration Tests', () => {
     );
 
     const calendarElement = screen.getByRole('application');
-    
+
     // Start with calendar focused
     calendarElement.focus();
     expect(calendarElement).toHaveFocus();
@@ -553,7 +557,7 @@ describe('Keyboard Navigation Integration Tests', () => {
 describe('Calendar Accessibility Performance', () => {
   test('accessibility features do not impact performance significantly', async () => {
     const startTime = performance.now();
-    
+
     render(
       <AccessibilityProvider>
         <CalendarView
@@ -581,7 +585,7 @@ describe('Calendar Accessibility Performance', () => {
       source: 'google' as const,
       energyLevel: 'MEDIUM' as const,
       focusType: 'TECHNICAL' as const,
-      isAllDay: false
+      isAllDay: false,
     }));
 
     // Mock large dataset
@@ -590,8 +594,8 @@ describe('Calendar Accessibility Performance', () => {
         data: { events: largeEventSet },
         isLoading: false,
         error: null,
-        refetch: jest.fn()
-      })
+        refetch: jest.fn(),
+      }),
     }));
 
     const { container } = render(

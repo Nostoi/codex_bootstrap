@@ -4,7 +4,7 @@ import { injectAxe, checkA11y, configureAxe } from 'axe-playwright';
 
 /**
  * Storybook Test Runner Configuration with Comprehensive A11y Testing
- * 
+ *
  * This configuration enables automated accessibility testing for all stories
  * with special focus on ADHD-friendly features and WCAG 2.2 AA compliance.
  */
@@ -22,7 +22,7 @@ const config: TestRunnerConfig = {
   async postVisit(page, context) {
     // Get the story context to access parameters and configurations
     const storyContext = await getStoryContext(page, context);
-    
+
     // Skip accessibility tests if explicitly disabled for this story
     if (storyContext.parameters?.a11y?.disable) {
       return;
@@ -53,18 +53,18 @@ const config: TestRunnerConfig = {
         'focus-order-semantics': { enabled: true },
         'focus-trap': { enabled: true },
         'focusable-content': { enabled: true },
-        
+
         // Color contrast - enhanced requirements
         'color-contrast': { enabled: true },
         'color-contrast-enhanced': { enabled: true },
-        
+
         // Keyboard navigation
-        'keyboard': { enabled: true },
-        'bypass': { enabled: true },
-        
+        keyboard: { enabled: true },
+        bypass: { enabled: true },
+
         // Motion and animation considerations
-        'motion': { enabled: true },
-        
+        motion: { enabled: true },
+
         // ARIA and semantic structure
         'aria-allowed-attr': { enabled: true },
         'aria-hidden-focus': { enabled: true },
@@ -72,21 +72,21 @@ const config: TestRunnerConfig = {
         'aria-roles': { enabled: true },
         'aria-valid-attr': { enabled: true },
         'aria-valid-attr-value': { enabled: true },
-        
+
         // Structure and headings
         'heading-order': { enabled: true },
         'landmark-banner-is-top-level': { enabled: true },
         'landmark-main-is-top-level': { enabled: true },
         'page-has-heading-one': { enabled: true },
-        
+
         // Forms and labels
-        'label': { enabled: true },
+        label: { enabled: true },
         'form-field-multiple-labels': { enabled: true },
-        
+
         // Language and content
         'html-has-lang': { enabled: true },
         'html-lang-valid': { enabled: true },
-        
+
         // Media accessibility
         'image-alt': { enabled: true },
         'audio-caption': { enabled: true },
@@ -112,16 +112,16 @@ const config: TestRunnerConfig = {
   async preExecute(page, context) {
     // Ensure consistent viewport for testing
     await page.setViewportSize({ width: 1200, height: 800 });
-    
+
     // Set up motion preferences for ADHD testing
-    await page.emulateMedia({ 
-      reducedMotion: 'reduce' 
+    await page.emulateMedia({
+      reducedMotion: 'reduce',
     });
-    
+
     // Enable high contrast mode simulation
-    await page.emulateMedia({ 
+    await page.emulateMedia({
       colorScheme: 'light',
-      forcedColors: 'active'
+      forcedColors: 'active',
     });
   },
 
@@ -130,16 +130,18 @@ const config: TestRunnerConfig = {
    */
   async postExecute(page, context) {
     // Additional ADHD-specific checks
-    
+
     // Check for proper focus indicators
-    const focusableElements = await page.$$('[tabindex]:not([tabindex="-1"]), button, input, select, textarea, a[href]');
-    
+    const focusableElements = await page.$$(
+      '[tabindex]:not([tabindex="-1"]), button, input, select, textarea, a[href]'
+    );
+
     for (const element of focusableElements) {
       // Ensure each focusable element has visible focus indication
       await element.focus();
-      
+
       // Check focus visibility
-      const focusStyles = await element.evaluate((el) => {
+      const focusStyles = await element.evaluate(el => {
         const styles = window.getComputedStyle(el, ':focus');
         return {
           outline: styles.outline,
@@ -148,13 +150,13 @@ const config: TestRunnerConfig = {
           boxShadow: styles.boxShadow,
         };
       });
-      
+
       // Verify focus is visible (should have outline or box-shadow)
-      const hasFocusIndicator = 
+      const hasFocusIndicator =
         focusStyles.outline !== 'none' ||
         focusStyles.outlineWidth !== '0px' ||
         focusStyles.boxShadow !== 'none';
-      
+
       if (!hasFocusIndicator) {
         console.warn(`Element lacks visible focus indicator:`, await element.textContent());
       }

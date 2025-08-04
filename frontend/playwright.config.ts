@@ -1,15 +1,15 @@
-import { PlaywrightTestConfig } from '@playwright/test'
+import { PlaywrightTestConfig } from '@playwright/test';
 
 const config: PlaywrightTestConfig = {
   testDir: './tests',
   testMatch: /.*\.e2e\.ts$/,
   testIgnore: /.*\.spec\.ts$/,
-  webServer: {
-    command: 'npm run dev',
-    port: 3000,
-    timeout: 120 * 1000,
-    reuseExistingServer: true,
-  },
+  // webServer: {
+  //   command: 'npm run dev',
+  //   port: 3000,
+  //   timeout: 120 * 1000,
+  //   reuseExistingServer: true,
+  // },
   use: {
     baseURL: 'http://localhost:3000',
     headless: true,
@@ -38,6 +38,6 @@ const config: PlaywrightTestConfig = {
       use: { ...require('@playwright/test').devices['Pixel 5'] },
     },
   ],
-}
+};
 
-export default config
+export default config;

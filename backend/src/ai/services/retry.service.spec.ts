@@ -1,10 +1,8 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { RetryService } from "./retry.service";
-import {
-  OpenAIUnauthorizedException,
-} from "../exceptions/openai.exceptions";
+import { Test, TestingModule } from '@nestjs/testing';
+import { RetryService } from './retry.service';
+import { OpenAIUnauthorizedException } from '../exceptions/openai.exceptions';
 
-describe("RetryService", () => {
+describe('RetryService', () => {
   let service: RetryService;
 
   beforeEach(async () => {
@@ -15,13 +13,13 @@ describe("RetryService", () => {
     service = module.get<RetryService>(RetryService);
   });
 
-  it("should be defined", () => {
+  it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  describe("executeWithRetry", () => {
-    it("should succeed on first attempt", async () => {
-      const operation = jest.fn().mockResolvedValue("success");
+  describe('executeWithRetry', () => {
+    it('should succeed on first attempt', async () => {
+      const operation = jest.fn().mockResolvedValue('success');
       const config = {
         maxRetries: 3,
         baseDelay: 100,
@@ -32,15 +30,15 @@ describe("RetryService", () => {
 
       const result = await service.executeWithRetry(operation, config);
 
-      expect(result).toBe("success");
+      expect(result).toBe('success');
       expect(operation).toHaveBeenCalledTimes(1);
     });
 
-    it("should retry on retryable errors", async () => {
+    it('should retry on retryable errors', async () => {
       const operation = jest
         .fn()
-        .mockRejectedValueOnce(new Error("Retryable error"))
-        .mockResolvedValue("success");
+        .mockRejectedValueOnce(new Error('Retryable error'))
+        .mockResolvedValue('success');
 
       const config = {
         maxRetries: 3,
@@ -52,14 +50,12 @@ describe("RetryService", () => {
 
       const result = await service.executeWithRetry(operation, config);
 
-      expect(result).toBe("success");
+      expect(result).toBe('success');
       expect(operation).toHaveBeenCalledTimes(2);
     });
 
-    it("should not retry on non-retryable errors", async () => {
-      const operation = jest
-        .fn()
-        .mockRejectedValue(new OpenAIUnauthorizedException());
+    it('should not retry on non-retryable errors', async () => {
+      const operation = jest.fn().mockRejectedValue(new OpenAIUnauthorizedException());
 
       const config = {
         maxRetries: 3,
@@ -70,14 +66,14 @@ describe("RetryService", () => {
       };
 
       await expect(service.executeWithRetry(operation, config)).rejects.toThrow(
-        OpenAIUnauthorizedException,
+        OpenAIUnauthorizedException
       );
 
       expect(operation).toHaveBeenCalledTimes(1);
     });
 
-    it("should throw after max retries", async () => {
-      const error = new Error("Persistent error");
+    it('should throw after max retries', async () => {
+      const error = new Error('Persistent error');
       const operation = jest.fn().mockRejectedValue(error);
 
       const config = {
@@ -88,9 +84,7 @@ describe("RetryService", () => {
         retryableStatusCodes: [429, 500, 502, 503, 504],
       };
 
-      await expect(service.executeWithRetry(operation, config)).rejects.toThrow(
-        "Persistent error",
-      );
+      await expect(service.executeWithRetry(operation, config)).rejects.toThrow('Persistent error');
 
       expect(operation).toHaveBeenCalledTimes(3); // Initial + 2 retries
     });

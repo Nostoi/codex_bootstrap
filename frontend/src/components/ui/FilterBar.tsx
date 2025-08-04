@@ -69,7 +69,7 @@ const statusConfig = {
 
 /**
  * FilterBar Component
- * 
+ *
  * Comprehensive filtering component with ADHD-friendly design patterns:
  * - Clear visual grouping of related filters
  * - Sticky positioning for always-accessible filtering
@@ -106,33 +106,45 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     setSearchInput(filters.search);
   }, [filters.search]);
 
-  const handleEnergyToggle = useCallback((energy: keyof typeof energyConfig) => {
-    const newEnergyLevels = filters.energyLevels.includes(energy)
-      ? filters.energyLevels.filter(e => e !== energy)
-      : [...filters.energyLevels, energy];
-    
-    onFiltersChange({ ...filters, energyLevels: newEnergyLevels });
-  }, [filters, onFiltersChange]);
+  const handleEnergyToggle = useCallback(
+    (energy: keyof typeof energyConfig) => {
+      const newEnergyLevels = filters.energyLevels.includes(energy)
+        ? filters.energyLevels.filter(e => e !== energy)
+        : [...filters.energyLevels, energy];
 
-  const handleFocusToggle = useCallback((focus: keyof typeof focusConfig) => {
-    const newFocusTypes = filters.focusTypes.includes(focus)
-      ? filters.focusTypes.filter(f => f !== focus)
-      : [...filters.focusTypes, focus];
-    
-    onFiltersChange({ ...filters, focusTypes: newFocusTypes });
-  }, [filters, onFiltersChange]);
+      onFiltersChange({ ...filters, energyLevels: newEnergyLevels });
+    },
+    [filters, onFiltersChange]
+  );
 
-  const handleStatusToggle = useCallback((status: keyof typeof statusConfig) => {
-    const newStatuses = filters.statuses.includes(status)
-      ? filters.statuses.filter(s => s !== status)
-      : [...filters.statuses, status];
-    
-    onFiltersChange({ ...filters, statuses: newStatuses });
-  }, [filters, onFiltersChange]);
+  const handleFocusToggle = useCallback(
+    (focus: keyof typeof focusConfig) => {
+      const newFocusTypes = filters.focusTypes.includes(focus)
+        ? filters.focusTypes.filter(f => f !== focus)
+        : [...filters.focusTypes, focus];
 
-  const handlePriorityChange = useCallback((min: number, max: number) => {
-    onFiltersChange({ ...filters, priorityRange: [min, max] });
-  }, [filters, onFiltersChange]);
+      onFiltersChange({ ...filters, focusTypes: newFocusTypes });
+    },
+    [filters, onFiltersChange]
+  );
+
+  const handleStatusToggle = useCallback(
+    (status: keyof typeof statusConfig) => {
+      const newStatuses = filters.statuses.includes(status)
+        ? filters.statuses.filter(s => s !== status)
+        : [...filters.statuses, status];
+
+      onFiltersChange({ ...filters, statuses: newStatuses });
+    },
+    [filters, onFiltersChange]
+  );
+
+  const handlePriorityChange = useCallback(
+    (min: number, max: number) => {
+      onFiltersChange({ ...filters, priorityRange: [min, max] });
+    },
+    [filters, onFiltersChange]
+  );
 
   const handleClear = useCallback(() => {
     if (onClear) {
@@ -151,11 +163,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     setSearchInput('');
   }, [onClear, onFiltersChange]);
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      handleClear();
-    }
-  }, [handleClear]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleClear();
+      }
+    },
+    [handleClear]
+  );
 
   const getActiveFilterCount = useCallback(() => {
     let count = 0;
@@ -210,7 +225,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 id="task-search"
                 type="text"
                 value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
+                onChange={e => setSearchInput(e.target.value)}
                 placeholder="Search tasks..."
                 className={cn(
                   'block w-full pl-10 pr-3 py-2 border border-border-primary rounded-md',
@@ -223,7 +238,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 aria-describedby="search-help"
               />
               <div id="search-help" className="sr-only">
-                Search will automatically filter tasks as you type. Press Escape to clear all filters.
+                Search will automatically filter tasks as you type. Press Escape to clear all
+                filters.
               </div>
             </div>
           </div>
@@ -284,13 +300,21 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 aria-label={isExpanded ? 'Collapse filters' : 'Expand filters'}
               >
                 <svg
-                  className={cn('h-4 w-4 transition-transform duration-200', isExpanded && 'rotate-180')}
+                  className={cn(
+                    'h-4 w-4 transition-transform duration-200',
+                    isExpanded && 'rotate-180'
+                  )}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                   aria-hidden="true"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </button>
             )}
@@ -306,19 +330,23 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             !compact && 'max-h-none overflow-visible opacity-100'
           )}
         >
-          <div className={cn(
-            'grid gap-4',
-            compact ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
-          )}>
+          <div
+            className={cn(
+              'grid gap-4',
+              compact ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+            )}
+          >
             {/* Energy Level Filter */}
             <div className="space-y-2">
               <h3 className="text-sm font-medium text-text-primary">Energy Level</h3>
-              <div 
+              <div
                 className="flex flex-wrap gap-2"
                 role="group"
                 aria-labelledby="energy-filter-label"
               >
-                <span id="energy-filter-label" className="sr-only">Select energy levels to filter</span>
+                <span id="energy-filter-label" className="sr-only">
+                  Select energy levels to filter
+                </span>
                 {Object.entries(energyConfig).map(([key, config]) => (
                   <button
                     key={key}
@@ -331,10 +359,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                         ? `${config.color} border-transparent`
                         : 'bg-background border-border-primary text-text-secondary hover:text-text-primary hover:border-border-secondary'
                     )}
-                    aria-pressed={filters.energyLevels.includes(key as FilterValues['energyLevels'][number])}
+                    aria-pressed={filters.energyLevels.includes(
+                      key as FilterValues['energyLevels'][number]
+                    )}
                     aria-label={`Filter by ${config.label}`}
                   >
-                    <span className="mr-1" aria-hidden="true">{config.icon}</span>
+                    <span className="mr-1" aria-hidden="true">
+                      {config.icon}
+                    </span>
                     {config.label}
                   </button>
                 ))}
@@ -344,12 +376,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             {/* Focus Type Filter */}
             <div className="space-y-2">
               <h3 className="text-sm font-medium text-text-primary">Focus Type</h3>
-              <div 
+              <div
                 className="flex flex-wrap gap-2"
                 role="group"
                 aria-labelledby="focus-filter-label"
               >
-                <span id="focus-filter-label" className="sr-only">Select focus types to filter</span>
+                <span id="focus-filter-label" className="sr-only">
+                  Select focus types to filter
+                </span>
                 {Object.entries(focusConfig).map(([key, config]) => (
                   <button
                     key={key}
@@ -362,10 +396,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                         ? `${config.color} border-transparent`
                         : 'bg-background border-border-primary text-text-secondary hover:text-text-primary hover:border-border-secondary'
                     )}
-                    aria-pressed={filters.focusTypes.includes(key as FilterValues['focusTypes'][number])}
+                    aria-pressed={filters.focusTypes.includes(
+                      key as FilterValues['focusTypes'][number]
+                    )}
                     aria-label={`Filter by ${config.label} tasks`}
                   >
-                    <span className="mr-1" aria-hidden="true">{config.icon}</span>
+                    <span className="mr-1" aria-hidden="true">
+                      {config.icon}
+                    </span>
                     {config.label}
                   </button>
                 ))}
@@ -375,12 +413,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             {/* Status Filter */}
             <div className="space-y-2">
               <h3 className="text-sm font-medium text-text-primary">Status</h3>
-              <div 
+              <div
                 className="flex flex-wrap gap-2"
                 role="group"
                 aria-labelledby="status-filter-label"
               >
-                <span id="status-filter-label" className="sr-only">Select task statuses to filter</span>
+                <span id="status-filter-label" className="sr-only">
+                  Select task statuses to filter
+                </span>
                 {Object.entries(statusConfig).map(([key, config]) => (
                   <button
                     key={key}
@@ -393,7 +433,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                         ? `${config.color} border-transparent`
                         : 'bg-background border-border-primary text-text-secondary hover:text-text-primary hover:border-border-secondary'
                     )}
-                    aria-pressed={filters.statuses.includes(key as FilterValues['statuses'][number])}
+                    aria-pressed={filters.statuses.includes(
+                      key as FilterValues['statuses'][number]
+                    )}
                     aria-label={`Filter by ${config.label} status`}
                   >
                     {config.label}
@@ -407,11 +449,15 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               <h3 className="text-sm font-medium text-text-primary">Priority Range</h3>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <label htmlFor="priority-min" className="text-xs text-text-secondary">Min:</label>
+                  <label htmlFor="priority-min" className="text-xs text-text-secondary">
+                    Min:
+                  </label>
                   <select
                     id="priority-min"
                     value={filters.priorityRange[0]}
-                    onChange={(e) => handlePriorityChange(Number(e.target.value), filters.priorityRange[1])}
+                    onChange={e =>
+                      handlePriorityChange(Number(e.target.value), filters.priorityRange[1])
+                    }
                     className={cn(
                       'px-2 py-1 text-xs border border-border-primary rounded',
                       'bg-background text-text-primary',
@@ -420,14 +466,20 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                     aria-label="Minimum priority level"
                   >
                     {[1, 2, 3, 4, 5].map(num => (
-                      <option key={num} value={num}>{num}</option>
+                      <option key={num} value={num}>
+                        {num}
+                      </option>
                     ))}
                   </select>
-                  <label htmlFor="priority-max" className="text-xs text-text-secondary">Max:</label>
+                  <label htmlFor="priority-max" className="text-xs text-text-secondary">
+                    Max:
+                  </label>
                   <select
                     id="priority-max"
                     value={filters.priorityRange[1]}
-                    onChange={(e) => handlePriorityChange(filters.priorityRange[0], Number(e.target.value))}
+                    onChange={e =>
+                      handlePriorityChange(filters.priorityRange[0], Number(e.target.value))
+                    }
                     className={cn(
                       'px-2 py-1 text-xs border border-border-primary rounded',
                       'bg-background text-text-primary',
@@ -436,7 +488,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                     aria-label="Maximum priority level"
                   >
                     {[1, 2, 3, 4, 5].map(num => (
-                      <option key={num} value={num}>{num}</option>
+                      <option key={num} value={num}>
+                        {num}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -451,15 +505,26 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
       {/* Loading Indicator */}
       {loading && (
-        <div 
+        <div
           className="absolute inset-0 bg-background/50 flex items-center justify-center"
           aria-live="polite"
           aria-label="Applying filters"
         >
           <div className="flex items-center gap-2 text-text-secondary">
             <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
             </svg>
             Applying filters...
           </div>

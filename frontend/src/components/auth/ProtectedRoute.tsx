@@ -21,10 +21,12 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
   }
 
   if (!isAuthenticated) {
-    return fallback || (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <LoginForm />
-      </div>
+    return (
+      fallback || (
+        <div className="flex items-center justify-center min-h-screen bg-gray-50">
+          <LoginForm />
+        </div>
+      )
     );
   }
 

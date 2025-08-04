@@ -1,6 +1,6 @@
-import { Injectable, NestMiddleware, Logger } from "@nestjs/common";
-import { Request, Response, NextFunction } from "express";
-import helmet from "helmet";
+import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
+import { Request, Response, NextFunction } from 'express';
+import helmet from 'helmet';
 
 @Injectable()
 export class SecurityHeadersMiddleware implements NestMiddleware {
@@ -12,7 +12,7 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
   }
 
   private setupHelmet(): void {
-    const isDevelopment = process.env.NODE_ENV === "development";
+    const isDevelopment = process.env.NODE_ENV === 'development';
     const allowedOrigins = this.getAllowedOrigins();
 
     this.helmetMiddleware = helmet({
@@ -23,12 +23,12 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
           styleSrc: [
             "'self'",
             "'unsafe-inline'", // Allow inline styles for development
-            "fonts.googleapis.com",
+            'fonts.googleapis.com',
           ],
           fontSrc: [
             "'self'",
-            "fonts.gstatic.com",
-            "data:", // Allow data URLs for fonts
+            'fonts.gstatic.com',
+            'data:', // Allow data URLs for fonts
           ],
           scriptSrc: [
             "'self'",
@@ -36,14 +36,14 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
           ],
           imgSrc: [
             "'self'",
-            "data:",
-            "https:", // Allow HTTPS images
+            'data:',
+            'https:', // Allow HTTPS images
           ],
           connectSrc: [
             "'self'",
             ...allowedOrigins,
-            "wss:", // Allow WebSocket connections
-            "https://api.openai.com", // OpenAI API
+            'wss:', // Allow WebSocket connections
+            'https://api.openai.com', // OpenAI API
           ],
           frameSrc: ["'none'"], // Prevent framing
           objectSrc: ["'none'"], // Prevent object embedding
@@ -57,16 +57,16 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
       crossOriginEmbedderPolicy: false, // Disable to allow external resources
 
       // Cross-Origin-Opener-Policy
-      crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
+      crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
 
       // Cross-Origin-Resource-Policy
-      crossOriginResourcePolicy: { policy: "cross-origin" },
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
 
       // DNS Prefetch Control
       dnsPrefetchControl: { allow: false },
 
       // Frameguard (X-Frame-Options)
-      frameguard: { action: "deny" },
+      frameguard: { action: 'deny' },
 
       // Hide X-Powered-By header
       hidePoweredBy: true,
@@ -91,7 +91,7 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
       permittedCrossDomainPolicies: false,
 
       // Referrer Policy
-      referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+      referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
 
       // X-XSS-Protection
       xssFilter: true,
@@ -99,9 +99,8 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
   }
 
   private getAllowedOrigins(): string[] {
-    const corsOrigin = process.env.CORS_ORIGIN || "http://localhost:3333";
-    const additionalOrigins =
-      process.env.ADDITIONAL_CORS_ORIGINS?.split(",") || [];
+    const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:3333';
+    const additionalOrigins = process.env.ADDITIONAL_CORS_ORIGINS?.split(',') || [];
 
     return [corsOrigin, ...additionalOrigins].filter(Boolean);
   }
@@ -113,7 +112,7 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
     // Apply Helmet middleware
     this.helmetMiddleware(req, res, (error?: any) => {
       if (error) {
-        this.logger.error("Security headers middleware error", error.stack);
+        this.logger.error('Security headers middleware error', error.stack);
       }
       next(error);
     });
@@ -121,43 +120,40 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
 
   private addCustomHeaders(req: Request, res: Response): void {
     // Remove sensitive server information
-    res.removeHeader("X-Powered-By");
-    res.removeHeader("Server");
+    res.removeHeader('X-Powered-By');
+    res.removeHeader('Server');
 
     // Add custom security headers
-    res.setHeader("X-Content-Type-Options", "nosniff");
-    res.setHeader("X-Download-Options", "noopen");
-    res.setHeader("X-Permitted-Cross-Domain-Policies", "none");
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Download-Options', 'noopen');
+    res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
 
     // Feature Policy / Permissions Policy
     res.setHeader(
-      "Permissions-Policy",
+      'Permissions-Policy',
       [
-        "camera=()",
-        "microphone=()",
-        "geolocation=()",
-        "payment=()",
-        "usb=()",
-        "magnetometer=()",
-        "accelerometer=()",
-        "gyroscope=()",
-      ].join(", "),
+        'camera=()',
+        'microphone=()',
+        'geolocation=()',
+        'payment=()',
+        'usb=()',
+        'magnetometer=()',
+        'accelerometer=()',
+        'gyroscope=()',
+      ].join(', ')
     );
 
     // Expect-CT (Certificate Transparency)
-    if (process.env.NODE_ENV === "production") {
-      res.setHeader("Expect-CT", "max-age=86400, enforce");
+    if (process.env.NODE_ENV === 'production') {
+      res.setHeader('Expect-CT', 'max-age=86400, enforce');
     }
 
     // Custom API versioning header
-    res.setHeader("X-API-Version", process.env.API_VERSION || "1.0.0");
+    res.setHeader('X-API-Version', process.env.API_VERSION || '1.0.0');
 
     // Security notice header for development
-    if (process.env.NODE_ENV === "development") {
-      res.setHeader(
-        "X-Development-Warning",
-        "This is a development environment",
-      );
+    if (process.env.NODE_ENV === 'development') {
+      res.setHeader('X-Development-Warning', 'This is a development environment');
     }
   }
 
@@ -166,7 +162,7 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
    * Should be used when CSP needs to allow specific inline content
    */
   generateNonce(): string {
-    return Buffer.from(Date.now().toString()).toString("base64");
+    return Buffer.from(Date.now().toString()).toString('base64');
   }
 
   /**
@@ -174,7 +170,7 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
    */
   addNonceToResponse(res: Response, nonce: string): void {
     res.locals.nonce = nonce;
-    res.setHeader("X-CSP-Nonce", nonce);
+    res.setHeader('X-CSP-Nonce', nonce);
   }
 
   /**
@@ -190,14 +186,14 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
    */
   requireHTTPS(req: Request, res: Response, next: NextFunction): void {
     if (
-      process.env.NODE_ENV === "production" &&
+      process.env.NODE_ENV === 'production' &&
       !req.secure &&
-      req.get("x-forwarded-proto") !== "https"
+      req.get('x-forwarded-proto') !== 'https'
     ) {
       this.logger.warn(`HTTP request rejected in production: ${req.url}`);
       res.status(426).json({
-        error: "HTTPS Required",
-        message: "This endpoint requires a secure connection",
+        error: 'HTTPS Required',
+        message: 'This endpoint requires a secure connection',
       });
       return;
     }

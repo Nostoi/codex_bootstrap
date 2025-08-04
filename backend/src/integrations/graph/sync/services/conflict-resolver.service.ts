@@ -1,10 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../../../prisma/prisma.service';
-import { 
-  ConflictInfo, 
-  GraphCalendarEvent,
-  CalendarEventData 
-} from '../types/calendar-sync.types';
+import { ConflictInfo, GraphCalendarEvent, CalendarEventData } from '../types/calendar-sync.types';
 import { CalendarConflictType, CalendarConflictResolution } from '@prisma/client';
 
 // Type alias for local calendar event (using CalendarEventData)
@@ -18,9 +14,7 @@ type LocalCalendarEvent = CalendarEventData & { id: string };
 export class ConflictResolver {
   private readonly logger = new Logger(ConflictResolver.name);
 
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Convert local calendar event to CalendarEventData format
@@ -64,9 +58,9 @@ export class ConflictResolver {
     const autoResolvableTypes: CalendarConflictType[] = [
       CalendarConflictType.TITLE,
       CalendarConflictType.DESCRIPTION_MISMATCH,
-      CalendarConflictType.LOCATION_MISMATCH
+      CalendarConflictType.LOCATION_MISMATCH,
     ];
-    
+
     return conflicts.length === 1 && autoResolvableTypes.includes(conflicts[0]);
   }
 
@@ -175,10 +169,7 @@ export class ConflictResolver {
   /**
    * Store conflict information in database
    */
-  async storeConflict(
-    syncStateId: string,
-    conflict: ConflictInfo
-  ): Promise<string> {
+  async storeConflict(syncStateId: string, conflict: ConflictInfo): Promise<string> {
     try {
       const conflictData = JSON.stringify({
         localVersion: conflict.localVersion,

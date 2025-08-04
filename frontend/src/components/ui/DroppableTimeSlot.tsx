@@ -66,7 +66,7 @@ export const DroppableTimeSlot: React.FC<DroppableTimeSlotProps> = ({
   // Get energy level color for background
   const getEnergyBackgroundColor = (level?: string) => {
     if (!level || !adhdSettings?.showEnergyIndicators) return 'transparent';
-    
+
     switch (level) {
       case 'HIGH':
         return calendarTokens.colors.energyLevels.HIGH.primary + '10'; // 10% opacity
@@ -107,16 +107,14 @@ export const DroppableTimeSlot: React.FC<DroppableTimeSlotProps> = ({
   // Calculate slot styles
   const slotStyles: React.CSSProperties = {
     backgroundColor: getEnergyBackgroundColor(energyLevel),
-    borderColor: isCurrentTime 
-      ? calendarTokens.colors.interface.focus 
-      : isOver 
+    borderColor: isCurrentTime
+      ? calendarTokens.colors.interface.focus
+      : isOver
         ? calendarTokens.colors.interface.focus
         : 'transparent',
     borderWidth: isCurrentTime ? '2px' : isOver ? '2px' : '1px',
     borderStyle: isCurrentTime ? 'solid' : isOver ? 'dashed' : 'solid',
-    transition: adhdSettings?.reducedMotion 
-      ? 'none' 
-      : 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+    transition: adhdSettings?.reducedMotion ? 'none' : 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
     minHeight: compact ? '30px' : '60px',
   };
 
@@ -152,41 +150,38 @@ export const DroppableTimeSlot: React.FC<DroppableTimeSlotProps> = ({
     >
       {/* Time label */}
       {showTimeLabel && (
-        <div className={`
+        <div
+          className={`
           absolute top-1 left-1 
           text-xs opacity-60 
           ${compact ? 'text-xs' : 'text-sm'}
           pointer-events-none
-        `}>
+        `}
+        >
           {formatTimeLabel(startTime)}
         </div>
       )}
 
       {/* Current time indicator */}
-      {isCurrentTime && (
-        <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary z-10" />
-      )}
+      {isCurrentTime && <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary z-10" />}
 
       {/* Energy level indicator */}
       {adhdSettings?.showEnergyIndicators && energyLevel && (
         <div className="absolute top-1 right-1 flex items-center gap-1">
-          <div 
+          <div
             className="w-2 h-2 rounded-full"
-            style={{ 
-              backgroundColor: energyLevel === 'HIGH' 
-                ? calendarTokens.colors.energyLevels.HIGH.primary
-                : energyLevel === 'MEDIUM'
-                ? calendarTokens.colors.energyLevels.MEDIUM.primary
-                : energyLevel === 'LOW'
-                ? calendarTokens.colors.energyLevels.LOW.primary
-                : 'transparent'
+            style={{
+              backgroundColor:
+                energyLevel === 'HIGH'
+                  ? calendarTokens.colors.energyLevels.HIGH.primary
+                  : energyLevel === 'MEDIUM'
+                    ? calendarTokens.colors.energyLevels.MEDIUM.primary
+                    : energyLevel === 'LOW'
+                      ? calendarTokens.colors.energyLevels.LOW.primary
+                      : 'transparent',
             }}
           />
-          {!compact && (
-            <span className="text-xs opacity-60">
-              {energyLevel}
-            </span>
-          )}
+          {!compact && <span className="text-xs opacity-60">{energyLevel}</span>}
         </div>
       )}
 
@@ -194,21 +189,21 @@ export const DroppableTimeSlot: React.FC<DroppableTimeSlotProps> = ({
       {isOver && (
         <div className="absolute inset-0 border-2 border-dashed border-accent pointer-events-none">
           <div className="absolute inset-0 bg-accent/10 flex items-center justify-center">
-            <span className="text-sm font-medium text-accent">
-              Drop here
-            </span>
+            <span className="text-sm font-medium text-accent">Drop here</span>
           </div>
         </div>
       )}
 
       {/* Events container */}
       {events.length > 0 && (
-        <div className={`
+        <div
+          className={`
           events-container
           ${showTimeLabel ? 'mt-6' : 'mt-1'}
           space-y-1
           ${compact ? 'space-y-0.5' : 'space-y-1'}
-        `}>
+        `}
+        >
           {visibleEvents.map((event, index) => (
             <DraggableCalendarEvent
               key={event.id}
@@ -225,12 +220,14 @@ export const DroppableTimeSlot: React.FC<DroppableTimeSlotProps> = ({
 
           {/* Hidden events indicator */}
           {hiddenEventsCount > 0 && (
-            <div className={`
+            <div
+              className={`
               text-xs opacity-60 
               ${compact ? 'px-1' : 'px-2 py-1'}
               bg-base-200 rounded
               text-center
-            `}>
+            `}
+            >
               +{hiddenEventsCount} more
             </div>
           )}
@@ -239,11 +236,13 @@ export const DroppableTimeSlot: React.FC<DroppableTimeSlotProps> = ({
 
       {/* Tasks (if any) */}
       {tasks && tasks.length > 0 && (
-        <div className={`
+        <div
+          className={`
           tasks-container
           ${events.length > 0 ? 'mt-2' : showTimeLabel ? 'mt-6' : 'mt-1'}
           space-y-1
-        `}>
+        `}
+        >
           {tasks.map(task => (
             <div
               key={task.id}
@@ -256,13 +255,9 @@ export const DroppableTimeSlot: React.FC<DroppableTimeSlotProps> = ({
                 text-secondary-content
               `}
             >
-              <div className="font-medium truncate">
-                {task.title}
-              </div>
+              <div className="font-medium truncate">{task.title}</div>
               {!compact && task.estimatedDuration && (
-                <div className="text-xs opacity-75">
-                  {task.estimatedDuration} min
-                </div>
+                <div className="text-xs opacity-75">{task.estimatedDuration} min</div>
               )}
             </div>
           ))}
@@ -272,9 +267,7 @@ export const DroppableTimeSlot: React.FC<DroppableTimeSlotProps> = ({
       {/* Empty state message */}
       {isEmpty && !isOver && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span className="text-xs opacity-30">
-            {isWorkingHours ? 'Available' : 'Off hours'}
-          </span>
+          <span className="text-xs opacity-30">{isWorkingHours ? 'Available' : 'Off hours'}</span>
         </div>
       )}
 

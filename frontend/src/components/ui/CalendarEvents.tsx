@@ -17,10 +17,10 @@ const CalendarEvents: React.FC<CalendarEventsProps> = ({
   const { data: calendarData, isLoading, error, refetch } = useCalendarEvents(date);
 
   const formatTime = (dateTime: string) => {
-    return new Date(dateTime).toLocaleTimeString([], { 
-      hour: '2-digit', 
+    return new Date(dateTime).toLocaleTimeString([], {
+      hour: '2-digit',
       minute: '2-digit',
-      hour12: true 
+      hour12: true,
     });
   };
 
@@ -63,9 +63,10 @@ const CalendarEvents: React.FC<CalendarEventsProps> = ({
     }
   };
 
-  const displayEvents = maxEvents && calendarData?.events 
-    ? calendarData.events.slice(0, maxEvents)
-    : calendarData?.events || [];
+  const displayEvents =
+    maxEvents && calendarData?.events
+      ? calendarData.events.slice(0, maxEvents)
+      : calendarData?.events || [];
 
   if (error) {
     return (
@@ -73,8 +74,18 @@ const CalendarEvents: React.FC<CalendarEventsProps> = ({
         <div className="card-body">
           <h3 className="card-title text-error">Calendar Events</h3>
           <div className="alert alert-error">
-            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="stroke-current shrink-0 h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             <span>Failed to load calendar events</span>
             <button className="btn btn-sm btn-outline" onClick={() => refetch()}>
@@ -93,16 +104,15 @@ const CalendarEvents: React.FC<CalendarEventsProps> = ({
           <h3 className="card-title">
             📅 Calendar Events
             {calendarData && (
-              <span className="badge badge-neutral ml-2">
-                {calendarData.totalEvents}
-              </span>
+              <span className="badge badge-neutral ml-2">{calendarData.totalEvents}</span>
             )}
           </h3>
           {showRefresh && (
-            <button 
+            <button
               className={`btn btn-sm btn-ghost ${isLoading ? 'loading' : ''}`}
               onClick={() => refetch()}
               disabled={isLoading}
+              aria-label={isLoading ? 'Refreshing calendar events' : 'Refresh calendar events'}
             >
               {isLoading ? '' : '🔄'}
             </button>
@@ -142,20 +152,16 @@ const CalendarEvents: React.FC<CalendarEventsProps> = ({
           </div>
         ) : (
           <div className="space-y-3">
-            {displayEvents.map((event) => (
-              <div 
-                key={event.id} 
+            {displayEvents.map(event => (
+              <div
+                key={event.id}
                 className="flex items-start gap-3 p-3 rounded-lg bg-base-200 hover:bg-base-300 transition-colors"
               >
-                <div className="text-lg mt-1">
-                  {getSourceIcon(event.source)}
-                </div>
-                
+                <div className="text-lg mt-1">{getSourceIcon(event.source)}</div>
+
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
-                    <h4 className="font-medium text-base-content truncate">
-                      {event.title}
-                    </h4>
+                    <h4 className="font-medium text-base-content truncate">{event.title}</h4>
                     <div className="flex flex-col items-end gap-1 shrink-0">
                       {event.isAllDay ? (
                         <span className="badge badge-info badge-sm">All Day</span>
@@ -166,13 +172,13 @@ const CalendarEvents: React.FC<CalendarEventsProps> = ({
                       )}
                     </div>
                   </div>
-                  
+
                   {event.description && (
                     <p className="text-sm text-base-content/60 mt-1 line-clamp-2">
                       {event.description}
                     </p>
                   )}
-                  
+
                   <div className="flex items-center gap-2 mt-2">
                     {event.energyLevel && (
                       <span className={`badge badge-sm ${getEnergyBadgeColor(event.energyLevel)}`}>
@@ -184,14 +190,12 @@ const CalendarEvents: React.FC<CalendarEventsProps> = ({
                         {event.focusType}
                       </span>
                     )}
-                    <span className="badge badge-outline badge-xs">
-                      {event.source}
-                    </span>
+                    <span className="badge badge-outline badge-xs">{event.source}</span>
                   </div>
                 </div>
               </div>
             ))}
-            
+
             {/* Show More Indicator */}
             {maxEvents && calendarData && calendarData.events.length > maxEvents && (
               <div className="text-center pt-2">

@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react'
-import { vi, describe, it, expect } from 'vitest'
-import Home from '@/app/page'
+import { render, screen } from '@testing-library/react';
+import { vi, describe, it, expect } from 'vitest';
+import Home from '@/app/page';
 
 // Mock Next.js router
 vi.mock('next/navigation', () => ({
@@ -10,45 +10,45 @@ vi.mock('next/navigation', () => ({
       pathname: '/',
       query: '',
       asPath: '/',
-    }
+    };
   },
-}))
+}));
 
 describe('Home Page', () => {
   it('renders the main heading', () => {
-    render(<Home />)
-    
+    render(<Home />);
+
     const heading = screen.getByRole('heading', {
       name: /hello there!/i,
-    })
-    
-    expect(heading).toBeInTheDocument()
-  })
+    });
+
+    expect(heading).toBeInTheDocument();
+  });
 
   it('renders the welcome message', () => {
-    render(<Home />)
-    
-    const welcomeMessage = screen.getByText(/welcome to codex bootstrap/i)
-    
-    expect(welcomeMessage).toBeInTheDocument()
-  })
+    render(<Home />);
+
+    const welcomeMessage = screen.getByText(/welcome to codex bootstrap/i);
+
+    expect(welcomeMessage).toBeInTheDocument();
+  });
 
   it('renders the get started button', () => {
-    render(<Home />)
-    
+    render(<Home />);
+
     const button = screen.getByRole('button', {
       name: /get started/i,
-    })
-    
-    expect(button).toBeInTheDocument()
-    expect(button).toHaveClass('btn', 'btn-primary')
-  })
+    });
+
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveClass('btn', 'btn-primary');
+  });
 
   it('renders the navigation bar', () => {
-    render(<Home />)
+    render(<Home />);
 
-    const [navbar] = screen.getAllByText(/codex bootstrap/i)
+    const [navbar] = screen.getAllByText(/codex bootstrap/i);
 
-    expect(navbar).toBeInTheDocument()
-  })
-})
+    expect(navbar).toBeInTheDocument();
+  });
+});

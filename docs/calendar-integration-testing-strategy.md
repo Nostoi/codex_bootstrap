@@ -19,10 +19,7 @@ describe('CalendarEventParser', () => {
         summary: 'Team Meeting',
         start: { dateTime: '2025-07-28T14:00:00-07:00' },
         end: { dateTime: '2025-07-28T15:00:00-07:00' },
-        attendees: [
-          { email: 'user1@example.com' },
-          { email: 'user2@example.com' }
-        ]
+        attendees: [{ email: 'user1@example.com' }, { email: 'user2@example.com' }],
       };
 
       const result = calendarParser.parseCalendarEventToTimeSlot(mockEvent);
@@ -32,7 +29,7 @@ describe('CalendarEventParser', () => {
         endTime: new Date('2025-07-28T15:00:00-07:00'),
         energyLevel: EnergyLevel.MEDIUM,
         preferredFocusTypes: [FocusType.SOCIAL],
-        isAvailable: false
+        isAvailable: false,
       });
     });
 
@@ -41,7 +38,7 @@ describe('CalendarEventParser', () => {
         id: 'event-2',
         summary: 'Company Holiday',
         start: { date: '2025-07-28' },
-        end: { date: '2025-07-29' }
+        end: { date: '2025-07-29' },
       };
 
       const result = calendarParser.parseCalendarEventToTimeSlot(mockEvent);
@@ -56,7 +53,7 @@ describe('CalendarEventParser', () => {
         id: 'event-3',
         summary: 'Focus Time',
         start: { dateTime: '2025-07-28T10:00:00-07:00' },
-        end: { dateTime: '2025-07-28T12:00:00-07:00' }
+        end: { dateTime: '2025-07-28T12:00:00-07:00' },
       };
 
       const result = calendarParser.parseCalendarEventToTimeSlot(mockEvent);
@@ -72,12 +69,12 @@ describe('CalendarEventParser', () => {
       ['Deep Work Session', [], EnergyLevel.HIGH],
       ['Large Team Meeting', new Array(10).fill({ email: 'user@example.com' }), EnergyLevel.LOW],
       ['1:1 with Manager', [{ email: 'manager@example.com' }], EnergyLevel.MEDIUM],
-      ['All Hands Meeting', new Array(50).fill({ email: 'user@example.com' }), EnergyLevel.LOW]
+      ['All Hands Meeting', new Array(50).fill({ email: 'user@example.com' }), EnergyLevel.LOW],
     ])('should infer %s as %s energy', (summary, attendees, expectedEnergy) => {
       const event: GoogleCalendarEvent = { summary, attendees };
-      
+
       const result = calendarParser.inferEnergyLevel(event);
-      
+
       expect(result).toBe(expectedEnergy);
     });
   });
@@ -89,12 +86,12 @@ describe('CalendarEventParser', () => {
       ['Creative Brainstorming', [FocusType.CREATIVE]],
       ['Admin: Expense Reports', [FocusType.ADMINISTRATIVE]],
       ['Workshop: Design Thinking', [FocusType.CREATIVE]],
-      ['Code Review Session', [FocusType.TECHNICAL]]
+      ['Code Review Session', [FocusType.TECHNICAL]],
     ])('should infer "%s" as %j focus types', (summary, expectedTypes) => {
       const event: GoogleCalendarEvent = { summary };
-      
+
       const result = calendarParser.inferPreferredFocusTypes(event);
-      
+
       expect(result).toEqual(expectedTypes);
     });
   });
@@ -110,24 +107,22 @@ describe('CalendarErrorHandler', () => {
       name: 'CalendarError',
       message: 'Service unavailable',
       type: CalendarErrorType.API_UNAVAILABLE,
-      retryable: false
+      retryable: false,
     };
 
     const result = await errorHandler.handleError(error);
 
     expect(result).toEqual([]);
-    expect(logger.warn).toHaveBeenCalledWith(
-      expect.stringContaining('Calendar API unavailable')
-    );
+    expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('Calendar API unavailable'));
   });
 
   test('should retry on rate limit error', async () => {
     const error: CalendarError = {
-      name: 'CalendarError', 
+      name: 'CalendarError',
       message: 'Rate limit exceeded',
       type: CalendarErrorType.RATE_LIMITED,
       retryable: true,
-      retryAfter: 60
+      retryAfter: 60,
     };
 
     const shouldRetry = errorHandler.shouldRetry(error);
@@ -142,7 +137,7 @@ describe('CalendarErrorHandler', () => {
       name: 'CalendarError',
       message: 'Token expired',
       type: CalendarErrorType.AUTH_EXPIRED,
-      retryable: true
+      retryable: true,
     };
 
     // Simulate max retries exceeded
@@ -167,11 +162,7 @@ describe('DailyPlannerService Calendar Integration', () => {
 
   beforeEach(() => {
     mockGoogleService = createMockGoogleService();
-    dailyPlanner = new DailyPlannerService(
-      mockPrismaService,
-      mockTasksService,
-      mockGoogleService
-    );
+    dailyPlanner = new DailyPlannerService(mockPrismaService, mockTasksService, mockGoogleService);
   });
 
   test('should generate plan with calendar events blocking time slots', async () => {
@@ -183,9 +174,9 @@ describe('DailyPlannerService Calendar Integration', () => {
           id: 'event-1',
           summary: 'Team Meeting',
           start: { dateTime: '2025-07-28T14:00:00-07:00' },
-          end: { dateTime: '2025-07-28T15:00:00-07:00' }
-        }
-      ]
+          end: { dateTime: '2025-07-28T15:00:00-07:00' },
+        },
+      ],
     });
 
     // Setup mock tasks
@@ -194,8 +185,8 @@ describe('DailyPlannerService Calendar Integration', () => {
         id: 'task-1',
         title: 'Complete feature',
         estimatedMinutes: 120,
-        energyLevel: EnergyLevel.HIGH
-      })
+        energyLevel: EnergyLevel.HIGH,
+      }),
     ]);
 
     const userId = 'test-user';
@@ -212,18 +203,17 @@ describe('DailyPlannerService Calendar Integration', () => {
     );
 
     // Verify task was not scheduled during meeting time
-    const conflictingBlocks = plan.scheduleBlocks.filter(block => 
-      block.startTime < new Date('2025-07-28T15:00:00-07:00') &&
-      block.endTime > new Date('2025-07-28T14:00:00-07:00')
+    const conflictingBlocks = plan.scheduleBlocks.filter(
+      block =>
+        block.startTime < new Date('2025-07-28T15:00:00-07:00') &&
+        block.endTime > new Date('2025-07-28T14:00:00-07:00')
     );
 
     expect(conflictingBlocks).toHaveLength(0);
   });
 
   test('should handle calendar API failure gracefully', async () => {
-    mockGoogleService.getCalendarEvents.mockRejectedValue(
-      new Error('Network timeout')
-    );
+    mockGoogleService.getCalendarEvents.mockRejectedValue(new Error('Network timeout'));
 
     const userId = 'test-user';
     const date = new Date('2025-07-28');
@@ -233,7 +223,7 @@ describe('DailyPlannerService Calendar Integration', () => {
     // Plan should still be generated without calendar data
     expect(plan).toBeDefined();
     expect(plan.scheduleBlocks).toBeDefined();
-    
+
     // Warning should be logged
     expect(logger.warn).toHaveBeenCalledWith(
       expect.stringContaining('Calendar integration failed')
@@ -248,9 +238,9 @@ describe('DailyPlannerService Calendar Integration', () => {
           id: 'event-1',
           summary: 'Important Meeting',
           start: { dateTime: '2025-07-28T14:00:00-07:00' },
-          end: { dateTime: '2025-07-28T15:00:00-07:00' }
-        }
-      ]
+          end: { dateTime: '2025-07-28T15:00:00-07:00' },
+        },
+      ],
     });
 
     const plan = await dailyPlanner.generatePlan('test-user', new Date('2025-07-28'));
@@ -261,9 +251,11 @@ describe('DailyPlannerService Calendar Integration', () => {
       const meetingEnd = new Date('2025-07-28T15:00:00-07:00');
       const bufferBefore = new Date(meetingStart.getTime() - 10 * 60 * 1000);
       const bufferAfter = new Date(meetingEnd.getTime() + 10 * 60 * 1000);
-      
-      return (block.startTime >= bufferBefore && block.startTime < meetingEnd) ||
-             (block.endTime > meetingStart && block.endTime <= bufferAfter);
+
+      return (
+        (block.startTime >= bufferBefore && block.startTime < meetingEnd) ||
+        (block.endTime > meetingStart && block.endTime <= bufferAfter)
+      );
     });
 
     expect(bufferViolations).toHaveLength(0);
@@ -279,16 +271,16 @@ describe('DailyPlannerService Calendar Integration', () => {
 describe('Calendar Integration Performance', () => {
   test('should handle large calendar datasets efficiently', async () => {
     const largeEventSet = MockCalendarDataFactory.createEvents(200);
-    
+
     mockGoogleService.getCalendarEvents.mockResolvedValue({
       kind: 'calendar#events',
-      items: largeEventSet
+      items: largeEventSet,
     });
 
     const startTime = performance.now();
-    
+
     const plan = await dailyPlanner.generatePlan('test-user', new Date());
-    
+
     const endTime = performance.now();
     const duration = endTime - startTime;
 
@@ -298,9 +290,9 @@ describe('Calendar Integration Performance', () => {
 
   test('should maintain performance with concurrent requests', async () => {
     const concurrentRequests = 10;
-    const requests = Array(concurrentRequests).fill(null).map(() =>
-      dailyPlanner.generatePlan(`user-${Math.random()}`, new Date())
-    );
+    const requests = Array(concurrentRequests)
+      .fill(null)
+      .map(() => dailyPlanner.generatePlan(`user-${Math.random()}`, new Date()));
 
     const startTime = performance.now();
     const results = await Promise.all(requests);
@@ -346,7 +338,7 @@ describe('Calendar Cache Performance', () => {
 
     // Wait for expiration
     await new Promise(resolve => setTimeout(resolve, 100));
-    
+
     // Mock expiration
     jest.spyOn(Date, 'now').mockReturnValue(Date.now() + 20 * 60 * 1000);
 
@@ -367,13 +359,11 @@ describe('Calendar API Failure Scenarios', () => {
     ['Rate limit exceeded', { code: 429 }],
     ['Service unavailable', { code: 503 }],
     ['Authentication failed', { code: 401 }],
-    ['Forbidden access', { code: 403 }]
+    ['Forbidden access', { code: 403 }],
   ])('should handle %s gracefully', async (scenario, error) => {
     mockGoogleService.getCalendarEvents.mockRejectedValue(error);
 
-    await expect(
-      dailyPlanner.generatePlan('test-user', new Date())
-    ).resolves.toBeDefined();
+    await expect(dailyPlanner.generatePlan('test-user', new Date())).resolves.toBeDefined();
 
     expect(logger.warn).toHaveBeenCalled();
   });
@@ -406,27 +396,25 @@ describe('Calendar Data Edge Cases', () => {
       kind: 'calendar#events',
       items: [
         { id: 'event-1' }, // Missing required fields
-        { 
+        {
           id: 'event-2',
           summary: 'Valid Event',
-          start: { dateTime: 'invalid-date' } // Invalid date
+          start: { dateTime: 'invalid-date' }, // Invalid date
         },
         {
           id: 'event-3',
           summary: 'Another Valid Event',
           start: { dateTime: '2025-07-28T14:00:00-07:00' },
-          end: { dateTime: '2025-07-28T13:00:00-07:00' } // End before start
-        }
-      ]
+          end: { dateTime: '2025-07-28T13:00:00-07:00' }, // End before start
+        },
+      ],
     });
 
     const plan = await dailyPlanner.generatePlan('test-user', new Date('2025-07-28'));
 
     // Should filter out invalid events and continue
     expect(plan).toBeDefined();
-    expect(logger.warn).toHaveBeenCalledWith(
-      expect.stringContaining('Invalid calendar event')
-    );
+    expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('Invalid calendar event'));
   });
 
   test('should handle timezone mismatches', async () => {
@@ -436,21 +424,21 @@ describe('Calendar Data Edge Cases', () => {
         {
           id: 'event-1',
           summary: 'Cross-timezone Meeting',
-          start: { 
+          start: {
             dateTime: '2025-07-28T14:00:00+00:00', // UTC
-            timeZone: 'UTC'
+            timeZone: 'UTC',
           },
-          end: { 
+          end: {
             dateTime: '2025-07-28T15:00:00+00:00', // UTC
-            timeZone: 'UTC'
-          }
-        }
-      ]
+            timeZone: 'UTC',
+          },
+        },
+      ],
     });
 
     // User in Pacific timezone
     const userSettings = createMockUserSettings({
-      timezone: 'America/Los_Angeles'
+      timezone: 'America/Los_Angeles',
     });
 
     const plan = await dailyPlanner.generatePlan('test-user', new Date('2025-07-28'));
@@ -462,7 +450,7 @@ describe('Calendar Data Edge Cases', () => {
   test('should handle empty calendar response', async () => {
     mockGoogleService.getCalendarEvents.mockResolvedValue({
       kind: 'calendar#events',
-      items: []
+      items: [],
     });
 
     const plan = await dailyPlanner.generatePlan('test-user', new Date('2025-07-28'));
@@ -486,18 +474,20 @@ export class CalendarTestUtils {
       createDriveFile: jest.fn(),
       getSheetData: jest.fn(),
       createSheet: jest.fn(),
-      saveIntegrationConfig: jest.fn()
+      saveIntegrationConfig: jest.fn(),
     } as jest.Mocked<GoogleService>;
   }
 
-  static createMockCalendarEvent(overrides: Partial<GoogleCalendarEvent> = {}): GoogleCalendarEvent {
+  static createMockCalendarEvent(
+    overrides: Partial<GoogleCalendarEvent> = {}
+  ): GoogleCalendarEvent {
     return {
       id: 'mock-event-id',
       summary: 'Mock Event',
       start: { dateTime: '2025-07-28T14:00:00-07:00' },
       end: { dateTime: '2025-07-28T15:00:00-07:00' },
       attendees: [{ email: 'attendee@example.com' }],
-      ...overrides
+      ...overrides,
     };
   }
 
@@ -508,14 +498,14 @@ export class CalendarTestUtils {
       energyLevel: EnergyLevel.MEDIUM,
       preferredFocusTypes: [FocusType.SOCIAL],
       isAvailable: false,
-      ...overrides
+      ...overrides,
     };
   }
 
   static setupBasicMocks(googleService: jest.Mocked<GoogleService>): void {
     googleService.getCalendarEvents.mockResolvedValue({
       kind: 'calendar#events',
-      items: []
+      items: [],
     });
   }
 }
@@ -524,27 +514,27 @@ export class CalendarTestUtils {
 expect.extend({
   toBeWithinTimeRange(received: Date, start: Date, end: Date) {
     const pass = received >= start && received <= end;
-    
+
     return {
-      message: () => 
+      message: () =>
         `expected ${received.toISOString()} ${pass ? 'not ' : ''}to be within ${start.toISOString()} and ${end.toISOString()}`,
-      pass
+      pass,
     };
   },
 
   toHaveNoTimeConflicts(received: ScheduleBlock[], calendarEvents: TimeSlot[]) {
     const conflicts = received.filter(block =>
-      calendarEvents.some(event =>
-        block.startTime < event.endTime && event.startTime < block.endTime
+      calendarEvents.some(
+        event => block.startTime < event.endTime && event.startTime < block.endTime
       )
     );
 
     return {
       message: () =>
         `expected schedule blocks to have no conflicts with calendar events, but found ${conflicts.length} conflicts`,
-      pass: conflicts.length === 0
+      pass: conflicts.length === 0,
     };
-  }
+  },
 });
 ```
 
@@ -558,7 +548,7 @@ expect.extend({
       / E2E \     ← Few, comprehensive integration tests
      /______\
     /        \
-   / Integration \  ← Moderate, service integration tests  
+   / Integration \  ← Moderate, service integration tests
   /______________\
  /                \
 / Unit Tests       \  ← Many, fast, isolated tests
@@ -583,7 +573,7 @@ jobs:
           node-version: '18'
       - run: npm install
       - run: npm run test:unit:calendar
-      
+
   integration-tests:
     runs-on: ubuntu-latest
     needs: unit-tests
@@ -594,7 +584,7 @@ jobs:
       - run: npm run test:integration:calendar
         env:
           GOOGLE_CALENDAR_TEST_CREDENTIALS: ${{ secrets.GOOGLE_TEST_CREDENTIALS }}
-          
+
   performance-tests:
     runs-on: ubuntu-latest
     needs: integration-tests
@@ -614,7 +604,7 @@ class CalendarTestDataManager {
     NORMAL_WORKDAY: new Date('2025-07-28'),
     WEEKEND: new Date('2025-07-26'),
     HOLIDAY: new Date('2025-12-25'),
-    HIGH_VOLUME_DAY: new Date('2025-07-29')
+    HIGH_VOLUME_DAY: new Date('2025-07-29'),
   };
 
   static getTestScenarios(): CalendarTestScenario[] {
@@ -625,7 +615,7 @@ class CalendarTestDataManager {
         mockEvents: MockCalendarDataFactory.createStandardWorkDay(),
         expectedTimeSlots: 3,
         expectedEnergyLevels: [EnergyLevel.MEDIUM, EnergyLevel.HIGH, EnergyLevel.MEDIUM],
-        expectedFocusTypes: [[FocusType.SOCIAL], [FocusType.TECHNICAL], [FocusType.SOCIAL]]
+        expectedFocusTypes: [[FocusType.SOCIAL], [FocusType.TECHNICAL], [FocusType.SOCIAL]],
       },
       {
         name: 'Meeting-Heavy Day',
@@ -633,8 +623,8 @@ class CalendarTestDataManager {
         mockEvents: MockCalendarDataFactory.createHighVolumeDay(),
         expectedTimeSlots: 8,
         expectedEnergyLevels: Array(8).fill(EnergyLevel.LOW),
-        expectedFocusTypes: Array(8).fill([FocusType.SOCIAL])
-      }
+        expectedFocusTypes: Array(8).fill([FocusType.SOCIAL]),
+      },
     ];
   }
 }

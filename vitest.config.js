@@ -22,7 +22,7 @@ export default defineConfig({
           setupFiles: ['./vitest.setup.ts'],
         },
       },
-      // Storybook tests project  
+      // Storybook tests project
       {
         extends: true,
         plugins: [
@@ -36,7 +36,7 @@ export default defineConfig({
             enabled: true,
             headless: true,
             provider: 'playwright',
-            instances: [{ browser: 'chromium' }]
+            instances: [{ browser: 'chromium' }],
           },
           setupFiles: ['.storybook/vitest.setup.js'],
         },

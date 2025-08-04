@@ -18,6 +18,7 @@ This guide covers the complete setup and deployment of the Codex Bootstrap appli
 ## Prerequisites
 
 ### System Requirements
+
 - Docker Engine 20.10+ or Docker Desktop
 - Docker Compose 2.0+
 - Minimum 4GB RAM for production deployment
@@ -25,11 +26,13 @@ This guide covers the complete setup and deployment of the Codex Bootstrap appli
 - Container registry access (Docker Hub, AWS ECR, etc.)
 
 ### Security Tools
+
 - Trivy vulnerability scanner
 - Docker Bench for Security
 - Container runtime security (AppArmor/SELinux)
 
 ### Installation
+
 ```bash
 # Install Trivy
 curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
@@ -47,6 +50,7 @@ docker-compose --version
 Our production images use multi-stage builds for optimal security and performance:
 
 #### Backend Image (`Dockerfile.backend`)
+
 ```dockerfile
 # Stage 1: Dependencies
 FROM node:20-alpine AS deps
@@ -62,6 +66,7 @@ FROM node:20-alpine AS runner
 ```
 
 **Security Features:**
+
 - ✅ Non-root user (`nestjs:1001`)
 - ✅ Multi-stage build (minimal attack surface)
 - ✅ Alpine Linux base (reduced vulnerabilities)
@@ -72,12 +77,13 @@ FROM node:20-alpine AS runner
 - ✅ Read-only filesystem support
 
 #### Frontend Image (`Dockerfile.frontend`)
+
 ```dockerfile
 # Stage 1: Dependencies
 FROM node:20-alpine AS deps
 # Install build dependencies
 
-# Stage 2: Builder  
+# Stage 2: Builder
 FROM node:20-alpine AS builder
 # Build Next.js application
 
@@ -87,6 +93,7 @@ FROM node:20-alpine AS runner
 ```
 
 **Security Features:**
+
 - ✅ Non-root user (`nextjs:1001`)
 - ✅ Next.js standalone output (optimized)
 - ✅ Static asset optimization
@@ -99,7 +106,7 @@ FROM node:20-alpine AS runner
 # Build backend image
 docker build -t codex-backend:latest -f Dockerfile.backend .
 
-# Build frontend image  
+# Build frontend image
 docker build -t codex-frontend:latest -f Dockerfile.frontend .
 
 # Build with build args for production
@@ -136,8 +143,8 @@ services:
         limits:
           memory: 512M
           cpus: '0.5'
-    user: "1001:1001"
-    
+    user: '1001:1001'
+
   frontend:
     security_opt:
       - no-new-privileges:true
@@ -153,7 +160,7 @@ services:
         limits:
           memory: 256M
           cpus: '0.25'
-    user: "1001:1001"
+    user: '1001:1001'
 ```
 
 ### Security Features Explained
@@ -170,6 +177,7 @@ services:
 ## Container Registry Setup
 
 ### Docker Hub Setup
+
 ```bash
 # Login to Docker Hub
 docker login
@@ -184,6 +192,7 @@ docker push username/codex-frontend:latest
 ```
 
 ### AWS ECR Setup
+
 ```bash
 # Get login token
 aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 123456789012.dkr.ecr.us-west-2.amazonaws.com
@@ -198,6 +207,7 @@ docker push 123456789012.dkr.ecr.us-west-2.amazonaws.com/codex-bootstrap/backend
 ```
 
 ### Harbor Registry Setup
+
 ```bash
 # Login to Harbor
 docker login harbor.company.com
@@ -212,6 +222,7 @@ docker push harbor.company.com/project/codex-backend:latest
 ### Environment Configuration
 
 1. **Create production environment file:**
+
 ```bash
 # .env.production
 NODE_ENV=production
@@ -224,6 +235,7 @@ NEXT_PUBLIC_API_URL=https://api.yourdomain.com
 ```
 
 2. **Deploy with Docker Compose:**
+
 ```bash
 # Production deployment
 docker-compose \
@@ -250,17 +262,17 @@ services:
     environment:
       - NODE_ENV=production
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3001/health']
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "10m"
-        max-file: "3"
-    
+        max-size: '10m'
+        max-file: '3'
+
   frontend:
     image: your-registry/codex-frontend:${VERSION:-latest}
     restart: unless-stopped
@@ -268,22 +280,22 @@ services:
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
 
   nginx:
     image: nginx:alpine
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./ssl:/etc/nginx/ssl:ro
@@ -305,30 +317,30 @@ http {
     upstream backend {
         server backend:3001;
     }
-    
+
     upstream frontend {
         server frontend:3000;
     }
-    
+
     server {
         listen 80;
         server_name yourdomain.com;
         return 301 https://$server_name$request_uri;
     }
-    
+
     server {
         listen 443 ssl http2;
         server_name yourdomain.com;
-        
+
         ssl_certificate /etc/nginx/ssl/cert.pem;
         ssl_certificate_key /etc/nginx/ssl/key.pem;
-        
+
         # Security headers
         add_header X-Frame-Options DENY;
         add_header X-Content-Type-Options nosniff;
         add_header X-XSS-Protection "1; mode=block";
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
-        
+
         location /api/ {
             proxy_pass http://backend;
             proxy_set_header Host $host;
@@ -336,7 +348,7 @@ http {
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
         }
-        
+
         location / {
             proxy_pass http://frontend;
             proxy_set_header Host $host;
@@ -409,19 +421,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Build images
         run: |
           docker build -t codex-backend:test -f Dockerfile.backend .
           docker build -t codex-frontend:test -f Dockerfile.frontend .
-      
+
       - name: Run Trivy scanner
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'codex-backend:test'
           format: 'sarif'
           output: 'trivy-results.sarif'
-      
+
       - name: Upload Trivy scan results
         uses: github/codeql-action/upload-sarif@v2
         with:
@@ -451,17 +463,17 @@ docker-compose logs -f frontend
 services:
   backend:
     logging:
-      driver: "fluentd"
+      driver: 'fluentd'
       options:
-        fluentd-address: "fluentd:24224"
-        tag: "backend"
-        
+        fluentd-address: 'fluentd:24224'
+        tag: 'backend'
+
   frontend:
     logging:
-      driver: "fluentd"
+      driver: 'fluentd'
       options:
-        fluentd-address: "fluentd:24224"
-        tag: "frontend"
+        fluentd-address: 'fluentd:24224'
+        tag: 'frontend'
 ```
 
 ### Prometheus Monitoring
@@ -474,14 +486,14 @@ services:
   prometheus:
     image: prom/prometheus
     ports:
-      - "9090:9090"
+      - '9090:9090'
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      
+
   grafana:
     image: grafana/grafana
     ports:
-      - "3001:3000"
+      - '3001:3000'
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
@@ -496,6 +508,7 @@ volumes:
 ### Common Issues and Solutions
 
 #### 1. Container Won't Start
+
 ```bash
 # Check logs
 docker-compose logs backend
@@ -508,6 +521,7 @@ docker-compose logs backend
 ```
 
 #### 2. High Memory Usage
+
 ```bash
 # Check memory usage
 docker stats
@@ -520,6 +534,7 @@ docker stats
 ```
 
 #### 3. Security Scan Failures
+
 ```bash
 # Run detailed scan
 ./scripts/security-scan.sh
@@ -532,6 +547,7 @@ docker stats
 ```
 
 #### 4. SSL/TLS Issues
+
 ```bash
 # Test SSL configuration
 openssl s_client -connect yourdomain.com:443
@@ -565,6 +581,7 @@ docker diff codex-backend
 ### Performance Optimization
 
 #### Image Size Optimization
+
 ```bash
 # Multi-stage build optimization
 # Use .dockerignore effectively
@@ -577,6 +594,7 @@ docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
 ```
 
 #### Runtime Optimization
+
 ```bash
 # Set appropriate resource limits
 # Enable health checks
@@ -619,6 +637,7 @@ docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
 This guide provides a comprehensive approach to deploying Codex Bootstrap in production with Docker, emphasizing security hardening and operational best practices. Regular security scanning, monitoring, and updates are essential for maintaining a secure production environment.
 
 For additional support, refer to:
+
 - [Docker Security Best Practices](https://docs.docker.com/engine/security/)
 - [OWASP Container Security Guide](https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html)
 - [CIS Docker Benchmark](https://www.cisecurity.org/benchmark/docker)

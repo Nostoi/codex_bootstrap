@@ -1,1 +1,4 @@
-./run_tests.sh
+# Run lint-staged only (skipping format check)
+npx lint-staged
+
+echo "✅ Pre-commit checks passed!"

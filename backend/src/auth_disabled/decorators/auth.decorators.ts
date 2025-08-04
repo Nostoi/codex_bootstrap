@@ -16,7 +16,7 @@ export const RequireScopes = (scopes: RequiredScopes) => SetMetadata('scopes', s
 /**
  * Require calendar access for route
  */
-export const RequireCalendarAccess = (provider?: 'google' | 'microsoft') => 
+export const RequireCalendarAccess = (provider?: 'google' | 'microsoft') =>
   SetMetadata('calendar-provider', provider);
 
 /**
@@ -33,7 +33,7 @@ export const CurrentUser = createParamDecorator(
     }
 
     return data ? user[data] : user;
-  },
+  }
 );
 
 /**
@@ -49,7 +49,7 @@ export const CurrentSession = createParamDecorator(
     }
 
     return data ? session[data] : session;
-  },
+  }
 );
 
 /**
@@ -59,46 +59,49 @@ export const SCOPE_COMBINATIONS = {
   GOOGLE_CALENDAR: {
     google: [
       'https://www.googleapis.com/auth/calendar',
-      'https://www.googleapis.com/auth/calendar.readonly'
-    ]
+      'https://www.googleapis.com/auth/calendar.readonly',
+    ],
   },
   MICROSOFT_CALENDAR: {
     microsoft: [
       'https://graph.microsoft.com/Calendars.Read',
-      'https://graph.microsoft.com/Calendars.ReadWrite'
-    ]
+      'https://graph.microsoft.com/Calendars.ReadWrite',
+    ],
   },
   ANY_CALENDAR: {
-    any: true
+    any: true,
   },
   GOOGLE_PROFILE: {
     google: [
       'https://www.googleapis.com/auth/userinfo.profile',
-      'https://www.googleapis.com/auth/userinfo.email'
-    ]
+      'https://www.googleapis.com/auth/userinfo.email',
+    ],
   },
   MICROSOFT_PROFILE: {
-    microsoft: [
-      'https://graph.microsoft.com/User.Read'
-    ]
-  }
+    microsoft: ['https://graph.microsoft.com/User.Read'],
+  },
 } as const;
 
 /**
  * Convenience decorators for common scopes requirements
  */
-export const RequireGoogleCalendar = () => RequireScopes({
-  google: [...SCOPE_COMBINATIONS.GOOGLE_CALENDAR.google]
-});
-export const RequireMicrosoftCalendar = () => RequireScopes({
-  microsoft: [...SCOPE_COMBINATIONS.MICROSOFT_CALENDAR.microsoft]
-});
-export const RequireAnyCalendar = () => RequireScopes({
-  any: true
-});
-export const RequireGoogleProfile = () => RequireScopes({
-  google: [...SCOPE_COMBINATIONS.GOOGLE_PROFILE.google]
-});
-export const RequireMicrosoftProfile = () => RequireScopes({
-  microsoft: [...SCOPE_COMBINATIONS.MICROSOFT_PROFILE.microsoft]
-});
+export const RequireGoogleCalendar = () =>
+  RequireScopes({
+    google: [...SCOPE_COMBINATIONS.GOOGLE_CALENDAR.google],
+  });
+export const RequireMicrosoftCalendar = () =>
+  RequireScopes({
+    microsoft: [...SCOPE_COMBINATIONS.MICROSOFT_CALENDAR.microsoft],
+  });
+export const RequireAnyCalendar = () =>
+  RequireScopes({
+    any: true,
+  });
+export const RequireGoogleProfile = () =>
+  RequireScopes({
+    google: [...SCOPE_COMBINATIONS.GOOGLE_PROFILE.google],
+  });
+export const RequireMicrosoftProfile = () =>
+  RequireScopes({
+    microsoft: [...SCOPE_COMBINATIONS.MICROSOFT_PROFILE.microsoft],
+  });

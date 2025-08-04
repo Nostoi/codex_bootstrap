@@ -1,20 +1,25 @@
 'use client';
 
-import React, { 
-  createContext, 
-  useContext, 
-  useEffect, 
-  useState, 
-  useRef, 
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
   useCallback,
-  ReactNode 
+  ReactNode,
 } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from './AuthContext';
 
 export interface NotificationData {
   id: string;
-  type: 'task-update' | 'calendar-sync' | 'deadline-reminder' | 'conflict-alert' | 'plan-regeneration';
+  type:
+    | 'task-update'
+    | 'calendar-sync'
+    | 'deadline-reminder'
+    | 'conflict-alert'
+    | 'plan-regeneration';
   title: string;
   message: string;
   data?: any;
@@ -53,9 +58,9 @@ interface WebSocketProviderProps {
   serverUrl?: string;
 }
 
-export function WebSocketProvider({ 
-  children, 
-  serverUrl = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3001' 
+export function WebSocketProvider({
+  children,
+  serverUrl = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3001',
 }: WebSocketProviderProps) {
   const { user, isAuthenticated } = useAuth();
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -96,22 +101,22 @@ export function WebSocketProvider({
         setIsConnected(true);
         setIsConnecting(false);
         reconnectAttempts.current = 0;
-        
+
         // Request offline notifications
         newSocket.emit('get-offline-notifications');
       });
 
-      newSocket.on('disconnect', (reason) => {
+      newSocket.on('disconnect', reason => {
         console.log('WebSocket disconnected:', reason);
         setIsConnected(false);
         setIsConnecting(false);
       });
 
-      newSocket.on('connect_error', (error) => {
+      newSocket.on('connect_error', error => {
         console.error('WebSocket connection error:', error);
         setIsConnecting(false);
         reconnectAttempts.current++;
-        
+
         if (reconnectAttempts.current >= maxReconnectAttempts) {
           console.error('Max reconnection attempts reached');
           newSocket.disconnect();
@@ -126,10 +131,10 @@ export function WebSocketProvider({
           if (prev.some(n => n.id === notification.id)) {
             return prev;
           }
-          
+
           // Add new notification at the beginning
           const updated = [{ ...notification, read: false }, ...prev];
-          
+
           // Keep only last 100 notifications
           return updated.slice(0, 100);
         });
@@ -145,8 +150,8 @@ export function WebSocketProvider({
         setNotifications(prev => {
           const combined = [...offlineNotifications, ...prev];
           // Remove duplicates based on ID
-          const unique = combined.filter((notification, index, self) => 
-            index === self.findIndex(n => n.id === notification.id)
+          const unique = combined.filter(
+            (notification, index, self) => index === self.findIndex(n => n.id === notification.id)
           );
           // Keep only last 100 notifications
           return unique.slice(0, 100);
@@ -154,36 +159,35 @@ export function WebSocketProvider({
       });
 
       // Task update handlers
-      newSocket.on('task-updated', (data) => {
+      newSocket.on('task-updated', data => {
         console.log('Task updated:', data);
         // Emit custom event for task update listeners
         window.dispatchEvent(new CustomEvent('task-updated', { detail: data }));
       });
 
-      newSocket.on('task-created', (data) => {
+      newSocket.on('task-created', data => {
         console.log('Task created:', data);
         window.dispatchEvent(new CustomEvent('task-created', { detail: data }));
       });
 
-      newSocket.on('task-deleted', (data) => {
+      newSocket.on('task-deleted', data => {
         console.log('Task deleted:', data);
         window.dispatchEvent(new CustomEvent('task-deleted', { detail: data }));
       });
 
       // Calendar sync handlers
-      newSocket.on('calendar-sync-completed', (data) => {
+      newSocket.on('calendar-sync-completed', data => {
         console.log('Calendar sync completed:', data);
         window.dispatchEvent(new CustomEvent('calendar-sync-completed', { detail: data }));
       });
 
-      newSocket.on('calendar-conflict-detected', (data) => {
+      newSocket.on('calendar-conflict-detected', data => {
         console.log('Calendar conflict detected:', data);
         window.dispatchEvent(new CustomEvent('calendar-conflict-detected', { detail: data }));
       });
 
       socketRef.current = newSocket;
       setSocket(newSocket);
-
     } catch (error) {
       console.error('Failed to create WebSocket connection:', error);
       setIsConnecting(false);
@@ -214,19 +218,15 @@ export function WebSocketProvider({
 
   // Notification management functions
   const markNotificationAsRead = useCallback((id: string) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id 
-          ? { ...notification, read: true }
-          : notification
+    setNotifications(prev =>
+      prev.map(notification =>
+        notification.id === id ? { ...notification, read: true } : notification
       )
     );
   }, []);
 
   const markAllAsRead = useCallback(() => {
-    setNotifications(prev => 
-      prev.map(notification => ({ ...notification, read: true }))
-    );
+    setNotifications(prev => prev.map(notification => ({ ...notification, read: true })));
   }, []);
 
   const clearNotifications = useCallback(() => {
@@ -234,13 +234,19 @@ export function WebSocketProvider({
   }, []);
 
   // Task subscription functions
-  const subscribeToTaskUpdates = useCallback((taskId: string) => {
-    sendMessage('subscribe-task-updates', { taskId });
-  }, [sendMessage]);
+  const subscribeToTaskUpdates = useCallback(
+    (taskId: string) => {
+      sendMessage('subscribe-task-updates', { taskId });
+    },
+    [sendMessage]
+  );
 
-  const unsubscribeFromTaskUpdates = useCallback((taskId: string) => {
-    sendMessage('unsubscribe-task-updates', { taskId });
-  }, [sendMessage]);
+  const unsubscribeFromTaskUpdates = useCallback(
+    (taskId: string) => {
+      sendMessage('unsubscribe-task-updates', { taskId });
+    },
+    [sendMessage]
+  );
 
   const subscribeToCalendarSync = useCallback(() => {
     sendMessage('subscribe-calendar-sync', {});
@@ -307,11 +313,7 @@ export function WebSocketProvider({
     unsubscribeFromCalendarSync,
   };
 
-  return (
-    <WebSocketContext.Provider value={value}>
-      {children}
-    </WebSocketContext.Provider>
-  );
+  return <WebSocketContext.Provider value={value}>{children}</WebSocketContext.Provider>;
 }
 
 export function useWebSocket() {
@@ -324,29 +326,36 @@ export function useWebSocket() {
 
 // Custom hook for task-specific WebSocket operations
 export function useTaskWebSocket(taskId?: string) {
-  const { subscribeToTaskUpdates, unsubscribeFromTaskUpdates, sendMessage, isConnected } = useWebSocket();
+  const { subscribeToTaskUpdates, unsubscribeFromTaskUpdates, sendMessage, isConnected } =
+    useWebSocket();
 
   useEffect(() => {
     if (taskId && isConnected) {
       subscribeToTaskUpdates(taskId);
-      
+
       return () => {
         unsubscribeFromTaskUpdates(taskId);
       };
     }
   }, [taskId, isConnected, subscribeToTaskUpdates, unsubscribeFromTaskUpdates]);
 
-  const updateTaskStatus = useCallback((status: string) => {
-    if (taskId) {
-      sendMessage('update-task-status', { taskId, status });
-    }
-  }, [taskId, sendMessage]);
+  const updateTaskStatus = useCallback(
+    (status: string) => {
+      if (taskId) {
+        sendMessage('update-task-status', { taskId, status });
+      }
+    },
+    [taskId, sendMessage]
+  );
 
-  const updateTaskProgress = useCallback((progress: number) => {
-    if (taskId) {
-      sendMessage('update-task-progress', { taskId, progress });
-    }
-  }, [taskId, sendMessage]);
+  const updateTaskProgress = useCallback(
+    (progress: number) => {
+      if (taskId) {
+        sendMessage('update-task-progress', { taskId, progress });
+      }
+    },
+    [taskId, sendMessage]
+  );
 
   return {
     updateTaskStatus,
@@ -356,12 +365,13 @@ export function useTaskWebSocket(taskId?: string) {
 
 // Custom hook for calendar-specific WebSocket operations
 export function useCalendarWebSocket() {
-  const { subscribeToCalendarSync, unsubscribeFromCalendarSync, sendMessage, isConnected } = useWebSocket();
+  const { subscribeToCalendarSync, unsubscribeFromCalendarSync, sendMessage, isConnected } =
+    useWebSocket();
 
   useEffect(() => {
     if (isConnected) {
       subscribeToCalendarSync();
-      
+
       return () => {
         unsubscribeFromCalendarSync();
       };
@@ -372,9 +382,12 @@ export function useCalendarWebSocket() {
     sendMessage('trigger-calendar-sync', {});
   }, [sendMessage]);
 
-  const resolveCalendarConflict = useCallback((conflictId: string, resolution: string) => {
-    sendMessage('resolve-calendar-conflict', { conflictId, resolution });
-  }, [sendMessage]);
+  const resolveCalendarConflict = useCallback(
+    (conflictId: string, resolution: string) => {
+      sendMessage('resolve-calendar-conflict', { conflictId, resolution });
+    },
+    [sendMessage]
+  );
 
   return {
     triggerCalendarSync,

@@ -8,16 +8,16 @@ vi.mock('../../lib/aiService', () => ({
   aiService: {
     extractTasks: vi.fn().mockResolvedValue([
       {
-        title: "Test extracted task",
-        priority: "medium" as const,
-        estimatedDuration: 30
-      }
+        title: 'Test extracted task',
+        priority: 'medium' as const,
+        estimatedDuration: 30,
+      },
     ]),
     sendChatMessage: vi.fn().mockResolvedValue({
-      data: "Mock AI response"
+      data: 'Mock AI response',
     }),
-    healthCheck: vi.fn().mockResolvedValue(true)
-  }
+    healthCheck: vi.fn().mockResolvedValue(true),
+  },
 }));
 
 // Mock scrollIntoView for test environment
@@ -56,59 +56,63 @@ describe('ChatGPTIntegration', () => {
 
   it('renders chat interface with messages', () => {
     render(<ChatGPTIntegration {...defaultProps} />);
-    
+
     expect(screen.getByText('AI Assistant')).toBeInTheDocument();
     expect(screen.getByText('Help me plan my day')).toBeInTheDocument();
-    expect(screen.getByText('I can help you plan your day! What are your main priorities?')).toBeInTheDocument();
+    expect(
+      screen.getByText('I can help you plan your day! What are your main priorities?')
+    ).toBeInTheDocument();
   });
 
   it('shows empty state when no messages', () => {
     render(<ChatGPTIntegration {...defaultProps} messages={[]} />);
-    
+
     expect(screen.getByText('AI Assistant Ready')).toBeInTheDocument();
-    expect(screen.getByText('Ask me to help plan your day, extract tasks, or organize your work!')).toBeInTheDocument();
+    expect(
+      screen.getByText('Ask me to help plan your day, extract tasks, or organize your work!')
+    ).toBeInTheDocument();
   });
 
   it('sends message when user types and presses enter', async () => {
     const onSendMessage = vi.fn();
     render(<ChatGPTIntegration {...defaultProps} onSendMessage={onSendMessage} />);
-    
+
     const input = screen.getByRole('textbox', { name: /type your message/i });
     const sendButton = screen.getByRole('button', { name: /send message/i });
-    
+
     fireEvent.change(input, { target: { value: 'New message' } });
     fireEvent.click(sendButton);
-    
+
     expect(onSendMessage).toHaveBeenCalledWith('New message');
   });
 
   it('sends message with Enter key', async () => {
     const onSendMessage = vi.fn();
     render(<ChatGPTIntegration {...defaultProps} onSendMessage={onSendMessage} />);
-    
+
     const input = screen.getByRole('textbox', { name: /type your message/i });
-    
+
     fireEvent.change(input, { target: { value: 'Enter key message' } });
     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
-    
+
     expect(onSendMessage).toHaveBeenCalledWith('Enter key message');
   });
 
   it('does not send message with Shift+Enter', () => {
     const onSendMessage = vi.fn();
     render(<ChatGPTIntegration {...defaultProps} onSendMessage={onSendMessage} />);
-    
+
     const input = screen.getByRole('textbox', { name: /type your message/i });
-    
+
     fireEvent.change(input, { target: { value: 'Shift enter message' } });
     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter', shiftKey: true });
-    
+
     expect(onSendMessage).not.toHaveBeenCalled();
   });
 
   it('displays loading state correctly', () => {
     render(<ChatGPTIntegration {...defaultProps} isLoading={true} />);
-    
+
     expect(screen.getByRole('button', { name: /send message/i })).toBeDisabled();
     // Check for loading animation in the chat
     const loadingDots = document.querySelectorAll('.animate-bounce');
@@ -117,7 +121,7 @@ describe('ChatGPTIntegration', () => {
 
   it('shows disconnected state', () => {
     render(<ChatGPTIntegration {...defaultProps} isConnected={false} />);
-    
+
     expect(screen.getByText('Disconnected')).toBeInTheDocument();
     expect(screen.getByRole('textbox')).toBeDisabled();
     expect(screen.getByRole('button', { name: /send message/i })).toBeDisabled();
@@ -126,10 +130,10 @@ describe('ChatGPTIntegration', () => {
   it('extracts tasks when extract button is clicked', async () => {
     const onExtractTasks = vi.fn();
     render(<ChatGPTIntegration {...defaultProps} onExtractTasks={onExtractTasks} />);
-    
+
     const extractButton = screen.getByRole('button', { name: /extract tasks/i });
     fireEvent.click(extractButton);
-    
+
     // Wait for the async operation to complete
     await waitFor(() => {
       expect(onExtractTasks).toHaveBeenCalled();
@@ -139,29 +143,29 @@ describe('ChatGPTIntegration', () => {
   it('clears chat when clear button is clicked', () => {
     const onClearChat = vi.fn();
     render(<ChatGPTIntegration {...defaultProps} onClearChat={onClearChat} />);
-    
+
     const clearButton = screen.getByRole('button', { name: /clear chat history/i });
     fireEvent.click(clearButton);
-    
+
     expect(onClearChat).toHaveBeenCalled();
   });
 
   it('does not show task extraction button when disabled', () => {
     render(<ChatGPTIntegration {...defaultProps} showTaskExtraction={false} />);
-    
+
     expect(screen.queryByRole('button', { name: /extract tasks/i })).not.toBeInTheDocument();
   });
 
   it('displays custom placeholder', () => {
     const customPlaceholder = 'Custom placeholder text';
     render(<ChatGPTIntegration {...defaultProps} placeholder={customPlaceholder} />);
-    
+
     expect(screen.getByPlaceholderText(customPlaceholder)).toBeInTheDocument();
   });
 
   it('shows message timestamps', () => {
     render(<ChatGPTIntegration {...defaultProps} />);
-    
+
     // Check that timestamps are rendered (check for time format pattern)
     const timestampElements = screen.getAllByText(/\d{1,2}:\d{2}/);
     expect(timestampElements.length).toBeGreaterThan(0);
@@ -190,7 +194,7 @@ describe('ChatGPTIntegration', () => {
     ];
 
     render(<ChatGPTIntegration {...defaultProps} messages={messagesWithTypes} />);
-    
+
     expect(screen.getByText('User message')).toBeInTheDocument();
     expect(screen.getByText('Assistant message')).toBeInTheDocument();
     expect(screen.getByText('System message')).toBeInTheDocument();
@@ -210,8 +214,14 @@ describe('ChatGPTIntegration', () => {
     ];
 
     const onSendMessage = vi.fn();
-    render(<ChatGPTIntegration {...defaultProps} messages={messageWithActions} onSendMessage={onSendMessage} />);
-    
+    render(
+      <ChatGPTIntegration
+        {...defaultProps}
+        messages={messageWithActions}
+        onSendMessage={onSendMessage}
+      />
+    );
+
     expect(screen.getByText('Suggested actions:')).toBeInTheDocument();
     expect(screen.getByText('Action 1')).toBeInTheDocument();
     expect(screen.getByText('Action 2')).toBeInTheDocument();
@@ -225,9 +235,9 @@ describe('ChatGPTIntegration', () => {
   it('prevents sending empty messages', () => {
     const onSendMessage = vi.fn();
     render(<ChatGPTIntegration {...defaultProps} onSendMessage={onSendMessage} />);
-    
+
     const sendButton = screen.getByRole('button', { name: /send message/i });
-    
+
     // Try to send empty message
     fireEvent.click(sendButton);
     expect(onSendMessage).not.toHaveBeenCalled();
@@ -241,16 +251,16 @@ describe('ChatGPTIntegration', () => {
 
   it('displays character count', () => {
     render(<ChatGPTIntegration {...defaultProps} />);
-    
+
     const input = screen.getByRole('textbox', { name: /type your message/i });
     fireEvent.change(input, { target: { value: 'Test message' } });
-    
+
     expect(screen.getByText('12/500')).toBeInTheDocument();
   });
 
   it('has proper accessibility attributes', () => {
     render(<ChatGPTIntegration {...defaultProps} />);
-    
+
     expect(screen.getByRole('log', { name: /chat messages/i })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: /type your message/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /send message/i })).toBeInTheDocument();

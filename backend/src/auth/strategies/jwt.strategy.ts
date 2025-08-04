@@ -19,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
   constructor(
     private readonly authService: AuthService,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -56,7 +56,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       }
 
       this.logger.debug(`JWT validation successful for user: ${user.email}`);
-      
+
       // Return user object (will be available as req.user in controllers)
       return {
         id: user.id,

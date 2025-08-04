@@ -1,6 +1,6 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { google } from "googleapis";
-import { PrismaService } from "../../prisma/prisma.service";
+import { Injectable, Logger } from '@nestjs/common';
+import { google } from 'googleapis';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class GoogleService {
@@ -15,14 +15,14 @@ export class GoogleService {
     const config = await this.prisma.integrationConfig.findUnique({
       where: {
         provider_userId: {
-          provider: "google",
+          provider: 'google',
           userId,
         },
       },
     });
 
     if (!config?.accessToken) {
-      throw new Error("Google integration not configured for user");
+      throw new Error('Google integration not configured for user');
     }
 
     const oauth2Client = new google.auth.OAuth2();
@@ -40,12 +40,11 @@ export class GoogleService {
   async getDriveFiles(userId: string, folderId?: string) {
     try {
       const auth = await this.createOAuth2Client(userId);
-      const drive = google.drive({ version: "v3", auth });
+      const drive = google.drive({ version: 'v3', auth });
 
       const params: any = {
         pageSize: 50,
-        fields:
-          "nextPageToken, files(id, name, mimeType, createdTime, modifiedTime, size)",
+        fields: 'nextPageToken, files(id, name, mimeType, createdTime, modifiedTime, size)',
       };
 
       if (folderId) {
@@ -55,7 +54,7 @@ export class GoogleService {
       const response = await drive.files.list(params);
       return response.data;
     } catch (error) {
-      this.logger.error("Error fetching Google Drive files:", error);
+      this.logger.error('Error fetching Google Drive files:', error);
       throw error;
     }
   }
@@ -67,11 +66,11 @@ export class GoogleService {
     userId: string,
     filename: string,
     content: string,
-    mimeType = "text/plain",
+    mimeType = 'text/plain'
   ) {
     try {
       const auth = await this.createOAuth2Client(userId);
-      const drive = google.drive({ version: "v3", auth });
+      const drive = google.drive({ version: 'v3', auth });
 
       const response = await drive.files.create({
         requestBody: {
@@ -81,12 +80,12 @@ export class GoogleService {
           mimeType,
           body: content,
         },
-        fields: "id, name, mimeType, createdTime",
+        fields: 'id, name, mimeType, createdTime',
       });
 
       return response.data;
     } catch (error) {
-      this.logger.error("Error creating Google Drive file:", error);
+      this.logger.error('Error creating Google Drive file:', error);
       throw error;
     }
   }
@@ -97,7 +96,7 @@ export class GoogleService {
   async getSheetData(userId: string, spreadsheetId: string, range: string) {
     try {
       const auth = await this.createOAuth2Client(userId);
-      const sheets = google.sheets({ version: "v4", auth });
+      const sheets = google.sheets({ version: 'v4', auth });
 
       const response = await sheets.spreadsheets.values.get({
         spreadsheetId,
@@ -106,7 +105,7 @@ export class GoogleService {
 
       return response.data;
     } catch (error) {
-      this.logger.error("Error fetching Google Sheets data:", error);
+      this.logger.error('Error fetching Google Sheets data:', error);
       throw error;
     }
   }
@@ -117,7 +116,7 @@ export class GoogleService {
   async createSheet(userId: string, title: string) {
     try {
       const auth = await this.createOAuth2Client(userId);
-      const sheets = google.sheets({ version: "v4", auth });
+      const sheets = google.sheets({ version: 'v4', auth });
 
       const response = await sheets.spreadsheets.create({
         requestBody: {
@@ -125,12 +124,12 @@ export class GoogleService {
             title,
           },
         },
-        fields: "spreadsheetId, properties(title)",
+        fields: 'spreadsheetId, properties(title)',
       });
 
       return response.data;
     } catch (error) {
-      this.logger.error("Error creating Google Sheet:", error);
+      this.logger.error('Error creating Google Sheet:', error);
       throw error;
     }
   }
@@ -138,27 +137,19 @@ export class GoogleService {
   /**
    * Get Google Calendar events for a specific date range with enhanced error handling
    */
-  async getCalendarEvents(
-    userId: string,
-    calendarId = "primary",
-    timeMin?: Date,
-    timeMax?: Date,
-  ) {
+  async getCalendarEvents(userId: string, calendarId = 'primary', timeMin?: Date, timeMax?: Date) {
     const startTime = performance.now();
-    
+
     try {
-      this.logger.debug(
-        `Fetching calendar events for user ${userId}, calendar ${calendarId}`,
-        {
-          userId,
-          calendarId,
-          timeMin: timeMin?.toISOString(),
-          timeMax: timeMax?.toISOString(),
-        },
-      );
+      this.logger.debug(`Fetching calendar events for user ${userId}, calendar ${calendarId}`, {
+        userId,
+        calendarId,
+        timeMin: timeMin?.toISOString(),
+        timeMax: timeMax?.toISOString(),
+      });
 
       const auth = await this.createOAuth2Client(userId);
-      const calendar = google.calendar({ version: "v3", auth });
+      const calendar = google.calendar({ version: 'v3', auth });
 
       const response = await calendar.events.list({
         calendarId,
@@ -166,7 +157,7 @@ export class GoogleService {
         timeMax: timeMax?.toISOString(),
         maxResults: 50,
         singleEvents: true,
-        orderBy: "startTime",
+        orderBy: 'startTime',
       });
 
       const responseTime = performance.now() - startTime;
@@ -179,64 +170,53 @@ export class GoogleService {
           calendarId,
           eventCount,
           responseTimeMs: responseTime,
-        },
+        }
       );
 
       return response.data;
     } catch (error) {
       const responseTime = performance.now() - startTime;
-      
-      this.logger.error(
-        `Error fetching Google Calendar events for user ${userId}:`,
-        {
-          userId,
-          calendarId,
-          error: error.message,
-          errorCode: error.response?.status,
-          responseTimeMs: responseTime,
-        },
-      );
+
+      this.logger.error(`Error fetching Google Calendar events for user ${userId}:`, {
+        userId,
+        calendarId,
+        error: error.message,
+        errorCode: error.response?.status,
+        responseTimeMs: responseTime,
+      });
 
       // Handle specific Google API errors
       if (error.response?.status === 401) {
-        this.logger.warn(
-          `Authentication token expired for user ${userId}, attempting refresh`,
-          { userId },
-        );
-        
+        this.logger.warn(`Authentication token expired for user ${userId}, attempting refresh`, {
+          userId,
+        });
+
         try {
           await this.refreshAccessToken(userId);
           this.logger.log(
             `Token refresh successful for user ${userId}, retrying calendar request`,
-            { userId },
+            { userId }
           );
-          
+
           // Retry the request with refreshed token
           return this.getCalendarEvents(userId, calendarId, timeMin, timeMax);
         } catch (refreshError) {
-          this.logger.error(
-            `Token refresh failed for user ${userId}:`,
-            {
-              userId,
-              refreshError: refreshError.message,
-            },
-          );
-          throw new Error(
-            `Google Calendar authentication failed: ${refreshError.message}`,
-          );
+          this.logger.error(`Token refresh failed for user ${userId}:`, {
+            userId,
+            refreshError: refreshError.message,
+          });
+          throw new Error(`Google Calendar authentication failed: ${refreshError.message}`);
         }
       }
 
       if (error.response?.status === 403) {
         throw new Error(
-          'Insufficient permissions to access Google Calendar. Please re-authorize the application.',
+          'Insufficient permissions to access Google Calendar. Please re-authorize the application.'
         );
       }
 
       if (error.response?.status === 429) {
-        throw new Error(
-          'Google Calendar API rate limit exceeded. Please try again later.',
-        );
+        throw new Error('Google Calendar API rate limit exceeded. Please try again later.');
       }
 
       throw error;
@@ -251,19 +231,19 @@ export class GoogleService {
       const config = await this.prisma.integrationConfig.findUnique({
         where: {
           provider_userId: {
-            provider: "google",
+            provider: 'google',
             userId,
           },
         },
       });
 
       if (!config?.refreshToken) {
-        throw new Error("No refresh token available for user");
+        throw new Error('No refresh token available for user');
       }
 
       const oauth2Client = new google.auth.OAuth2(
         process.env.GOOGLE_CLIENT_ID,
-        process.env.GOOGLE_CLIENT_SECRET,
+        process.env.GOOGLE_CLIENT_SECRET
       );
 
       oauth2Client.setCredentials({
@@ -273,14 +253,14 @@ export class GoogleService {
       const { credentials } = await oauth2Client.refreshAccessToken();
 
       if (!credentials.access_token) {
-        throw new Error("Failed to obtain new access token");
+        throw new Error('Failed to obtain new access token');
       }
 
       // Update the stored access token
       await this.prisma.integrationConfig.update({
         where: {
           provider_userId: {
-            provider: "google",
+            provider: 'google',
             userId,
           },
         },
@@ -290,15 +270,12 @@ export class GoogleService {
         },
       });
 
-      this.logger.log(
-        `Access token refreshed successfully for user ${userId}`,
-        { userId },
-      );
+      this.logger.log(`Access token refreshed successfully for user ${userId}`, { userId });
     } catch (error) {
-      this.logger.error(
-        `Failed to refresh access token for user ${userId}: ${error.message}`,
-        { userId, error: error.message },
-      );
+      this.logger.error(`Failed to refresh access token for user ${userId}: ${error.message}`, {
+        userId,
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -315,11 +292,11 @@ export class GoogleService {
       end: { dateTime: string; timeZone?: string };
       attendees?: { email: string }[];
     },
-    calendarId = "primary",
+    calendarId = 'primary'
   ) {
     try {
       const auth = await this.createOAuth2Client(userId);
-      const calendar = google.calendar({ version: "v3", auth });
+      const calendar = google.calendar({ version: 'v3', auth });
 
       const response = await calendar.events.insert({
         calendarId,
@@ -328,7 +305,7 @@ export class GoogleService {
 
       return response.data;
     } catch (error) {
-      this.logger.error("Error creating Google Calendar event:", error);
+      this.logger.error('Error creating Google Calendar event:', error);
       throw error;
     }
   }
@@ -341,12 +318,12 @@ export class GoogleService {
     accessToken: string,
     refreshToken?: string,
     expiresAt?: Date,
-    scopes?: string[],
+    scopes?: string[]
   ) {
     return this.prisma.integrationConfig.upsert({
       where: {
         provider_userId: {
-          provider: "google",
+          provider: 'google',
           userId,
         },
       },
@@ -357,7 +334,7 @@ export class GoogleService {
         scopes: scopes || [],
       },
       create: {
-        provider: "google",
+        provider: 'google',
         userId,
         accessToken,
         refreshToken,

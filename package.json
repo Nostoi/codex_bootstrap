@@ -20,9 +20,12 @@
     "@vitest/browser": "^3.2.4",
     "@vitest/coverage-v8": "^3.2.4",
     "axe-playwright": "^2.1.0",
+    "concurrently": "^9.1.0",
     "husky": "^9.0.0",
     "jsdom": "^26.1.0",
+    "lint-staged": "^15.2.11",
     "playwright": "^1.54.1",
+    "prettier": "^3.4.2",
     "prop-types": "^15.8.1",
     "storybook": "^9.0.18",
     "vitest": "^3.2.4"
@@ -30,7 +33,29 @@
   "scripts": {
     "prepare": "husky",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "dev": "concurrently \"pnpm run dev:frontend\" \"pnpm run dev:backend\"",
+    "dev:frontend": "cd frontend && pnpm run dev",
+    "dev:backend": "cd backend && pnpm run start:dev",
+    "test": "concurrently \"pnpm run test:frontend\" \"pnpm run test:backend\"",
+    "test:frontend": "cd frontend && pnpm run test",
+    "test:backend": "cd backend && pnpm run test",
+    "test:e2e": "cd frontend && pnpm run test:e2e",
+    "lint": "concurrently \"pnpm run lint:frontend\" \"pnpm run lint:backend\"",
+    "lint:frontend": "cd frontend && pnpm run lint",
+    "lint:backend": "cd backend && pnpm run lint",
+    "lint:fix": "concurrently \"pnpm run lint:fix:frontend\" \"pnpm run lint:fix:backend\"",
+    "lint:fix:frontend": "cd frontend && pnpm run lint --fix",
+    "lint:fix:backend": "cd backend && pnpm run lint --fix",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "type-check": "concurrently \"pnpm run type-check:frontend\" \"pnpm run type-check:backend\"",
+    "type-check:frontend": "cd frontend && pnpm run type-check",
+    "type-check:backend": "cd backend && pnpm run build",
+    "validate": "pnpm run format:check && pnpm run lint && pnpm run type-check && pnpm run test",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
   },
   "dependencies": {
     "@types/react": "^19.1.8",
@@ -39,5 +64,13 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "socket.io-client": "^4.8.1"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   }
 }

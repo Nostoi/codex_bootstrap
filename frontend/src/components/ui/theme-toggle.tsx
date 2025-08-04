@@ -1,11 +1,11 @@
-'use client'
+'use client';
 
-import { useTheme } from 'next-themes'
-import { useEffect, useState } from 'react'
+import { useTheme } from 'next-themes';
+import { useEffect, useState } from 'react';
 
 /**
  * Theme Toggle Component
- * 
+ *
  * Provides an accessible theme switching interface with:
  * - Light/dark/system theme options
  * - Keyboard navigation support
@@ -13,21 +13,19 @@ import { useEffect, useState } from 'react'
  * - ADHD-friendly visual feedback
  */
 export function ThemeToggle() {
-  const { setTheme, theme, systemTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
+  const { setTheme, theme, systemTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
   // Prevent hydration mismatch
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   if (!mounted) {
-    return (
-      <div className="w-24 h-10 bg-background-secondary rounded-md animate-pulse" />
-    )
+    return <div className="w-24 h-10 bg-background-secondary rounded-md animate-pulse" />;
   }
 
-  const currentTheme = theme === 'system' ? systemTheme : theme
+  const currentTheme = theme === 'system' ? systemTheme : theme;
 
   return (
     <div className="flex items-center space-x-1 bg-background-secondary rounded-lg p-1 border border-border-primary">
@@ -53,20 +51,20 @@ export function ThemeToggle() {
         label="System theme"
       />
     </div>
-  )
+  );
 }
 
 interface ThemeButtonProps {
-  theme: string
-  currentTheme?: string
-  onClick: () => void
-  icon: string
-  label: string
+  theme: string;
+  currentTheme?: string;
+  onClick: () => void;
+  icon: string;
+  label: string;
 }
 
 function ThemeButton({ theme, currentTheme, onClick, icon, label }: ThemeButtonProps) {
-  const isActive = currentTheme === theme
-  
+  const isActive = currentTheme === theme;
+
   return (
     <button
       onClick={onClick}
@@ -75,9 +73,10 @@ function ThemeButton({ theme, currentTheme, onClick, icon, label }: ThemeButtonP
         min-w-target min-h-target flex items-center justify-center
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus
         hover:bg-background-muted active:scale-95
-        ${isActive 
-          ? 'bg-interactive-primary text-text-inverse shadow-sm' 
-          : 'text-text-secondary hover:text-text-primary'
+        ${
+          isActive
+            ? 'bg-interactive-primary text-text-inverse shadow-sm'
+            : 'text-text-secondary hover:text-text-primary'
         }
       `}
       aria-label={label}
@@ -88,7 +87,7 @@ function ThemeButton({ theme, currentTheme, onClick, icon, label }: ThemeButtonP
         {icon}
       </span>
       <span className="sr-only">{label}</span>
-      
+
       {/* Active indicator for better visual feedback */}
       {isActive && (
         <span
@@ -97,5 +96,5 @@ function ThemeButton({ theme, currentTheme, onClick, icon, label }: ThemeButtonP
         />
       )}
     </button>
-  )
+  );
 }

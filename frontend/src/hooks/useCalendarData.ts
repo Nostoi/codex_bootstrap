@@ -6,13 +6,13 @@ export interface CalendarDataHookResult {
   isLoading: boolean;
   error: Error | null;
   refetch: () => Promise<unknown>;
-  
+
   // Event manipulation functions
   getEventsForTimeSlot: (startTime: Date, endTime: Date) => CalendarEvent[];
   getEventsForDay: (date: Date) => CalendarEvent[];
   hasConflicts: (event: CalendarEvent) => boolean;
   getConflictingEvents: (event: CalendarEvent) => CalendarEvent[];
-  
+
   // Stats
   totalEvents: number;
   sourceStats: {
@@ -33,12 +33,7 @@ export interface UseCalendarDataOptions {
  * Provides filtered events, conflict detection, and time slot utilities
  */
 export function useCalendarData(options: UseCalendarDataOptions = {}): CalendarDataHookResult {
-  const {
-    date,
-    includeAllDay = true,
-    filterBySource,
-    filterByEnergyLevel,
-  } = options;
+  const { date, includeAllDay = true, filterBySource, filterByEnergyLevel } = options;
 
   // Get base calendar data
   const { data: calendarData, isLoading, error, refetch } = useCalendarEvents(date);
@@ -56,8 +51,8 @@ export function useCalendarData(options: UseCalendarDataOptions = {}): CalendarD
 
     // Filter by energy level if specified
     if (filterByEnergyLevel && filterByEnergyLevel.length > 0) {
-      events = events.filter(event => 
-        event.energyLevel && filterByEnergyLevel.includes(event.energyLevel)
+      events = events.filter(
+        event => event.energyLevel && filterByEnergyLevel.includes(event.energyLevel)
       );
     }
 
@@ -67,61 +62,71 @@ export function useCalendarData(options: UseCalendarDataOptions = {}): CalendarD
     }
 
     // Sort events by start time
-    return events.sort((a, b) => 
-      new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
-    );
+    return events.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
   }, [calendarData?.events, filterBySource, filterByEnergyLevel, includeAllDay]);
 
   // Utility function to get events for a specific time slot
-  const getEventsForTimeSlot = useCallback((startTime: Date, endTime: Date): CalendarEvent[] => {
-    return processedEvents.filter(event => {
-      const eventStart = new Date(event.startTime);
-      const eventEnd = new Date(event.endTime);
+  const getEventsForTimeSlot = useCallback(
+    (startTime: Date, endTime: Date): CalendarEvent[] => {
+      return processedEvents.filter(event => {
+        const eventStart = new Date(event.startTime);
+        const eventEnd = new Date(event.endTime);
 
-      // Check if event overlaps with time slot
-      return (
-        (eventStart < endTime && eventEnd > startTime) || // Overlaps
-        (eventStart >= startTime && eventStart < endTime) || // Starts within slot
-        (eventEnd > startTime && eventEnd <= endTime) // Ends within slot
-      );
-    });
-  }, [processedEvents]);
+        // Check if event overlaps with time slot
+        return (
+          (eventStart < endTime && eventEnd > startTime) || // Overlaps
+          (eventStart >= startTime && eventStart < endTime) || // Starts within slot
+          (eventEnd > startTime && eventEnd <= endTime) // Ends within slot
+        );
+      });
+    },
+    [processedEvents]
+  );
 
   // Utility function to get events for a specific day
-  const getEventsForDay = useCallback((targetDate: Date): CalendarEvent[] => {
-    const startOfDay = new Date(targetDate);
-    startOfDay.setHours(0, 0, 0, 0);
-    
-    const endOfDay = new Date(targetDate);
-    endOfDay.setHours(23, 59, 59, 999);
+  const getEventsForDay = useCallback(
+    (targetDate: Date): CalendarEvent[] => {
+      const startOfDay = new Date(targetDate);
+      startOfDay.setHours(0, 0, 0, 0);
 
-    return getEventsForTimeSlot(startOfDay, endOfDay);
-  }, [getEventsForTimeSlot]);
+      const endOfDay = new Date(targetDate);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      return getEventsForTimeSlot(startOfDay, endOfDay);
+    },
+    [getEventsForTimeSlot]
+  );
 
   // Get events that conflict with the given event
-  const getConflictingEvents = useCallback((targetEvent: CalendarEvent): CalendarEvent[] => {
-    const targetStart = new Date(targetEvent.startTime);
-    const targetEnd = new Date(targetEvent.endTime);
+  const getConflictingEvents = useCallback(
+    (targetEvent: CalendarEvent): CalendarEvent[] => {
+      const targetStart = new Date(targetEvent.startTime);
+      const targetEnd = new Date(targetEvent.endTime);
 
-    return processedEvents.filter(event => {
-      // Don't compare with itself
-      if (event.id === targetEvent.id) return false;
+      return processedEvents.filter(event => {
+        // Don't compare with itself
+        if (event.id === targetEvent.id) return false;
 
-      const eventStart = new Date(event.startTime);
-      const eventEnd = new Date(event.endTime);
+        const eventStart = new Date(event.startTime);
+        const eventEnd = new Date(event.endTime);
 
-      // Check for time overlap
-      return (
-        (eventStart < targetEnd && eventEnd > targetStart) || // Events overlap
-        (eventStart.getTime() === targetStart.getTime()) // Same start time
-      );
-    });
-  }, [processedEvents]);
+        // Check for time overlap
+        return (
+          (eventStart < targetEnd && eventEnd > targetStart) || // Events overlap
+          eventStart.getTime() === targetStart.getTime() // Same start time
+        );
+      });
+    },
+    [processedEvents]
+  );
 
   // Check if an event has conflicts with other events
-  const hasConflicts = useCallback((event: CalendarEvent): boolean => {
-    return getConflictingEvents(event).length > 0;
-  }, [getConflictingEvents]);
+  const hasConflicts = useCallback(
+    (event: CalendarEvent): boolean => {
+      return getConflictingEvents(event).length > 0;
+    },
+    [getConflictingEvents]
+  );
 
   // Calculate source statistics
   const sourceStats = useMemo(() => {
@@ -136,13 +141,13 @@ export function useCalendarData(options: UseCalendarDataOptions = {}): CalendarD
     isLoading,
     error,
     refetch,
-    
+
     // Utility functions
     getEventsForTimeSlot,
     getEventsForDay,
     hasConflicts,
     getConflictingEvents,
-    
+
     // Stats
     totalEvents: processedEvents.length,
     sourceStats,
@@ -152,7 +157,10 @@ export function useCalendarData(options: UseCalendarDataOptions = {}): CalendarD
 /**
  * Hook for calendar events on a specific date with enhanced utilities
  */
-export function useCalendarDataForDate(date: Date, options: Omit<UseCalendarDataOptions, 'date'> = {}) {
+export function useCalendarDataForDate(
+  date: Date,
+  options: Omit<UseCalendarDataOptions, 'date'> = {}
+) {
   const dateString = date.toISOString().split('T')[0];
   return useCalendarData({ ...options, date: dateString });
 }

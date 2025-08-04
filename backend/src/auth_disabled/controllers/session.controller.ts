@@ -143,7 +143,7 @@ export class SessionController {
       }
 
       const sessions = await this.sessionManager.getUserSessions(userId);
-      
+
       return {
         sessions: sessions.map(session => ({
           sessionId: session.sessionId,
@@ -183,7 +183,7 @@ export class SessionController {
   })
   async revokeSession(
     @Param('sessionId') sessionId: string,
-    @CurrentUser('id') userId: string,
+    @CurrentUser('id') userId: string
   ): Promise<void> {
     try {
       if (!userId) {
@@ -202,11 +202,11 @@ export class SessionController {
       this.logger.debug(`Session revoked: ${sessionId} by user ${userId}`);
     } catch (error) {
       this.logger.error(`Session revocation failed: ${error.message}`);
-      
+
       if (error instanceof BadRequestException) {
         throw error;
       }
-      
+
       throw new UnauthorizedException('Session revocation failed');
     }
   }
@@ -228,7 +228,7 @@ export class SessionController {
   })
   async validateSession(
     @CurrentUser() user: AuthRequest['user'],
-    @CurrentSession() session: AuthRequest['session'],
+    @CurrentSession() session: AuthRequest['session']
   ) {
     return {
       valid: true,
@@ -253,13 +253,13 @@ export class SessionController {
     if (parts.length === 4) {
       return `${parts[0]}.${parts[1]}.*.* `;
     }
-    
+
     // For IPv6 or other formats, mask everything after first segment
     const colonIndex = ipAddress.indexOf(':');
     if (colonIndex > 0) {
       return `${ipAddress.substring(0, colonIndex)}:*:*:*`;
     }
-    
+
     return '*.*.*.*';
   }
 }

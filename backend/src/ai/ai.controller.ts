@@ -1,60 +1,53 @@
-import {
-  Body,
-  Controller,
-  Post,
-  Get,
-  ValidationPipe,
-  UsePipes,
-} from "@nestjs/common";
-import { AiService } from "./ai.service";
+import { Body, Controller, Post, Get, ValidationPipe, UsePipes } from '@nestjs/common';
+import { AiService } from './ai.service';
 import {
   TaskGenerationDto,
   TaskExtractionDto,
   SuggestionRequestDto,
   SummarizationDto,
   OpenAIChatCompletionDto,
-} from "./dto/openai.dto";
+} from './dto/openai.dto';
 
-@Controller("ai")
+@Controller('ai')
 export class AiController {
   constructor(private readonly aiService: AiService) {}
 
-  @Post("tasks/generate")
+  @Post('tasks/generate')
   @UsePipes(new ValidationPipe({ transform: true }))
   async generateTasks(@Body() dto: TaskGenerationDto) {
     return this.aiService.generateTasks(dto);
   }
 
-  @Post("extract-tasks")
+  @Post('extract-tasks')
   @UsePipes(new ValidationPipe({ transform: true }))
   async extractTasks(@Body() dto: TaskExtractionDto) {
     return this.aiService.extractTasks(dto);
   }
 
-  @Post("suggestions")
+  @Post('suggestions')
   @UsePipes(new ValidationPipe({ transform: true }))
   async getSuggestions(@Body() dto: SuggestionRequestDto) {
     return this.aiService.getSuggestions(dto);
   }
 
-  @Post("summarize")
+  @Post('summarize')
   @UsePipes(new ValidationPipe({ transform: true }))
   async summarize(@Body() dto: SummarizationDto) {
     return this.aiService.summarize(dto);
   }
 
-  @Post("tasks/classify")
+  @Post('tasks/classify')
   @UsePipes(new ValidationPipe({ transform: true }))
-  async classifyTask(@Body("description") description: string) {
+  async classifyTask(@Body('description') description: string) {
     return this.aiService.classifyTask(description);
   }
 
-  @Get("health")
+  @Get('health')
   async healthCheck() {
     return this.aiService.healthCheck();
   }
 
-  @Post("chat")
+  @Post('chat')
   @UsePipes(new ValidationPipe({ transform: true }))
   async chatCompletion(@Body() dto: OpenAIChatCompletionDto) {
     return this.aiService.chatCompletion({

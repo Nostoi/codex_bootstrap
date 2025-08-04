@@ -27,10 +27,10 @@ async function testAIEndpoints() {
       },
       body: JSON.stringify({
         text: 'I need to finish the quarterly report by Friday and schedule a meeting with the team next week. Also need to review the budget proposals.',
-        maxTasks: 5
-      })
+        maxTasks: 5,
+      }),
     });
-    
+
     if (extractResponse.ok) {
       const extractData = await extractResponse.json();
       console.log('✅ Task extraction:', JSON.stringify(extractData, null, 2));
@@ -51,15 +51,13 @@ async function testAIEndpoints() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        messages: [
-          { role: 'user', content: 'Help me prioritize my tasks for today' }
-        ],
+        messages: [{ role: 'user', content: 'Help me prioritize my tasks for today' }],
         model: 'gpt-4o-mini',
         temperature: 0.7,
-        maxTokens: 500
-      })
+        maxTokens: 500,
+      }),
     });
-    
+
     if (chatResponse.ok) {
       const chatData = await chatResponse.json();
       console.log('✅ Chat completion:', JSON.stringify(chatData, null, 2));

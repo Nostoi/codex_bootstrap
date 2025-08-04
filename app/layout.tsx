@@ -1,9 +1,9 @@
-import React from "react";
-import "../styles/globals.css";
-import "../frontend/src/styles/accessibility.css";
-import { AuthProvider } from "../frontend/src/contexts/AuthContext";
-import { WebSocketProvider } from "../frontend/src/contexts/WebSocketContext";
-import { TokenRefreshProvider } from "../frontend/src/components/auth/TokenRefreshProvider";
+import React from 'react';
+import '../styles/globals.css';
+import '../frontend/src/styles/accessibility.css';
+import { AuthProvider } from '../frontend/src/contexts/AuthContext';
+import { WebSocketProvider } from '../frontend/src/contexts/WebSocketContext';
+import { TokenRefreshProvider } from '../frontend/src/components/auth/TokenRefreshProvider';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
-        
+
         <AuthProvider>
           <WebSocketProvider>
             <TokenRefreshProvider>
@@ -25,17 +25,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <nav role="navigation" aria-label="Main navigation">
                 {/* Placeholder for navigation - will be added later */}
               </nav>
-              
+
               {/* Main content landmark */}
-              <main 
-                id="main-content" 
-                role="main" 
+              <main
+                id="main-content"
+                role="main"
                 className="mx-auto max-w-screen-xl px-4 py-6"
                 aria-label="Main content"
               >
                 {children}
               </main>
-              
+
               {/* Footer landmark */}
               <footer role="contentinfo" aria-label="Site footer">
                 <div className="mx-auto max-w-screen-xl px-4 py-4 text-center text-sm text-gray-600">

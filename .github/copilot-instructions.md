@@ -5,6 +5,7 @@ This document provides comprehensive guidance for AI coding assistants working o
 ## Project Overview
 
 **Helmsman** is a full-stack task management application designed specifically for individuals with ADHD, featuring:
+
 - AI-powered task extraction and prioritization with OpenAI GPT-4 integration
 - Energy level and focus type matching with intelligent daily planning algorithm
 - Dual calendar integration (Google Calendar + Microsoft Outlook)
@@ -13,6 +14,7 @@ This document provides comprehensive guidance for AI coding assistants working o
 - Automated PRD creation and task management workflow via agent commands
 
 ### Core Technologies & Architecture
+
 - **Frontend**: Next.js 14.2.30 (App Router), React 18.3.1, TypeScript 5.4+
 - **Backend**: NestJS 10+ with TypeScript, Express platform
 - **Database**: PostgreSQL with Prisma ORM 5.9+ (SQLite for development)
@@ -29,32 +31,36 @@ This document provides comprehensive guidance for AI coding assistants working o
 You are a coding assistant with access to Cipher’s long-term memory via the following tools:
 
 ### At Task Start
+
 - Use `cipher_memory_search` or `ask_cipher` to retrieve relevant patterns, prior tasks, and lessons learned.
 - Use the retrieved guidance to shape your approach and verify assumptions.
 
 ### During Tasks
+
 - Re-check memory midway through multi-step operations (e.g., different files or component layers).
 - Use `cipher_memory_search` or `cipher_search_reasoning_patterns` to find relevant knowledge.
 
 ### When Discovering Something Worth Remembering
+
 - If you fix a recurring error, solve a complex issue, or define a new reusable pattern:
   → Use `cipher_store_reasoning_memory` with a clear description of what, why, and where it should be reused.
 - Alternatively, use `ask_cipher` to both reflect and persist.
 
 ### At Task End
+
 - Use `cipher_store_reasoning_memory` or `ask_cipher` to store a summary of what was learned.
 
 You are expected to use these tools throughout the task, not just at the beginning.
 
 ## Agent-Specific Commands & Automated Workflows
 
-
 **Directory Structure**:
+
 ```
 .project-management/
 ├── create-prd.md              # PRD generation rules and templates
 ├── generate-tasks.md          # Task generation process
-├── process-tasks-local.md     # Local task execution workflow  
+├── process-tasks-local.md     # Local task execution workflow
 ├── process-tasks-cloud.md     # Cloud agent task execution
 ├── close-prd.md              # PRD completion and archiving
 ├── current-prd/              # Active PRD and tasks
@@ -65,8 +71,6 @@ You are expected to use these tools throughout the task, not just at the beginni
 └── archive-prd/              # Historical archive
 ```
 
-
-
 ### Module Re-enabling Guidance
 
 Several NestJS backend modules are temporarily disabled during WebSocket development. Here's the systematic re-enabling strategy based on task analysis:
@@ -74,6 +78,7 @@ Several NestJS backend modules are temporarily disabled during WebSocket develop
 #### Currently Disabled Modules Status
 
 **AuthModule - OAuth2 Authentication System**
+
 - **Status**: ✅ IMPLEMENTED - Ready for re-enabling
 - **Task Reference**: Task ID `e1ab7f1d-c868-4289-97be-4f4b78eb9f4c` (COMPLETED)
 - **Priority**: 🔥 HIGH - Production authentication required
@@ -85,8 +90,9 @@ Several NestJS backend modules are temporarily disabled during WebSocket develop
   3. Test Google and Microsoft OAuth flows with valid credentials
   4. Enable authentication middleware on protected routes
   5. Validate JWT token refresh and session management
-  
-**AiModule - OpenAI Integration**  
+
+**AiModule - OpenAI Integration**
+
 - **Status**: ✅ IMPLEMENTED - Ready for re-enabling
 - **Task Reference**: Task ID `ff2682c3-caac-46ed-8026-f2bd4c7b7d77` (COMPLETED)
 - **Priority**: 🔥 HIGH - Core AI functionality required
@@ -100,7 +106,8 @@ Several NestJS backend modules are temporarily disabled during WebSocket develop
   5. Connect frontend AI components to real backend services
 
 **GraphModule - Microsoft Graph Integration**
-- **Status**: ✅ IMPLEMENTED - Ready for re-enabling  
+
+- **Status**: ✅ IMPLEMENTED - Ready for re-enabling
 - **Task Reference**: Task ID `d57b65d4-2a9e-456a-80a1-da65ffe0f16a` (COMPLETED)
 - **Priority**: 🔥 HIGH - Calendar integration core feature
 - **Dependencies**: Microsoft OAuth authentication, Graph API credentials
@@ -113,8 +120,9 @@ Several NestJS backend modules are temporarily disabled during WebSocket develop
   5. Update frontend calendar components for dual-provider support
 
 **GoogleModule - Google Services Integration**
+
 - **Status**: ✅ IMPLEMENTED - Ready for re-enabling
-- **Task Reference**: Task ID `d6d49499-dc6d-4756-8765-4ecd0c8f4fed` (COMPLETED) 
+- **Task Reference**: Task ID `d6d49499-dc6d-4756-8765-4ecd0c8f4fed` (COMPLETED)
 - **Priority**: 🔥 HIGH - Calendar integration core feature
 - **Dependencies**: Google OAuth authentication, Calendar/Gmail API access
 - **Implementation**: Complete Google service, calendar integration, daily planning
@@ -126,6 +134,7 @@ Several NestJS backend modules are temporarily disabled during WebSocket develop
   5. Enable Gmail API for task extraction (if feature flag enabled)
 
 **UsersModule - User Management System**
+
 - **Status**: ✅ IMPLEMENTED - Ready for re-enabling
 - **Task Reference**: Related to multi-user support (Task ID `26c53161-b883-4926-9d3a-f9f7db67f294`)
 - **Priority**: 🔥 HIGH - User session management required
@@ -139,6 +148,7 @@ Several NestJS backend modules are temporarily disabled during WebSocket develop
   5. Test user session lifecycle and cleanup
 
 **CollaborationModule - Real-time Collaborative Editing**
+
 - **Status**: ⚠️ PARTIAL - Y.js integration in progress
 - **Task Reference**: Task ID `6f23784c-b722-4598-be3b-18fdd2540300` (85% COMPLETE)
 - **Priority**: 🟡 MEDIUM - Advanced collaboration features
@@ -152,6 +162,7 @@ Several NestJS backend modules are temporarily disabled during WebSocket develop
   5. Implement conflict resolution and document persistence
 
 **ProjectsModule - Project Organization**
+
 - **Status**: ⚠️ PARTIAL - Basic implementation exists
 - **Task Reference**: Multi-user project sharing (Task ID `26c53161-b883-4926-9d3a-f9f7db67f294`)
 - **Priority**: 🟢 LOW - Advanced organizational features
@@ -169,12 +180,14 @@ Several NestJS backend modules are temporarily disabled during WebSocket develop
 For each module re-enabling, follow this systematic approach:
 
 **Pre-enablement Verification**:
+
 - [ ] Check module implementation completeness in `/backend/src/[module]/`
 - [ ] Verify database schema migrations are applied
 - [ ] Confirm environment variables are configured
 - [ ] Review feature flag settings for module dependencies
 
 **Re-enabling Process**:
+
 - [ ] Update `AppModule` imports to include the target module
 - [ ] Check for circular dependencies in module imports
 - [ ] Verify dependency injection and provider configuration
@@ -182,6 +195,7 @@ For each module re-enabling, follow this systematic approach:
 - [ ] Test integration with currently active modules
 
 **Post-enablement Validation**:
+
 - [ ] Run comprehensive test suite: `./run_tests.sh`
 - [ ] Test API endpoints with Postman/Thunder Client
 - [ ] Verify frontend integration points work correctly
@@ -189,6 +203,7 @@ For each module re-enabling, follow this systematic approach:
 - [ ] Validate feature flag compatibility and toggling
 
 **Common Re-enabling Issues**:
+
 1. **Import Cycles**: Modules may have circular dependencies - use `forwardRef()` or refactor
 2. **Schema Mismatches**: Database schema may need updates - run `npx prisma migrate dev`
 3. **Missing Environment Variables**: Check `.env.template` for required configuration
@@ -198,6 +213,7 @@ For each module re-enabling, follow this systematic approach:
 ### Development Commands & Workflow
 
 #### Prerequisites Setup
+
 ```bash
 # Initialize development environment (runs both setup scripts)
 ./dev_init.sh
@@ -207,6 +223,7 @@ For each module re-enabling, follow this systematic approach:
 ```
 
 #### Development Servers
+
 ```bash
 # Option 1: Docker Compose (recommended)
 docker-compose up
@@ -223,11 +240,13 @@ cd frontend && pnpm storybook
 ```
 
 #### Package Management Conventions
+
 - **Frontend**: Use `pnpm` exclusively (faster, more efficient)
 - **Backend**: Use `npm` exclusively (NestJS ecosystem compatibility)
 - **Docker**: Multi-stage Alpine builds with frozen lockfiles for reproducible builds
 
 #### Database Management & Prisma
+
 ```bash
 # Core Prisma workflow
 cd backend
@@ -246,6 +265,7 @@ npm run migration:backfill-tasks:rollback # Rollback if needed
 ## Key Code Patterns & Architecture
 
 ### ADHD-Specific Design System
+
 ```typescript
 // Energy level mapping to WCAG 2.2 AA compliant colors
 const ENERGY_COLORS = {
@@ -280,6 +300,7 @@ export function EnergyIndicator({ level, showLabel = true, ...props }) {
 ### Frontend Architecture Patterns
 
 #### Next.js 14.2.30 App Router Structure
+
 ```
 frontend/src/
 ├── app/                    # Next.js App Router pages
@@ -290,7 +311,7 @@ frontend/src/
 │   └── auth/              # Authentication pages
 ├── components/
 │   ├── ui/                # Reusable UI components
-│   ├── auth/              # Authentication components  
+│   ├── auth/              # Authentication components
 │   ├── layout/            # Layout components
 │   └── *.stories.tsx      # Storybook stories
 ├── contexts/              # React contexts (Auth, WebSocket)
@@ -300,6 +321,7 @@ frontend/src/
 ```
 
 #### Zustand State Management Pattern
+
 ```typescript
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
@@ -316,17 +338,17 @@ interface AppState {
 export const useAppStore = create<AppState>()(
   devtools(
     persist(
-      (set) => ({
+      set => ({
         theme: 'corporate',
         user: null,
         isLoading: false,
-        setTheme: (theme) => set({ theme }, false, 'setTheme'),
-        setUser: (user) => set({ user }, false, 'setUser'),
-        setLoading: (isLoading) => set({ isLoading }, false, 'setLoading'),
+        setTheme: theme => set({ theme }, false, 'setTheme'),
+        setUser: user => set({ user }, false, 'setUser'),
+        setLoading: isLoading => set({ isLoading }, false, 'setLoading'),
       }),
       {
         name: 'app-storage',
-        partialize: (state) => ({ theme: state.theme, user: state.user }),
+        partialize: state => ({ theme: state.theme, user: state.user }),
       }
     ),
     { name: 'app-store' }
@@ -335,6 +357,7 @@ export const useAppStore = create<AppState>()(
 ```
 
 #### Component Export Pattern
+
 ```typescript
 // Use named exports for better tree-shaking and debugging
 export function TaskCard({ task, onToggle, onEdit, ...props }) {
@@ -358,6 +381,7 @@ AccessibleButton.displayName = 'AccessibleButton';
 ### Backend Architecture Patterns
 
 #### NestJS Service & Controller Structure
+
 ```typescript
 // Service pattern with proper dependency injection
 @Injectable()
@@ -372,12 +396,12 @@ export class AiService {
       model: 'gpt-4',
       messages: [
         { role: 'system', content: 'Extract actionable tasks from text...' },
-        { role: 'user', content: text }
+        { role: 'user', content: text },
       ],
       functions: [TASK_EXTRACTION_FUNCTION],
-      function_call: { name: 'extract_tasks' }
+      function_call: { name: 'extract_tasks' },
     });
-    
+
     return this.parseExtractedTasks(completion.choices[0].message.function_call);
   }
 
@@ -400,6 +424,7 @@ export class AiController {
 ```
 
 #### Current Module Status (Many Temporarily Disabled)
+
 ```typescript
 // backend/src/app.module.ts - Current active modules
 @Module({
@@ -420,6 +445,7 @@ export class AiController {
 ```
 
 ### Database Schema (ADHD-Optimized)
+
 ```prisma
 // Enhanced task model with ADHD-specific features
 model Task {
@@ -434,7 +460,7 @@ model Task {
   completed        Boolean     @default(false)
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
-  
+
   // AI-enhanced fields
   aiClassification Json?       // Store AI analysis results
   complexity       Int?        // 1-10 complexity score
@@ -449,7 +475,7 @@ enum EnergyLevel {
 
 enum FocusType {
   CREATIVE       // 🎨 Writing, design, brainstorming
-  TECHNICAL      // ⚙️ Coding, debugging, analysis  
+  TECHNICAL      // ⚙️ Coding, debugging, analysis
   ADMINISTRATIVE // 📋 Email, reports, data entry
   SOCIAL         // 👥 Meetings, calls, collaboration
 }
@@ -466,6 +492,7 @@ enum TaskSource {
 ## Docker Build System & Production Configuration
 
 ### Multi-Stage Alpine Build Pattern
+
 ```dockerfile
 # frontend/Dockerfile.frontend
 FROM node:20-alpine AS deps
@@ -495,18 +522,19 @@ USER nextjs
 ```
 
 ### Next.js Production Configuration
+
 ```javascript
 // next.config.js - Key production optimizations
 const nextConfig = {
-  output: 'standalone',                    // Docker-optimized output
-  eslint: { ignoreDuringBuilds: true },   // Skip linting in production
+  output: 'standalone', // Docker-optimized output
+  eslint: { ignoreDuringBuilds: true }, // Skip linting in production
   typescript: { ignoreBuildErrors: true }, // Skip TS checking for faster builds
-  
+
   experimental: {
-    optimizeCss: true,                     // CSS optimization
+    optimizeCss: true, // CSS optimization
     optimizePackageImports: ['@/components', '@/lib'],
   },
-  
+
   // Bundle optimization with webpack
   webpack: (config, { dev, isServer }) => {
     if (!dev && !isServer) {
@@ -526,17 +554,18 @@ const nextConfig = {
 ## Testing & Quality Assurance
 
 ### Testing Strategy Overview
+
 ```bash
 # Frontend testing (Vitest + React Testing Library)
 cd frontend
-pnpm test                 # Run all tests  
+pnpm test                 # Run all tests
 pnpm test:watch          # Watch mode
 pnpm test:cov            # Coverage report
 pnpm test:accessibility  # Accessibility tests
 pnpm test:e2e            # Playwright E2E tests
 
 # Backend testing (Jest + NestJS utilities)
-cd backend  
+cd backend
 npm test                 # Unit tests
 npm run test:cov         # Coverage report
 npm run test:e2e         # Integration tests
@@ -546,6 +575,7 @@ npm run test:e2e         # Integration tests
 ```
 
 ### Accessibility Testing Pattern
+
 ```typescript
 import { render, screen } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -556,14 +586,14 @@ expect.extend(toHaveNoViolations);
 test('TaskCard supports keyboard navigation and is accessible', async () => {
   const user = userEvent.setup();
   const { container } = render(<TaskCard task={mockTask} />);
-  
+
   // Test keyboard navigation
   await user.tab();
   expect(screen.getByRole('button', { name: /complete task/i })).toHaveFocus();
-  
+
   await user.keyboard('{Enter}');
   expect(mockOnToggle).toHaveBeenCalledWith(mockTask.id);
-  
+
   // Test accessibility compliance
   const results = await axe(container);
   expect(results).toHaveNoViolations();
@@ -571,6 +601,7 @@ test('TaskCard supports keyboard navigation and is accessible', async () => {
 ```
 
 ### Storybook Component Development
+
 ```typescript
 // Component story with accessibility and responsive testing
 import type { Meta, StoryObj } from '@storybook/react';
@@ -606,7 +637,7 @@ export const AllLevels: Story = {
   render: () => (
     <div className="space-y-2">
       <EnergyIndicator level="LOW" />
-      <EnergyIndicator level="MEDIUM" />  
+      <EnergyIndicator level="MEDIUM" />
       <EnergyIndicator level="HIGH" />
     </div>
   )
@@ -621,10 +652,11 @@ export const HighContrast: Story = {
 ## Environment Configuration & Services
 
 ### Service Ports & Docker Setup
+
 ```bash
 # Development services
 Frontend (Next.js):       http://localhost:3000
-Backend (NestJS):         http://localhost:8000  
+Backend (NestJS):         http://localhost:8000
 API Documentation:        http://localhost:8000/api/docs
 Storybook:               http://localhost:6006
 PostgreSQL:              localhost:5432 (container) / 5487 (dev)
@@ -637,6 +669,7 @@ docker-compose build frontend # Rebuild frontend image
 ```
 
 ### Key Environment Variables
+
 ```bash
 # Backend (.env)
 DATABASE_URL="postgresql://user:pass@localhost:5432/helmsman"
@@ -646,12 +679,13 @@ JWT_SECRET="your-secret-key"
 MICROSOFT_CLIENT_ID="..."
 GOOGLE_CLIENT_ID="..."
 
-# Frontend (.env.local)  
+# Frontend (.env.local)
 NEXT_PUBLIC_API_URL="http://localhost:8000"
 NEXT_PUBLIC_WS_URL="ws://localhost:8001"
 ```
 
 ### File Structure & Key Locations
+
 ```
 codex_bootstrap/
 ├── .github/copilot-instructions.md    # This file - AI agent guidance
@@ -661,7 +695,7 @@ codex_bootstrap/
 │   ├── process-tasks-cloud.md        # TaskMaster workflow
 │   └── current-prd/                  # Active development artifacts
 ├── backend/src/
-│   ├── app.module.ts                 # NestJS root module  
+│   ├── app.module.ts                 # NestJS root module
 │   ├── tasks/                        # Task management (ACTIVE)
 │   ├── notifications/                # Notification system (ACTIVE)
 │   ├── prisma/                       # Database schema & migrations
@@ -674,9 +708,11 @@ codex_bootstrap/
 ├── docs/                             # Comprehensive documentation
 └── dev_init.sh                       # Development setup script
 ```
+
 ## AI Integration & Service Architecture
 
 ### OpenAI Service Implementation
+
 ```typescript
 @Injectable()
 export class OpenAIService {
@@ -685,12 +721,12 @@ export class OpenAIService {
       model: 'gpt-4',
       messages: [
         { role: 'system', content: 'Extract actionable tasks from text...' },
-        { role: 'user', content: text }
+        { role: 'user', content: text },
       ],
       functions: [TASK_EXTRACTION_FUNCTION],
-      function_call: { name: 'extract_tasks' }
+      function_call: { name: 'extract_tasks' },
     });
-    
+
     return this.parseExtractedTasks(completion.choices[0].message.function_call);
   }
 
@@ -700,7 +736,7 @@ export class OpenAIService {
   }
 
   async generateProactiveSuggestions(
-    tasks: Task[], 
+    tasks: Task[],
     context: InteractionLog[]
   ): Promise<AIRecommendation[]> {
     // Generate daily planning recommendations based on energy patterns
@@ -709,6 +745,7 @@ export class OpenAIService {
 ```
 
 ### API Endpoints (Current & Planned)
+
 ```typescript
 // Active endpoints
 POST /api/tasks              # Create new task
@@ -728,9 +765,11 @@ GET  /api/graph/calendar-events    # Sync calendar events
 ```
 
 ### Daily Planning Algorithm
+
 The system implements ADHD-optimized scheduling with:
+
 - **Energy Matching**: HIGH/MEDIUM/LOW energy tasks aligned to user's daily energy patterns
-- **Focus Batching**: Group CREATIVE/TECHNICAL/ADMINISTRATIVE/SOCIAL tasks for cognitive efficiency  
+- **Focus Batching**: Group CREATIVE/TECHNICAL/ADMINISTRATIVE/SOCIAL tasks for cognitive efficiency
 - **Deadline Management**: Prioritize hard deadlines, suggest soft deadline adjustments
 - **Dependency Resolution**: Block dependent tasks until prerequisites complete
 - **Complexity Balancing**: Mix simple and complex tasks to prevent cognitive overload
@@ -738,6 +777,7 @@ The system implements ADHD-optimized scheduling with:
 ## File Modification Guidelines & Development Standards
 
 ### Always Update When Making Changes
+
 - **CHANGELOG.md**: Add timestamped one-line summary for all significant changes
 - **DEVELOPMENT.md**: Update manual startup instructions when adding new services/dependencies
 - **.env.template**: Add new required environment variables with example values
@@ -745,13 +785,14 @@ The system implements ADHD-optimized scheduling with:
 - **.codex/install.sh**: Update for Codex environment changes (takes effect in next session)
 
 ### Code Quality Standards
+
 ```bash
 # Frontend linting & formatting
 cd frontend
 pnpm lint                    # ESLint with Next.js rules
 pnpm build                   # Verify production build works
 
-# Backend linting & formatting  
+# Backend linting & formatting
 cd backend
 npm run lint                 # ESLint with NestJS rules
 npm run format               # Prettier formatting
@@ -761,6 +802,7 @@ npm run format               # Prettier formatting
 ```
 
 ### SSR & Production Build Considerations
+
 ```typescript
 // Pages with dynamic content must export dynamic config
 // frontend/src/app/auth/success/page.tsx
@@ -775,28 +817,26 @@ if (!mounted) return null; // Prevent hydration issues
 ## Integration Points & Real-time Features
 
 ### WebSocket & Collaboration (y-websocket + Yjs)
+
 ```typescript
 // Real-time document collaboration setup
 const doc = new Y.Doc();
-const wsProvider = new WebsocketProvider(
-  'ws://localhost:8001', 
-  'document-room-id', 
-  doc
-);
+const wsProvider = new WebsocketProvider('ws://localhost:8001', 'document-room-id', doc);
 
 // Document sync with conflict resolution
 const yText = doc.getText('content');
-yText.observe((event) => {
+yText.observe(event => {
   // Handle collaborative text changes
 });
 ```
 
 ### Microsoft Graph Integration (Currently Disabled)
+
 ```typescript
 // Will be re-enabled after WebSocket development
 interface GraphService {
   syncEmails(userId: string): Promise<GraphEmail[]>;
-  getCalendarEvents(userId: string, dateRange: DateRange): Promise<CalendarEvent[]>;  
+  getCalendarEvents(userId: string, dateRange: DateRange): Promise<CalendarEvent[]>;
   storeEmailContext(email: GraphEmail): Promise<void>;
 }
 
@@ -804,6 +844,7 @@ interface GraphService {
 ```
 
 ### Performance Optimization for ADHD Users
+
 - **Core Web Vitals**: Target <2.5s LCP, <500KB initial bundle
 - **Service Worker**: Aggressive caching for offline-first experience (`frontend/public/sw.js`)
 - **Motion Control**: Respect `prefers-reduced-motion` throughout application
@@ -813,30 +854,33 @@ interface GraphService {
 ### ADHD-Specific Performance Monitoring
 
 **Performance Targets Optimized for ADHD Users**:
+
 - **Largest Contentful Paint (LCP)**: < 2.0s (stricter than standard 2.5s to reduce frustration)
 - **First Input Delay (FID)**: < 50ms (faster than standard 100ms for immediate feedback)
 - **Cumulative Layout Shift (CLS)**: < 0.05 (lower than standard 0.1 to prevent visual anxiety)
 - **Time to Interactive (TTI)**: < 3.0s (reduced cognitive wait time)
 
 **ADHD-Optimized Metrics**:
+
 - **Task Load Time**: < 1.5s for task list rendering (prevents abandonment)
 - **Calendar Paint Time**: < 800ms for calendar view switching (maintains focus flow)
 - **AI Response Time**: < 3.0s for task extraction (acceptable wait for AI processing)
 - **Real-time Update Latency**: < 200ms for WebSocket notifications (immediate feedback)
 
 **Performance Monitoring Implementation**:
+
 ```typescript
 // Web Vitals tracking with ADHD thresholds
 import { getCLS, getFID, getLCP } from 'web-vitals';
 
-const sendToAnalytics = (metric) => {
+const sendToAnalytics = metric => {
   // ADHD-specific threshold warnings
   const adhdThresholds = {
-    LCP: 2000,  // 2s instead of 2.5s
-    FID: 50,    // 50ms instead of 100ms  
-    CLS: 0.05   // 0.05 instead of 0.1
+    LCP: 2000, // 2s instead of 2.5s
+    FID: 50, // 50ms instead of 100ms
+    CLS: 0.05, // 0.05 instead of 0.1
   };
-  
+
   if (metric.value > adhdThresholds[metric.name]) {
     console.warn(`${metric.name} exceeds ADHD-friendly threshold:`, metric.value);
   }
@@ -847,59 +891,61 @@ const sendToAnalytics = (metric) => {
 export class PerformanceMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     const start = Date.now();
-    
+
     res.on('finish', () => {
       const duration = Date.now() - start;
-      
+
       // ADHD-specific response time alerts
       if (duration > 1000) {
         this.logger.warn(`Slow response: ${req.path} took ${duration}ms`);
       }
-      
+
       this.metricsService.recordResponseTime(req.path, duration);
     });
-    
+
     next();
   }
 }
 ```
 
 **Monitoring Dashboard Configuration**:
+
 ```yaml
 # Grafana dashboard panels for ADHD optimization
 panels:
-  - title: "ADHD User Experience Metrics"
+  - title: 'ADHD User Experience Metrics'
     metrics: [LCP, FID, CLS]
     thresholds:
       LCP: { warning: 1500, critical: 2000 }
       FID: { warning: 30, critical: 50 }
       CLS: { warning: 0.03, critical: 0.05 }
-      
-  - title: "Task Management Performance"  
+
+  - title: 'Task Management Performance'
     metrics: [task_load_time, task_create_latency, task_update_latency]
     thresholds:
       task_load_time: { warning: 1000, critical: 1500 }
-      
-  - title: "AI Service Performance"
+
+  - title: 'AI Service Performance'
     metrics: [openai_response_time, ai_success_rate, token_usage]
     thresholds:
       openai_response_time: { warning: 3000, critical: 5000 }
-      
-  - title: "Real-time Communication Health"
+
+  - title: 'Real-time Communication Health'
     metrics: [websocket_latency, connection_stability, message_throughput]
     thresholds:
       websocket_latency: { warning: 200, critical: 500 }
 ```
 
 **Performance Regression Detection**:
+
 ```typescript
 // Automated performance testing for ADHD thresholds
 test('task loading performance meets ADHD standards', async ({ page }) => {
   const startTime = Date.now();
-  
+
   await page.goto('/dashboard');
   await page.waitForSelector('[data-testid="task-list"]');
-  
+
   const loadTime = Date.now() - startTime;
   expect(loadTime).toBeLessThan(1500); // ADHD-friendly threshold
 });
@@ -907,15 +953,14 @@ test('task loading performance meets ADHD standards', async ({ page }) => {
 // Lighthouse CI with ADHD-specific budgets
 test('lighthouse scores meet ADHD requirements', async ({ page }) => {
   const audit = await lighthouse(page.url());
-  
-  expect(audit.lhr.audits['largest-contentful-paint'].numericValue)
-    .toBeLessThan(2000); // ADHD threshold
-  expect(audit.lhr.audits['cumulative-layout-shift'].numericValue)
-    .toBeLessThan(0.05);  // ADHD threshold
+
+  expect(audit.lhr.audits['largest-contentful-paint'].numericValue).toBeLessThan(2000); // ADHD threshold
+  expect(audit.lhr.audits['cumulative-layout-shift'].numericValue).toBeLessThan(0.05); // ADHD threshold
 });
 ```
 
 **Bundle Optimization for Cognitive Load Reduction**:
+
 ```javascript
 // webpack.config.js - Optimized for ADHD users
 module.exports = {
@@ -927,23 +972,23 @@ module.exports = {
         adhd: {
           test: /[\\/]src[\\/](components[\\/]ui|lib[\\/]accessibility)/,
           name: 'adhd-ui',
-          priority: 30
+          priority: 30,
         },
         // AI and advanced features - load later
         ai: {
           test: /[\\/]src[\\/]ai[\\/]/,
-          name: 'ai-features', 
-          priority: 10
-        }
-      }
-    }
+          name: 'ai-features',
+          priority: 10,
+        },
+      },
+    },
   },
   // Bundle size alerts for ADHD performance
   performance: {
-    maxAssetSize: 400000,    // 400KB instead of 500KB
+    maxAssetSize: 400000, // 400KB instead of 500KB
     maxEntrypointSize: 400000,
-    hints: 'error'
-  }
+    hints: 'error',
+  },
 };
 ```
 

@@ -1,16 +1,19 @@
 # Task List Management
 
-You have entered the codex task-based work module. The task list file for this project is `.project-management\current-prd\tasks.*.md`.  Open it to view the tasks for this feature.
+You have entered the codex task-based work module. The task list file for this project is `.project-management\current-prd\tasks.*.md`. Open it to view the tasks for this feature.
 
 ## Task Implementation
+
 - **One sub-task at a time:** Do **NOT** start the next sub‑task until you ask the user for permission and they say "yes" or "y"
-- **Completion protocol:**  
-  1. When you finish a **sub‑task**, immediately mark it as completed by changing `[ ]` to `[x]`.  
-  2. If **all** subtasks underneath a parent task are now `[x]`, also mark the **parent task** as completed.  
+- **Completion protocol:**
+  1. When you finish a **sub‑task**, immediately mark it as completed by changing `[ ]` to `[x]`.
+  2. If **all** subtasks underneath a parent task are now `[x]`, also mark the **parent task** as completed.
 - Stop after each sub‑task and wait for the user's go‑ahead.
 
 ## Technology Stack Reminders
+
 When implementing tasks, remember the project uses:
+
 - **Frontend**: Next.js 14+ with App Router, TypeScript, Tailwind CSS + DaisyUI
 - **State Management**: Zustand for client state, React Query for server state
 - **Backend**: Node.js with NestJS framework
@@ -21,13 +24,14 @@ When implementing tasks, remember the project uses:
 - Follow Next.js App Router conventions for file structure and routing
 - Use NestJS modules, controllers, and services for backend organizationt Management
 
-You have entered the codex task-based work module. The task list file for this project is `.project-management\current-prd\tasks.*.md`.  Open it to view the tasks for this feature.
+You have entered the codex task-based work module. The task list file for this project is `.project-management\current-prd\tasks.*.md`. Open it to view the tasks for this feature.
 
 ## Task Implementation
+
 - **One sub-task at a time:** Do **NOT** start the next sub‑task until you ask the user for permission and they say “yes” or "y"
-- **Completion protocol:**  
-  1. When you finish a **sub‑task**, immediately mark it as completed by changing `[ ]` to `[x]`.  
-  2. If **all** subtasks underneath a parent task are now `[x]`, also mark the **parent task** as completed.  
+- **Completion protocol:**
+  1. When you finish a **sub‑task**, immediately mark it as completed by changing `[ ]` to `[x]`.
+  2. If **all** subtasks underneath a parent task are now `[x]`, also mark the **parent task** as completed.
 - Stop after each sub‑task and wait for the user’s go‑ahead.
 
 ## Task List Maintenance

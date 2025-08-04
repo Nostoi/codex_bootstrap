@@ -1,4 +1,13 @@
-import { IsOptional, IsString, IsBoolean, IsEnum, IsDateString, IsNumber, Min, Max } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsBoolean,
+  IsEnum,
+  IsDateString,
+  IsNumber,
+  Min,
+  Max,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { SyncDirection, SyncTrigger } from '../types/calendar-sync.types';
 
@@ -57,7 +66,10 @@ export class SyncStatusResponseDto {
 }
 
 export class ResolveConflictDto {
-  @ApiProperty({ enum: ['USE_LOCAL', 'USE_REMOTE', 'MERGE', 'SKIP'], description: 'How to resolve the conflict' })
+  @ApiProperty({
+    enum: ['USE_LOCAL', 'USE_REMOTE', 'MERGE', 'SKIP'],
+    description: 'How to resolve the conflict',
+  })
   @IsEnum(['USE_LOCAL', 'USE_REMOTE', 'MERGE', 'SKIP'])
   resolution: 'USE_LOCAL' | 'USE_REMOTE' | 'MERGE' | 'SKIP';
 
@@ -186,7 +198,7 @@ export class SyncScheduleDto {
   @IsOptional()
   syncHours?: {
     start: string; // HH:mm format
-    end: string;   // HH:mm format
+    end: string; // HH:mm format
   };
 
   @ApiPropertyOptional({ description: 'Days of week to sync (0=Sunday, 6=Saturday)' })

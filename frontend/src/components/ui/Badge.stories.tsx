@@ -8,7 +8,8 @@ const meta: Meta<typeof Badge> = {
     layout: 'centered',
     docs: {
       description: {
-        component: 'Badge components for semantic status indicators with ADHD-friendly visual design and accessibility features.',
+        component:
+          'Badge components for semantic status indicators with ADHD-friendly visual design and accessibility features.',
       },
     },
   },
@@ -82,9 +83,15 @@ export const EnergyLevels: Story = {
       <div className="text-sm text-gray-600 max-w-md">
         Energy level badges help ADHD users quickly identify task demands:
         <ul className="mt-2 ml-4 list-disc">
-          <li><strong>High Energy (Red):</strong> Requires focus and concentration</li>
-          <li><strong>Medium Energy (Yellow):</strong> Moderate effort required</li>
-          <li><strong>Low Energy (Green):</strong> Easy, can be done when tired</li>
+          <li>
+            <strong>High Energy (Red):</strong> Requires focus and concentration
+          </li>
+          <li>
+            <strong>Medium Energy (Yellow):</strong> Moderate effort required
+          </li>
+          <li>
+            <strong>Low Energy (Green):</strong> Easy, can be done when tired
+          </li>
         </ul>
       </div>
     </div>

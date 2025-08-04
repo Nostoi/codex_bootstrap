@@ -14,13 +14,15 @@ export function RealTimeStatus({ className = '', showDetails = false }: RealTime
 
   const getStatusIcon = () => {
     if (isConnecting) {
-      return <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent" />;
+      return (
+        <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent" />
+      );
     }
-    
+
     if (isConnected) {
       return <Wifi className="w-4 h-4 text-green-500" />;
     }
-    
+
     return <WifiOff className="w-4 h-4 text-red-500" />;
   };
 
@@ -73,7 +75,7 @@ interface ConnectionStatsProps {
 
 export function ConnectionStats({ className = '' }: ConnectionStatsProps) {
   const { isConnected } = useWebSocket();
-  
+
   // Mock data - in a real app, you'd get this from the WebSocket context
   const stats = {
     onlineUsers: 3,
@@ -90,30 +92,24 @@ export function ConnectionStats({ className = '' }: ConnectionStatsProps) {
     <div className={`grid grid-cols-2 gap-4 ${className}`}>
       <div className="flex items-center gap-2 text-sm">
         <Users className="w-4 h-4 text-blue-500" />
-        <span className="text-gray-600">
-          {stats.onlineUsers} online
-        </span>
+        <span className="text-gray-600">{stats.onlineUsers} online</span>
       </div>
-      
+
       <div className="flex items-center gap-2 text-sm">
         <Clock className="w-4 h-4 text-green-500" />
         <span className="text-gray-600">
           Synced {Math.floor((Date.now() - stats.lastSync.getTime()) / 1000)}s ago
         </span>
       </div>
-      
+
       <div className="flex items-center gap-2 text-sm">
         <AlertCircle className="w-4 h-4 text-purple-500" />
-        <span className="text-gray-600">
-          {stats.messagesReceived} updates
-        </span>
+        <span className="text-gray-600">{stats.messagesReceived} updates</span>
       </div>
-      
+
       <div className="flex items-center gap-2 text-sm">
         <Wifi className="w-4 h-4 text-blue-500" />
-        <span className="text-gray-600">
-          Up {stats.uptime}
-        </span>
+        <span className="text-gray-600">Up {stats.uptime}</span>
       </div>
     </div>
   );

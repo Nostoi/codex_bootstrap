@@ -18,7 +18,7 @@ export const axeConfig = {
     'aria-valid-attr': { enabled: true },
     'aria-valid-attr-value': { enabled: true },
     'heading-order': { enabled: true },
-    'label': { enabled: true },
+    label: { enabled: true },
     'image-alt': { enabled: true },
   },
   tags: ['wcag2a', 'wcag2aa', 'wcag21aa', 'best-practice'],

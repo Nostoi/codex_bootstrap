@@ -21,9 +21,11 @@ pnpm test
 ## 📱 Components
 
 ### FocusView
+
 The main task management interface with AI-powered prioritization.
 
 **Features:**
+
 - Smart task sorting by priority and due dates
 - AI recommendations and suggestions
 - Task status management (todo, in-progress, done)
@@ -31,9 +33,11 @@ The main task management interface with AI-powered prioritization.
 - Accessibility features (ARIA labels, keyboard navigation)
 
 ### ChatGPT Integration
+
 AI chat interface for natural language task planning.
 
 **Features:**
+
 - Real-time chat with AI assistant
 - Automatic task extraction from conversations
 - Suggested actions and quick responses
@@ -41,9 +45,11 @@ AI chat interface for natural language task planning.
 - Message history management
 
 ### Dashboard
+
 Unified layout combining FocusView and ChatGPT Integration.
 
 **Features:**
+
 - Responsive layout with configurable chat position
 - Real-time statistics and metrics
 - AI connection status indicator
@@ -112,6 +118,7 @@ src/
 Built with **DaisyUI** on top of Tailwind CSS for consistent, professional styling.
 
 **Key Design Principles:**
+
 - Mobile-first responsive design
 - Accessibility compliance (WCAG guidelines)
 - Semantic color system

@@ -10,7 +10,7 @@ export class AuthController {
 
   constructor(
     private readonly authService: AuthService,
-    private readonly sessionManager: SessionManagerService,
+    private readonly sessionManager: SessionManagerService
   ) {}
 
   @Get('google/login')
@@ -28,11 +28,11 @@ export class AuthController {
   async googleCallback(
     @Query('code') code: string,
     @Query('state') state: string,
-    @Res() res: Response,
+    @Res() res: Response
   ) {
     try {
       const result = await this.authService.handleGoogleCallback(code, state);
-      
+
       // Set secure HTTP-only cookie for session
       res.cookie('session_token', result.tokens.accessToken, {
         httpOnly: true,
@@ -48,7 +48,9 @@ export class AuthController {
 
       // Redirect to frontend with success
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-      res.redirect(`${frontendUrl}/auth/success?user=${encodeURIComponent(JSON.stringify(result.user))}`);
+      res.redirect(
+        `${frontendUrl}/auth/success?user=${encodeURIComponent(JSON.stringify(result.user))}`
+      );
     } catch (error) {
       this.logger.error('Google callback failed:', error);
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
@@ -71,11 +73,11 @@ export class AuthController {
   async microsoftCallback(
     @Query('code') code: string,
     @Query('state') state: string,
-    @Res() res: Response,
+    @Res() res: Response
   ) {
     try {
       const result = await this.authService.handleMicrosoftCallback(code, state);
-      
+
       // Set secure HTTP-only cookie for session
       res.cookie('session_token', result.tokens.accessToken, {
         httpOnly: true,
@@ -91,7 +93,9 @@ export class AuthController {
 
       // Redirect to frontend with success
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-      res.redirect(`${frontendUrl}/auth/success?user=${encodeURIComponent(JSON.stringify(result.user))}`);
+      res.redirect(
+        `${frontendUrl}/auth/success?user=${encodeURIComponent(JSON.stringify(result.user))}`
+      );
     } catch (error) {
       this.logger.error('Microsoft callback failed:', error);
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
@@ -128,11 +132,11 @@ export class AuthController {
     try {
       const sessionId = req.user['sessionId'];
       await this.sessionManager.revokeSession(sessionId);
-      
+
       // Clear cookies
       res.clearCookie('session_token');
       res.clearCookie('refresh_token');
-      
+
       return res.json({ success: true, message: 'Logged out successfully' });
     } catch (error) {
       this.logger.error('Logout failed:', error);

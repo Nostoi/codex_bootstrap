@@ -1,4 +1,10 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { SessionManagerService } from '../services/session-manager.service';
 import { AuthRequest, RequiredScopes } from '../types/auth.types';
@@ -11,18 +17,19 @@ import { AuthRequest, RequiredScopes } from '../types/auth.types';
 export class JwtAuthGuard implements CanActivate {
   constructor(
     private readonly sessionManager: SessionManagerService,
-    private readonly reflector: Reflector,
+    private readonly reflector: Reflector
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthRequest>();
-    
+
     // Check if authentication is optional for this route
-    const isOptional = this.reflector.get<boolean>('auth-optional', context.getHandler()) ||
-                       this.reflector.get<boolean>('auth-optional', context.getClass());
+    const isOptional =
+      this.reflector.get<boolean>('auth-optional', context.getHandler()) ||
+      this.reflector.get<boolean>('auth-optional', context.getClass());
 
     const token = this.extractTokenFromHeader(request);
-    
+
     if (!token) {
       if (isOptional) {
         return true;
@@ -32,7 +39,7 @@ export class JwtAuthGuard implements CanActivate {
 
     try {
       const sessionData = await this.sessionManager.validateSession(token);
-      
+
       if (!sessionData) {
         if (isOptional) {
           return true;
@@ -43,7 +50,7 @@ export class JwtAuthGuard implements CanActivate {
       // Inject user and session into request
       request.user = sessionData.user;
       request.session = sessionData.session;
-      
+
       return true;
     } catch (error) {
       if (isOptional) {
@@ -71,15 +78,16 @@ export class ScopeGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredScopes = this.reflector.get<RequiredScopes>('scopes', context.getHandler()) ||
-                          this.reflector.get<RequiredScopes>('scopes', context.getClass());
+    const requiredScopes =
+      this.reflector.get<RequiredScopes>('scopes', context.getHandler()) ||
+      this.reflector.get<RequiredScopes>('scopes', context.getClass());
 
     if (!requiredScopes) {
       return true; // No scopes required
     }
 
     const request = context.switchToHttp().getRequest<AuthRequest>();
-    
+
     if (!request.user) {
       throw new UnauthorizedException('User context not found');
     }
@@ -93,9 +101,7 @@ export class ScopeGuard implements CanActivate {
 
     // Check Google scopes
     if (requiredScopes.google) {
-      const hasGoogleScopes = requiredScopes.google.some(scopes =>
-        userScopes.includes(scopes)
-      );
+      const hasGoogleScopes = requiredScopes.google.some(scopes => userScopes.includes(scopes));
       if (!hasGoogleScopes) {
         throw new ForbiddenException('Required Google permissions not granted');
       }
@@ -124,11 +130,12 @@ export class CalendarAccessGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredProvider = this.reflector.get<'google' | 'microsoft'>('calendar-provider', context.getHandler()) ||
-                            this.reflector.get<'google' | 'microsoft'>('calendar-provider', context.getClass());
+    const requiredProvider =
+      this.reflector.get<'google' | 'microsoft'>('calendar-provider', context.getHandler()) ||
+      this.reflector.get<'google' | 'microsoft'>('calendar-provider', context.getClass());
 
     const request = context.switchToHttp().getRequest<AuthRequest>();
-    
+
     if (!request.user) {
       throw new UnauthorizedException('User context not found');
     }
@@ -147,19 +154,26 @@ export class CalendarAccessGuard implements CanActivate {
 
     if (requiredProvider) {
       // Check for specific provider calendar access
-      const providerScopes = requiredProvider === 'google' 
-        ? ['https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.readonly']
-        : ['https://graph.microsoft.com/Calendars.Read', 'https://graph.microsoft.com/Calendars.ReadWrite'];
+      const providerScopes =
+        requiredProvider === 'google'
+          ? [
+              'https://www.googleapis.com/auth/calendar',
+              'https://www.googleapis.com/auth/calendar.readonly',
+            ]
+          : [
+              'https://graph.microsoft.com/Calendars.Read',
+              'https://graph.microsoft.com/Calendars.ReadWrite',
+            ];
 
       const hasProviderAccess = providerScopes.some(scopes => userScopes.includes(scopes));
-      
+
       if (!hasProviderAccess) {
         throw new ForbiddenException(`${requiredProvider} calendar access required`);
       }
     } else {
       // Check for any calendar access
       const hasCalendarAccess = calendarScopes.some(scopes => userScopes.includes(scopes));
-      
+
       if (!hasCalendarAccess) {
         throw new ForbiddenException('Calendar access required');
       }

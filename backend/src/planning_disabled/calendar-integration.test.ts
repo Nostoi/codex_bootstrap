@@ -7,11 +7,11 @@ import { TasksService } from '../tasks/tasks.service';
 import { GoogleService } from '../integrations_disabled/google/google.service';
 import { EnergyLevel, FocusType, TaskStatus } from '@prisma/client';
 import { TimeSlot } from '../planning/types';
-import { 
-  createMockPrismaService, 
+import {
+  createMockPrismaService,
   createMockGoogleService,
   createMockGoogleCalendarEvent,
-  createMockGoogleCalendarResponse 
+  createMockGoogleCalendarResponse,
 } from '../test-utils';
 
 describe('DailyPlannerService - Calendar Integration', () => {
@@ -24,12 +24,12 @@ describe('DailyPlannerService - Calendar Integration', () => {
     // Create mocks using the enhanced factory
     mockPrismaService = createMockPrismaService();
 
-  const mockTasksService = {
-    findAll: jest.fn(),
-    findTaskDependencies: jest.fn(),
-  } as any;
+    const mockTasksService = {
+      findAll: jest.fn(),
+      findTaskDependencies: jest.fn(),
+    } as any;
 
-  const mockGoogleService = createMockGoogleService();
+    const mockGoogleService = createMockGoogleService();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -242,7 +242,7 @@ describe('DailyPlannerService - Calendar Integration', () => {
         userId,
         'primary',
         expect.any(Date),
-        expect.any(Date),
+        expect.any(Date)
       );
 
       // Verify plan was generated

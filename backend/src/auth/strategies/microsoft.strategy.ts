@@ -22,7 +22,7 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy, 'microsoft') {
 
   constructor(
     private readonly authService: AuthService,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {
     super({
       clientID: configService.get<string>('MICROSOFT_CLIENT_ID'),
@@ -37,7 +37,7 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy, 'microsoft') {
     accessToken: string,
     refreshToken: string,
     profile: MicrosoftProfile,
-    done: Function,
+    done: Function
   ): Promise<any> {
     try {
       this.logger.debug(`Microsoft OAuth validation for profile ID: ${profile.id}`);

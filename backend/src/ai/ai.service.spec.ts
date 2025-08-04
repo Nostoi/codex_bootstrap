@@ -1,10 +1,10 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { ConfigService } from "@nestjs/config";
-import { AiService } from "./ai.service";
-import { Mem0Service } from "./mem0.service";
-import { RetryService } from "./services/retry.service";
+import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
+import { AiService } from './ai.service';
+import { Mem0Service } from './mem0.service';
+import { RetryService } from './services/retry.service';
 
-describe("AiService", () => {
+describe('AiService', () => {
   let service: AiService;
   let retryService: jest.Mocked<RetryService>;
 
@@ -13,8 +13,8 @@ describe("AiService", () => {
     const mockConfigService = {
       get: jest.fn().mockImplementation((key: string, defaultValue?: any) => {
         const config = {
-          OPENAI_API_KEY: "test-api-key",
-          OPENAI_DEFAULT_MODEL: "gpt-4o-mini",
+          OPENAI_API_KEY: 'test-api-key',
+          OPENAI_DEFAULT_MODEL: 'gpt-4o-mini',
           OPENAI_TIMEOUT: 30000,
           OPENAI_MAX_TOKENS: 4096,
           OPENAI_MAX_RETRIES: 3,
@@ -32,9 +32,7 @@ describe("AiService", () => {
     };
 
     const mockRetryService = {
-      executeWithRetry: jest
-        .fn()
-        .mockImplementation((operation) => operation()),
+      executeWithRetry: jest.fn().mockImplementation(operation => operation()),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -50,55 +48,49 @@ describe("AiService", () => {
     retryService = module.get(RetryService);
   });
 
-  it("should be defined", () => {
+  it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  describe("generateTasks", () => {
-    it("should handle task generation errors gracefully", async () => {
+  describe('generateTasks', () => {
+    it('should handle task generation errors gracefully', async () => {
       const dto = {
-        projectDescription: "Test project",
-        context: "Test context",
+        projectDescription: 'Test project',
+        context: 'Test context',
         maxTasks: 5,
       };
 
       // Mock the retry service to throw an error
-      retryService.executeWithRetry.mockRejectedValue(
-        new Error("OpenAI API error"),
-      );
+      retryService.executeWithRetry.mockRejectedValue(new Error('OpenAI API error'));
 
       await expect(service.generateTasks(dto)).rejects.toThrow();
     });
   });
 
-  describe("summarize", () => {
-    it("should handle summarization errors gracefully", async () => {
+  describe('summarize', () => {
+    it('should handle summarization errors gracefully', async () => {
       const dto = {
-        text: "Test text to summarize",
+        text: 'Test text to summarize',
         maxLength: 100,
-        format: "paragraph" as const,
+        format: 'paragraph' as const,
       };
 
       // Mock the retry service to throw an error
-      retryService.executeWithRetry.mockRejectedValue(
-        new Error("OpenAI API error"),
-      );
+      retryService.executeWithRetry.mockRejectedValue(new Error('OpenAI API error'));
 
       await expect(service.summarize(dto)).rejects.toThrow();
     });
   });
 
-  describe("getSuggestions", () => {
-    it("should handle suggestion errors gracefully", async () => {
+  describe('getSuggestions', () => {
+    it('should handle suggestion errors gracefully', async () => {
       const dto = {
-        context: "Test context",
-        type: "improvement" as const,
+        context: 'Test context',
+        type: 'improvement' as const,
       };
 
       // Mock the retry service to throw an error
-      retryService.executeWithRetry.mockRejectedValue(
-        new Error("OpenAI API error"),
-      );
+      retryService.executeWithRetry.mockRejectedValue(new Error('OpenAI API error'));
 
       await expect(service.getSuggestions(dto)).rejects.toThrow();
     });

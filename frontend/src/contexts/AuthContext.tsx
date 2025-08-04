@@ -114,7 +114,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           return true;
         }
       }
-      
+
       return false;
     } catch (error) {
       console.error('Token refresh failed:', error);
@@ -131,11 +131,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     refreshToken,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

@@ -12,17 +12,17 @@ import { PrismaModule } from '../prisma/prisma.module';
   controllers: [NotificationsController],
   providers: [
     NotificationsGateway,
-    NotificationsService, 
+    NotificationsService,
     NotificationHistoryService,
     NotificationPreferencesService,
-    NotificationTemplatesService
+    NotificationTemplatesService,
   ],
   exports: [
-    NotificationsService, 
+    NotificationsService,
     NotificationsGateway,
     NotificationHistoryService,
     NotificationPreferencesService,
-    NotificationTemplatesService
+    NotificationTemplatesService,
   ],
 })
 export class NotificationsModule {}

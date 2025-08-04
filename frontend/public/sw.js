@@ -37,12 +37,13 @@ let performanceMetrics = {
 /**
  * Install event - cache static assets
  */
-self.addEventListener('install', (event) => {
+self.addEventListener('install', event => {
   console.log('Service Worker installing...');
-  
+
   event.waitUntil(
-    caches.open(STATIC_CACHE)
-      .then((cache) => {
+    caches
+      .open(STATIC_CACHE)
+      .then(cache => {
         console.log('Caching static assets...');
         return cache.addAll(STATIC_ASSETS);
       })
@@ -50,7 +51,7 @@ self.addEventListener('install', (event) => {
         console.log('Static assets cached successfully');
         return self.skipWaiting();
       })
-      .catch((error) => {
+      .catch(error => {
         console.error('Failed to cache static assets:', error);
       })
   );
@@ -59,18 +60,21 @@ self.addEventListener('install', (event) => {
 /**
  * Activate event - clean up old caches
  */
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', event => {
   console.log('Service Worker activating...');
-  
+
   event.waitUntil(
-    caches.keys()
-      .then((cacheNames) => {
+    caches
+      .keys()
+      .then(cacheNames => {
         return Promise.all(
-          cacheNames.map((cacheName) => {
-            if (cacheName !== CACHE_NAME && 
-                cacheName !== STATIC_CACHE && 
-                cacheName !== DYNAMIC_CACHE && 
-                cacheName !== API_CACHE) {
+          cacheNames.map(cacheName => {
+            if (
+              cacheName !== CACHE_NAME &&
+              cacheName !== STATIC_CACHE &&
+              cacheName !== DYNAMIC_CACHE &&
+              cacheName !== API_CACHE
+            ) {
               console.log('Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
@@ -81,7 +85,7 @@ self.addEventListener('activate', (event) => {
         console.log('Old caches cleaned up');
         return self.clients.claim();
       })
-      .catch((error) => {
+      .catch(error => {
         console.error('Failed to clean up old caches:', error);
       })
   );
@@ -90,20 +94,20 @@ self.addEventListener('activate', (event) => {
 /**
  * Fetch event - handle requests with caching strategy
  */
-self.addEventListener('fetch', (event) => {
+self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
-  
+
   // Skip non-GET requests
   if (request.method !== 'GET') {
     return;
   }
-  
+
   // Skip Chrome extension requests
   if (url.protocol === 'chrome-extension:') {
     return;
   }
-  
+
   // Handle different types of requests
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(handleApiRequest(request));
@@ -119,43 +123,43 @@ self.addEventListener('fetch', (event) => {
  */
 async function handleApiRequest(request) {
   const startTime = Date.now();
-  
+
   try {
     // Try network first for fresh data
     const networkResponse = await fetch(request);
     const responseTime = Date.now() - startTime;
-    
+
     // Update metrics
     performanceMetrics.networkRequests++;
     updateAverageResponseTime(responseTime);
-    
+
     // Cache successful responses
     if (networkResponse.ok) {
       const cache = await caches.open(API_CACHE);
       cache.put(request, networkResponse.clone());
     }
-    
+
     return networkResponse;
   } catch (error) {
     console.log('Network failed for API request, trying cache:', request.url);
-    
+
     // Fall back to cache
     const cachedResponse = await caches.match(request);
-    
+
     if (cachedResponse) {
       performanceMetrics.cacheHits++;
-      
+
       // Add offline indicator header
       const response = cachedResponse.clone();
       response.headers.set('X-Served-From', 'cache');
       response.headers.set('X-Cache-Date', new Date().toISOString());
-      
+
       return response;
     }
-    
+
     performanceMetrics.cacheMisses++;
     performanceMetrics.offlineRequests++;
-    
+
     // Return offline response for critical API endpoints
     if (isкритicalApiEndpoint(request.url)) {
       return new Response(
@@ -174,7 +178,7 @@ async function handleApiRequest(request) {
         }
       );
     }
-    
+
     throw error;
   }
 }
@@ -184,20 +188,20 @@ async function handleApiRequest(request) {
  */
 async function handleStaticAsset(request) {
   const cachedResponse = await caches.match(request);
-  
+
   if (cachedResponse) {
     performanceMetrics.cacheHits++;
     return cachedResponse;
   }
-  
+
   try {
     const networkResponse = await fetch(request);
-    
+
     if (networkResponse.ok) {
       const cache = await caches.open(STATIC_CACHE);
       cache.put(request, networkResponse.clone());
     }
-    
+
     performanceMetrics.networkRequests++;
     return networkResponse;
   } catch (error) {
@@ -211,46 +215,46 @@ async function handleStaticAsset(request) {
  */
 async function handlePageRequest(request) {
   const cachedResponse = await caches.match(request);
-  
+
   // Return cached version immediately if available
   if (cachedResponse) {
     performanceMetrics.cacheHits++;
-    
+
     // Update cache in background (stale-while-revalidate)
     fetch(request)
-      .then((networkResponse) => {
+      .then(networkResponse => {
         if (networkResponse.ok) {
           const cache = caches.open(DYNAMIC_CACHE);
-          cache.then((c) => c.put(request, networkResponse));
+          cache.then(c => c.put(request, networkResponse));
         }
       })
       .catch(() => {
         // Ignore background update errors
       });
-    
+
     return cachedResponse;
   }
-  
+
   try {
     const networkResponse = await fetch(request);
-    
+
     if (networkResponse.ok) {
       const cache = await caches.open(DYNAMIC_CACHE);
       cache.put(request, networkResponse.clone());
     }
-    
+
     performanceMetrics.networkRequests++;
     return networkResponse;
   } catch (error) {
     performanceMetrics.cacheMisses++;
     performanceMetrics.offlineRequests++;
-    
+
     // Return offline page
     const offlineResponse = await caches.match('/offline');
     if (offlineResponse) {
       return offlineResponse;
     }
-    
+
     // Fallback offline response
     return new Response(
       `
@@ -331,17 +335,17 @@ function isКритicalApiEndpoint(url) {
 function updateAverageResponseTime(responseTime) {
   const currentAvg = performanceMetrics.averageResponseTime;
   const requestCount = performanceMetrics.networkRequests;
-  
-  performanceMetrics.averageResponseTime = 
-    ((currentAvg * (requestCount - 1)) + responseTime) / requestCount;
+
+  performanceMetrics.averageResponseTime =
+    (currentAvg * (requestCount - 1) + responseTime) / requestCount;
 }
 
 /**
  * Message handler for communication with main thread
  */
-self.addEventListener('message', (event) => {
+self.addEventListener('message', event => {
   const { type, payload } = event.data;
-  
+
   switch (type) {
     case 'GET_METRICS':
       event.ports[0].postMessage({
@@ -349,7 +353,7 @@ self.addEventListener('message', (event) => {
         payload: performanceMetrics,
       });
       break;
-      
+
     case 'CLEAR_CACHE':
       clearCache(payload?.cacheType || 'all')
         .then(() => {
@@ -358,14 +362,14 @@ self.addEventListener('message', (event) => {
             payload: { success: true },
           });
         })
-        .catch((error) => {
+        .catch(error => {
           event.ports[0].postMessage({
             type: 'CACHE_CLEARED',
             payload: { success: false, error: error.message },
           });
         });
       break;
-      
+
     case 'PREFETCH_ROUTES':
       prefetchRoutes(payload?.routes || [])
         .then(() => {
@@ -374,14 +378,14 @@ self.addEventListener('message', (event) => {
             payload: { success: true },
           });
         })
-        .catch((error) => {
+        .catch(error => {
           event.ports[0].postMessage({
             type: 'PREFETCH_COMPLETE',
             payload: { success: false, error: error.message },
           });
         });
       break;
-      
+
     default:
       console.log('Unknown message type:', type);
   }
@@ -392,7 +396,7 @@ self.addEventListener('message', (event) => {
  */
 async function clearCache(cacheType = 'all') {
   const cacheNames = await caches.keys();
-  
+
   if (cacheType === 'all') {
     await Promise.all(cacheNames.map(name => caches.delete(name)));
   } else {
@@ -401,7 +405,7 @@ async function clearCache(cacheType = 'all') {
       await caches.delete(targetCache);
     }
   }
-  
+
   // Reset metrics
   performanceMetrics = {
     cacheHits: 0,
@@ -417,8 +421,8 @@ async function clearCache(cacheType = 'all') {
  */
 async function prefetchRoutes(routes) {
   const cache = await caches.open(DYNAMIC_CACHE);
-  
-  const prefetchPromises = routes.map(async (route) => {
+
+  const prefetchPromises = routes.map(async route => {
     try {
       const response = await fetch(route);
       if (response.ok) {
@@ -428,14 +432,14 @@ async function prefetchRoutes(routes) {
       console.log(`Failed to prefetch ${route}:`, error);
     }
   });
-  
+
   await Promise.allSettled(prefetchPromises);
 }
 
 /**
  * Background sync for offline actions
  */
-self.addEventListener('sync', (event) => {
+self.addEventListener('sync', event => {
   if (event.tag === 'background-sync') {
     event.waitUntil(doBackgroundSync());
   }
@@ -448,7 +452,7 @@ async function doBackgroundSync() {
   try {
     // Get pending offline actions from IndexedDB or cache
     const pendingActions = await getPendingOfflineActions();
-    
+
     for (const action of pendingActions) {
       try {
         await fetch(action.url, action.options);

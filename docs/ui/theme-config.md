@@ -1,6 +1,7 @@
 # Theme & Tokens
 
 ## Tailwind Config
+
 ```ts
 // tailwind.config.js
 extend: {
@@ -24,4 +25,5 @@ extend: {
 ```
 
 ## CSS Variables (if applicable)
+
 Use this section for MUI or custom styling systems that support runtime theming.

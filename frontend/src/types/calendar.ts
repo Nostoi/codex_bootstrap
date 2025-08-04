@@ -24,17 +24,17 @@ export interface ADHDCalendarSettings {
   reducedMotion: boolean;
   highContrast: boolean;
   colorblindMode: 'none' | 'deuteranopia' | 'protanopia' | 'tritanopia';
-  
+
   // Interaction preferences
   dragDelay: number; // ms delay before drag starts (default: 300ms)
   confirmTimeChanges: boolean; // Show confirmation for significant time changes
   enableSounds: boolean; // Audio feedback for interactions
-  
+
   // Cognitive load management
   maxEventsPerView: number; // Limit events shown to prevent overwhelm
   showEnergyIndicators: boolean; // Show energy level color coding
   enableFocusMode: boolean; // Hide non-essential UI elements
-  
+
   // Notification preferences
   reminderBuffer: number; // Minutes before event to show reminder
   gentleTransitions: boolean; // Use slower, calmer animations
@@ -64,7 +64,7 @@ export interface CalendarEvent {
   isAllDay: boolean;
   description?: string;
   conflictLevel?: ConflictLevel;
-  
+
   // Additional frontend properties
   isDragging?: boolean;
   isSelected?: boolean;
@@ -85,7 +85,7 @@ export interface TaskWithMetadata {
   scheduledTime?: Date;
   status: 'pending' | 'in-progress' | 'blocked' | 'done';
   dependencies?: string[]; // Task IDs
-  
+
   // Calendar-specific properties
   isScheduled: boolean;
   conflictLevel?: ConflictLevel;
@@ -97,12 +97,12 @@ export interface CalendarViewProps {
   // View configuration
   view: CalendarViewMode;
   currentDate: Date;
-  
+
   // Data
   events: CalendarEvent[];
   tasks: TaskWithMetadata[];
   userEnergyPattern?: UserEnergyPattern;
-  
+
   // Event handlers
   onEventDrop: (eventId: string, newStartTime: Date, newEndTime: Date) => Promise<void>;
   onTimeSlotClick: (date: Date, hour: number, minute: number) => void;
@@ -110,12 +110,12 @@ export interface CalendarViewProps {
   onTaskClick: (task: TaskWithMetadata) => void;
   onNavigate: (direction: 'prev' | 'next' | 'today') => void;
   onViewChange: (view: CalendarViewMode) => void;
-  
+
   // Configuration
   adhdSettings?: ADHDCalendarSettings;
   loading?: boolean;
   error?: string;
-  
+
   // Accessibility
   ariaLabel?: string;
   showKeyboardShortcuts?: boolean;
@@ -163,13 +163,13 @@ export interface CalendarGridConfig {
   endHour: number; // 0-23
   timeSlotDuration: number; // minutes (15, 30, 60)
   showAllDayEvents: boolean;
-  
+
   // Display settings
   showWeekends: boolean;
   firstDayOfWeek: 0 | 1; // 0 = Sunday, 1 = Monday
   showTimeAxis: boolean;
   showDateHeaders: boolean;
-  
+
   // ADHD optimizations
   highlightCurrentTime: boolean;
   showEnergyZones: boolean;

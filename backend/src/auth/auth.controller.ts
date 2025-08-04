@@ -1,16 +1,16 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Req, 
-  Res, 
-  UseGuards, 
-  Body, 
-  HttpCode, 
+import {
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+  Body,
+  HttpCode,
   HttpStatus,
   Logger,
   UnauthorizedException,
-  BadRequestException
+  BadRequestException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
@@ -38,7 +38,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly sessionManager: SessionManagerService,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {}
 
   /**
@@ -69,14 +69,14 @@ export class AuthController {
 
       const { accessToken, refreshToken } = req.user;
       const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:3000');
-      
+
       // Extract request metadata for session tracking
       const userAgent = req.get('User-Agent');
       const ipAddress = req.ip || req.connection.remoteAddress;
 
       // Redirect to frontend with tokens
       const redirectUrl = `${frontendUrl}/auth/success?token=${accessToken}&refresh=${refreshToken}`;
-      
+
       this.logger.debug(`Redirecting to frontend: ${frontendUrl}/auth/success`);
       return res.redirect(redirectUrl);
     } catch (error) {
@@ -112,10 +112,10 @@ export class AuthController {
 
       const { accessToken, refreshToken } = req.user;
       const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:3000');
-      
+
       // Redirect to frontend with tokens
       const redirectUrl = `${frontendUrl}/auth/success?token=${accessToken}&refresh=${refreshToken}`;
-      
+
       this.logger.debug(`Redirecting to frontend: ${frontendUrl}/auth/success`);
       return res.redirect(redirectUrl);
     } catch (error) {
@@ -134,7 +134,7 @@ export class AuthController {
   async refreshTokens(@Body() body: { refreshToken: string }) {
     try {
       const { refreshToken } = body;
-      
+
       if (!refreshToken) {
         throw new BadRequestException('Refresh token is required');
       }
@@ -194,23 +194,24 @@ export class AuthController {
   async getProfile(@Req() req: JwtAuthenticatedRequest) {
     try {
       const user = await this.authService.findUserById(req.user.id);
-      
+
       if (!user) {
         throw new UnauthorizedException('User not found');
       }
 
       this.logger.debug(`Profile requested for user: ${user.email}`);
-      
+
       return {
         id: user.id,
         email: user.email,
         name: user.name,
         avatar: user.avatar,
         createdAt: user.createdAt,
-        oauthProviders: user.oauthProviders?.map(provider => ({
-          provider: provider.provider,
-          scopes: provider.scopes,
-        })) || [],
+        oauthProviders:
+          user.oauthProviders?.map(provider => ({
+            provider: provider.provider,
+            scopes: provider.scopes,
+          })) || [],
       };
     } catch (error) {
       this.logger.error(`Get profile failed: ${error.message}`, error.stack);
@@ -256,13 +257,13 @@ export class AuthController {
   async revokeSession(@Req() req: JwtAuthenticatedRequest, @Body() body: { sessionId: string }) {
     try {
       const { sessionId } = body;
-      
+
       if (!sessionId) {
         throw new BadRequestException('Session ID is required');
       }
 
       const success = await this.sessionManager.invalidateSession(sessionId);
-      
+
       if (success) {
         this.logger.log(`Session revoked: ${sessionId} by user: ${req.user.email}`);
         return { message: 'Session revoked successfully' };

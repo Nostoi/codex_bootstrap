@@ -6,18 +6,20 @@ console.log('🔌 Testing WebSocket Connection...');
 // Test connection to WebSocket gateway
 const ws = new WebSocket('ws://localhost:3001', {
   headers: {
-    'Authorization': 'Bearer test-token'
-  }
+    Authorization: 'Bearer test-token',
+  },
 });
 
 ws.on('open', function open() {
   console.log('✅ WebSocket Connected Successfully!');
-  
+
   // Test sending a message
-  ws.send(JSON.stringify({
-    type: 'test',
-    data: { message: 'Hello WebSocket!' }
-  }));
+  ws.send(
+    JSON.stringify({
+      type: 'test',
+      data: { message: 'Hello WebSocket!' },
+    })
+  );
 });
 
 ws.on('message', function message(data) {

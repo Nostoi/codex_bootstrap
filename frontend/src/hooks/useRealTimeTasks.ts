@@ -40,12 +40,8 @@ export interface RealTimeTaskState {
 }
 
 export function useRealTimeTasks(projectId?: string) {
-  const { 
-    isConnected, 
-    sendMessage, 
-    subscribeToTaskUpdates, 
-    unsubscribeFromTaskUpdates 
-  } = useWebSocket();
+  const { isConnected, sendMessage, subscribeToTaskUpdates, unsubscribeFromTaskUpdates } =
+    useWebSocket();
 
   const [state, setState] = useState<RealTimeTaskState>({
     tasks: [],
@@ -62,12 +58,10 @@ export function useRealTimeTasks(projectId?: string) {
   // Load initial tasks
   const loadTasks = useCallback(async () => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
-    
+
     try {
-      const url = projectId 
-        ? `/api/tasks?projectId=${projectId}` 
-        : '/api/tasks';
-        
+      const url = projectId ? `/api/tasks?projectId=${projectId}` : '/api/tasks';
+
       const response = await fetch(url, {
         credentials: 'include',
       });
@@ -77,7 +71,7 @@ export function useRealTimeTasks(projectId?: string) {
       }
 
       const tasks = await response.json();
-      
+
       setState(prev => ({
         ...prev,
         tasks,
@@ -89,7 +83,6 @@ export function useRealTimeTasks(projectId?: string) {
       tasks.forEach((task: Task) => {
         subscribeToTaskUpdates(task.id);
       });
-
     } catch (error) {
       setState(prev => ({
         ...prev,
@@ -103,7 +96,7 @@ export function useRealTimeTasks(projectId?: string) {
   useEffect(() => {
     const handleTaskUpdate = (event: CustomEvent) => {
       const { taskId, updates, updatedBy, timestamp } = event.detail;
-      
+
       // Store update history
       const currentUpdates = taskUpdatesRef.current.get(taskId) || [];
       const newUpdate: TaskUpdate = {
@@ -134,7 +127,7 @@ export function useRealTimeTasks(projectId?: string) {
 
     const handleTaskCreated = (event: CustomEvent) => {
       const newTask: Task = event.detail;
-      
+
       setState(prev => ({
         ...prev,
         tasks: [...prev.tasks, newTask],
@@ -147,7 +140,7 @@ export function useRealTimeTasks(projectId?: string) {
 
     const handleTaskDeleted = (event: CustomEvent) => {
       const { taskId } = event.detail;
-      
+
       setState(prev => ({
         ...prev,
         tasks: prev.tasks.filter(task => task.id !== taskId),
@@ -180,52 +173,55 @@ export function useRealTimeTasks(projectId?: string) {
   }, [isConnected, loadTasks]);
 
   // Optimistic task updates
-  const updateTaskOptimistically = useCallback((taskId: string, updates: Partial<Task>) => {
-    // Store optimistic update
-    optimisticUpdatesRef.current.set(taskId, updates);
+  const updateTaskOptimistically = useCallback(
+    (taskId: string, updates: Partial<Task>) => {
+      // Store optimistic update
+      optimisticUpdatesRef.current.set(taskId, updates);
 
-    // Apply immediately to UI
-    setState(prev => ({
-      ...prev,
-      tasks: prev.tasks.map(task => {
-        if (task.id === taskId) {
-          return { ...task, ...updates };
-        }
-        return task;
-      }),
-    }));
+      // Apply immediately to UI
+      setState(prev => ({
+        ...prev,
+        tasks: prev.tasks.map(task => {
+          if (task.id === taskId) {
+            return { ...task, ...updates };
+          }
+          return task;
+        }),
+      }));
 
-    // Send update to server
-    sendMessage('update-task', { taskId, updates });
+      // Send update to server
+      sendMessage('update-task', { taskId, updates });
 
-    // Set timeout to revert if no confirmation received
-    setTimeout(() => {
-      const stillPending = optimisticUpdatesRef.current.has(taskId);
-      if (stillPending) {
-        // Revert optimistic update
-        setState(prev => ({
-          ...prev,
-          tasks: prev.tasks.map(task => {
-            if (task.id === taskId) {
-              const optimisticUpdate = optimisticUpdatesRef.current.get(taskId);
-              if (optimisticUpdate) {
-                // Remove optimistic changes
-                const revertedTask = { ...task };
-                Object.keys(optimisticUpdate).forEach(key => {
-                  // This is a simplified revert - in production you'd want to store original values
-                  delete (revertedTask as any)[key];
-                });
-                return revertedTask;
+      // Set timeout to revert if no confirmation received
+      setTimeout(() => {
+        const stillPending = optimisticUpdatesRef.current.has(taskId);
+        if (stillPending) {
+          // Revert optimistic update
+          setState(prev => ({
+            ...prev,
+            tasks: prev.tasks.map(task => {
+              if (task.id === taskId) {
+                const optimisticUpdate = optimisticUpdatesRef.current.get(taskId);
+                if (optimisticUpdate) {
+                  // Remove optimistic changes
+                  const revertedTask = { ...task };
+                  Object.keys(optimisticUpdate).forEach(key => {
+                    // This is a simplified revert - in production you'd want to store original values
+                    delete (revertedTask as any)[key];
+                  });
+                  return revertedTask;
+                }
               }
-            }
-            return task;
-          }),
-          error: 'Failed to sync task update',
-        }));
-        optimisticUpdatesRef.current.delete(taskId);
-      }
-    }, 5000); // 5 second timeout
-  }, [sendMessage]);
+              return task;
+            }),
+            error: 'Failed to sync task update',
+          }));
+          optimisticUpdatesRef.current.delete(taskId);
+        }
+      }, 5000); // 5 second timeout
+    },
+    [sendMessage]
+  );
 
   // Create new task
   const createTask = useCallback(async (taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
@@ -244,7 +240,7 @@ export function useRealTimeTasks(projectId?: string) {
       }
 
       const newTask = await response.json();
-      
+
       // The task will be added via WebSocket event, so no need to update state here
       return newTask;
     } catch (error) {
@@ -279,21 +275,30 @@ export function useRealTimeTasks(projectId?: string) {
   }, []);
 
   // Update task status with real-time sync
-  const updateTaskStatus = useCallback((taskId: string, status: Task['status']) => {
-    updateTaskOptimistically(taskId, { status });
-  }, [updateTaskOptimistically]);
+  const updateTaskStatus = useCallback(
+    (taskId: string, status: Task['status']) => {
+      updateTaskOptimistically(taskId, { status });
+    },
+    [updateTaskOptimistically]
+  );
 
   // Update task progress with real-time sync
-  const updateTaskProgress = useCallback((taskId: string, progress: number) => {
-    updateTaskOptimistically(taskId, { progress });
-  }, [updateTaskOptimistically]);
+  const updateTaskProgress = useCallback(
+    (taskId: string, progress: number) => {
+      updateTaskOptimistically(taskId, { progress });
+    },
+    [updateTaskOptimistically]
+  );
 
   // Batch update multiple tasks
-  const batchUpdateTasks = useCallback((updates: Array<{ taskId: string; updates: Partial<Task> }>) => {
-    updates.forEach(({ taskId, updates: taskUpdates }) => {
-      updateTaskOptimistically(taskId, taskUpdates);
-    });
-  }, [updateTaskOptimistically]);
+  const batchUpdateTasks = useCallback(
+    (updates: Array<{ taskId: string; updates: Partial<Task> }>) => {
+      updates.forEach(({ taskId, updates: taskUpdates }) => {
+        updateTaskOptimistically(taskId, taskUpdates);
+      });
+    },
+    [updateTaskOptimistically]
+  );
 
   // Get task update history
   const getTaskHistory = useCallback((taskId: string): TaskUpdate[] => {
@@ -303,7 +308,7 @@ export function useRealTimeTasks(projectId?: string) {
   // Check for conflicts (multiple users editing same task)
   const checkForConflicts = useCallback(() => {
     const conflicts: string[] = [];
-    
+
     state.tasks.forEach(task => {
       const history = getTaskHistory(task.id);
       const recentUpdates = history.filter(update => {
@@ -367,29 +372,32 @@ export function useRealTimeTasks(projectId?: string) {
 export function useRealTimeDragAndDrop(tasks: Task[]) {
   const { updateTaskOptimistically } = useRealTimeTasks();
 
-  const handleDragEnd = useCallback((event: any) => {
-    const { active, over } = event;
-    
-    if (!over || active.id === over.id) {
-      return;
-    }
+  const handleDragEnd = useCallback(
+    (event: any) => {
+      const { active, over } = event;
 
-    const activeTask = tasks.find(task => task.id === active.id);
-    if (!activeTask) {
-      return;
-    }
+      if (!over || active.id === over.id) {
+        return;
+      }
 
-    // Determine new status based on drop zone
-    let newStatus: Task['status'] = activeTask.status;
-    if (over.id === 'pending') newStatus = 'pending';
-    else if (over.id === 'in-progress') newStatus = 'in-progress';
-    else if (over.id === 'completed') newStatus = 'completed';
+      const activeTask = tasks.find(task => task.id === active.id);
+      if (!activeTask) {
+        return;
+      }
 
-    // Update task status in real-time
-    if (newStatus !== activeTask.status) {
-      updateTaskOptimistically(activeTask.id, { status: newStatus });
-    }
-  }, [tasks, updateTaskOptimistically]);
+      // Determine new status based on drop zone
+      let newStatus: Task['status'] = activeTask.status;
+      if (over.id === 'pending') newStatus = 'pending';
+      else if (over.id === 'in-progress') newStatus = 'in-progress';
+      else if (over.id === 'completed') newStatus = 'completed';
+
+      // Update task status in real-time
+      if (newStatus !== activeTask.status) {
+        updateTaskOptimistically(activeTask.id, { status: newStatus });
+      }
+    },
+    [tasks, updateTaskOptimistically]
+  );
 
   return { handleDragEnd };
 }

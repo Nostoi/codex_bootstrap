@@ -5,14 +5,16 @@ This document provides comprehensive guidance for AI coding assistants working o
 ## Project Overview
 
 **Helmsman** is a full-stack task management application designed specifically for individuals with ADHD, featuring:
+
 - AI-powered task extraction and prioritization
-- Energy level and focus type matching  
+- Energy level and focus type matching
 - Real-time collaborative document editing
 - Accessibility-first design (WCAG 2.2 AA)
 - Microsoft Graph integration for calendar/email context
 - Special AI agent workflow with automated PRD creation
 
 ### Core Technologies
+
 - **Frontend**: Next.js 14+ (App Router), TypeScript, Tailwind CSS + DaisyUI
 - **Backend**: NestJS with TypeScript
 - **Database**: PostgreSQL with Prisma ORM
@@ -24,6 +26,7 @@ This document provides comprehensive guidance for AI coding assistants working o
 ## Agent-Specific Commands
 
 ### Special Codex Environment Commands
+
 When working in the Codex environment, use these special commands for automated workflows:
 
 - **TaskMaster**: Creates a comprehensive project with PRD and task breakdown
@@ -33,6 +36,7 @@ When working in the Codex environment, use these special commands for automated 
 **Important**: These commands only work in Codex environments and reference `.project-management/` workflow files.
 
 ### PRD Generation Workflow
+
 1. **Feature Request**: User provides feature description or refers to `.project-management/current-prd/prd-background/feature-specification.md`
 2. **Clarifying Questions**: AI asks targeted questions about problem, users, functionality, acceptance criteria
 3. **PRD Creation**: Generate structured PRD with goals, user stories, functional requirements, technical considerations
@@ -41,6 +45,7 @@ When working in the Codex environment, use these special commands for automated 
 ## Development Commands
 
 ### Prerequisites Setup
+
 ```bash
 # Initialize development environment (Docker optional)
 ./dev_init.sh
@@ -50,6 +55,7 @@ When working in the Codex environment, use these special commands for automated 
 ```
 
 ### Development Workflow
+
 ```bash
 # Start all services in development mode
 docker-compose up  # OR manually start each service
@@ -68,11 +74,13 @@ pnpm storybook
 ```
 
 ### Package Management
+
 - **Root/Frontend**: Use `pnpm` for package management
 - **Backend**: Use `npm` for package management
 - **Monorepo Structure**: Separate package.json files for each workspace
 
 ### Database Management
+
 ```bash
 # Prisma migrations
 cd backend
@@ -85,42 +93,44 @@ npx prisma studio        # GUI admin
 ## Key Code Patterns
 
 ### ADHD-Specific Enums & UI Colors
+
 ```typescript
 // Energy level mapping to UI colors (WCAG 2.2 AA compliant)
 const ENERGY_COLORS = {
-  HIGH: 'bg-red-100 text-red-800',     // Red - High focus required
-  MEDIUM: 'bg-yellow-100 text-yellow-800',  // Yellow - Moderate effort  
-  LOW: 'bg-green-100 text-green-800'        // Green - Easy tasks
+  HIGH: 'bg-red-100 text-red-800', // Red - High focus required
+  MEDIUM: 'bg-yellow-100 text-yellow-800', // Yellow - Moderate effort
+  LOW: 'bg-green-100 text-green-800', // Green - Easy tasks
 };
 
 // Focus type indicators
 const FOCUS_ICONS = {
-  CREATIVE: '🎨',      // Writing, design, brainstorming
-  TECHNICAL: '⚙️',     // Coding, debugging, analysis
+  CREATIVE: '🎨', // Writing, design, brainstorming
+  TECHNICAL: '⚙️', // Coding, debugging, analysis
   ADMINISTRATIVE: '📋', // Email, reports, data entry
-  SOCIAL: '👥'         // Meetings, calls, collaboration
+  SOCIAL: '👥', // Meetings, calls, collaboration
 };
 ```
 
 ### Frontend Architecture Patterns
 
 #### Zustand State Management
+
 ```typescript
 // Store pattern with devtools and persistence
 export const useAppStore = create<AppState>()(
   devtools(
     persist(
-      (set) => ({
+      set => ({
         theme: 'corporate',
         isLoading: false,
         user: { id: null, name: null, email: null },
-        setTheme: (theme) => set({ theme }, false, 'setTheme'),
-        setLoading: (isLoading) => set({ isLoading }, false, 'setLoading'),
+        setTheme: theme => set({ theme }, false, 'setTheme'),
+        setLoading: isLoading => set({ isLoading }, false, 'setLoading'),
         // ... actions with descriptive names for devtools
       }),
       {
         name: 'app-storage',
-        partialize: (state) => ({ theme: state.theme, user: state.user }),
+        partialize: state => ({ theme: state.theme, user: state.user }),
       }
     ),
     { name: 'app-store' }
@@ -129,6 +139,7 @@ export const useAppStore = create<AppState>()(
 ```
 
 #### Component Patterns
+
 ```typescript
 // Export functions for named components
 export function UserMenu() {
@@ -155,6 +166,7 @@ export const AccessibleButton = forwardRef<HTMLButtonElement, Props>(
 ### Backend Architecture Patterns
 
 #### NestJS Service Structure
+
 ```typescript
 @Injectable()
 export class AiService {
@@ -180,17 +192,18 @@ export class AiController {
 ```
 
 #### Microsoft Graph Integration
+
 ```typescript
 @Injectable()
 export class GraphService {
   async syncEmails(userId: string): Promise<GraphEmail[]> {
     // Sync Outlook emails for AI context
   }
-  
+
   async getCalendarEvents(userId: string, dateRange: DateRange): Promise<CalendarEvent[]> {
     // Import calendar for intelligent scheduling
   }
-  
+
   async storeEmailContext(email: GraphEmail): Promise<void> {
     // Store email content for contextual AI recommendations
   }
@@ -200,6 +213,7 @@ export class GraphService {
 ### Database & API Patterns
 
 #### Prisma Schema (ADHD-Optimized)
+
 ```prisma
 model Task {
   id          String      @id @default(cuid())
@@ -223,7 +237,7 @@ enum EnergyLevel {
 
 enum FocusType {
   CREATIVE       // 🎨 Writing, design, brainstorming
-  TECHNICAL      // ⚙️ Coding, debugging, analysis  
+  TECHNICAL      // ⚙️ Coding, debugging, analysis
   ADMINISTRATIVE // 📋 Email, reports, data entry
   SOCIAL         // 👥 Meetings, calls, collaboration
 }
@@ -239,26 +253,27 @@ enum TaskSource {
 ### Accessibility Implementation Patterns
 
 #### Core Accessibility Components
+
 ```typescript
 // Comprehensive accessibility provider
 export function AccessibilityProvider({ children }: { children: ReactNode }) {
   const [announcements, setAnnouncements] = useState<string[]>([]);
   const [reducedMotion, setReducedMotion] = useState(false);
-  
+
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     setReducedMotion(mediaQuery.matches);
-    
+
     const handleChange = () => setReducedMotion(mediaQuery.matches);
     mediaQuery.addListener(handleChange);
     return () => mediaQuery.removeListener(handleChange);
   }, []);
 
   return (
-    <AccessibilityContext.Provider value={{ 
-      announcements, 
+    <AccessibilityContext.Provider value={{
+      announcements,
       announce: (message) => setAnnouncements(prev => [...prev, message]),
-      reducedMotion 
+      reducedMotion
     }}>
       {children}
       <LiveRegion messages={announcements} />
@@ -267,18 +282,18 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
 }
 
 // ADHD-specific energy indicator
-export function EnergyIndicator({ 
-  level, 
-  size = 'sm', 
+export function EnergyIndicator({
+  level,
+  size = 'sm',
   showLabel = true,
-  'aria-label': ariaLabel 
+  'aria-label': ariaLabel
 }: EnergyIndicatorProps) {
   const colors = {
     LOW: 'bg-green-100 text-green-800 border-green-200',
-    MEDIUM: 'bg-yellow-100 text-yellow-800 border-yellow-200', 
+    MEDIUM: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     HIGH: 'bg-red-100 text-red-800 border-red-200'
   };
-  
+
   return (
     <span
       className={`inline-flex items-center rounded-full border px-2 py-1 ${colors[level]}`}
@@ -292,6 +307,7 @@ export function EnergyIndicator({
 ```
 
 #### Testing Patterns (Accessibility-First)
+
 ```typescript
 import { render, screen } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -302,10 +318,10 @@ expect.extend(toHaveNoViolations);
 test('TaskCard supports keyboard navigation', async () => {
   const user = userEvent.setup();
   render(<TaskCard task={mockTask} />);
-  
+
   await user.tab();
   expect(screen.getByRole('button', { name: /complete task/i })).toHaveFocus();
-  
+
   await user.keyboard('{Enter}');
   expect(mockOnToggle).toHaveBeenCalledWith(mockTask.id);
 });
@@ -325,7 +341,7 @@ test('TaskCard respects reduced motion preference', () => {
       removeListener: jest.fn(),
     })),
   });
-  
+
   render(<TaskCard task={mockTask} />);
   // Verify animations are disabled
 });
@@ -334,6 +350,7 @@ test('TaskCard respects reduced motion preference', () => {
 ## Storybook & Component Development
 
 ### Story Structure
+
 ```typescript
 // Component story with accessibility scenarios
 import type { Meta, StoryObj } from '@storybook/react';
@@ -366,7 +383,7 @@ export const AllLevels: StoryObj<typeof EnergyIndicator> = {
   render: () => (
     <div className="space-y-2">
       <EnergyIndicator level="LOW" />
-      <EnergyIndicator level="MEDIUM" />  
+      <EnergyIndicator level="MEDIUM" />
       <EnergyIndicator level="HIGH" />
     </div>
   )
@@ -381,6 +398,7 @@ export const HighContrast: StoryObj<typeof EnergyIndicator> = {
 ```
 
 ### Testing Files Location
+
 - **Frontend Tests**: `frontend/src/**/*.test.tsx` (React Testing Library + axe-core)
 - **Backend Tests**: `backend/src/**/*.spec.ts` (Jest + NestJS testing utilities)
 - **E2E Tests**: `frontend/tests/` (Playwright configuration)
@@ -389,13 +407,15 @@ export const HighContrast: StoryObj<typeof EnergyIndicator> = {
 ## Environment & Dependencies
 
 ### Docker Services
+
 - **Database**: PostgreSQL on port 5487 (dev) / 5432 (container)
-- **Backend**: NestJS on port 8222 (dev) / 8000 (container)  
+- **Backend**: NestJS on port 8222 (dev) / 8000 (container)
 - **Frontend**: Next.js on port 3000
 
 ### AI Integration Points
 
 #### OpenAI Service Architecture
+
 ```typescript
 export class OpenAIService {
   async extractTasks(text: string, context?: string): Promise<ExtractedTask[]> {
@@ -403,12 +423,12 @@ export class OpenAIService {
       model: 'gpt-4',
       messages: [
         { role: 'system', content: 'Extract actionable tasks from text...' },
-        { role: 'user', content: text }
+        { role: 'user', content: text },
       ],
       functions: [TASK_EXTRACTION_FUNCTION],
-      function_call: { name: 'extract_tasks' }
+      function_call: { name: 'extract_tasks' },
     });
-    
+
     return this.parseExtractedTasks(completion.choices[0].message.function_call);
   }
 
@@ -416,13 +436,17 @@ export class OpenAIService {
     // Auto-predict energyLevel, focusType, estimatedDuration, priority
   }
 
-  async generateProactiveSuggestions(tasks: Task[], context: InteractionLog[]): Promise<AIRecommendation[]> {
+  async generateProactiveSuggestions(
+    tasks: Task[],
+    context: InteractionLog[]
+  ): Promise<AIRecommendation[]> {
     // Generate daily planning recommendations
   }
 }
 ```
 
 #### AI API Endpoints
+
 - **POST /api/ai/extract-tasks**: Extract tasks from emails/notes/conversations
 - **POST /api/ai/classify-task**: Auto-predict task metadata (energy, focus, duration)
 - **GET /api/plans/today**: Generate optimized daily schedule with energy/focus matching
@@ -430,6 +454,7 @@ export class OpenAIService {
 - **GET /api/graph/email-context**: Retrieve stored email context for AI recommendations
 
 ### Daily Planning Algorithm
+
 - **Energy Optimization**: Match HIGH/MEDIUM/LOW energy tasks to user's daily patterns
 - **Focus Batching**: Group CREATIVE/TECHNICAL/ADMINISTRATIVE/SOCIAL tasks for cognitive efficiency
 - **Deadline Management**: Prioritize hard deadlines, suggest soft deadline adjustments
@@ -438,22 +463,26 @@ export class OpenAIService {
 ## File Modification Guidelines
 
 ### Always Update
+
 - `CHANGELOG.md`: Timestamp + one-line summary for all changes
 - `DEVELOPMENT.md`: Manual startup instructions when adding services
 
 ### Environment Files
-- `.env.template`: Add new required environment variables  
+
+- `.env.template`: Add new required environment variables
 - `dev_init.sh`: Update for new dependencies/services
 - `.codex/install.sh`: Update for Codex environment changes (won't take effect until next session)
 
 ## Integration Points
 
 ### Real-time Collaboration
+
 - **WebSocket**: `/collaboration` endpoint for Yjs document sync
 - **Document Model**: Prisma `Document` linked to `User` and `Project`
 - **Session Management**: `CollaborationSession` tracking active users
 
 ### Microsoft Graph Integration
+
 - **Email Processing**: Sync Outlook emails to extract tasks and context for AI analysis
 - **Calendar Sync**: Import calendar events for intelligent scheduling and time blocking
 - **Email Storage**: Store email content in graph database for contextual AI recommendations
@@ -461,6 +490,7 @@ export class OpenAIService {
 - **Endpoints**: `/api/graph/emails`, `/api/graph/calendar`, `/api/graph/sync`
 
 ### Performance & ADHD Optimization
+
 - **Core Web Vitals**: <2.5s LCP, <500KB initial bundle, virtual scrolling for large datasets
 - **Motion Control**: Respect `prefers-reduced-motion` throughout, CSS transitions over complex animations
 - **Cognitive Load**: Progressive disclosure, consistent layouts, minimal context switching

@@ -7,12 +7,14 @@ The Helmsman component library is built with ADHD-friendly design principles, en
 ## 🎨 Design Principles
 
 ### ADHD-Optimized Patterns
+
 - **Predictable Interactions**: Consistent button behaviors, form patterns, and navigation
 - **Clear Visual Hierarchy**: Progressive disclosure and logical information organization
 - **Minimal Cognitive Load**: Simplified interfaces with essential information prioritized
 - **Fast Performance**: Optimized for quick load times and smooth interactions
 
 ### Accessibility-First
+
 - **Keyboard Navigation**: Full keyboard support with visible focus indicators
 - **Screen Reader Compatibility**: Semantic HTML with comprehensive ARIA labels
 - **High Contrast Support**: 4.5:1 minimum contrast ratios with theme support
@@ -23,6 +25,7 @@ The Helmsman component library is built with ADHD-friendly design principles, en
 ### Layout Components
 
 #### AppShell
+
 Main application layout with ADHD-friendly navigation patterns.
 
 ```tsx
@@ -36,10 +39,11 @@ import { AppShell } from '@/components/layout/AppShell';
   onAIPanelToggle={() => setAIPanelOpen(!aiPanelOpen)}
 >
   <Dashboard />
-</AppShell>
+</AppShell>;
 ```
 
 **Props:**
+
 - `user`: Current user object with name and avatar
 - `sidebarCollapsed`: Boolean for sidebar state
 - `onSidebarToggle`: Function to toggle sidebar
@@ -48,21 +52,24 @@ import { AppShell } from '@/components/layout/AppShell';
 - `children`: Main content area
 
 **Accessibility:**
+
 - ARIA landmarks (main, nav, complementary)
 - Keyboard shortcuts (Alt+S for sidebar, Alt+A for AI panel)
 - Focus management between panels
 - Skip links for quick navigation
 
 #### Dashboard
+
 Main dashboard component integrating task cards, filtering, and real-time planning.
 
 ```tsx
 import { Dashboard } from '@/components/pages/Dashboard';
 
-<Dashboard />
+<Dashboard />;
 ```
 
 **Features:**
+
 - Grid layout with responsive task cards
 - FilterBar integration with URL synchronization
 - Real-time plan updates via WebSocket
@@ -70,6 +77,7 @@ import { Dashboard } from '@/components/pages/Dashboard';
 - Drag-and-drop task scheduling
 
 **ADHD Optimizations:**
+
 - F-pattern layout (important info top-left)
 - Consistent card patterns
 - Clear loading states
@@ -78,6 +86,7 @@ import { Dashboard } from '@/components/pages/Dashboard';
 ### UI Components
 
 #### TaskCard
+
 Enhanced task display with comprehensive metadata and ADHD-friendly design.
 
 ```tsx
@@ -90,10 +99,11 @@ import { TaskCard } from '@/components/ui/TaskCard';
   onEdit={handleEdit}
   compact={false}
   interactive={true}
-/>
+/>;
 ```
 
 **Props:**
+
 - `task`: Task object with full metadata
 - `onClick`: Handler for task selection
 - `onStatusChange`: Handler for status updates
@@ -102,6 +112,7 @@ import { TaskCard } from '@/components/ui/TaskCard';
 - `interactive`: Boolean for click/hover interactions
 
 **Metadata Display:**
+
 - Energy level badges (High=green, Medium=amber, Low=indigo)
 - Focus type icons (🎨Creative, ⚙️Technical, 📋Admin, 👥Social)
 - Priority indicators (visual border weight)
@@ -109,12 +120,14 @@ import { TaskCard } from '@/components/ui/TaskCard';
 - AI suggestions with dismissible interface
 
 **Accessibility:**
+
 - Comprehensive ARIA labels with full context
 - Keyboard navigation (Tab/Enter/Space)
 - Screen reader friendly metadata announcements
 - High contrast focus indicators
 
 #### FilterBar
+
 Comprehensive filtering component with ADHD-friendly controls.
 
 ```tsx
@@ -127,10 +140,11 @@ import { FilterBar } from '@/components/ui/FilterBar';
   onReset={handleReset}
   loading={isLoading}
   compact={isMobile}
-/>
+/>;
 ```
 
 **Props:**
+
 - `filters`: Current filter state object
 - `onFiltersChange`: Handler for filter updates
 - `onClear`: Handler for clearing all filters
@@ -139,6 +153,7 @@ import { FilterBar } from '@/components/ui/FilterBar';
 - `compact`: Boolean for mobile layout
 
 **Filter Types:**
+
 - Search input with 300ms debouncing
 - Energy level multi-select
 - Focus type checkboxes
@@ -147,12 +162,14 @@ import { FilterBar } from '@/components/ui/FilterBar';
 - Status toggles
 
 **ADHD Features:**
+
 - Sticky positioning for always-accessible filtering
 - Clear visual grouping of related filters
 - Immediate feedback on changes
 - Easy reset/clear options
 
 #### Button Variants
+
 Consistent button system with clear interaction patterns.
 
 ```tsx
@@ -175,21 +192,25 @@ import { Button } from '@/components/ui/Button';
 ```
 
 **Variants:**
+
 - `primary`: Main call-to-action buttons
 - `secondary`: Secondary actions
 - `ghost`: Subtle actions
 - `destructive`: Delete/remove actions
 
 **Sizes:**
+
 - `small`: Compact interfaces
 - `medium`: Standard size
 - `large`: Prominent actions
 
 **States:**
+
 - `loading`: Shows spinner with loading text
 - `disabled`: Non-interactive state with clear visual indication
 
 #### Badge System
+
 Status and metadata indicators with consistent color coding.
 
 ```tsx
@@ -212,6 +233,7 @@ import { Badge } from '@/components/ui/Badge';
 ```
 
 **Badge Types:**
+
 - `energy`: Energy level indicators (HIGH/MEDIUM/LOW)
 - `status`: Task status (pending/in-progress/blocked/done)
 - `confidence`: AI confidence scores
@@ -219,6 +241,7 @@ import { Badge } from '@/components/ui/Badge';
 - `focus`: Focus type categories
 
 **Color System:**
+
 - Energy: High=green, Medium=amber, Low=indigo
 - Status: Pending=gray, Progress=blue, Blocked=red, Done=green
 - Priority: 1-2=red, 3=amber, 4-5=green
@@ -226,6 +249,7 @@ import { Badge } from '@/components/ui/Badge';
 ### Form Components
 
 #### Input Components
+
 Accessible form inputs with clear validation patterns.
 
 ```tsx
@@ -258,6 +282,7 @@ import { Input, TextArea, Select } from '@/components/ui/form';
 ```
 
 **Accessibility Features:**
+
 - Clear label associations
 - Error message announcements
 - Keyboard navigation support
@@ -265,22 +290,19 @@ import { Input, TextArea, Select } from '@/components/ui/form';
 - Screen reader instructions
 
 #### Modal System
+
 Accessible modal dialogs with proper focus management.
 
 ```tsx
 import { Modal } from '@/components/ui/Modal';
 
-<Modal
-  isOpen={isModalOpen}
-  onClose={handleClose}
-  title="Create New Task"
-  size="medium"
->
+<Modal isOpen={isModalOpen} onClose={handleClose} title="Create New Task" size="medium">
   <TaskForm onSubmit={handleSubmit} onCancel={handleClose} />
-</Modal>
+</Modal>;
 ```
 
 **Features:**
+
 - Focus trap within modal
 - Backdrop click to close
 - Escape key support
@@ -290,27 +312,26 @@ import { Modal } from '@/components/ui/Modal';
 ### Data Display Components
 
 #### LazyWrapper
+
 Performance-optimized lazy loading with ADHD-friendly loading states.
 
 ```tsx
 import { LazyWrapper } from '@/components/ui/LazyWrapper';
 
-<LazyWrapper
-  threshold={0.1}
-  fallback={<TaskCardSkeleton />}
-  errorBoundary={<TaskCardError />}
->
+<LazyWrapper threshold={0.1} fallback={<TaskCardSkeleton />} errorBoundary={<TaskCardError />}>
   <TaskCard task={task} />
-</LazyWrapper>
+</LazyWrapper>;
 ```
 
 **Props:**
+
 - `threshold`: Intersection observer threshold
 - `fallback`: Loading state component
 - `errorBoundary`: Error state component
 - `children`: Content to lazy load
 
 **ADHD Optimizations:**
+
 - Smooth loading transitions
 - Predictable skeleton states
 - Error boundaries with retry options
@@ -319,6 +340,7 @@ import { LazyWrapper } from '@/components/ui/LazyWrapper';
 ## 🎯 Usage Guidelines
 
 ### Composition Patterns
+
 Components are designed to work together seamlessly:
 
 ```tsx
@@ -329,11 +351,7 @@ Components are designed to work together seamlessly:
     <div className="task-grid">
       {tasks.map(task => (
         <LazyWrapper key={task.id}>
-          <TaskCard
-            task={task}
-            onClick={selectTask}
-            onStatusChange={updateTaskStatus}
-          />
+          <TaskCard task={task} onClick={selectTask} onStatusChange={updateTaskStatus} />
         </LazyWrapper>
       ))}
     </div>
@@ -342,12 +360,14 @@ Components are designed to work together seamlessly:
 ```
 
 ### Performance Optimization
+
 - Use `LazyWrapper` for content below the fold
 - Implement proper memoization with `React.memo`
 - Leverage Next.js Image optimization
 - Follow bundle splitting best practices
 
 ### Accessibility Checklist
+
 - [ ] Proper heading hierarchy (h1 → h2 → h3)
 - [ ] Descriptive alt text for images
 - [ ] Keyboard navigation support
@@ -359,6 +379,7 @@ Components are designed to work together seamlessly:
 ## 🧪 Testing Components
 
 ### Unit Testing
+
 ```tsx
 import { render, screen } from '@testing-library/react';
 import { TaskCard } from '@/components/ui/TaskCard';
@@ -369,11 +390,11 @@ test('renders task card with metadata', () => {
     title: 'Test Task',
     energyLevel: 'HIGH',
     focusType: 'TECHNICAL',
-    priority: 4
+    priority: 4,
   };
 
   render(<TaskCard task={task} />);
-  
+
   expect(screen.getByText('Test Task')).toBeInTheDocument();
   expect(screen.getByText('High Energy')).toBeInTheDocument();
   expect(screen.getByLabelText(/technical focus/i)).toBeInTheDocument();
@@ -381,6 +402,7 @@ test('renders task card with metadata', () => {
 ```
 
 ### Accessibility Testing
+
 ```tsx
 import { axe, toHaveNoViolations } from 'jest-axe';
 
@@ -394,6 +416,7 @@ test('task card has no accessibility violations', async () => {
 ```
 
 ### Storybook Integration
+
 All components include comprehensive Storybook stories:
 
 ```tsx
@@ -404,24 +427,24 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: 'Enhanced task card with ADHD-friendly metadata display'
-      }
-    }
-  }
+        component: 'Enhanced task card with ADHD-friendly metadata display',
+      },
+    },
+  },
 };
 
 export const Default = {
   args: {
     task: mockTask,
-    interactive: true
-  }
+    interactive: true,
+  },
 };
 
 export const HighPriority = {
   args: {
     task: { ...mockTask, priority: 5 },
-    interactive: true
-  }
+    interactive: true,
+  },
 };
 ```
 
@@ -430,12 +453,14 @@ export const HighPriority = {
 All components follow mobile-first responsive design:
 
 ### Breakpoints
+
 - `sm`: 640px (mobile)
 - `md`: 768px (tablet)
 - `lg`: 1024px (desktop)
 - `xl`: 1280px (large desktop)
 
 ### Responsive Patterns
+
 - Grid layouts that stack on mobile
 - Touch-friendly interaction targets (44px minimum)
 - Readable font sizes at all breakpoints
@@ -444,6 +469,7 @@ All components follow mobile-first responsive design:
 ## 🔧 Customization
 
 ### Theme Support
+
 Components support light/dark themes via CSS custom properties:
 
 ```css
@@ -455,7 +481,7 @@ Components support light/dark themes via CSS custom properties:
   --color-error: #ef4444;
 }
 
-[data-theme="dark"] {
+[data-theme='dark'] {
   --color-primary: #60a5fa;
   --color-secondary: #9ca3af;
   /* ... */
@@ -463,6 +489,7 @@ Components support light/dark themes via CSS custom properties:
 ```
 
 ### Design Token Override
+
 Customize spacing, colors, and typography through design tokens:
 
 ```ts
@@ -473,31 +500,34 @@ export const tokens = {
     sm: '8px',
     md: '16px',
     lg: '24px',
-    xl: '32px'
+    xl: '32px',
   },
   colors: {
     energy: {
       high: '#10b981',
-      medium: '#f59e0b', 
-      low: '#6366f1'
-    }
-  }
+      medium: '#f59e0b',
+      low: '#6366f1',
+    },
+  },
 };
 ```
 
 ## 🚀 Performance Tips
 
 ### Bundle Optimization
+
 - Import components individually to enable tree shaking
 - Use dynamic imports for large components
 - Implement proper code splitting
 
 ### Memory Management
+
 - Clean up event listeners in useEffect cleanup
 - Avoid creating new objects in render functions
 - Use React.memo for expensive components
 
 ### Network Optimization
+
 - Implement proper caching strategies
 - Use React Query for server state management
 - Optimize image loading with Next.js Image

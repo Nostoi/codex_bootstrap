@@ -25,7 +25,9 @@ export function sortTasksByPriority(tasks: Task[]): Task[] {
     // First sort by priority (higher number = higher priority)
     const priorityA = a.priority || 3;
     const priorityB = b.priority || 3;
-    const priorityDiff = (TASK_PRIORITIES[priorityB as keyof typeof TASK_PRIORITIES]?.weight || 0) - (TASK_PRIORITIES[priorityA as keyof typeof TASK_PRIORITIES]?.weight || 0);
+    const priorityDiff =
+      (TASK_PRIORITIES[priorityB as keyof typeof TASK_PRIORITIES]?.weight || 0) -
+      (TASK_PRIORITIES[priorityA as keyof typeof TASK_PRIORITIES]?.weight || 0);
     if (priorityDiff !== 0) return priorityDiff;
 
     // Then by due date (earliest first)
@@ -182,13 +184,16 @@ export function createDefaultTask(overrides: Partial<Task> = {}): Task {
  * Groups tasks by status
  */
 export function groupTasksByStatus(tasks: Task[]): Record<Task['status'], Task[]> {
-  return tasks.reduce((groups, task) => {
-    if (!groups[task.status]) {
-      groups[task.status] = [];
-    }
-    groups[task.status].push(task);
-    return groups;
-  }, {} as Record<Task['status'], Task[]>);
+  return tasks.reduce(
+    (groups, task) => {
+      if (!groups[task.status]) {
+        groups[task.status] = [];
+      }
+      groups[task.status].push(task);
+      return groups;
+    },
+    {} as Record<Task['status'], Task[]>
+  );
 }
 
 /**
@@ -196,11 +201,12 @@ export function groupTasksByStatus(tasks: Task[]): Record<Task['status'], Task[]
  */
 export function filterTasks(tasks: Task[], query: string): Task[] {
   if (!query.trim()) return tasks;
-  
+
   const lowercaseQuery = query.toLowerCase();
-  return tasks.filter(task => 
-    task.title.toLowerCase().includes(lowercaseQuery) ||
-    task.aiSuggestion?.toLowerCase().includes(lowercaseQuery)
+  return tasks.filter(
+    task =>
+      task.title.toLowerCase().includes(lowercaseQuery) ||
+      task.aiSuggestion?.toLowerCase().includes(lowercaseQuery)
   );
 }
 

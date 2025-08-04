@@ -1,8 +1,8 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { TasksController, UserSettingsController } from "./tasks.controller";
-import { TasksService } from "./tasks.service";
+import { Test, TestingModule } from '@nestjs/testing';
+import { TasksController, UserSettingsController } from './tasks.controller';
+import { TasksService } from './tasks.service';
 
-describe("TasksController", () => {
+describe('TasksController', () => {
   let controller: TasksController;
   const mockTasksService = {
     findAll: jest.fn(),
@@ -29,12 +29,12 @@ describe("TasksController", () => {
     jest.clearAllMocks();
   });
 
-  it("should be defined", () => {
+  it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 
-  it("gets tasks", async () => {
-    const mockTasks = [{ id: "1", title: "Test" }];
+  it('gets tasks', async () => {
+    const mockTasks = [{ id: '1', title: 'Test' }];
     mockTasksService.findAll.mockResolvedValue(mockTasks);
 
     const result = await controller.getTasks();
@@ -42,17 +42,17 @@ describe("TasksController", () => {
     expect(mockTasksService.findAll).toHaveBeenCalledWith(undefined);
   });
 
-  it("gets tasks with owner filter", async () => {
-    const ownerId = "user123";
+  it('gets tasks with owner filter', async () => {
+    const ownerId = 'user123';
     mockTasksService.findAll.mockResolvedValue([]);
 
     await controller.getTasks(ownerId);
     expect(mockTasksService.findAll).toHaveBeenCalledWith(ownerId);
   });
 
-  it("gets single task", async () => {
-    const taskId = "1";
-    const mockTask = { id: taskId, title: "Test" };
+  it('gets single task', async () => {
+    const taskId = '1';
+    const mockTask = { id: taskId, title: 'Test' };
     mockTasksService.findOne.mockResolvedValue(mockTask);
 
     const result = await controller.getTask(taskId);
@@ -60,22 +60,19 @@ describe("TasksController", () => {
     expect(mockTasksService.findOne).toHaveBeenCalledWith(taskId);
   });
 
-  it("creates task", async () => {
-    const createTaskDto = { title: "New Task" };
-    const ownerId = "user123";
-    const mockCreatedTask = { id: "1", ...createTaskDto };
+  it('creates task', async () => {
+    const createTaskDto = { title: 'New Task' };
+    const ownerId = 'user123';
+    const mockCreatedTask = { id: '1', ...createTaskDto };
     mockTasksService.create.mockResolvedValue(mockCreatedTask);
 
     const result = await controller.createTask(createTaskDto as any, ownerId);
     expect(result).toEqual(mockCreatedTask);
-    expect(mockTasksService.create).toHaveBeenCalledWith(
-      createTaskDto,
-      ownerId,
-    );
+    expect(mockTasksService.create).toHaveBeenCalledWith(createTaskDto, ownerId);
   });
 
-  it("toggles task", async () => {
-    const taskId = "1";
+  it('toggles task', async () => {
+    const taskId = '1';
     const mockToggledTask = { id: taskId, completed: true };
     mockTasksService.toggle.mockResolvedValue(mockToggledTask);
 
@@ -85,7 +82,7 @@ describe("TasksController", () => {
   });
 });
 
-describe("UserSettingsController", () => {
+describe('UserSettingsController', () => {
   let controller: UserSettingsController;
   const mockTasksService = {
     findUserSettings: jest.fn(),
@@ -107,13 +104,13 @@ describe("UserSettingsController", () => {
     jest.clearAllMocks();
   });
 
-  it("should be defined", () => {
+  it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 
-  it("gets user settings", async () => {
-    const userId = "user123";
-    const mockSettings = { id: "1", userId };
+  it('gets user settings', async () => {
+    const userId = 'user123';
+    const mockSettings = { id: '1', userId };
     mockTasksService.findUserSettings.mockResolvedValue(mockSettings);
 
     const result = await controller.getUserSettings(userId);

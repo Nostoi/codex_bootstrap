@@ -49,7 +49,9 @@ export class SessionManagerService {
         },
       });
 
-      this.logger.debug(`Session created for user: ${sessionData.userId}, session: ${session.sessionId}`);
+      this.logger.debug(
+        `Session created for user: ${sessionData.userId}, session: ${session.sessionId}`
+      );
       return session;
     } catch (error) {
       this.logger.error(`Failed to create session for user: ${sessionData.userId}`, error.stack);
@@ -131,7 +133,7 @@ export class SessionManagerService {
     try {
       await this.prisma.userSession.update({
         where: { id: sessionId },
-        data: { 
+        data: {
           isActive: false,
           updatedAt: new Date(),
         },
@@ -151,11 +153,11 @@ export class SessionManagerService {
   async invalidateUserSessions(userId: string): Promise<number> {
     try {
       const result = await this.prisma.userSession.updateMany({
-        where: { 
+        where: {
           userId,
           isActive: true,
         },
-        data: { 
+        data: {
           isActive: false,
           updatedAt: new Date(),
         },
@@ -176,7 +178,7 @@ export class SessionManagerService {
     try {
       const result = await this.prisma.userSession.updateMany({
         where: { refreshToken },
-        data: { 
+        data: {
           isActive: false,
           updatedAt: new Date(),
         },
@@ -199,7 +201,7 @@ export class SessionManagerService {
         where: {
           OR: [
             { expiresAt: { lt: new Date() } },
-            { 
+            {
               isActive: false,
               updatedAt: { lt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }, // 7 days old
             },
@@ -226,21 +228,18 @@ export class SessionManagerService {
     try {
       const [total, active, expired] = await Promise.all([
         this.prisma.userSession.count({ where: { userId } }),
-        this.prisma.userSession.count({ 
-          where: { 
-            userId, 
-            isActive: true, 
-            expiresAt: { gt: new Date() } 
-          } 
+        this.prisma.userSession.count({
+          where: {
+            userId,
+            isActive: true,
+            expiresAt: { gt: new Date() },
+          },
         }),
-        this.prisma.userSession.count({ 
-          where: { 
-            userId, 
-            OR: [
-              { isActive: false },
-              { expiresAt: { lt: new Date() } }
-            ]
-          } 
+        this.prisma.userSession.count({
+          where: {
+            userId,
+            OR: [{ isActive: false }, { expiresAt: { lt: new Date() } }],
+          },
         }),
       ]);
 
@@ -261,7 +260,7 @@ export class SessionManagerService {
   private async enforceSessionLimit(userId: string, maxSessions: number = 5): Promise<void> {
     try {
       const activeSessions = await this.getUserActiveSessions(userId);
-      
+
       if (activeSessions.length >= maxSessions) {
         // Invalidate oldest sessions
         const sessionsToInvalidate = activeSessions
@@ -272,7 +271,9 @@ export class SessionManagerService {
           await this.invalidateSession(session.id);
         }
 
-        this.logger.log(`Enforced session limit for user ${userId}: invalidated ${sessionsToInvalidate.length} old sessions`);
+        this.logger.log(
+          `Enforced session limit for user ${userId}: invalidated ${sessionsToInvalidate.length} old sessions`
+        );
       }
     } catch (error) {
       this.logger.error(`Failed to enforce session limit for user: ${userId}`, error.stack);

@@ -1,35 +1,35 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"label": "Start Storybook",
-			"type": "shell",
-			"command": "npm run storybook",
-			"group": "build",
-			"isBackground": true,
-			"problemMatcher": []
-		},
-		{
-			"label": "Start Backend Server",
-			"type": "shell",
-			"command": "pnpm run start:dev",
-			"group": "build",
-			"isBackground": true,
-			"options": {
-				"cwd": "${workspaceFolder}/backend"
-			},
-			"problemMatcher": []
-		},
-		{
-			"label": "Start Frontend Server",
-			"type": "shell",
-			"command": "pnpm run dev",
-			"group": "build",
-			"isBackground": true,
-			"options": {
-				"cwd": "${workspaceFolder}/frontend"
-			},
-			"problemMatcher": []
-		}
-	]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Storybook",
+      "type": "shell",
+      "command": "npm run storybook",
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Start Backend Server",
+      "type": "shell",
+      "command": "pnpm run start:dev",
+      "group": "build",
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Start Frontend Server",
+      "type": "shell",
+      "command": "pnpm run dev",
+      "group": "build",
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "problemMatcher": []
+    }
+  ]
 }

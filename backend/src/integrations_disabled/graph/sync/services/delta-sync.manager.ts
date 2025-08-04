@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { GraphService } from '../../graph.service';
 import { GraphAuthService } from '../../auth/graph-auth.service';
-import { 
-  GraphCalendarEvent, 
-  GraphDeltaResponse, 
-  DeltaSyncOptions 
+import {
+  GraphCalendarEvent,
+  GraphDeltaResponse,
+  DeltaSyncOptions,
 } from '../types/calendar-sync.types';
 
 /**
@@ -17,15 +17,15 @@ export class DeltaSyncManager {
 
   constructor(
     private readonly graphService: GraphService,
-    private readonly graphAuthService: GraphAuthService,
+    private readonly graphAuthService: GraphAuthService
   ) {}
 
   /**
    * Get delta changes from Microsoft Graph
    */
   async getDeltaChanges(
-    userId: string, 
-    deltaToken: string, 
+    userId: string,
+    deltaToken: string,
     options: DeltaSyncOptions = {}
   ): Promise<{ events: GraphCalendarEvent[]; deltaToken?: string }> {
     this.logger.log(`Getting delta changes for user ${userId} with token: ${deltaToken}`);
@@ -33,20 +33,22 @@ export class DeltaSyncManager {
     try {
       const graphClient = await this.createGraphClient(userId);
       const calendarId = options.calendarId || 'default';
-      
+
       // Build delta query URL
       let deltaUrl = `/me/calendars/${calendarId}/events/delta`;
-      
+
       // Add query parameters
       const queryParams: string[] = [];
-      
+
       if (options.maxResults) {
         queryParams.push(`$top=${options.maxResults}`);
       }
-      
+
       // Add select fields to optimize response
-      queryParams.push(`$select=id,subject,body,location,start,end,isAllDay,recurrence,lastModifiedDateTime,createdDateTime`);
-      
+      queryParams.push(
+        `$select=id,subject,body,location,start,end,isAllDay,recurrence,lastModifiedDateTime,createdDateTime`
+      );
+
       if (queryParams.length > 0) {
         deltaUrl += `?${queryParams.join('&')}`;
       }
@@ -62,7 +64,7 @@ export class DeltaSyncManager {
 
       // Make the delta request
       const response = await this.makeGraphRequest(graphClient, requestUrl);
-      
+
       const events = response.value || [];
       let newDeltaToken: string | undefined;
 
@@ -74,20 +76,20 @@ export class DeltaSyncManager {
         // If there are more pages, we need to continue fetching
         const allEvents = [...events];
         let nextLink = response['@odata.nextLink'];
-        
+
         while (nextLink) {
           this.logger.debug(`Fetching next page: ${nextLink}`);
           const nextResponse = await this.makeGraphRequest(graphClient, nextLink);
           allEvents.push(...(nextResponse.value || []));
-          
+
           if (nextResponse['@odata.deltaLink']) {
             newDeltaToken = nextResponse['@odata.deltaLink'];
             break;
           }
-          
+
           nextLink = nextResponse['@odata.nextLink'];
         }
-        
+
         return {
           events: this.filterDeltaEvents(allEvents, options),
           deltaToken: newDeltaToken,
@@ -98,16 +100,15 @@ export class DeltaSyncManager {
         events: this.filterDeltaEvents(events, options),
         deltaToken: newDeltaToken,
       };
-
     } catch (error) {
       this.logger.error(`Failed to get delta changes for user ${userId}:`, error);
-      
+
       // If delta token is invalid, we might need to start fresh
       if (this.isDeltaTokenError(error)) {
         this.logger.warn('Delta token is invalid, suggesting full sync');
         throw new Error('DELTA_TOKEN_INVALID');
       }
-      
+
       throw error;
     }
   }
@@ -115,20 +116,17 @@ export class DeltaSyncManager {
   /**
    * Initialize delta sync for a user (get initial delta token)
    */
-  async initializeDeltaSync(
-    userId: string, 
-    options: DeltaSyncOptions = {}
-  ): Promise<string> {
+  async initializeDeltaSync(userId: string, options: DeltaSyncOptions = {}): Promise<string> {
     this.logger.log(`Initializing delta sync for user ${userId}`);
 
     try {
       const graphClient = await this.createGraphClient(userId);
       const calendarId = options.calendarId || 'default';
-      
+
       // Make initial delta request to get the delta token
       const deltaUrl = `/me/calendars/${calendarId}/events/delta?$select=id&$top=1`;
       const response = await this.makeGraphRequest(graphClient, deltaUrl);
-      
+
       // Skip through all pages to get to the delta link
       let nextLink = response['@odata.nextLink'];
       while (nextLink) {
@@ -138,13 +136,12 @@ export class DeltaSyncManager {
         }
         nextLink = nextResponse['@odata.nextLink'];
       }
-      
+
       if (response['@odata.deltaLink']) {
         return response['@odata.deltaLink'];
       }
-      
-      throw new Error('Failed to get initial delta token');
 
+      throw new Error('Failed to get initial delta token');
     } catch (error) {
       this.logger.error(`Failed to initialize delta sync for user ${userId}:`, error);
       throw error;
@@ -190,7 +187,9 @@ export class DeltaSyncManager {
       }
     }
 
-    this.logger.debug(`Delta changes: ${created.length} created, ${updated.length} updated, ${deleted.length} deleted`);
+    this.logger.debug(
+      `Delta changes: ${created.length} created, ${updated.length} updated, ${deleted.length} deleted`
+    );
 
     return { created, updated, deleted };
   }
@@ -219,7 +218,10 @@ export class DeltaSyncManager {
   /**
    * Filter delta events based on options
    */
-  private filterDeltaEvents(events: GraphCalendarEvent[], options: DeltaSyncOptions): GraphCalendarEvent[] {
+  private filterDeltaEvents(
+    events: GraphCalendarEvent[],
+    options: DeltaSyncOptions
+  ): GraphCalendarEvent[] {
     let filteredEvents = events;
 
     if (options.skipDeleted) {
@@ -236,10 +238,10 @@ export class DeltaSyncManager {
     // Check for common delta token error patterns
     const errorMessage = error.message?.toLowerCase() || '';
     const errorCode = error.code?.toLowerCase() || '';
-    
+
     return (
-      errorMessage.includes('delta') && errorMessage.includes('invalid') ||
-      errorMessage.includes('delta') && errorMessage.includes('expired') ||
+      (errorMessage.includes('delta') && errorMessage.includes('invalid')) ||
+      (errorMessage.includes('delta') && errorMessage.includes('expired')) ||
       errorCode === 'invalidrequest' ||
       errorCode === 'resyncrequest'
     );
@@ -279,19 +281,21 @@ export class DeltaSyncManager {
     endDate: Date,
     options: DeltaSyncOptions = {}
   ): Promise<{ events: GraphCalendarEvent[]; deltaToken?: string }> {
-    this.logger.log(`Getting delta changes for user ${userId} between ${startDate.toISOString()} and ${endDate.toISOString()}`);
+    this.logger.log(
+      `Getting delta changes for user ${userId} between ${startDate.toISOString()} and ${endDate.toISOString()}`
+    );
 
     const result = await this.getDeltaChanges(userId, deltaToken, options);
-    
+
     // Filter events by date range
     const filteredEvents = result.events.filter(event => {
       if (event['@removed']) {
         return true; // Include deleted events regardless of date
       }
-      
+
       const eventStart = new Date(event.start.dateTime);
       const eventEnd = new Date(event.end.dateTime);
-      
+
       // Include event if it overlaps with the window
       return eventStart <= endDate && eventEnd >= startDate;
     });

@@ -19,26 +19,22 @@ interface LazyWrapperProps {
 /**
  * Skeleton loader component for smooth ADHD-friendly loading states
  */
-const SkeletonLoader = memo(({ 
-  minHeight = 200,
-  className = '' 
-}: { 
-  minHeight?: number; 
-  className?: string; 
-}) => (
-  <div 
-    className={`animate-pulse bg-gray-100 dark:bg-gray-800 rounded-lg ${className}`}
-    style={{ minHeight }}
-    role="status"
-    aria-label="Loading content..."
-  >
-    <div className="p-4 space-y-3">
-      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+const SkeletonLoader = memo(
+  ({ minHeight = 200, className = '' }: { minHeight?: number; className?: string }) => (
+    <div
+      className={`animate-pulse bg-gray-100 dark:bg-gray-800 rounded-lg ${className}`}
+      style={{ minHeight }}
+      role="status"
+      aria-label="Loading content..."
+    >
+      <div className="p-4 space-y-3">
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+      </div>
     </div>
-  </div>
-));
+  )
+);
 
 SkeletonLoader.displayName = 'SkeletonLoader';
 
@@ -46,8 +42,8 @@ SkeletonLoader.displayName = 'SkeletonLoader';
  * Error boundary for lazy-loaded components
  */
 class LazyErrorBoundary extends React.Component<
-  { 
-    children: React.ReactNode; 
+  {
+    children: React.ReactNode;
     fallback: React.ReactNode;
     onError?: (error: Error) => void;
   },
@@ -78,17 +74,17 @@ class LazyErrorBoundary extends React.Component<
 
 /**
  * LazyWrapper component that provides ADHD-optimized lazy loading
- * 
+ *
  * Features:
  * - Intersection Observer for performance
  * - Smooth skeleton loading states
  * - Error boundaries for resilience
  * - Customizable loading thresholds
  * - ADHD-friendly animations
- * 
+ *
  * @example
  * ```tsx
- * <LazyWrapper 
+ * <LazyWrapper
  *   threshold={0.1}
  *   minHeight={300}
  *   fallback={<CustomLoader />}
@@ -97,82 +93,85 @@ class LazyErrorBoundary extends React.Component<
  * </LazyWrapper>
  * ```
  */
-export const LazyWrapper = memo<LazyWrapperProps>(({
-  children,
-  fallback,
-  threshold = 0.1,
-  enabled = true,
-  className = '',
-  minHeight = 200,
-  'data-testid': testId,
-}) => {
-  const { elementRef, isIntersecting } = useLazyLoad(threshold);
+export const LazyWrapper = memo<LazyWrapperProps>(
+  ({
+    children,
+    fallback,
+    threshold = 0.1,
+    enabled = true,
+    className = '',
+    minHeight = 200,
+    'data-testid': testId,
+  }) => {
+    const { elementRef, isIntersecting } = useLazyLoad(threshold);
 
-  // Memoize the default fallback to prevent unnecessary re-renders
-  const defaultFallback = useMemo(() => (
-    <SkeletonLoader minHeight={minHeight} className={className} />
-  ), [minHeight, className]);
+    // Memoize the default fallback to prevent unnecessary re-renders
+    const defaultFallback = useMemo(
+      () => <SkeletonLoader minHeight={minHeight} className={className} />,
+      [minHeight, className]
+    );
 
-  const loadingFallback = fallback || defaultFallback;
+    const loadingFallback = fallback || defaultFallback;
 
-  // If lazy loading is disabled, render children immediately
-  if (!enabled) {
+    // If lazy loading is disabled, render children immediately
+    if (!enabled) {
+      return (
+        <LazyErrorBoundary
+          fallback={
+            <div className="p-4 text-center text-red-600" role="alert">
+              <p>Failed to load component</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-2 px-4 py-2 bg-red-100 hover:bg-red-200 rounded"
+              >
+                Retry
+              </button>
+            </div>
+          }
+        >
+          <Suspense fallback={loadingFallback}>
+            <div className={className} data-testid={testId}>
+              {children}
+            </div>
+          </Suspense>
+        </LazyErrorBoundary>
+      );
+    }
+
     return (
-      <LazyErrorBoundary 
-        fallback={
-          <div className="p-4 text-center text-red-600" role="alert">
-            <p>Failed to load component</p>
-            <button 
-              onClick={() => window.location.reload()}
-              className="mt-2 px-4 py-2 bg-red-100 hover:bg-red-200 rounded"
-            >
-              Retry
-            </button>
-          </div>
-        }
+      <div
+        ref={elementRef}
+        className={`lazy-wrapper ${className}`}
+        data-testid={testId}
+        style={{ minHeight }}
       >
-        <Suspense fallback={loadingFallback}>
-          <div className={className} data-testid={testId}>
-            {children}
-          </div>
-        </Suspense>
-      </LazyErrorBoundary>
+        <LazyErrorBoundary
+          fallback={
+            <div className="p-4 text-center text-red-600" role="alert">
+              <p>Failed to load component</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-2 px-4 py-2 bg-red-100 hover:bg-red-200 rounded"
+              >
+                Retry
+              </button>
+            </div>
+          }
+        >
+          <Suspense fallback={loadingFallback}>
+            {isIntersecting ? children : loadingFallback}
+          </Suspense>
+        </LazyErrorBoundary>
+      </div>
     );
   }
-
-  return (
-    <div 
-      ref={elementRef} 
-      className={`lazy-wrapper ${className}`}
-      data-testid={testId}
-      style={{ minHeight }}
-    >
-      <LazyErrorBoundary 
-        fallback={
-          <div className="p-4 text-center text-red-600" role="alert">
-            <p>Failed to load component</p>
-            <button 
-              onClick={() => window.location.reload()}
-              className="mt-2 px-4 py-2 bg-red-100 hover:bg-red-200 rounded"
-            >
-              Retry
-            </button>
-          </div>
-        }
-      >
-        <Suspense fallback={loadingFallback}>
-          {isIntersecting ? children : loadingFallback}
-        </Suspense>
-      </LazyErrorBoundary>
-    </div>
-  );
-});
+);
 
 LazyWrapper.displayName = 'LazyWrapper';
 
 /**
  * HOC for creating lazy-loaded components with automatic code splitting
- * 
+ *
  * @example
  * ```tsx
  * const LazyDashboard = createLazyComponent(
@@ -212,17 +211,20 @@ export const useLazyImage = (src: string, alt: string = '') => {
     setLoaded(false);
   }, []);
 
-  const imageProps = useMemo(() => ({
-    src: isIntersecting ? src : undefined,
-    alt,
-    onLoad: handleLoad,
-    onError: handleError,
-    loading: 'lazy' as const,
-    style: {
-      opacity: loaded ? 1 : 0,
-      transition: 'opacity 0.3s ease-in-out',
-    },
-  }), [isIntersecting, src, alt, loaded, handleLoad, handleError]);
+  const imageProps = useMemo(
+    () => ({
+      src: isIntersecting ? src : undefined,
+      alt,
+      onLoad: handleLoad,
+      onError: handleError,
+      loading: 'lazy' as const,
+      style: {
+        opacity: loaded ? 1 : 0,
+        transition: 'opacity 0.3s ease-in-out',
+      },
+    }),
+    [isIntersecting, src, alt, loaded, handleLoad, handleError]
+  );
 
   return {
     elementRef,
@@ -244,19 +246,11 @@ export const LazyImage = memo<{
   height?: number;
   placeholder?: React.ReactNode;
   'data-testid'?: string;
-}>(({ 
-  src, 
-  alt, 
-  className = '', 
-  width, 
-  height, 
-  placeholder,
-  'data-testid': testId 
-}) => {
+}>(({ src, alt, className = '', width, height, placeholder, 'data-testid': testId }) => {
   const { elementRef, imageProps, isLoading, hasError, isLoaded } = useLazyImage(src, alt);
 
   const defaultPlaceholder = (
-    <div 
+    <div
       className={`bg-gray-200 dark:bg-gray-700 animate-pulse ${className}`}
       style={{ width, height }}
       role="img"
@@ -268,7 +262,7 @@ export const LazyImage = memo<{
     <div ref={elementRef} className="relative" data-testid={testId}>
       {!isLoaded && !hasError && (placeholder || defaultPlaceholder)}
       {hasError && (
-        <div 
+        <div
           className={`bg-gray-100 dark:bg-gray-800 flex items-center justify-center ${className}`}
           style={{ width, height }}
           role="img"

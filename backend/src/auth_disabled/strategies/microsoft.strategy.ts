@@ -10,7 +10,7 @@ import { Request } from 'express';
 export class MicrosoftStrategy extends PassportStrategy(CustomStrategy, 'microsoft') {
   constructor(
     private configService: ConfigService,
-    private graphAuthService: GraphAuthService,
+    private graphAuthService: GraphAuthService
   ) {
     super();
   }
@@ -20,14 +20,14 @@ export class MicrosoftStrategy extends PassportStrategy(CustomStrategy, 'microso
       // This strategy will be used in the callback handler
       // The actual OAuth flow is handled by MSAL in GraphAuthService
       const { code, state } = req.query;
-      
+
       if (!code || !state) {
         return done(new Error('Missing authorization code or state'), null);
       }
 
       // Extract user ID from state (set during authorization URL generation)
       const userId = state as string;
-      
+
       // Exchange code for tokens using existing GraphAuthService
       const authResult = await this.graphAuthService.exchangeCodeForTokens(
         code as string,
@@ -56,8 +56,8 @@ export class MicrosoftStrategy extends PassportStrategy(CustomStrategy, 'microso
           'email',
           'https://graph.microsoft.com/Calendars.ReadWrite',
           'https://graph.microsoft.com/Calendars.Read',
-          'https://graph.microsoft.com/Files.Read'
-        ]
+          'https://graph.microsoft.com/Files.Read',
+        ],
       };
 
       done(null, oauthProfile);

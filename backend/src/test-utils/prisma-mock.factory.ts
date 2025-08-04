@@ -5,8 +5,8 @@ type DeepMocked<T> = {
   [K in keyof T]: T[K] extends (...args: any[]) => any
     ? jest.MockedFunction<T[K]>
     : T[K] extends object
-    ? DeepMocked<T[K]>
-    : T[K];
+      ? DeepMocked<T[K]>
+      : T[K];
 };
 
 /**
@@ -70,6 +70,7 @@ export function createMockPrismaService(): DeepMocked<PrismaService> {
     calendarSyncState: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
@@ -128,7 +129,7 @@ export function createMockPrismaService(): DeepMocked<PrismaService> {
     // Connection lifecycle methods
     $connect: jest.fn(),
     $disconnect: jest.fn(),
-    
+
     // Transaction methods
     $transaction: jest.fn(),
     $executeRaw: jest.fn(),
@@ -145,7 +146,7 @@ export function createMockPrismaService(): DeepMocked<PrismaService> {
  */
 export function resetMockPrismaService(mockPrisma: jest.Mocked<PrismaService>): void {
   jest.clearAllMocks();
-  
+
   // Reset all task mocks
   Object.values(mockPrisma.task).forEach(mock => {
     if (jest.isMockFunction(mock)) {

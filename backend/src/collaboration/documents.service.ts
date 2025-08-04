@@ -1,7 +1,7 @@
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
-import { CreateDocumentDto, UpdateDocumentDto } from "./dto/document.dto";
-import { Document } from "@prisma/client";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateDocumentDto, UpdateDocumentDto } from './dto/document.dto';
+import { Document } from '@prisma/client';
 
 @Injectable()
 export class DocumentsService {
@@ -10,7 +10,7 @@ export class DocumentsService {
   async findAll(ownerId?: string): Promise<Document[]> {
     return this.prisma.document.findMany({
       where: ownerId ? { ownerId } : undefined,
-      orderBy: { updatedAt: "desc" },
+      orderBy: { updatedAt: 'desc' },
       include: {
         owner: {
           select: {
@@ -82,10 +82,7 @@ export class DocumentsService {
     });
   }
 
-  async update(
-    id: string,
-    updateDocumentDto: UpdateDocumentDto,
-  ): Promise<Document> {
+  async update(id: string, updateDocumentDto: UpdateDocumentDto): Promise<Document> {
     return this.prisma.document.update({
       where: { id },
       data: updateDocumentDto,
@@ -101,7 +98,7 @@ export class DocumentsService {
   async getCollaborationHistory(documentId: string) {
     return this.prisma.collaborationSession.findMany({
       where: { documentId },
-      orderBy: { joinedAt: "desc" },
+      orderBy: { joinedAt: 'desc' },
       include: {
         user: {
           select: {

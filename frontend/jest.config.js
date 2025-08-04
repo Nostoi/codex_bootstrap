@@ -1,8 +1,8 @@
-const nextJest = require('next/jest')
+const nextJest = require('next/jest');
 
 const createJestConfig = nextJest({
   dir: './',
-})
+});
 
 const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
@@ -12,13 +12,9 @@ const customJestConfig = {
   },
   collectCoverageFrom: [
     '<rootDir>/src/store/**/*.{ts,tsx}',
-    '<rootDir>/src/components/**/*.{ts,tsx}'
+    '<rootDir>/src/components/**/*.{ts,tsx}',
   ],
-  coveragePathIgnorePatterns: [
-    '<rootDir>/src/app',
-    '<rootDir>/src/hooks',
-    '<rootDir>/src/lib'
-  ],
+  coveragePathIgnorePatterns: ['<rootDir>/src/app', '<rootDir>/src/hooks', '<rootDir>/src/lib'],
   coverageDirectory: '<rootDir>/coverage',
   coverageThreshold: {
     global: {
@@ -28,6 +24,6 @@ const customJestConfig = {
       statements: 0.8,
     },
   },
-}
+};
 
-module.exports = createJestConfig(customJestConfig)
+module.exports = createJestConfig(customJestConfig);

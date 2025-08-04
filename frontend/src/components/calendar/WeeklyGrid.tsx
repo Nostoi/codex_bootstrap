@@ -34,7 +34,7 @@ export const WeeklyGrid: React.FC<WeeklyGridProps> = ({
   const { handlers } = useDragAndDrop({
     adhdSettings,
     onEventMove,
-    onConflictDetected: (conflicts) => {
+    onConflictDetected: conflicts => {
       console.warn('Calendar conflicts detected:', conflicts);
     },
   });
@@ -60,7 +60,7 @@ export const WeeklyGrid: React.FC<WeeklyGridProps> = ({
         month: date.getMonth() + 1,
         year: date.getFullYear(),
         isToday: date.toDateString() === new Date().toDateString(),
-        isCurrentMonth: date.getMonth() === currentDate.month - 1
+        isCurrentMonth: date.getMonth() === currentDate.month - 1,
       });
     }
     return days;
@@ -69,22 +69,22 @@ export const WeeklyGrid: React.FC<WeeklyGridProps> = ({
   // Generate time slots for weekly view (24hrs x 7 days, 1-hour intervals for better weekly view)
   const timeSlots = useMemo(() => {
     const slots = [];
-    
+
     for (let hour = 0; hour < 24; hour++) {
       const hourSlots = [];
-      
+
       for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
         const slotStart = new Date(weekDays[dayIndex].date);
         slotStart.setHours(hour, 0, 0, 0);
-        
+
         const slotEnd = new Date(slotStart);
         slotEnd.setHours(hour + 1, 0, 0, 0);
-        
+
         // Filter events for this specific time slot
         const slotEvents = events.filter(event => {
           const eventStart = new Date(event.startTime);
           const eventEnd = new Date(event.endTime);
-          
+
           return (
             (eventStart >= slotStart && eventStart < slotEnd) ||
             (eventEnd > slotStart && eventEnd <= slotEnd) ||
@@ -107,7 +107,7 @@ export const WeeklyGrid: React.FC<WeeklyGridProps> = ({
         slots: hourSlots,
       });
     }
-    
+
     return slots;
   }, [weekDays, events]);
 
@@ -115,14 +115,14 @@ export const WeeklyGrid: React.FC<WeeklyGridProps> = ({
   const formatTimeLabel = useCallback((hour: number) => {
     const time = new Date();
     time.setHours(hour, 0, 0, 0);
-    return time.toLocaleTimeString([], { 
-      hour: 'numeric', 
-      hour12: true 
+    return time.toLocaleTimeString([], {
+      hour: 'numeric',
+      hour12: true,
     });
   }, []);
 
   // Format day headers
-  const formatDayHeader = useCallback((day: typeof weekDays[0]) => {
+  const formatDayHeader = useCallback((day: (typeof weekDays)[0]) => {
     return {
       dayName: day.date.toLocaleDateString([], { weekday: 'short' }),
       dayNumber: day.day,
@@ -139,17 +139,13 @@ export const WeeklyGrid: React.FC<WeeklyGridProps> = ({
 
   if (isLoading) {
     return (
-      <div 
-        className="weekly-grid weekly-grid--loading"
-        style={gridStyles}
-        {...ariaProps}
-      >
+      <div className="weekly-grid weekly-grid--loading" style={gridStyles} {...ariaProps}>
         <div className="grid grid-cols-8 gap-px">
           {/* Time column header placeholder */}
           <div className="bg-muted/50 p-2">
             <div className="h-4 bg-muted rounded animate-pulse" />
           </div>
-          
+
           {/* Day headers placeholders */}
           {Array.from({ length: 7 }).map((_, index) => (
             <div key={index} className="bg-muted/50 p-2 text-center">
@@ -157,7 +153,7 @@ export const WeeklyGrid: React.FC<WeeklyGridProps> = ({
               <div className="h-6 bg-muted rounded animate-pulse" />
             </div>
           ))}
-          
+
           {/* Time slots placeholders */}
           {Array.from({ length: 24 }).map((_, timeIndex) => (
             <React.Fragment key={timeIndex}>
@@ -184,7 +180,7 @@ export const WeeklyGrid: React.FC<WeeklyGridProps> = ({
       onDragCancel={handlers.handleDragCancel}
       className="weekly-grid"
     >
-      <div 
+      <div
         className="grid grid-cols-8 gap-px bg-border"
         style={gridStyles}
         role="grid"
@@ -194,12 +190,12 @@ export const WeeklyGrid: React.FC<WeeklyGridProps> = ({
         {...ariaProps}
       >
         {/* Empty corner cell */}
-        <div 
+        <div
           className="bg-muted/50 p-2 text-xs font-medium sticky top-0 z-10"
           role="columnheader"
           aria-label="Time column"
         />
-        
+
         {/* Day headers */}
         {weekDays.map((day, dayIndex) => {
           const { dayName, dayNumber, isToday } = formatDayHeader(day);
@@ -216,25 +212,27 @@ export const WeeklyGrid: React.FC<WeeklyGridProps> = ({
               <div className={`text-xs ${isToday ? 'text-primary' : 'text-muted-foreground'}`}>
                 {dayName}
               </div>
-              <div className={`text-lg font-semibold ${isToday ? 'text-primary' : 'text-foreground'}`}>
+              <div
+                className={`text-lg font-semibold ${isToday ? 'text-primary' : 'text-foreground'}`}
+              >
                 {dayNumber}
               </div>
             </div>
           );
         })}
-        
+
         {/* Time slots grid */}
-        {timeSlots.map((timeSlot) => (
+        {timeSlots.map(timeSlot => (
           <React.Fragment key={timeSlot.hour}>
             {/* Time label */}
-            <div 
+            <div
               className="bg-muted/30 p-1 text-xs text-muted-foreground text-right pr-2 sticky left-0 z-5"
               role="rowheader"
               aria-label={timeSlot.timeLabel}
             >
               {timeSlot.timeLabel}
             </div>
-            
+
             {/* Day slots for this hour */}
             {timeSlot.slots.map((slot, slotIndex) => (
               <TimeSlot

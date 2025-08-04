@@ -86,16 +86,16 @@ describe('PlanningController', () => {
     it('should handle errors gracefully', async () => {
       const userId = 'test-user-1';
       const date = '2024-01-15';
-      
+
       plannerService.getCalendarEventsForDate.mockRejectedValue(
         new Error('Calendar service unavailable')
       );
 
       const req = { user: { id: userId } };
 
-      await expect(
-        controller.getCalendarEvents(date, req as any)
-      ).rejects.toThrow('Calendar service unavailable');
+      await expect(controller.getCalendarEvents(date, req as any)).rejects.toThrow(
+        'Calendar service unavailable'
+      );
 
       expect(plannerService.getCalendarEventsForDate).toHaveBeenCalledWith(userId, new Date(date));
     });

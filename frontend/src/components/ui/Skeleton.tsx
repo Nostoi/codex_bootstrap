@@ -21,7 +21,7 @@ export interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
 
 /**
  * Base Skeleton Component
- * 
+ *
  * Features:
  * - Customizable dimensions and border radius
  * - Optional shimmer animation with reduced motion support
@@ -41,13 +41,13 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   const baseStyles = cn(
     // Base skeleton styling
     'bg-neutral-200 select-none',
-    
+
     // Animation with reduced motion support
     {
       'animate-pulse': animate,
       'motion-reduce:animate-none': animate,
     },
-    
+
     // Border radius variants
     {
       'rounded-none': radius === 'none',
@@ -56,7 +56,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
       'rounded-lg': radius === 'lg',
       'rounded-full': radius === 'full',
     },
-    
+
     className
   );
 
@@ -88,13 +88,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   }
 
   return (
-    <div
-      className={baseStyles}
-      style={style}
-      role="img"
-      aria-label="Loading content"
-      {...props}
-    />
+    <div className={baseStyles} style={style} role="img" aria-label="Loading content" {...props} />
   );
 };
 
@@ -112,10 +106,7 @@ export interface AvatarSkeletonProps {
   className?: string;
 }
 
-export const AvatarSkeleton: React.FC<AvatarSkeletonProps> = ({ 
-  size = 'md', 
-  className 
-}) => {
+export const AvatarSkeleton: React.FC<AvatarSkeletonProps> = ({ size = 'md', className }) => {
   const sizes = {
     sm: 'w-8 h-8',
     md: 'w-10 h-10',
@@ -124,11 +115,7 @@ export const AvatarSkeleton: React.FC<AvatarSkeletonProps> = ({
   };
 
   return (
-    <Skeleton
-      className={cn(sizes[size], className)}
-      radius="full"
-      aria-label="Loading avatar"
-    />
+    <Skeleton className={cn(sizes[size], className)} radius="full" aria-label="Loading avatar" />
   );
 };
 
@@ -142,10 +129,7 @@ export interface TextSkeletonProps {
   className?: string;
 }
 
-export const TextSkeleton: React.FC<TextSkeletonProps> = ({ 
-  lines = 3, 
-  className 
-}) => (
+export const TextSkeleton: React.FC<TextSkeletonProps> = ({ lines = 3, className }) => (
   <Skeleton
     lines={lines}
     className={className}
@@ -171,7 +155,7 @@ export const CardSkeleton: React.FC<CardSkeletonProps> = ({
   showAvatar = false,
   showImage = false,
   textLines = 3,
-  className
+  className,
 }) => (
   <div className={cn('p-4 space-y-4', className)} role="img" aria-label="Loading card content">
     {/* Header with optional avatar */}
@@ -184,18 +168,16 @@ export const CardSkeleton: React.FC<CardSkeletonProps> = ({
         </div>
       </div>
     )}
-    
+
     {/* Optional image */}
-    {showImage && (
-      <Skeleton height="200px" width="100%" radius="lg" />
-    )}
-    
+    {showImage && <Skeleton height="200px" width="100%" radius="lg" />}
+
     {/* Text content */}
     <div className="space-y-2">
       <Skeleton height="20px" width="100%" />
       <TextSkeleton lines={textLines} />
     </div>
-    
+
     {/* Action buttons */}
     <div className="flex space-x-2 pt-2">
       <Skeleton width="80px" height="36px" radius="md" />
@@ -222,7 +204,7 @@ export const TableSkeleton: React.FC<TableSkeletonProps> = ({
   rows = 5,
   columns = 4,
   showHeader = true,
-  className
+  className,
 }) => (
   <div className={cn('space-y-3', className)} role="img" aria-label="Loading table content">
     {/* Header */}
@@ -233,7 +215,7 @@ export const TableSkeleton: React.FC<TableSkeletonProps> = ({
         ))}
       </div>
     )}
-    
+
     {/* Rows */}
     <div className="space-y-2">
       {Array.from({ length: rows }, (_, rowIndex) => (
@@ -270,7 +252,7 @@ export interface ButtonSkeletonProps {
 export const ButtonSkeleton: React.FC<ButtonSkeletonProps> = ({
   size = 'md',
   width,
-  className
+  className,
 }) => {
   const heights = {
     sm: '32px',
@@ -299,9 +281,9 @@ export const ButtonSkeleton: React.FC<ButtonSkeletonProps> = ({
  * TaskCard Skeleton - Specific to task management interface
  */
 export const TaskCardSkeleton: React.FC<{ className?: string }> = ({ className }) => (
-  <div 
+  <div
     className={cn('p-4 border border-neutral-200 rounded-lg space-y-3', className)}
-    role="img" 
+    role="img"
     aria-label="Loading task card"
   >
     {/* Header with priority and energy badges */}
@@ -312,13 +294,13 @@ export const TaskCardSkeleton: React.FC<{ className?: string }> = ({ className }
       </div>
       <Skeleton width="60px" height="24px" radius="sm" />
     </div>
-    
+
     {/* Title */}
     <Skeleton height="20px" width="100%" />
-    
+
     {/* Description */}
     <TextSkeleton lines={2} />
-    
+
     {/* Metadata row */}
     <div className="flex items-center space-x-4 pt-2">
       <Skeleton width="40px" height="16px" radius="sm" />
@@ -341,7 +323,7 @@ export const DashboardSkeleton: React.FC<{ className?: string }> = ({ className 
         <ButtonSkeleton size="md" />
       </div>
     </div>
-    
+
     {/* Stats cards */}
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {Array.from({ length: 4 }, (_, index) => (
@@ -351,7 +333,7 @@ export const DashboardSkeleton: React.FC<{ className?: string }> = ({ className 
         </div>
       ))}
     </div>
-    
+
     {/* Main content */}
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-2 space-y-4">

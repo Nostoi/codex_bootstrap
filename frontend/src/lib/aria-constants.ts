@@ -1,6 +1,6 @@
 /**
  * ARIA constants and utilities for consistent accessibility implementation
- * 
+ *
  * This module provides standardized ARIA roles, properties, and states
  * to ensure consistent accessibility across all components.
  */
@@ -165,7 +165,16 @@ export const CALENDAR_ARIA = {
   calendar: {
     role: 'grid',
     requiredProperties: ['aria-label', 'aria-rowcount', 'aria-colcount'],
-    keyboardNavigation: ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown'],
+    keyboardNavigation: [
+      'ArrowUp',
+      'ArrowDown',
+      'ArrowLeft',
+      'ArrowRight',
+      'Home',
+      'End',
+      'PageUp',
+      'PageDown',
+    ],
   },
   calendarMonth: {
     role: 'gridcell',
@@ -262,7 +271,16 @@ export const GRID_ARIA = {
     role: 'grid',
     requiredProperties: [],
     optionalProperties: ['aria-label', 'aria-rowcount', 'aria-colcount', 'aria-multiselectable'],
-    keyboardNavigation: ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown'],
+    keyboardNavigation: [
+      'ArrowUp',
+      'ArrowDown',
+      'ArrowLeft',
+      'ArrowRight',
+      'Home',
+      'End',
+      'PageUp',
+      'PageDown',
+    ],
   },
   row: {
     role: 'row',
@@ -348,33 +366,33 @@ export const KEYBOARD_SHORTCUTS = {
     'Alt+M': 'Open main menu',
     'Alt+S': 'Open search',
     'Alt+H': 'Go to home',
-    'Escape': 'Close modal/menu',
+    Escape: 'Close modal/menu',
     '/': 'Focus search (when not in input)',
   },
   calendar: {
-    'ArrowUp': 'Previous week',
-    'ArrowDown': 'Next week', 
-    'ArrowLeft': 'Previous day',
-    'ArrowRight': 'Next day',
-    'Home': 'First day of month',
-    'End': 'Last day of month',
-    'PageUp': 'Previous month',
-    'PageDown': 'Next month',
-    'Enter': 'Select date',
-    'Space': 'Select date',
+    ArrowUp: 'Previous week',
+    ArrowDown: 'Next week',
+    ArrowLeft: 'Previous day',
+    ArrowRight: 'Next day',
+    Home: 'First day of month',
+    End: 'Last day of month',
+    PageUp: 'Previous month',
+    PageDown: 'Next month',
+    Enter: 'Select date',
+    Space: 'Select date',
   },
   tasks: {
-    'j': 'Next task',
-    'k': 'Previous task',
-    'Enter': 'Open task',
-    'Space': 'Toggle task completion',
-    'e': 'Edit task',
-    'd': 'Delete task',
-    'f': 'Filter tasks',
+    j: 'Next task',
+    k: 'Previous task',
+    Enter: 'Open task',
+    Space: 'Toggle task completion',
+    e: 'Edit task',
+    d: 'Delete task',
+    f: 'Filter tasks',
   },
   modal: {
-    'Escape': 'Close modal',
-    'Tab': 'Next focusable element',
+    Escape: 'Close modal',
+    Tab: 'Next focusable element',
     'Shift+Tab': 'Previous focusable element',
   },
 } as const;
@@ -560,5 +578,5 @@ export const ADHD_ARIA = {
 };
 
 export type AriaRole = keyof typeof LANDMARK_ROLES | keyof typeof FORM_CONTROL_ROLES;
-export type AriaLiveLevel = typeof ARIA_LIVE_LEVELS[keyof typeof ARIA_LIVE_LEVELS];
-export type AriaCurrentValue = typeof ARIA_CURRENT_VALUES[keyof typeof ARIA_CURRENT_VALUES];
+export type AriaLiveLevel = (typeof ARIA_LIVE_LEVELS)[keyof typeof ARIA_LIVE_LEVELS];
+export type AriaCurrentValue = (typeof ARIA_CURRENT_VALUES)[keyof typeof ARIA_CURRENT_VALUES];

@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React from 'react';
 import Link from 'next/link';
@@ -34,11 +34,7 @@ const settingsNavigation = [
   },
 ];
 
-export default function SettingsLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function SettingsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
@@ -50,10 +46,10 @@ export default function SettingsLayout({
         </div>
         <nav className="px-3">
           <ul className="space-y-1">
-            {settingsNavigation.map((item) => {
+            {settingsNavigation.map(item => {
               const IconComponent = item.icon;
               const isActive = pathname === item.href;
-              
+
               return (
                 <li key={item.name}>
                   <Link
@@ -76,9 +72,7 @@ export default function SettingsLayout({
       </div>
 
       {/* Main content */}
-      <div className="flex-1 overflow-auto">
-        {children}
-      </div>
+      <div className="flex-1 overflow-auto">{children}</div>
     </div>
   );
 }

@@ -12,23 +12,9 @@ import { AuthModule } from '../../../auth/auth.module';
  * Provides comprehensive calendar synchronization capabilities
  */
 @Module({
-  imports: [
-    PrismaModule,
-    GraphModule,
-    AuthModule,
-  ],
-  controllers: [
-    CalendarSyncController,
-  ],
-  providers: [
-    CalendarSyncService,
-    DeltaSyncManager,
-    ConflictResolver,
-  ],
-  exports: [
-    CalendarSyncService,
-    DeltaSyncManager,
-    ConflictResolver,
-  ],
+  imports: [PrismaModule, GraphModule, AuthModule],
+  controllers: [CalendarSyncController],
+  providers: [CalendarSyncService, DeltaSyncManager, ConflictResolver],
+  exports: [CalendarSyncService, DeltaSyncManager, ConflictResolver],
 })
 export class CalendarSyncModule {}

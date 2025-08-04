@@ -30,7 +30,7 @@ export interface OpenAIResponse<T = any> {
 }
 
 export interface ChatMessage {
-  role: "system" | "user" | "assistant";
+  role: 'system' | 'user' | 'assistant';
   content: string;
 }
 
@@ -70,11 +70,11 @@ export interface Task {
 }
 
 export interface Suggestion {
-  type: "improvement" | "feature" | "optimization" | "bug-fix";
+  type: 'improvement' | 'feature' | 'optimization' | 'bug-fix';
   title: string;
   description: string;
-  impact: "low" | "medium" | "high";
-  effort: "low" | "medium" | "high";
+  impact: 'low' | 'medium' | 'high';
+  effort: 'low' | 'medium' | 'high';
   priority: number;
 }
 

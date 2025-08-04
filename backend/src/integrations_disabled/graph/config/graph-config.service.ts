@@ -26,10 +26,8 @@ export class GraphConfigService {
       if (!clientId) missing.push('MICROSOFT_CLIENT_ID');
       if (!clientSecret) missing.push('MICROSOFT_CLIENT_SECRET');
       if (!redirectUri) missing.push('MICROSOFT_REDIRECT_URI');
-      
-      throw new Error(
-        `Missing required Microsoft Graph configuration: ${missing.join(', ')}`
-      );
+
+      throw new Error(`Missing required Microsoft Graph configuration: ${missing.join(', ')}`);
     }
 
     return {
@@ -62,7 +60,7 @@ export class GraphConfigService {
       params.append('tenant', config.tenantId);
     }
 
-    const baseUrl = config.tenantId 
+    const baseUrl = config.tenantId
       ? `https://login.microsoftonline.com/${config.tenantId}/oauth2/v2.0/authorize`
       : 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize';
 
@@ -74,7 +72,7 @@ export class GraphConfigService {
    */
   getTokenEndpoint(): string {
     const config = this.getMicrosoftGraphConfig();
-    return config.tenantId 
+    return config.tenantId
       ? `https://login.microsoftonline.com/${config.tenantId}/oauth2/v2.0/token`
       : 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
   }
@@ -96,7 +94,7 @@ export class GraphConfigService {
     if (!tenantId) {
       this.logger.warn(
         'MICROSOFT_TENANT_ID not set. Using multi-tenant configuration. ' +
-        'Consider setting a specific tenant for enhanced security.'
+          'Consider setting a specific tenant for enhanced security.'
       );
     }
 

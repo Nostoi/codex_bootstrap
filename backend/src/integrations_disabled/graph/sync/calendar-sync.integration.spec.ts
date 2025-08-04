@@ -21,7 +21,7 @@ describe.skip('Calendar Sync Integration Tests', () => {
 
     app = moduleFixture.createNestApplication();
     prismaService = moduleFixture.get<PrismaService>(PrismaService);
-    
+
     await app.init();
   });
 

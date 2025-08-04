@@ -1,20 +1,26 @@
-import { 
-  Controller, 
-  Get, 
-  Put, 
+import {
+  Controller,
+  Get,
+  Put,
   Delete,
-  Param, 
-  Query, 
+  Param,
+  Query,
   Body,
   UseGuards,
   Request,
   ParseIntPipe,
   DefaultValuePipe,
   HttpStatus,
-  HttpException
+  HttpException,
 } from '@nestjs/common';
-import { NotificationHistoryService, NotificationHistoryFilter } from './notification-history.service';
-import { NotificationPreferencesService, NotificationPreferences } from './notification-preferences.service';
+import {
+  NotificationHistoryService,
+  NotificationHistoryFilter,
+} from './notification-history.service';
+import {
+  NotificationPreferencesService,
+  NotificationPreferences,
+} from './notification-preferences.service';
 
 @Controller('api/notifications')
 // @UseGuards(AuthGuard) // TODO: Re-enable when auth system is implemented
@@ -36,16 +42,16 @@ export class NotificationsController {
     @Query('type') type?: string,
     @Query('read') read?: string,
     @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
+    @Query('endDate') endDate?: string
   ) {
     const userId = req.user?.id || 'test-user'; // TODO: Remove fallback when auth is implemented
-    
+
     // Validate pagination
     if (page < 1) page = 1;
     if (limit < 1 || limit > 100) limit = 20;
 
     const filters: NotificationHistoryFilter = {};
-    
+
     if (type) filters.type = type;
     if (read !== undefined) filters.read = read === 'true';
     if (startDate) filters.startDate = new Date(startDate);
@@ -67,7 +73,7 @@ export class NotificationsController {
           total: result.total,
           hasMore: result.hasMore,
           totalPages: Math.ceil(result.total / limit),
-        }
+        },
       };
     } catch (error) {
       throw new HttpException(
@@ -84,15 +90,12 @@ export class NotificationsController {
   @Get('unread-count')
   async getUnreadCount(@Request() req: any) {
     const userId = req.user?.id || 'test-user'; // TODO: Remove fallback when auth is implemented
-    
+
     try {
       const count = await this.notificationHistoryService.getUnreadCount(userId);
       return { unreadCount: count };
     } catch (error) {
-      throw new HttpException(
-        'Failed to get unread count',
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
+      throw new HttpException('Failed to get unread count', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -101,12 +104,9 @@ export class NotificationsController {
    * PUT /api/notifications/:id/read
    */
   @Put(':id/read')
-  async markNotificationAsRead(
-    @Request() req: any,
-    @Param('id') notificationId: string
-  ) {
+  async markNotificationAsRead(@Request() req: any, @Param('id') notificationId: string) {
     const userId = req.user?.id || 'test-user'; // TODO: Remove fallback when auth is implemented
-    
+
     try {
       const notification = await this.notificationHistoryService.markNotificationAsRead(
         notificationId,
@@ -114,19 +114,16 @@ export class NotificationsController {
       );
 
       if (!notification) {
-        throw new HttpException(
-          'Notification not found or access denied',
-          HttpStatus.NOT_FOUND
-        );
+        throw new HttpException('Notification not found or access denied', HttpStatus.NOT_FOUND);
       }
 
-      return { 
-        success: true, 
+      return {
+        success: true,
         notification: {
           id: notification.id,
           read: notification.read,
           readAt: notification.readAt,
-        }
+        },
       };
     } catch (error) {
       if (error instanceof HttpException) {
@@ -144,18 +141,12 @@ export class NotificationsController {
    * PUT /api/notifications/mark-read-bulk
    */
   @Put('mark-read-bulk')
-  async markMultipleAsRead(
-    @Request() req: any,
-    @Body() body: { notificationIds: string[] }
-  ) {
+  async markMultipleAsRead(@Request() req: any, @Body() body: { notificationIds: string[] }) {
     const userId = req.user.id;
     const { notificationIds } = body;
 
     if (!Array.isArray(notificationIds) || notificationIds.length === 0) {
-      throw new HttpException(
-        'notificationIds must be a non-empty array',
-        HttpStatus.BAD_REQUEST
-      );
+      throw new HttpException('notificationIds must be a non-empty array', HttpStatus.BAD_REQUEST);
     }
 
     if (notificationIds.length > 100) {
@@ -171,8 +162,8 @@ export class NotificationsController {
         userId
       );
 
-      return { 
-        success: true, 
+      return {
+        success: true,
         markedCount: count,
         requestedCount: notificationIds.length,
       };
@@ -189,12 +180,9 @@ export class NotificationsController {
    * DELETE /api/notifications/:id
    */
   @Delete(':id')
-  async deleteNotification(
-    @Request() req: any,
-    @Param('id') notificationId: string
-  ) {
+  async deleteNotification(@Request() req: any, @Param('id') notificationId: string) {
     const userId = req.user.id;
-    
+
     try {
       const success = await this.notificationHistoryService.deleteNotification(
         notificationId,
@@ -202,10 +190,7 @@ export class NotificationsController {
       );
 
       if (!success) {
-        throw new HttpException(
-          'Notification not found or access denied',
-          HttpStatus.NOT_FOUND
-        );
+        throw new HttpException('Notification not found or access denied', HttpStatus.NOT_FOUND);
       }
 
       return { success: true };
@@ -213,10 +198,7 @@ export class NotificationsController {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException(
-        'Failed to delete notification',
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
+      throw new HttpException('Failed to delete notification', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -225,18 +207,12 @@ export class NotificationsController {
    * GET /api/notifications/:id/delivery-status
    */
   @Get(':id/delivery-status')
-  async getDeliveryStatus(
-    @Request() req: any,
-    @Param('id') notificationId: string
-  ) {
+  async getDeliveryStatus(@Request() req: any, @Param('id') notificationId: string) {
     try {
       const status = await this.notificationHistoryService.getDeliveryStatus(notificationId);
-      
+
       if (!status) {
-        throw new HttpException(
-          'Notification not found',
-          HttpStatus.NOT_FOUND
-        );
+        throw new HttpException('Notification not found', HttpStatus.NOT_FOUND);
       }
 
       return { deliveryStatus: status };
@@ -244,10 +220,7 @@ export class NotificationsController {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException(
-        'Failed to get delivery status',
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
+      throw new HttpException('Failed to get delivery status', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -258,7 +231,7 @@ export class NotificationsController {
   @Get('preferences')
   async getNotificationPreferences(@Request() req: any) {
     const userId = req.user?.id || 'test-user'; // TODO: Remove fallback when auth is implemented
-    
+
     try {
       const preferences = await this.notificationPreferencesService.getPreferences(userId);
       return { preferences };
@@ -280,10 +253,10 @@ export class NotificationsController {
     @Body() preferences: Partial<NotificationPreferences>
   ) {
     const userId = req.user?.id || 'test-user'; // TODO: Remove fallback when auth is implemented
-    
+
     try {
       const updatedPreferences = await this.notificationPreferencesService.updatePreferences(
-        userId, 
+        userId,
         preferences
       );
       return { preferences: updatedPreferences };
@@ -302,7 +275,7 @@ export class NotificationsController {
   @Get('preferences/summary')
   async getPreferencesSummary(@Request() req: any) {
     const userId = req.user?.id || 'test-user'; // TODO: Remove fallback when auth is implemented
-    
+
     try {
       const summary = await this.notificationPreferencesService.getPreferenceSummary(userId);
       return { summary };
@@ -321,15 +294,12 @@ export class NotificationsController {
   @Put('preferences/reset')
   async resetPreferencesToDefaults(@Request() req: any) {
     const userId = req.user?.id || 'test-user'; // TODO: Remove fallback when auth is implemented
-    
+
     try {
       const preferences = await this.notificationPreferencesService.resetToDefaults(userId);
       return { preferences, message: 'Preferences reset to defaults' };
     } catch (error) {
-      throw new HttpException(
-        'Failed to reset preferences',
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
+      throw new HttpException('Failed to reset preferences', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -344,20 +314,17 @@ export class NotificationsController {
   ) {
     // TODO: Add admin role check when user roles are implemented
     const userId = req.user?.id || 'test-user';
-    
+
     if (days < 1 || days > 365) {
-      throw new HttpException(
-        'Days must be between 1 and 365',
-        HttpStatus.BAD_REQUEST
-      );
+      throw new HttpException('Days must be between 1 and 365', HttpStatus.BAD_REQUEST);
     }
 
     try {
       const deletedCount = await this.notificationHistoryService.deleteOldNotifications(days);
-      return { 
-        success: true, 
+      return {
+        success: true,
         deletedCount,
-        message: `Deleted ${deletedCount} notifications older than ${days} days`
+        message: `Deleted ${deletedCount} notifications older than ${days} days`,
       };
     } catch (error) {
       throw new HttpException(

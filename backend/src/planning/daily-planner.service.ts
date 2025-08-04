@@ -1,15 +1,9 @@
-import { Injectable, BadRequestException, Logger } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
-import { TasksService } from "../tasks/tasks.service";
-import { GoogleService } from "../integrations/google/google.service";
-import { GraphService } from "../integrations/graph/graph.service";
-import {
-  Task,
-  UserSettings,
-  EnergyLevel,
-  FocusType,
-  TaskStatus,
-} from "@prisma/client";
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { TasksService } from '../tasks/tasks.service';
+import { GoogleService } from '../integrations/google/google.service';
+import { GraphService } from '../integrations/graph/graph.service';
+import { Task, UserSettings, EnergyLevel, FocusType, TaskStatus } from '@prisma/client';
 import {
   PlanningInput,
   TimeSlot,
@@ -23,8 +17,8 @@ import {
   BlockedTask,
   BlockingReason,
   CalendarEvent,
-} from "./types";
-import { DailyPlanResponseDto } from "./dto";
+} from './types';
+import { DailyPlanResponseDto } from './dto';
 
 @Injectable()
 export class DailyPlannerService {
@@ -34,20 +28,15 @@ export class DailyPlannerService {
     private prisma: PrismaService,
     private tasksService: TasksService,
     private googleService: GoogleService,
-    private graphService: GraphService,
+    private graphService: GraphService
   ) {}
 
   /**
    * Generate optimized daily plan for a user
    */
-  async generatePlan(
-    userId: string,
-    date: Date,
-  ): Promise<DailyPlanResponseDto> {
+  async generatePlan(userId: string, date: Date): Promise<DailyPlanResponseDto> {
     try {
-      this.logger.log(
-        `Generating plan for user ${userId} on ${date.toISOString()}`,
-      );
+      this.logger.log(`Generating plan for user ${userId} on ${date.toISOString()}`);
 
       // 1. Gather required data
       const input = await this.gatherPlanningData(userId, date);
@@ -59,11 +48,7 @@ export class DailyPlannerService {
       const scoredTasks = this.scoreTasks(readyTasks, date, input.userSettings);
 
       // 4. Generate available time slots
-      const timeSlots = this.generateTimeSlots(
-        date,
-        input.userSettings,
-        input.existingCommitments,
-      );
+      const timeSlots = this.generateTimeSlots(date, input.userSettings, input.existingCommitments);
 
       // 5. Assign tasks to optimal time slots
       const assignments = this.assignTasksToSlots(scoredTasks, timeSlots);
@@ -72,28 +57,22 @@ export class DailyPlannerService {
       const scheduleBlocks = this.createScheduleBlocks(assignments);
 
       // 7. Calculate optimization metrics
-      const optimization = this.calculateOptimizationMetrics(
-        scheduleBlocks,
-        scoredTasks,
-      );
+      const optimization = this.calculateOptimizationMetrics(scheduleBlocks, scoredTasks);
 
       const plan: DailyPlan = {
         date,
         scheduleBlocks,
-        unscheduledTasks: scoredTasks.filter((t) => !assignments.has(t.id)),
+        unscheduledTasks: scoredTasks.filter(t => !assignments.has(t.id)),
         totalEstimatedMinutes: scheduleBlocks.reduce(
           (sum, block) => sum + (block.task.estimatedMinutes || 30),
-          0,
+          0
         ),
         ...optimization,
       };
 
       return this.transformToDto(plan);
     } catch (error) {
-      this.logger.error(
-        `Failed to generate plan: ${error.message}`,
-        error.stack,
-      );
+      this.logger.error(`Failed to generate plan: ${error.message}`, error.stack);
       throw new BadRequestException(`Plan generation failed: ${error.message}`);
     }
   }
@@ -102,17 +81,12 @@ export class DailyPlannerService {
    * Get calendar events for a specific date
    * Public method to expose calendar data for frontend integration
    */
-  async getCalendarEventsForDate(
-    userId: string,
-    date: Date,
-  ): Promise<CalendarEvent[]> {
+  async getCalendarEventsForDate(userId: string, date: Date): Promise<CalendarEvent[]> {
     try {
-      this.logger.log(
-        `Retrieving calendar events for user ${userId} on ${date.toISOString()}`,
-      );
+      this.logger.log(`Retrieving calendar events for user ${userId} on ${date.toISOString()}`);
 
       const timeSlots = await this.getExistingCommitments(userId, date);
-      
+
       // Convert TimeSlot objects to CalendarEvent objects
       const calendarEvents: CalendarEvent[] = timeSlots
         .filter(slot => !slot.isAvailable && slot.title) // Only get actual events with titles
@@ -128,34 +102,26 @@ export class DailyPlannerService {
           isAllDay: slot.isAllDay || false,
         }));
 
-      this.logger.log(
-        `Retrieved ${calendarEvents.length} calendar events for user ${userId}`,
-      );
+      this.logger.log(`Retrieved ${calendarEvents.length} calendar events for user ${userId}`);
 
       return calendarEvents;
     } catch (error) {
       this.logger.error(
         `Failed to retrieve calendar events for user ${userId}: ${error.message}`,
-        error.stack,
+        error.stack
       );
-      throw new BadRequestException(
-        `Calendar events retrieval failed: ${error.message}`,
-      );
+      throw new BadRequestException(`Calendar events retrieval failed: ${error.message}`);
     }
   }
 
   /**
    * Gather all data needed for planning
    */
-  private async gatherPlanningData(
-    userId: string,
-    date: Date,
-  ): Promise<PlanningInput> {
+  private async gatherPlanningData(userId: string, date: Date): Promise<PlanningInput> {
     // Get user's pending tasks
     const tasks = await this.tasksService.findAll(userId);
     const availableTasks = tasks.filter(
-      (task) =>
-        task.status !== TaskStatus.DONE && task.status !== TaskStatus.BLOCKED,
+      task => task.status !== TaskStatus.DONE && task.status !== TaskStatus.BLOCKED
     );
 
     // Get user settings or create defaults
@@ -169,8 +135,8 @@ export class DailyPlannerService {
           userId,
           morningEnergyLevel: EnergyLevel.HIGH,
           afternoonEnergyLevel: EnergyLevel.MEDIUM,
-          workStartTime: "09:00",
-          workEndTime: "17:00",
+          workStartTime: '09:00',
+          workEndTime: '17:00',
           focusSessionLength: 90,
           preferredFocusTypes: [],
         },
@@ -207,7 +173,7 @@ export class DailyPlannerService {
 
     for (const task of tasks) {
       const dependencies = dependencyGraph.edges.get(task.id) || new Set();
-      const isReady = Array.from(dependencies).every((depId) => {
+      const isReady = Array.from(dependencies).every(depId => {
         const depTask = dependencyGraph.nodes.get(depId);
         return depTask?.status === TaskStatus.DONE;
       });
@@ -217,9 +183,7 @@ export class DailyPlannerService {
       }
     }
 
-    this.logger.log(
-      `Filtered ${readyTasks.length} ready tasks from ${tasks.length} total`,
-    );
+    this.logger.log(`Filtered ${readyTasks.length} ready tasks from ${tasks.length} total`);
     return readyTasks;
   }
 
@@ -240,9 +204,7 @@ export class DailyPlannerService {
 
     // Get all dependencies and build edges
     for (const task of tasks) {
-      const dependencies = await this.tasksService.findTaskDependencies(
-        task.id,
-      );
+      const dependencies = await this.tasksService.findTaskDependencies(task.id);
 
       for (const dep of dependencies) {
         const depTaskId = dep.dependsOn;
@@ -288,7 +250,7 @@ export class DailyPlannerService {
     for (const nodeId of graph.nodes.keys()) {
       if (!visited.has(nodeId) && hasCycle(nodeId)) {
         throw new BadRequestException(
-          `Circular dependency detected involving task ${nodeId}. Please resolve dependencies manually.`,
+          `Circular dependency detected involving task ${nodeId}. Please resolve dependencies manually.`
         );
       }
     }
@@ -298,9 +260,7 @@ export class DailyPlannerService {
    * Resolve task dependencies and return ready vs blocked tasks with detailed reasons
    * This is the main public interface for dependency resolution
    */
-  async resolveTaskDependencies(
-    tasks: Task[],
-  ): Promise<DependencyResolutionResult> {
+  async resolveTaskDependencies(tasks: Task[]): Promise<DependencyResolutionResult> {
     try {
       this.logger.log(`Resolving dependencies for ${tasks.length} tasks`);
 
@@ -318,10 +278,7 @@ export class DailyPlannerService {
       const blockedTasks: BlockedTask[] = [];
 
       for (const task of tasks) {
-        const blockingReasons = await this.getTaskBlockingReasons(
-          task,
-          dependencyGraph,
-        );
+        const blockingReasons = await this.getTaskBlockingReasons(task, dependencyGraph);
 
         if (blockingReasons.length === 0) {
           readyTasks.push(task);
@@ -342,17 +299,12 @@ export class DailyPlannerService {
       };
 
       this.logger.log(
-        `Dependency resolution complete: ${result.readyCount} ready, ${result.blockedCount} blocked`,
+        `Dependency resolution complete: ${result.readyCount} ready, ${result.blockedCount} blocked`
       );
       return result;
     } catch (error) {
-      this.logger.error(
-        `Failed to resolve task dependencies: ${error.message}`,
-        error.stack,
-      );
-      throw new BadRequestException(
-        `Dependency resolution failed: ${error.message}`,
-      );
+      this.logger.error(`Failed to resolve task dependencies: ${error.message}`, error.stack);
+      throw new BadRequestException(`Dependency resolution failed: ${error.message}`);
     }
   }
 
@@ -361,15 +313,13 @@ export class DailyPlannerService {
    */
   private async getTaskBlockingReasons(
     task: Task,
-    dependencyGraph: DependencyGraph,
+    dependencyGraph: DependencyGraph
   ): Promise<BlockingReason[]> {
     const reasons: BlockingReason[] = [];
 
     try {
       // Get dependencies for this task
-      const dependencies = await this.tasksService.findTaskDependencies(
-        task.id,
-      );
+      const dependencies = await this.tasksService.findTaskDependencies(task.id);
 
       for (const dep of dependencies) {
         const dependencyTaskId = dep.dependsOn;
@@ -378,14 +328,14 @@ export class DailyPlannerService {
         if (!dependencyTask) {
           // Orphaned dependency - referenced task doesn't exist
           reasons.push({
-            type: "orphaned_dependency",
+            type: 'orphaned_dependency',
             message: `Task depends on non-existent task ${dependencyTaskId}`,
             dependencyTaskId,
           });
         } else if (dependencyTask.status !== TaskStatus.DONE) {
           // Incomplete dependency
           reasons.push({
-            type: "incomplete_dependency",
+            type: 'incomplete_dependency',
             message: `Task depends on incomplete task "${dependencyTask.title}" (${dependencyTask.status})`,
             dependencyTaskId,
           });
@@ -394,13 +344,11 @@ export class DailyPlannerService {
 
       return reasons;
     } catch (error) {
-      this.logger.error(
-        `Failed to get blocking reasons for task ${task.id}: ${error.message}`,
-      );
+      this.logger.error(`Failed to get blocking reasons for task ${task.id}: ${error.message}`);
 
       // Return a generic error reason if we can't determine specific blocking reasons
       reasons.push({
-        type: "missing_dependency",
+        type: 'missing_dependency',
         message: `Unable to verify dependencies: ${error.message}`,
       });
 
@@ -413,13 +361,13 @@ export class DailyPlannerService {
    */
   private handleCircularDependencyError(
     tasks: Task[],
-    errorMessage: string,
+    errorMessage: string
   ): DependencyResolutionResult {
-    const blockedTasks: BlockedTask[] = tasks.map((task) => ({
+    const blockedTasks: BlockedTask[] = tasks.map(task => ({
       task,
       reasons: [
         {
-          type: "circular_dependency",
+          type: 'circular_dependency',
           message: errorMessage,
         },
       ],
@@ -437,13 +385,9 @@ export class DailyPlannerService {
   /**
    * Score tasks based on weighted factors
    */
-  private scoreTasks(
-    tasks: Task[],
-    targetDate: Date,
-    userSettings: UserSettings,
-  ): ScoredTask[] {
+  private scoreTasks(tasks: Task[], targetDate: Date, userSettings: UserSettings): ScoredTask[] {
     return tasks
-      .map((task) => {
+      .map(task => {
         const scores = this.calculateTaskScore(task, targetDate, userSettings);
         return {
           ...task,
@@ -460,11 +404,7 @@ export class DailyPlannerService {
   /**
    * Calculate weighted task score
    */
-  private calculateTaskScore(
-    task: Task,
-    targetDate: Date,
-    _userSettings: UserSettings,
-  ) {
+  private calculateTaskScore(task: Task, targetDate: Date, _userSettings: UserSettings) {
     let priorityScore = 0;
     let deadlineScore = 0;
     let energyScore = 0;
@@ -479,8 +419,7 @@ export class DailyPlannerService {
     if (task.hardDeadline) {
       const daysUntilDeadline = Math.max(
         0,
-        (task.hardDeadline.getTime() - targetDate.getTime()) /
-          (1000 * 60 * 60 * 24),
+        (task.hardDeadline.getTime() - targetDate.getTime()) / (1000 * 60 * 60 * 24)
       );
       deadlineScore = Math.max(0, 30 - daysUntilDeadline * 5);
     }
@@ -519,16 +458,16 @@ export class DailyPlannerService {
   private generateTimeSlots(
     date: Date,
     userSettings: UserSettings,
-    commitments: TimeSlot[],
+    commitments: TimeSlot[]
   ): TimeSlot[] {
     const slots: TimeSlot[] = [];
 
     // Parse user work hours with fallbacks
     const { hour: startHour, minute: startMinute } = this.parseWorkTime(
-      userSettings.workStartTime || "09:00",
+      userSettings.workStartTime || '09:00'
     );
     const { hour: endHour, minute: endMinute } = this.parseWorkTime(
-      userSettings.workEndTime || "17:00",
+      userSettings.workEndTime || '17:00'
     );
 
     const slotDuration = userSettings.focusSessionLength || 90; // minutes
@@ -541,7 +480,7 @@ export class DailyPlannerService {
     endTime.setHours(endHour, endMinute, 0, 0);
 
     this.logger.log(
-      `Generating time slots from ${currentTime.toISOString()} to ${endTime.toISOString()}`,
+      `Generating time slots from ${currentTime.toISOString()} to ${endTime.toISOString()}`
     );
 
     while (currentTime < endTime) {
@@ -549,25 +488,15 @@ export class DailyPlannerService {
 
       if (slotEnd <= endTime) {
         // Enhanced energy mapping with user pattern consideration
-        const energyLevel = this.getEnhancedEnergyLevelForTime(
-          currentTime,
-          userSettings,
-        );
-        const preferredFocusTypes = this.getOptimizedFocusTypes(
-          energyLevel,
-          currentTime,
-        );
+        const energyLevel = this.getEnhancedEnergyLevelForTime(currentTime, userSettings);
+        const preferredFocusTypes = this.getOptimizedFocusTypes(energyLevel, currentTime);
 
         const slot: TimeSlot = {
           startTime: new Date(currentTime),
           endTime: slotEnd,
           energyLevel,
           preferredFocusTypes,
-          isAvailable: !this.hasConflictWithCommitments(
-            currentTime,
-            slotEnd,
-            commitments,
-          ),
+          isAvailable: !this.hasConflictWithCommitments(currentTime, slotEnd, commitments),
         };
 
         slots.push(slot);
@@ -577,10 +506,8 @@ export class DailyPlannerService {
       currentTime = new Date(slotEnd.getTime() + breakDuration * 60000);
     }
 
-    const availableSlots = slots.filter((slot) => slot.isAvailable);
-    this.logger.log(
-      `Generated ${slots.length} total slots, ${availableSlots.length} available`,
-    );
+    const availableSlots = slots.filter(slot => slot.isAvailable);
+    this.logger.log(`Generated ${slots.length} total slots, ${availableSlots.length} available`);
 
     return availableSlots;
   }
@@ -590,28 +517,19 @@ export class DailyPlannerService {
    */
   private parseWorkTime(timeString: string): { hour: number; minute: number } {
     try {
-      const [hourStr, minuteStr] = timeString.split(":");
+      const [hourStr, minuteStr] = timeString.split(':');
       const hour = parseInt(hourStr, 10);
       const minute = parseInt(minuteStr, 10);
 
       // Validate parsed values
-      if (
-        isNaN(hour) ||
-        isNaN(minute) ||
-        hour < 0 ||
-        hour > 23 ||
-        minute < 0 ||
-        minute > 59
-      ) {
+      if (isNaN(hour) || isNaN(minute) || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
         this.logger.warn(`Invalid time format: ${timeString}, using defaults`);
         return { hour: 9, minute: 0 };
       }
 
       return { hour, minute };
     } catch (error) {
-      this.logger.warn(
-        `Failed to parse time ${timeString}: ${error.message}, using defaults`,
-      );
+      this.logger.warn(`Failed to parse time ${timeString}: ${error.message}, using defaults`);
       return { hour: 9, minute: 0 };
     }
   }
@@ -635,18 +553,14 @@ export class DailyPlannerService {
   /**
    * Enhanced energy mapping that considers user energy patterns and time of day
    */
-  private getEnhancedEnergyLevelForTime(
-    time: Date,
-    userSettings: UserSettings,
-  ): EnergyLevel {
+  private getEnhancedEnergyLevelForTime(time: Date, userSettings: UserSettings): EnergyLevel {
     const hour = time.getHours();
     const minute = time.getMinutes();
     const timeInMinutes = hour * 60 + minute;
 
     // Get user's basic energy pattern
     const morningEnergy = userSettings.morningEnergyLevel || EnergyLevel.HIGH;
-    const afternoonEnergy =
-      userSettings.afternoonEnergyLevel || EnergyLevel.MEDIUM;
+    const afternoonEnergy = userSettings.afternoonEnergyLevel || EnergyLevel.MEDIUM;
 
     // Enhanced mapping with energy curves throughout the day
     // Early morning (6-8): Gradual ramp up
@@ -691,10 +605,7 @@ export class DailyPlannerService {
   /**
    * Optimized focus type mapping based on energy level and time of day
    */
-  private getOptimizedFocusTypes(
-    energyLevel: EnergyLevel,
-    time: Date,
-  ): FocusType[] {
+  private getOptimizedFocusTypes(energyLevel: EnergyLevel, time: Date): FocusType[] {
     const hour = time.getHours();
 
     // Time-aware focus type optimization
@@ -784,10 +695,7 @@ export class DailyPlannerService {
   /**
    * Get energy level for specific time based on user settings
    */
-  private getEnergyLevelForTime(
-    time: Date,
-    userSettings: UserSettings,
-  ): EnergyLevel {
+  private getEnergyLevelForTime(time: Date, userSettings: UserSettings): EnergyLevel {
     const hour = time.getHours();
 
     if (hour < 12) {
@@ -819,14 +727,8 @@ export class DailyPlannerService {
   /**
    * Check if time slot conflicts with existing commitments
    */
-  private hasConflictWithCommitments(
-    start: Date,
-    end: Date,
-    commitments: TimeSlot[],
-  ): boolean {
-    return commitments.some(
-      (commitment) => start < commitment.endTime && end > commitment.startTime,
-    );
+  private hasConflictWithCommitments(start: Date, end: Date, commitments: TimeSlot[]): boolean {
+    return commitments.some(commitment => start < commitment.endTime && end > commitment.startTime);
   }
 
   /**
@@ -855,7 +757,7 @@ export class DailyPlannerService {
    */
   private assignTasksToSlots(
     tasks: ScoredTask[],
-    slots: TimeSlot[],
+    slots: TimeSlot[]
   ): Map<string, ScheduleAssignment> {
     const assignments = new Map<string, ScheduleAssignment>();
     const usedSlots = new Set<number>();
@@ -873,12 +775,7 @@ export class DailyPlannerService {
           timeSlot: slot,
           energyMatch,
           focusMatch,
-          reasoning: this.generateSchedulingReasoning(
-            task,
-            slot,
-            energyMatch,
-            focusMatch,
-          ),
+          reasoning: this.generateSchedulingReasoning(task, slot, energyMatch, focusMatch),
         });
 
         usedSlots.add(bestSlotIndex);
@@ -891,11 +788,7 @@ export class DailyPlannerService {
   /**
    * Find best available slot for a task
    */
-  private findBestSlotForTask(
-    task: Task,
-    slots: TimeSlot[],
-    usedSlots: Set<number>,
-  ): number {
+  private findBestSlotForTask(task: Task, slots: TimeSlot[], usedSlots: Set<number>): number {
     let bestSlotIndex = -1;
     let bestScore = -1;
 
@@ -942,8 +835,7 @@ export class DailyPlannerService {
    */
   private calculateDurationFit(task: Task, slot: TimeSlot): number {
     const taskDuration = task.estimatedMinutes || 30;
-    const slotDuration =
-      (slot.endTime.getTime() - slot.startTime.getTime()) / (1000 * 60);
+    const slotDuration = (slot.endTime.getTime() - slot.startTime.getTime()) / (1000 * 60);
 
     if (taskDuration <= slotDuration) {
       return 1.0; // Perfect fit
@@ -959,7 +851,7 @@ export class DailyPlannerService {
     task: Task,
     slot: TimeSlot,
     energyMatch: number,
-    focusMatch: number,
+    focusMatch: number
   ): string {
     const reasons = [];
 
@@ -972,24 +864,20 @@ export class DailyPlannerService {
     }
 
     if (task.hardDeadline) {
-      reasons.push("deadline consideration");
+      reasons.push('deadline consideration');
     }
 
     if (task.priority && task.priority > 3) {
-      reasons.push("high priority");
+      reasons.push('high priority');
     }
 
-    return reasons.length > 0
-      ? `Scheduled due to: ${reasons.join(", ")}`
-      : "Best available slot";
+    return reasons.length > 0 ? `Scheduled due to: ${reasons.join(', ')}` : 'Best available slot';
   }
 
   /**
    * Create schedule blocks from assignments
    */
-  private createScheduleBlocks(
-    assignments: Map<string, ScheduleAssignment>,
-  ): ScheduleBlock[] {
+  private createScheduleBlocks(assignments: Map<string, ScheduleAssignment>): ScheduleBlock[] {
     const blocks: ScheduleBlock[] = [];
 
     for (const assignment of assignments.values()) {
@@ -1012,7 +900,7 @@ export class DailyPlannerService {
    */
   private calculateOptimizationMetrics(
     blocks: ScheduleBlock[],
-    allTasks: ScoredTask[],
+    allTasks: ScoredTask[]
   ): OptimizationResult {
     if (blocks.length === 0) {
       return {
@@ -1031,17 +919,13 @@ export class DailyPlannerService {
       blocks.reduce((sum, block) => sum + block.focusMatch, 0) / blocks.length;
 
     // Deadline risk: percentage of high-priority deadline tasks not scheduled
-    const deadlineTasks = allTasks.filter(
-      (t) => t.hardDeadline && t.priority && t.priority > 3,
-    );
+    const deadlineTasks = allTasks.filter(t => t.hardDeadline && t.priority && t.priority > 3);
     const scheduledDeadlineTasks = blocks.filter(
-      (b) => b.task.hardDeadline && b.task.priority && b.task.priority > 3,
+      b => b.task.hardDeadline && b.task.priority && b.task.priority > 3
     ).length;
 
     const deadlineRisk =
-      deadlineTasks.length > 0
-        ? 1 - scheduledDeadlineTasks / deadlineTasks.length
-        : 0;
+      deadlineTasks.length > 0 ? 1 - scheduledDeadlineTasks / deadlineTasks.length : 0;
 
     return {
       energyOptimization,
@@ -1055,8 +939,8 @@ export class DailyPlannerService {
    */
   private transformToDto(plan: DailyPlan): DailyPlanResponseDto {
     return {
-      date: plan.date.toISOString().split("T")[0],
-      scheduleBlocks: plan.scheduleBlocks.map((block) => ({
+      date: plan.date.toISOString().split('T')[0],
+      scheduleBlocks: plan.scheduleBlocks.map(block => ({
         startTime: block.startTime.toISOString(),
         endTime: block.endTime.toISOString(),
         task: {
@@ -1073,7 +957,7 @@ export class DailyPlannerService {
         focusMatch: block.focusMatch,
         reasoning: block.reasoning,
       })),
-      unscheduledTasks: plan.unscheduledTasks.map((task) => ({
+      unscheduledTasks: plan.unscheduledTasks.map(task => ({
         id: task.id,
         title: task.title,
         description: task.description,
@@ -1095,15 +979,12 @@ export class DailyPlannerService {
    * Integrates with both Google Calendar and Microsoft Outlook Calendar
    * Converts calendar events into TimeSlot format for planning integration
    */
-  private async getExistingCommitments(
-    userId: string,
-    date: Date,
-  ): Promise<TimeSlot[]> {
+  private async getExistingCommitments(userId: string, date: Date): Promise<TimeSlot[]> {
     const startTime = performance.now();
-    
+
     try {
       this.logger.debug(
-        `Starting dual-calendar integration for user ${userId} on ${date.toISOString()}`,
+        `Starting dual-calendar integration for user ${userId} on ${date.toISOString()}`
       );
 
       // Define start and end of day for calendar query
@@ -1160,23 +1041,20 @@ export class DailyPlannerService {
           duplicatesRemoved,
           finalEventCount: deduplicatedTimeSlots.length,
           responseTimeMs: totalTime,
-        },
+        }
       );
 
       return deduplicatedTimeSlots;
     } catch (error) {
       const totalTime = performance.now() - startTime;
-      
-      this.logger.error(
-        `Multi-calendar integration failed for user ${userId}: ${error.message}`,
-        {
-          userId,
-          date: date.toISOString(),
-          errorType: error.constructor.name,
-          timeElapsed: totalTime,
-          originalError: error.message,
-        },
-      );
+
+      this.logger.error(`Multi-calendar integration failed for user ${userId}: ${error.message}`, {
+        userId,
+        date: date.toISOString(),
+        errorType: error.constructor.name,
+        timeElapsed: totalTime,
+        originalError: error.message,
+      });
 
       // Return empty array to allow planning to continue without calendar data
       return [];
@@ -1191,27 +1069,23 @@ export class DailyPlannerService {
     calendarId: string,
     timeMin: Date,
     timeMax: Date,
-    maxRetries = 3,
+    maxRetries = 3
   ): Promise<any> {
     let lastError: Error;
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        this.logger.debug(
-          `Calendar API attempt ${attempt}/${maxRetries} for user ${userId}`,
-        );
+        this.logger.debug(`Calendar API attempt ${attempt}/${maxRetries} for user ${userId}`);
 
         const response = await this.googleService.getCalendarEvents(
           userId,
           calendarId,
           timeMin,
-          timeMax,
+          timeMax
         );
 
         if (attempt > 1) {
-          this.logger.log(
-            `Calendar API succeeded on retry attempt ${attempt} for user ${userId}`,
-          );
+          this.logger.log(`Calendar API succeeded on retry attempt ${attempt} for user ${userId}`);
         }
 
         return response;
@@ -1228,7 +1102,7 @@ export class DailyPlannerService {
             errorType: errorDetails.type,
             errorCode: errorDetails.code,
             retryable: errorDetails.retryable,
-          },
+          }
         );
 
         // Don't retry if error is not retryable
@@ -1239,7 +1113,7 @@ export class DailyPlannerService {
               userId,
               errorType: errorDetails.type,
               errorCode: errorDetails.code,
-            },
+            }
           );
           throw error;
         }
@@ -1248,21 +1122,18 @@ export class DailyPlannerService {
         if (attempt < maxRetries) {
           const delayMs = this.calculateRetryDelay(attempt);
           this.logger.debug(
-            `Waiting ${delayMs}ms before retry attempt ${attempt + 1} for user ${userId}`,
+            `Waiting ${delayMs}ms before retry attempt ${attempt + 1} for user ${userId}`
           );
           await this.sleep(delayMs);
         }
       }
     }
 
-    this.logger.error(
-      `All ${maxRetries} calendar API attempts failed for user ${userId}`,
-      {
-        userId,
-        maxRetries,
-        finalError: lastError.message,
-      },
-    );
+    this.logger.error(`All ${maxRetries} calendar API attempts failed for user ${userId}`, {
+      userId,
+      maxRetries,
+      finalError: lastError.message,
+    });
 
     throw lastError;
   }
@@ -1280,7 +1151,7 @@ export class DailyPlannerService {
     if (error.response?.data?.error) {
       const googleError = error.response.data.error;
       const code = googleError.code || error.response.status;
-      
+
       switch (code) {
         case 401:
           return {
@@ -1385,7 +1256,7 @@ export class DailyPlannerService {
   private parseCalendarEventToTimeSlot(event: any): TimeSlot | null {
     // Validate required fields
     if (!event.start || !event.end) {
-      throw new Error("Event missing start or end time");
+      throw new Error('Event missing start or end time');
     }
 
     // Parse start and end times
@@ -1404,13 +1275,18 @@ export class DailyPlannerService {
     else if (event.start.dateTime && event.end.dateTime) {
       startTime = new Date(event.start.dateTime);
       endTime = new Date(event.end.dateTime);
+
+      // Validate that the date strings parsed to valid dates
+      if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
+        throw new Error('Event has invalid date/time format');
+      }
     } else {
-      throw new Error("Event has invalid date/time format");
+      throw new Error('Event has invalid date/time format');
     }
 
     // Validate date logic
     if (startTime >= endTime) {
-      throw new Error("Event end time must be after start time");
+      throw new Error('Event end time must be after start time');
     }
 
     // Infer energy level based on meeting characteristics
@@ -1437,15 +1313,21 @@ export class DailyPlannerService {
    * Intelligently infer energy level based on calendar event characteristics
    */
   private inferEnergyLevel(event: any): EnergyLevel {
-    const summary = (event.summary || "").toLowerCase();
+    const summary = (event.summary || '').toLowerCase();
     const attendeeCount = event.attendees?.length || 0;
+
+    // All-day events are typically low energy (holidays, vacations, etc.)
+    const isAllDay = event.start?.date && event.end?.date;
+    if (isAllDay) {
+      return EnergyLevel.LOW;
+    }
 
     // High energy indicators - focus time, deep work
     if (
-      summary.includes("focus") ||
-      summary.includes("deep work") ||
-      summary.includes("coding") ||
-      summary.includes("development") ||
+      summary.includes('focus') ||
+      summary.includes('deep work') ||
+      summary.includes('coding') ||
+      summary.includes('development') ||
       attendeeCount === 0
     ) {
       return EnergyLevel.HIGH;
@@ -1454,10 +1336,10 @@ export class DailyPlannerService {
     // Low energy indicators - large meetings, all-hands, etc.
     if (
       attendeeCount > 8 ||
-      summary.includes("all hands") ||
-      summary.includes("town hall") ||
-      summary.includes("large meeting") ||
-      summary.includes("presentation")
+      summary.includes('all hands') ||
+      summary.includes('town hall') ||
+      summary.includes('large meeting') ||
+      summary.includes('presentation')
     ) {
       return EnergyLevel.LOW;
     }
@@ -1470,36 +1352,26 @@ export class DailyPlannerService {
    * Intelligently infer focus types based on calendar event content
    */
   private inferPreferredFocusTypes(event: any): FocusType[] {
-    const summary = (event.summary || "").toLowerCase();
-    const description = (event.description || "").toLowerCase();
+    const summary = (event.summary || '').toLowerCase();
+    const description = (event.description || '').toLowerCase();
     const content = `${summary} ${description}`;
 
     const focusTypes: FocusType[] = [];
 
     // Technical focus indicators
     if (
-      content.match(
-        /\b(code|tech|review|development|engineering|system|architecture|debug|api)\b/,
-      )
+      content.match(/\b(code|tech|review|development|engineering|system|architecture|debug|api)\b/)
     ) {
       focusTypes.push(FocusType.TECHNICAL);
     }
 
     // Creative focus indicators
-    if (
-      content.match(
-        /\b(design|creative|brainstorm|ideation|workshop|innovation|strategy)\b/,
-      )
-    ) {
+    if (content.match(/\b(design|creative|brainstorm|ideation|workshop|innovation|strategy)\b/)) {
       focusTypes.push(FocusType.CREATIVE);
     }
 
     // Administrative focus indicators
-    if (
-      content.match(
-        /\b(admin|expense|report|compliance|hr|legal|budget|planning)\b/,
-      )
-    ) {
+    if (content.match(/\b(admin|expense|report|compliance|hr|legal|budget|planning)\b/)) {
       focusTypes.push(FocusType.ADMINISTRATIVE);
     }
 
@@ -1531,7 +1403,7 @@ export class DailyPlannerService {
   private async getGoogleCommitments(
     userId: string,
     startOfDay: Date,
-    endOfDay: Date,
+    endOfDay: Date
   ): Promise<TimeSlot[]> {
     try {
       this.logger.debug(`Fetching Google Calendar events for user ${userId}`);
@@ -1539,9 +1411,9 @@ export class DailyPlannerService {
       // Fetch calendar events with retry logic (existing method)
       const calendarResponse = await this.getCalendarEventsWithRetry(
         userId,
-        "primary",
+        'primary',
         startOfDay,
-        endOfDay,
+        endOfDay
       );
 
       if (!calendarResponse?.items) {
@@ -1572,14 +1444,14 @@ export class DailyPlannerService {
               eventId: event.id,
               eventSummary: event.summary,
               errorType: error.constructor.name,
-            },
+            }
           );
           continue;
         }
       }
 
       this.logger.debug(
-        `Google Calendar integration: ${parseSuccessCount} events parsed, ${parseFailureCount} failed`,
+        `Google Calendar integration: ${parseSuccessCount} events parsed, ${parseFailureCount} failed`
       );
 
       return timeSlots;
@@ -1596,7 +1468,7 @@ export class DailyPlannerService {
   private async getOutlookCommitments(
     userId: string,
     startOfDay: Date,
-    endOfDay: Date,
+    endOfDay: Date
   ): Promise<TimeSlot[]> {
     try {
       this.logger.debug(`Fetching Outlook Calendar events for user ${userId}`);
@@ -1604,9 +1476,9 @@ export class DailyPlannerService {
       // Fetch Outlook calendar events with retry logic
       const outlookResponse = await this.getOutlookEventsWithRetry(
         userId,
-        "primary",
+        'primary',
         startOfDay,
-        endOfDay,
+        endOfDay
       );
 
       if (!outlookResponse?.value || outlookResponse.value.length === 0) {
@@ -1637,14 +1509,14 @@ export class DailyPlannerService {
               eventId: event.id,
               eventSubject: event.subject,
               errorType: error.constructor.name,
-            },
+            }
           );
           continue;
         }
       }
 
       this.logger.debug(
-        `Outlook Calendar integration: ${parseSuccessCount} events parsed, ${parseFailureCount} failed`,
+        `Outlook Calendar integration: ${parseSuccessCount} events parsed, ${parseFailureCount} failed`
       );
 
       return timeSlots;
@@ -1663,26 +1535,26 @@ export class DailyPlannerService {
     calendarId: string,
     timeMin: Date,
     timeMax: Date,
-    maxRetries = 3,
+    maxRetries = 3
   ): Promise<any> {
     let lastError: Error;
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         this.logger.debug(
-          `Outlook Calendar API attempt ${attempt}/${maxRetries} for user ${userId}`,
+          `Outlook Calendar API attempt ${attempt}/${maxRetries} for user ${userId}`
         );
 
         const response = await this.graphService.getCalendarEvents(
           userId,
           calendarId,
           timeMin,
-          timeMax,
+          timeMax
         );
 
         if (attempt > 1) {
           this.logger.log(
-            `Outlook Calendar API succeeded on retry attempt ${attempt} for user ${userId}`,
+            `Outlook Calendar API succeeded on retry attempt ${attempt} for user ${userId}`
           );
         }
 
@@ -1700,7 +1572,7 @@ export class DailyPlannerService {
             errorType: errorDetails.type,
             errorCode: errorDetails.code,
             retryable: errorDetails.retryable,
-          },
+          }
         );
 
         // Don't retry if error is not retryable
@@ -1711,7 +1583,7 @@ export class DailyPlannerService {
               userId,
               errorType: errorDetails.type,
               errorCode: errorDetails.code,
-            },
+            }
           );
           throw error;
         }
@@ -1720,21 +1592,18 @@ export class DailyPlannerService {
         if (attempt < maxRetries) {
           const delayMs = this.calculateRetryDelay(attempt);
           this.logger.debug(
-            `Waiting ${delayMs}ms before Outlook retry attempt ${attempt + 1} for user ${userId}`,
+            `Waiting ${delayMs}ms before Outlook retry attempt ${attempt + 1} for user ${userId}`
           );
           await this.sleep(delayMs);
         }
       }
     }
 
-    this.logger.error(
-      `All ${maxRetries} Outlook Calendar API attempts failed for user ${userId}`,
-      {
-        userId,
-        maxRetries,
-        finalError: lastError.message,
-      },
-    );
+    this.logger.error(`All ${maxRetries} Outlook Calendar API attempts failed for user ${userId}`, {
+      userId,
+      maxRetries,
+      finalError: lastError.message,
+    });
 
     throw lastError;
   }
@@ -1752,7 +1621,7 @@ export class DailyPlannerService {
     // Handle Microsoft Graph specific errors
     if (error.response?.status || error.code) {
       const code = error.response?.status || error.code;
-      
+
       switch (code) {
         case 401:
           return {
@@ -1840,7 +1709,7 @@ export class DailyPlannerService {
   private parseOutlookEventToTimeSlot(event: any): TimeSlot | null {
     // Validate required fields
     if (!event.start || !event.end) {
-      throw new Error("Outlook event missing start or end time");
+      throw new Error('Outlook event missing start or end time');
     }
 
     // Parse start and end times
@@ -1860,12 +1729,12 @@ export class DailyPlannerService {
       startTime = new Date(event.start.dateTime);
       endTime = new Date(event.end.dateTime);
     } else {
-      throw new Error("Outlook event has invalid date/time format");
+      throw new Error('Outlook event has invalid date/time format');
     }
 
     // Validate date logic
     if (startTime >= endTime) {
-      throw new Error("Outlook event end time must be after start time");
+      throw new Error('Outlook event end time must be after start time');
     }
 
     // Infer energy level based on Outlook meeting characteristics
@@ -1893,17 +1762,17 @@ export class DailyPlannerService {
    * Adapted for Microsoft Graph event data structure and Outlook-specific fields
    */
   private inferOutlookEnergyLevel(event: any): EnergyLevel {
-    const subject = (event.subject || "").toLowerCase();
+    const subject = (event.subject || '').toLowerCase();
     const attendeeCount = event.attendees?.length || 0;
     const importance = event.importance || 'normal'; // low, normal, high
     const showAs = event.showAs || 'busy'; // free, tentative, busy, oof, workingElsewhere
 
     // High energy indicators - focus time, deep work, high importance
     if (
-      subject.includes("focus") ||
-      subject.includes("deep work") ||
-      subject.includes("coding") ||
-      subject.includes("development") ||
+      subject.includes('focus') ||
+      subject.includes('deep work') ||
+      subject.includes('coding') ||
+      subject.includes('development') ||
       importance === 'high' ||
       showAs === 'workingElsewhere' ||
       attendeeCount === 0
@@ -1914,10 +1783,10 @@ export class DailyPlannerService {
     // Low energy indicators - large meetings, all-hands, low importance
     if (
       attendeeCount > 8 ||
-      subject.includes("all hands") ||
-      subject.includes("town hall") ||
-      subject.includes("large meeting") ||
-      subject.includes("presentation") ||
+      subject.includes('all hands') ||
+      subject.includes('town hall') ||
+      subject.includes('large meeting') ||
+      subject.includes('presentation') ||
       importance === 'low' ||
       showAs === 'tentative'
     ) {
@@ -1933,8 +1802,8 @@ export class DailyPlannerService {
    * Adapted for Microsoft Graph event data structure and Outlook categories
    */
   private inferOutlookPreferredFocusTypes(event: any): FocusType[] {
-    const subject = (event.subject || "").toLowerCase();
-    const body = (event.body?.content || "").toLowerCase();
+    const subject = (event.subject || '').toLowerCase();
+    const body = (event.body?.content || '').toLowerCase();
     const categories = event.categories || [];
     const content = `${subject} ${body} ${categories.join(' ')}`.toLowerCase();
 
@@ -1943,7 +1812,7 @@ export class DailyPlannerService {
     // Technical focus indicators
     if (
       content.match(
-        /\b(code|tech|review|development|engineering|system|architecture|debug|api|technical)\b/,
+        /\b(code|tech|review|development|engineering|system|architecture|debug|api|technical)\b/
       ) ||
       categories.some(cat => cat.toLowerCase().includes('technical'))
     ) {
@@ -1952,9 +1821,7 @@ export class DailyPlannerService {
 
     // Creative focus indicators
     if (
-      content.match(
-        /\b(design|creative|brainstorm|ideation|workshop|innovation|strategy)\b/,
-      ) ||
+      content.match(/\b(design|creative|brainstorm|ideation|workshop|innovation|strategy)\b/) ||
       categories.some(cat => cat.toLowerCase().includes('creative'))
     ) {
       focusTypes.push(FocusType.CREATIVE);
@@ -1962,9 +1829,7 @@ export class DailyPlannerService {
 
     // Administrative focus indicators
     if (
-      content.match(
-        /\b(admin|expense|report|compliance|hr|legal|budget|planning)\b/,
-      ) ||
+      content.match(/\b(admin|expense|report|compliance|hr|legal|budget|planning)\b/) ||
       categories.some(cat => cat.toLowerCase().includes('admin'))
     ) {
       focusTypes.push(FocusType.ADMINISTRATIVE);
@@ -2014,15 +1879,12 @@ export class DailyPlannerService {
           duplicateCount.removed++;
 
           // Log the duplicate detection for debugging
-          this.logger.debug(
-            `Duplicate calendar event detected and removed`,
-            {
-              existingSource: existingSlot.source,
-              duplicateSource: currentSlot.source,
-              startTime: currentSlot.startTime.toISOString(),
-              endTime: currentSlot.endTime.toISOString(),
-            },
-          );
+          this.logger.debug(`Duplicate calendar event detected and removed`, {
+            existingSource: existingSlot.source,
+            duplicateSource: currentSlot.source,
+            startTime: currentSlot.startTime.toISOString(),
+            endTime: currentSlot.endTime.toISOString(),
+          });
           break;
         }
       }
@@ -2034,7 +1896,7 @@ export class DailyPlannerService {
 
     if (duplicateCount.removed > 0) {
       this.logger.log(
-        `Calendar deduplication completed: ${duplicateCount.removed} duplicates removed from ${timeSlots.length} events`,
+        `Calendar deduplication completed: ${duplicateCount.removed} duplicates removed from ${timeSlots.length} events`
       );
     }
 
@@ -2053,7 +1915,7 @@ export class DailyPlannerService {
 
     // Check for time overlap with tolerance (5 minutes)
     const toleranceMs = 5 * 60 * 1000; // 5 minutes in milliseconds
-    
+
     const slot1Start = slot1.startTime.getTime();
     const slot1End = slot1.endTime.getTime();
     const slot2Start = slot2.startTime.getTime();
@@ -2067,14 +1929,11 @@ export class DailyPlannerService {
     const timeMatch = startTimeDiff <= toleranceMs && endTimeDiff <= toleranceMs;
 
     if (timeMatch) {
-      this.logger.debug(
-        `Time-based duplicate detected: ${slot1.source} vs ${slot2.source}`,
-        {
-          startTimeDiff: startTimeDiff / 1000 / 60, // minutes
-          endTimeDiff: endTimeDiff / 1000 / 60, // minutes
-          toleranceMinutes: toleranceMs / 1000 / 60,
-        },
-      );
+      this.logger.debug(`Time-based duplicate detected: ${slot1.source} vs ${slot2.source}`, {
+        startTimeDiff: startTimeDiff / 1000 / 60, // minutes
+        endTimeDiff: endTimeDiff / 1000 / 60, // minutes
+        toleranceMinutes: toleranceMs / 1000 / 60,
+      });
     }
 
     return timeMatch;

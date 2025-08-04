@@ -1,15 +1,15 @@
-import './globals.css'
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import Providers from './providers'
-import { ServiceWorkerProvider } from '@/components/ServiceWorkerProvider'
-import { PerformanceProvider } from '@/components/PerformanceProvider'
+import './globals.css';
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import Providers from './providers';
+import { ServiceWorkerProvider } from '@/components/ServiceWorkerProvider';
+import { PerformanceProvider } from '@/components/PerformanceProvider';
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap', // Improve font loading performance
   preload: true,
-})
+});
 
 export const metadata: Metadata = {
   title: 'Codex Bootstrap',
@@ -56,13 +56,9 @@ export const metadata: Metadata = {
     { media: '(prefers-color-scheme: dark)', color: '#000000' },
   ],
   manifest: '/manifest.json',
-}
+};
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -71,25 +67,31 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />
         <link rel="dns-prefetch" href="//fonts.gstatic.com" />
-        
+
         {/* Preload critical resources */}
-        <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-        
+        <link
+          rel="preload"
+          href="/fonts/inter-var.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+
         {/* PWA support */}
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Codex Bootstrap" />
-        
+
         {/* Performance hints */}
         <meta httpEquiv="x-dns-prefetch-control" content="on" />
         <meta name="format-detection" content="telephone=no, date=no, email=no, address=no" />
-        
+
         {/* Security headers */}
         <meta httpEquiv="X-Content-Type-Options" content="nosniff" />
         <meta httpEquiv="Referrer-Policy" content="origin-when-cross-origin" />
-        
+
         {/* Reduced motion support for ADHD users */}
         <meta name="color-scheme" content="light dark" />
       </head>
@@ -98,8 +100,8 @@ export default function RootLayout({
           <ServiceWorkerProvider>
             <Providers>
               {/* Skip to main content for accessibility */}
-              <a 
-                href="#main-content" 
+              <a
+                href="#main-content"
                 className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50"
               >
                 Skip to main content
@@ -110,7 +112,7 @@ export default function RootLayout({
             </Providers>
           </ServiceWorkerProvider>
         </PerformanceProvider>
-        
+
         {/* Service Worker registration script */}
         <script
           dangerouslySetInnerHTML={{
@@ -131,5 +133,5 @@ export default function RootLayout({
         />
       </body>
     </html>
-  )
+  );
 }

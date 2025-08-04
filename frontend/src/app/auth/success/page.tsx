@@ -21,7 +21,7 @@ function AuthSuccessContent() {
     const handleAuthSuccess = async () => {
       try {
         const userParam = searchParams.get('user');
-        
+
         if (userParam) {
           const user = JSON.parse(decodeURIComponent(userParam));
           setUserInfo(user);
@@ -29,7 +29,7 @@ function AuthSuccessContent() {
 
         // Refresh the auth context to get the latest user state
         const refreshed = await refreshToken();
-        
+
         if (refreshed) {
           setStatus('success');
           // Redirect to dashboard after a short delay
@@ -85,9 +85,7 @@ function AuthSuccessContent() {
             <CardDescription>
               Authentication successful. You&apos;re being redirected to your dashboard.
               {userInfo && (
-                <div className="mt-2 text-sm">
-                  Welcome back, {userInfo.name || userInfo.email}!
-                </div>
+                <div className="mt-2 text-sm">Welcome back, {userInfo.name || userInfo.email}!</div>
               )}
             </CardDescription>
           </CardHeader>

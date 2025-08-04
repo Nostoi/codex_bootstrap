@@ -13,17 +13,14 @@ import { GraphConfigService } from '../config/graph-config.service';
 /**
  * Calendar Sync Module
  * Provides comprehensive calendar synchronization capabilities
- * 
+ *
  * All calendar sync services have been re-enabled after fixing compatibility issues:
  * ✅ Updated type interfaces to match current schema
- * ✅ Fixed service method signatures  
+ * ✅ Fixed service method signatures
  * ✅ Resolved interface compatibility issues
  */
 @Module({
-  imports: [
-    PrismaModule,
-    AuthModule,
-  ],
+  imports: [PrismaModule, AuthModule],
   controllers: [CalendarSyncController],
   providers: [
     CalendarSyncService,
@@ -34,10 +31,6 @@ import { GraphConfigService } from '../config/graph-config.service';
     GraphAuthService,
     GraphConfigService,
   ],
-  exports: [
-    CalendarSyncService,
-    DeltaSyncManager,
-    ConflictResolver,
-  ],
+  exports: [CalendarSyncService, DeltaSyncManager, ConflictResolver],
 })
 export class CalendarSyncModule {}

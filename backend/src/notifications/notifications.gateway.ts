@@ -1,18 +1,26 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { 
-  WebSocketServer, 
-  WebSocketGateway, 
-  OnGatewayInit, 
-  OnGatewayConnection, 
+import {
+  WebSocketServer,
+  WebSocketGateway,
+  OnGatewayInit,
+  OnGatewayConnection,
   OnGatewayDisconnect,
   ConnectedSocket,
   MessageBody,
-  SubscribeMessage
+  SubscribeMessage,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
 export interface NotificationPayload {
-  type: 'task-update' | 'calendar-sync' | 'plan-regeneration' | 'deadline-reminder' | 'conflict-alert' | 'connection-confirmed' | 'task-created' | 'task-deleted';
+  type:
+    | 'task-update'
+    | 'calendar-sync'
+    | 'plan-regeneration'
+    | 'deadline-reminder'
+    | 'conflict-alert'
+    | 'connection-confirmed'
+    | 'task-created'
+    | 'task-deleted';
   data: any;
   userId: string;
   timestamp: Date;
@@ -31,7 +39,9 @@ interface AuthenticatedSocket extends Socket {
     credentials: true,
   },
 })
-export class NotificationsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+export class NotificationsGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
@@ -45,7 +55,7 @@ export class NotificationsGateway implements OnGatewayInit, OnGatewayConnection,
 
   handleConnection(client: AuthenticatedSocket) {
     this.logger.log('Client attempting to connect');
-    
+
     // Extract user ID from handshake query
     const userId = client.handshake.query.userId as string;
     const sessionId = client.handshake.query.sessionId as string;
@@ -91,7 +101,9 @@ export class NotificationsGateway implements OnGatewayInit, OnGatewayConnection,
           this.connectedClients.delete(client.userId);
         }
       }
-      this.logger.log(`Client disconnected: userId=${client.userId}, sessionId=${client.sessionId}`);
+      this.logger.log(
+        `Client disconnected: userId=${client.userId}, sessionId=${client.sessionId}`
+      );
     }
   }
 
@@ -104,7 +116,7 @@ export class NotificationsGateway implements OnGatewayInit, OnGatewayConnection,
     };
 
     const userClients = this.connectedClients.get(userId);
-    
+
     if (!userClients || userClients.length === 0) {
       this.logger.log(`User ${userId} not connected, queueing notification`);
       this.queueOfflineNotification(userId, payload);
@@ -225,10 +237,10 @@ export class NotificationsGateway implements OnGatewayInit, OnGatewayConnection,
     if (!this.offlineNotifications.has(userId)) {
       this.offlineNotifications.set(userId, []);
     }
-    
+
     const queue = this.offlineNotifications.get(userId)!;
     queue.push(notification);
-    
+
     // Limit offline queue size to prevent memory issues
     if (queue.length > 50) {
       queue.shift(); // Remove oldest notification
@@ -242,7 +254,7 @@ export class NotificationsGateway implements OnGatewayInit, OnGatewayConnection,
     }
 
     this.logger.log(`Sending ${notifications.length} offline notifications to user ${userId}`);
-    
+
     notifications.forEach(notification => {
       this.sendToUser(userId, {
         type: notification.type,
@@ -255,14 +267,18 @@ export class NotificationsGateway implements OnGatewayInit, OnGatewayConnection,
   }
 
   private generateSessionId(): string {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    return (
+      Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+    );
   }
 
   // Health check method
   getConnectionStats() {
-    const totalConnections = Array.from(this.connectedClients.values())
-      .reduce((total, clients) => total + clients.length, 0);
-    
+    const totalConnections = Array.from(this.connectedClients.values()).reduce(
+      (total, clients) => total + clients.length,
+      0
+    );
+
     return {
       connectedUsers: this.connectedClients.size,
       totalConnections,

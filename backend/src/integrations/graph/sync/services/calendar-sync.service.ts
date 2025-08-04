@@ -2,15 +2,15 @@ import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { GraphService } from '../../graph.service';
 import { GraphAuthService } from '../../auth/graph-auth.service';
-import { 
-  SyncResult, 
-  SyncOptions, 
-  SyncDirection, 
+import {
+  SyncResult,
+  SyncOptions,
+  SyncDirection,
   CalendarEventData,
   GraphCalendarEvent,
   DeltaSyncOptions,
   SyncJob,
-  SyncStatistics
+  SyncStatistics,
 } from '../types/calendar-sync.types';
 import { CalendarSyncStatus, CalendarConflictType } from '@prisma/client';
 import { DeltaSyncManager } from './delta-sync.manager';
@@ -30,7 +30,7 @@ export class CalendarSyncService {
     private readonly graphService: GraphService,
     private readonly graphAuthService: GraphAuthService,
     private readonly deltaSyncManager: DeltaSyncManager,
-    private readonly conflictResolver: ConflictResolver,
+    private readonly conflictResolver: ConflictResolver
   ) {}
 
   /**
@@ -40,9 +40,10 @@ export class CalendarSyncService {
     this.logger.log(`Starting sync for user ${userId} with options:`, options);
 
     // Check if user has active sync job
-    const existingJob = Array.from(this.activeSyncJobs.values())
-      .find(job => job.userId === userId && job.status === 'RUNNING');
-    
+    const existingJob = Array.from(this.activeSyncJobs.values()).find(
+      job => job.userId === userId && job.status === 'RUNNING'
+    );
+
     if (existingJob) {
       throw new BadRequestException('Sync already in progress for this user');
     }
@@ -84,20 +85,22 @@ export class CalendarSyncService {
       where: { userId },
     });
 
-    const activeJob = Array.from(this.activeSyncJobs.values())
-      .find(job => job.userId === userId && job.status === 'RUNNING');
+    if (!syncState) {
+      return null;
+    }
+
+    const activeJob = Array.from(this.activeSyncJobs.values()).find(
+      job => job.userId === userId && job.status === 'RUNNING'
+    );
 
     return {
-      syncInProgress: !!activeJob,
-      jobId: activeJob?.id,
-      progress: activeJob?.progress || 0,
-      lastSyncTime: syncState?.lastDeltaSync || syncState?.lastFullSync,
-      totalEvents: syncState?.totalEvents || 0,
-      syncedEvents: syncState?.syncedEvents || 0,
-      conflictedEvents: syncState?.conflictedEvents || 0,
-      failedEvents: syncState?.failedEvents || 0,
-      lastSyncStatus: syncState?.lastSyncStatus,
-      lastSyncError: syncState?.lastSyncError,
+      jobId: syncState.id,
+      status: syncState.status,
+      direction: syncState.direction,
+      progress: {
+        total: syncState.totalEvents || 0,
+        processed: syncState.processedEvents || 0,
+      },
     };
   }
 
@@ -121,7 +124,7 @@ export class CalendarSyncService {
       job.status = 'FAILED';
       job.error = 'Cancelled by user';
       job.endTime = new Date();
-      
+
       // Update sync state
       await this.updateSyncState(userId, {
         syncInProgress: false,
@@ -182,7 +185,6 @@ export class CalendarSyncService {
       });
 
       this.logger.log(`Sync job ${job.id} completed successfully:`, result);
-
     } catch (error) {
       job.status = 'FAILED';
       job.error = error.message;
@@ -200,9 +202,12 @@ export class CalendarSyncService {
     } finally {
       job.endTime = new Date();
       // Clean up completed jobs after 1 hour
-      setTimeout(() => {
-        this.activeSyncJobs.delete(job.id);
-      }, 60 * 60 * 1000);
+      setTimeout(
+        () => {
+          this.activeSyncJobs.delete(job.id);
+        },
+        60 * 60 * 1000
+      );
     }
   }
 
@@ -211,7 +216,7 @@ export class CalendarSyncService {
    */
   private async pullFromGraph(job: SyncJob): Promise<SyncResult> {
     this.logger.log(`Pulling events from Graph for user ${job.userId}`);
-    
+
     const syncState = await this.getSyncState(job.userId);
     const options: DeltaSyncOptions = {
       calendarId: job.calendarId,
@@ -226,9 +231,8 @@ export class CalendarSyncService {
 
     try {
       // Determine if we need full sync or delta sync
-      const needsFullSync = job.options.fullSync || 
-                           !syncState?.deltaToken || 
-                           !syncState?.lastDeltaSync;
+      const needsFullSync =
+        job.options.fullSync || !syncState?.deltaToken || !syncState?.lastDeltaSync;
 
       let events: GraphCalendarEvent[];
 
@@ -240,12 +244,12 @@ export class CalendarSyncService {
       } else {
         this.logger.log('Performing delta sync');
         const deltaResult = await this.deltaSyncManager.getDeltaChanges(
-          job.userId, 
-          syncState.deltaToken!, 
+          job.userId,
+          syncState.deltaToken!,
           options
         );
         events = deltaResult.events;
-        
+
         // Update delta token
         if (deltaResult.deltaToken) {
           await this.updateSyncState(job.userId, {
@@ -289,7 +293,7 @@ export class CalendarSyncService {
             syncedCount++;
           }
 
-          job.progress = 30 + (60 * (i + 1) / events.length);
+          job.progress = 30 + (60 * (i + 1)) / events.length;
         } catch (error) {
           this.logger.error(`Error processing event ${events[i]?.id}:`, error);
           errorCount++;
@@ -313,7 +317,6 @@ export class CalendarSyncService {
         errors: errors.length > 0 ? errors : undefined,
         conflicts: conflicts.length > 0 ? conflicts : undefined,
       };
-
     } catch (error) {
       this.logger.error('Pull sync failed:', error);
       throw error;
@@ -325,7 +328,7 @@ export class CalendarSyncService {
    */
   private async pushToGraph(job: SyncJob): Promise<SyncResult> {
     this.logger.log(`Pushing events to Graph for user ${job.userId}`);
-    
+
     // Get locally modified events
     const localEvents = await this.prisma.calendarEvent.findMany({
       where: {
@@ -342,7 +345,7 @@ export class CalendarSyncService {
     for (let i = 0; i < localEvents.length; i++) {
       try {
         const localEvent = localEvents[i];
-        
+
         if (localEvent.graphId) {
           // Update existing Graph event
           await this.graphService.updateCalendarEvent(
@@ -356,7 +359,7 @@ export class CalendarSyncService {
             job.userId,
             this.convertLocalEventToGraph(localEvent)
           );
-          
+
           // Update local event with Graph ID
           await this.prisma.calendarEvent.update({
             where: { id: localEvent.id },
@@ -378,8 +381,7 @@ export class CalendarSyncService {
         });
 
         syncedCount++;
-        job.progress = (80 * (i + 1) / localEvents.length);
-
+        job.progress = (80 * (i + 1)) / localEvents.length;
       } catch (error) {
         this.logger.error(`Error pushing event ${localEvents[i].id}:`, error);
         errorCount++;
@@ -401,11 +403,11 @@ export class CalendarSyncService {
    */
   private async bidirectionalSync(job: SyncJob): Promise<SyncResult> {
     this.logger.log(`Performing bidirectional sync for user ${job.userId}`);
-    
+
     // First pull from Graph
     const pullResult = await this.pullFromGraph({
       ...job,
-      options: { ...job.options, direction: SyncDirection.PULL_FROM_GRAPH }
+      options: { ...job.options, direction: SyncDirection.PULL_FROM_GRAPH },
     });
 
     job.progress = 50;
@@ -413,7 +415,7 @@ export class CalendarSyncService {
     // Then push to Graph
     const pushResult = await this.pushToGraph({
       ...job,
-      options: { ...job.options, direction: SyncDirection.PUSH_TO_GRAPH }
+      options: { ...job.options, direction: SyncDirection.PUSH_TO_GRAPH },
     });
 
     return {
@@ -421,10 +423,7 @@ export class CalendarSyncService {
       syncedCount: pullResult.syncedCount + pushResult.syncedCount,
       conflictCount: pullResult.conflictCount + pushResult.conflictCount,
       errorCount: pullResult.errorCount + pushResult.errorCount,
-      errors: [
-        ...(pullResult.errors || []),
-        ...(pushResult.errors || [])
-      ],
+      errors: [...(pullResult.errors || []), ...(pushResult.errors || [])],
       conflicts: pullResult.conflicts,
     };
   }
@@ -488,13 +487,17 @@ export class CalendarSyncService {
   private convertLocalEventToGraph(localEvent: any): any {
     return {
       subject: localEvent.subject,
-      body: localEvent.description ? {
-        content: localEvent.description,
-        contentType: 'text',
-      } : undefined,
-      location: localEvent.location ? {
-        displayName: localEvent.location,
-      } : undefined,
+      body: localEvent.description
+        ? {
+            content: localEvent.description,
+            contentType: 'text',
+          }
+        : undefined,
+      location: localEvent.location
+        ? {
+            displayName: localEvent.location,
+          }
+        : undefined,
       start: {
         dateTime: localEvent.startTime.toISOString(),
         timeZone: localEvent.timeZone || 'UTC',
@@ -504,14 +507,15 @@ export class CalendarSyncService {
         timeZone: localEvent.timeZone || 'UTC',
       },
       isAllDay: localEvent.isAllDay,
-      recurrence: localEvent.recurrencePattern ? 
-        JSON.parse(localEvent.recurrencePattern) : undefined,
+      recurrence: localEvent.recurrencePattern
+        ? JSON.parse(localEvent.recurrencePattern)
+        : undefined,
     };
   }
 
   private async createLocalEvent(userId: string, graphEvent: GraphCalendarEvent) {
     const eventData = this.convertGraphEventToLocal(graphEvent);
-    
+
     return await this.prisma.calendarEvent.create({
       data: {
         userId,
@@ -535,7 +539,7 @@ export class CalendarSyncService {
 
   private async updateLocalEvent(localEventId: string, graphEvent: GraphCalendarEvent) {
     const eventData = this.convertGraphEventToLocal(graphEvent);
-    
+
     return await this.prisma.calendarEvent.update({
       where: { id: localEventId },
       data: {
@@ -602,7 +606,7 @@ export class CalendarSyncService {
       let calendars = [];
       try {
         const calendarData = await this.graphService.getCalendars(userId);
-        calendars = calendarData?.value || [];
+        calendars = calendarData || [];
       } catch (error) {
         this.logger.warn(`Could not fetch calendars for user ${userId}:`, error.message);
         calendars = [];
@@ -642,15 +646,18 @@ export class CalendarSyncService {
 
     const totalSyncs = syncHistory.length;
     const successfulSyncs = syncHistory.filter(
-      (sync) => sync.lastSyncStatus === CalendarSyncStatus.COMPLETED
+      sync => sync.status === CalendarSyncStatus.COMPLETED
     ).length;
     const failedSyncs = syncHistory.filter(
-      (sync) => sync.lastSyncStatus === CalendarSyncStatus.FAILED
+      sync => sync.status === CalendarSyncStatus.FAILED
     ).length;
 
     const totalEvents = syncHistory.reduce((sum, sync) => sum + (sync.totalEvents || 0), 0);
     const syncedEvents = syncHistory.reduce((sum, sync) => sum + (sync.syncedEvents || 0), 0);
-    const conflictedEvents = syncHistory.reduce((sum, sync) => sum + (sync.conflictedEvents || 0), 0);
+    const conflictedEvents = syncHistory.reduce(
+      (sum, sync) => sum + (sync.conflictedEvents || 0),
+      0
+    );
     const failedEvents = syncHistory.reduce((sum, sync) => sum + (sync.failedEvents || 0), 0);
 
     return {

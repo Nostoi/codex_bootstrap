@@ -42,7 +42,7 @@ export class AuthController {
     private sessionManager: SessionManagerService,
     private tokenManager: TokenManagerService,
     private microsoftAuthService: MicrosoftAuthService,
-    private configService: ConfigService,
+    private configService: ConfigService
   ) {}
 
   /**
@@ -50,9 +50,9 @@ export class AuthController {
    * GET /auth/{provider}/login
    */
   @Get(':provider/login')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Initiate OAuth login',
-    description: 'Redirects user to OAuth provider for authentication'
+    description: 'Redirects user to OAuth provider for authentication',
   })
   @ApiResponse({ status: 302, description: 'Redirect to OAuth provider' })
   async initiateLogin(
@@ -80,12 +80,12 @@ export class AuthController {
           redirectUri,
           scopes: [
             'openid',
-            'profile', 
+            'profile',
             'email',
             'https://graph.microsoft.com/Calendars.ReadWrite',
             'https://graph.microsoft.com/Calendars.Read',
-            ...additionalScopes
-          ]
+            ...additionalScopes,
+          ],
         });
         authUrl = result.authUrl;
         state = result.state;
@@ -109,15 +109,12 @@ export class AuthController {
       return { authUrl, state };
     } catch (error) {
       this.logger.error(`OAuth initiation failed for ${provider}:`, error);
-      
+
       if (error instanceof HttpException) {
         throw error;
       }
-      
-      throw new HttpException(
-        'Failed to initiate OAuth login',
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
+
+      throw new HttpException('Failed to initiate OAuth login', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -128,7 +125,7 @@ export class AuthController {
   @Get(':provider/callback')
   @ApiOperation({
     summary: 'OAuth callback handler',
-    description: 'Handles OAuth provider callback and creates user session'
+    description: 'Handles OAuth provider callback and creates user session',
   })
   @ApiResponse({ status: 302, description: 'Redirect to frontend with session token' })
   async handleCallback(
@@ -162,7 +159,7 @@ export class AuthController {
 
       // Exchange authorization code for tokens and user profile
       let authResult: AuthResult;
-      
+
       if (provider === 'microsoft') {
         authResult = await this.microsoftAuthService.handleCallback('microsoft', code, state);
       } else {
@@ -178,12 +175,11 @@ export class AuthController {
       // Redirect to frontend with tokens
       const frontendUrl = this.configService.get('FRONTEND_URL') || 'http://localhost:3000';
       const redirectUrl = `${frontendUrl}?token=${sessionTokens.accessToken}&refresh=${sessionTokens.refreshToken}`;
-      
-      return res?.redirect(redirectUrl);
 
+      return res?.redirect(redirectUrl);
     } catch (error) {
       this.logger.error(`OAuth callback failed for ${provider}:`, error);
-      
+
       const frontendUrl = this.configService.get('FRONTEND_URL') || 'http://localhost:3000';
       return res?.redirect(`${frontendUrl}/login?error=auth_failed`);
     }
@@ -196,7 +192,7 @@ export class AuthController {
   @Post('refresh')
   @ApiOperation({
     summary: 'Refresh access token',
-    description: 'Exchanges refresh token for new access token'
+    description: 'Exchanges refresh token for new access token',
   })
   @ApiResponse({ status: 200, description: 'New access token issued' })
   async refreshToken(@Body() body: RefreshTokenRequest) {
@@ -208,7 +204,7 @@ export class AuthController {
       }
 
       const newTokens = await this.sessionManager.refreshSession(body.refreshToken);
-      
+
       return {
         accessToken: newTokens.accessToken,
         refreshToken: newTokens.refreshToken,
@@ -216,13 +212,13 @@ export class AuthController {
       };
     } catch (error) {
       this.logger.error('Token refresh failed:', error);
-      
+
       throw new HttpException(
         {
           error: {
             code: 'auth/token-invalid',
-            message: 'Refresh token is invalid or expired'
-          }
+            message: 'Refresh token is invalid or expired',
+          },
         },
         HttpStatus.UNAUTHORIZED
       );
@@ -238,7 +234,7 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Logout current session',
-    description: 'Revokes current session and invalidates tokens'
+    description: 'Revokes current session and invalidates tokens',
   })
   @ApiResponse({ status: 200, description: 'Successfully logged out' })
   async logout(@Req() req: Request) {
@@ -247,22 +243,19 @@ export class AuthController {
 
       // Extract refresh token from session or cookies
       const refreshToken = req.cookies?.refresh_token || req.headers['x-refresh-token'];
-      
+
       if (refreshToken) {
         await this.sessionManager.terminateSession(refreshToken as string);
       }
 
       return {
         success: true,
-        message: 'Successfully logged out'
+        message: 'Successfully logged out',
       };
     } catch (error) {
       this.logger.error('Logout failed:', error);
-      
-      throw new HttpException(
-        'Failed to logout',
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
+
+      throw new HttpException('Failed to logout', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -275,7 +268,7 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Logout all sessions',
-    description: 'Revokes all user sessions across all devices'
+    description: 'Revokes all user sessions across all devices',
   })
   @ApiResponse({ status: 200, description: 'All sessions revoked' })
   async logoutAll(@User() user: UserWithProvider) {
@@ -287,15 +280,12 @@ export class AuthController {
       return {
         success: true,
         message: 'All sessions revoked',
-        revokedSessions: revokedCount
+        revokedSessions: revokedCount,
       };
     } catch (error) {
       this.logger.error('Logout-all failed:', error);
-      
-      throw new HttpException(
-        'Failed to revoke all sessions',
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
+
+      throw new HttpException('Failed to revoke all sessions', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -308,7 +298,7 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Get user profile',
-    description: 'Returns authenticated user profile information'
+    description: 'Returns authenticated user profile information',
   })
   @ApiResponse({ status: 200, description: 'User profile retrieved' })
   async getProfile(@User() user: UserWithProvider) {
@@ -320,22 +310,20 @@ export class AuthController {
         email: user.email,
         name: user.name,
         avatar: user.avatar,
-        providers: user.oauthProviders?.map(provider => ({
-          provider: provider.provider,
-          email: provider.email,
-          hasCalendarAccess: provider.scopes?.includes('calendar') || false,
-          scopes: provider.scopes || [],
-        })) || [],
+        providers:
+          user.oauthProviders?.map(provider => ({
+            provider: provider.provider,
+            email: provider.email,
+            hasCalendarAccess: provider.scopes?.includes('calendar') || false,
+            scopes: provider.scopes || [],
+          })) || [],
         createdAt: user.createdAt,
         lastLoginAt: user.updatedAt,
       };
     } catch (error) {
       this.logger.error('Failed to retrieve user profile:', error);
-      
-      throw new HttpException(
-        'Failed to retrieve profile',
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
+
+      throw new HttpException('Failed to retrieve profile', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -348,13 +336,10 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Update user profile',
-    description: 'Updates user profile information'
+    description: 'Updates user profile information',
   })
   @ApiResponse({ status: 200, description: 'Profile updated successfully' })
-  async updateProfile(
-    @User() user: UserWithProvider,
-    @Body() updateData: UpdateProfileRequest
-  ) {
+  async updateProfile(@User() user: UserWithProvider, @Body() updateData: UpdateProfileRequest) {
     try {
       this.logger.log(`Updating profile for user: ${user.id}`);
 
@@ -369,11 +354,8 @@ export class AuthController {
       };
     } catch (error) {
       this.logger.error('Failed to update user profile:', error);
-      
-      throw new HttpException(
-        'Failed to update profile',
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
+
+      throw new HttpException('Failed to update profile', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

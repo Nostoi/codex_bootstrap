@@ -1,4 +1,10 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+  Logger,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../database/prisma.service';
 import { Request } from 'express';
@@ -9,7 +15,7 @@ export class JwtAuthGuard implements CanActivate {
 
   constructor(
     private jwtService: JwtService,
-    private prisma: PrismaService,
+    private prisma: PrismaService
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -24,14 +30,14 @@ export class JwtAuthGuard implements CanActivate {
     try {
       // Verify JWT token first
       const payload = this.jwtService.verify(token);
-      
+
       if (payload.type !== 'access') {
         throw new UnauthorizedException('Invalid token type');
       }
 
       // Check if token is blacklisted
       const blacklistedToken = await this.prisma.blacklistedToken.findUnique({
-        where: { tokenId: payload.jti }
+        where: { tokenId: payload.jti },
       });
 
       if (blacklistedToken) {
@@ -41,9 +47,8 @@ export class JwtAuthGuard implements CanActivate {
 
       // Attach user info to request
       request['user'] = payload;
-      
-      return true;
 
+      return true;
     } catch (error) {
       this.logger.warn(`JWT verification failed: ${error.message}`);
       throw new UnauthorizedException('Invalid or expired token');

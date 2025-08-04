@@ -81,23 +81,23 @@ export function createMockConfigService(overrides: Record<string, any> = {}) {
     // Session configuration
     MAX_SESSIONS_PER_USER: 5,
     SESSION_TIMEOUT_HOURS: 24,
-    
+
     // JWT configuration
     JWT_SECRET: 'test-secret-key-for-testing',
     JWT_EXPIRES_IN: '15m',
     JWT_REFRESH_EXPIRES_IN: '30d',
     JWT_ENCRYPTION_KEY: 'test-encryption-key-32-chars-long',
-    
+
     // OAuth configuration
     GOOGLE_CLIENT_ID: 'test-google-client-id',
     GOOGLE_CLIENT_SECRET: 'test-google-client-secret',
     MICROSOFT_CLIENT_ID: 'test-microsoft-client-id',
     MICROSOFT_CLIENT_SECRET: 'test-microsoft-client-secret',
-    
+
     // Environment
     NODE_ENV: 'test',
     FRONTEND_URL: 'http://localhost:3000',
-    
+
     // Database
     DATABASE_URL: 'postgresql://test:test@localhost:5432/test_db',
   };

@@ -1,9 +1,11 @@
 # Calendar Component Wireframes
 
 ## Overview
+
 This document provides visual wireframes for the CalendarView component system, showing the layout and interaction patterns for each view mode with ADHD-friendly design principles.
 
 ## Design Principles Applied
+
 - **Visual Hierarchy**: Clear information prioritization
 - **Cognitive Load Reduction**: Maximum 3 colors per view
 - **Predictable Interactions**: Consistent element placement
@@ -14,6 +16,7 @@ This document provides visual wireframes for the CalendarView component system, 
 ## Desktop Layout (≥1024px)
 
 ### Daily View Wireframe
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │ CalendarHeader                                                  │
@@ -41,6 +44,7 @@ This document provides visual wireframes for the CalendarView component system, 
 ```
 
 **Key Elements:**
+
 - **Time Axis**: Left column with hourly slots
 - **Energy Zones**: Background colors indicating user's energy patterns
 - **Events**: Draggable blocks with source indicators
@@ -48,6 +52,7 @@ This document provides visual wireframes for the CalendarView component system, 
 - **Current Time**: Bold line indicator (when applicable)
 
 ### Weekly View Wireframe
+
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
 │ CalendarHeader                                                                      │
@@ -75,6 +80,7 @@ This document provides visual wireframes for the CalendarView component system, 
 ```
 
 **Key Elements:**
+
 - **7-Day Grid**: Monday-Sunday columns
 - **Hourly Rows**: Compressed time view
 - **Multi-Day Events**: Spanning across columns
@@ -82,6 +88,7 @@ This document provides visual wireframes for the CalendarView component system, 
 - **Conflict Indicators**: Clear warning symbols
 
 ### Monthly View Wireframe
+
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
 │ CalendarHeader                                                                      │
@@ -118,6 +125,7 @@ This document provides visual wireframes for the CalendarView component system, 
 ```
 
 **Key Elements:**
+
 - **Date Cells**: Large, clickable date areas
 - **Event Indicators**: Dots and mini-bars for events
 - **Today Highlight**: Bold outline or background
@@ -129,6 +137,7 @@ This document provides visual wireframes for the CalendarView component system, 
 ## Mobile Layout (≤767px)
 
 ### Mobile Daily View
+
 ```
 ┌─────────────────────────┐
 │ ┌─[Day] Week Month─┐    │
@@ -166,6 +175,7 @@ This document provides visual wireframes for the CalendarView component system, 
 ```
 
 ### Mobile Weekly View (Compressed)
+
 ```
 ┌─────────────────────────┐
 │ ┌─Day [Week] Month─┐    │
@@ -201,6 +211,7 @@ This document provides visual wireframes for the CalendarView component system, 
 ## Interactive States
 
 ### Drag and Drop Visual Feedback
+
 ```
 ┌─────────────────────────────────┐
 │ 9AM ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ │
@@ -230,6 +241,7 @@ This document provides visual wireframes for the CalendarView component system, 
 ```
 
 ### Focus States (Keyboard Navigation)
+
 ```
 ┌─────────────────────────────────┐
 │ 9AM ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ │
@@ -248,6 +260,7 @@ This document provides visual wireframes for the CalendarView component system, 
 ```
 
 ### High Contrast Mode
+
 ```
 ┌─────────────────────────────────┐
 │ 9AM ████████████████████████████ │ ← Black background
@@ -269,6 +282,7 @@ This document provides visual wireframes for the CalendarView component system, 
 ## Component Integration Flow
 
 ### Existing Integration with CalendarEvents.tsx
+
 ```
 Dashboard Layout
 ├── CalendarEvents (List View) ← Existing component
@@ -278,12 +292,13 @@ Dashboard Layout
 │
 └── CalendarView (Grid View) ← New component
     ├── Visual calendar grid
-    ├── Drag-and-drop scheduling  
+    ├── Drag-and-drop scheduling
     ├── Time slot visualization
     └── Same data source (/api/plans/calendar-events)
 ```
 
 ### Modal Integration
+
 ```
 CalendarView Click/Double-Click
 ├── Time Slot Click → QuickTaskModal
@@ -291,7 +306,7 @@ CalendarView Click/Double-Click
 │   ├── Suggested duration
 │   └── Energy level from context
 │
-├── Event Click → EventDetailsModal  
+├── Event Click → EventDetailsModal
 │   ├── View/edit event details
 │   ├── Move to different time
 │   └── Delete confirmation
@@ -305,15 +320,17 @@ CalendarView Click/Double-Click
 ## Design Token Application
 
 ### Color Coding Legend
+
 - **▓▓▓** = HIGH Energy (Green) - Morning peak performance
-- **░░░** = MEDIUM Energy (Amber) - Steady afternoon work  
+- **░░░** = MEDIUM Energy (Amber) - Steady afternoon work
 - **▓▓▓** = LOW Energy (Indigo) - Evening wind-down
 - **⚠️** = Conflict Warning (Red) - Scheduling conflicts
 - **🔵** = Focus Indicator (Blue) - Current keyboard focus
 
 ### Interaction Symbols
+
 - **📅** = Google Calendar source
-- **📧** = Outlook Calendar source  
+- **📧** = Outlook Calendar source
 - **🗓️** = Task/Internal source
 - **👻** = Drag ghost element
 - **✅** = Valid drop zone

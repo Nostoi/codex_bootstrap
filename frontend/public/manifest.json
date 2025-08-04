@@ -145,12 +145,7 @@
   "launch_handler": {
     "client_mode": "focus-existing"
   },
-  "display_override": [
-    "window-controls-overlay",
-    "standalone",
-    "minimal-ui",
-    "browser"
-  ],
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui", "browser"],
   "iarc_rating_id": "",
   "related_applications": []
 }

@@ -16,24 +16,21 @@ interface DraggableCalendarEventProps {
 }
 
 export const DraggableCalendarEvent = forwardRef<HTMLDivElement, DraggableCalendarEventProps>(
-  ({
-    event,
-    onClick,
-    adhdSettings,
-    isDragDisabled = false,
-    className = '',
-    style = {},
-    showTime = true,
-    compact = false,
-    ...props
-  }, ref) => {
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      transform,
-      isDragging,
-    } = useDraggable({
+  (
+    {
+      event,
+      onClick,
+      adhdSettings,
+      isDragDisabled = false,
+      className = '',
+      style = {},
+      showTime = true,
+      compact = false,
+      ...props
+    },
+    ref
+  ) => {
+    const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
       id: event.id,
       disabled: isDragDisabled,
       data: {
@@ -89,7 +86,7 @@ export const DraggableCalendarEvent = forwardRef<HTMLDivElement, DraggableCalend
       const end = new Date(event.endTime);
       const durationMs = end.getTime() - start.getTime();
       const durationMins = Math.round(durationMs / (1000 * 60));
-      
+
       if (durationMins < 60) {
         return `${durationMins}m`;
       } else {
@@ -100,10 +97,12 @@ export const DraggableCalendarEvent = forwardRef<HTMLDivElement, DraggableCalend
     };
 
     // Transform styles for dragging
-    const transformStyle = transform ? {
-      transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-      zIndex: 1000,
-    } : {};
+    const transformStyle = transform
+      ? {
+          transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+          zIndex: 1000,
+        }
+      : {};
 
     // Base styles
     const baseStyles: React.CSSProperties = {
@@ -112,9 +111,7 @@ export const DraggableCalendarEvent = forwardRef<HTMLDivElement, DraggableCalend
       opacity: isDragging ? 0.5 : 1,
       cursor: isDragDisabled ? 'default' : 'grab',
       userSelect: 'none',
-      transition: adhdSettings?.reducedMotion 
-        ? 'none' 
-        : 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+      transition: adhdSettings?.reducedMotion ? 'none' : 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
       ...transformStyle,
       ...style,
     };
@@ -136,7 +133,7 @@ export const DraggableCalendarEvent = forwardRef<HTMLDivElement, DraggableCalend
 
     return (
       <div
-        ref={(node) => {
+        ref={node => {
           setNodeRef(node);
           if (typeof ref === 'function') {
             ref(node);
@@ -168,20 +165,20 @@ export const DraggableCalendarEvent = forwardRef<HTMLDivElement, DraggableCalend
       >
         {/* Drag handle for better accessibility */}
         {!isDragDisabled && (
-          <div 
+          <div
             className="absolute top-1 right-1 opacity-50 hover:opacity-100"
             aria-label="Drag handle"
           >
             <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
-              <circle cx="3" cy="3" r="1"/>
-              <circle cx="3" cy="6" r="1"/>
-              <circle cx="3" cy="9" r="1"/>
-              <circle cx="6" cy="3" r="1"/>
-              <circle cx="6" cy="6" r="1"/>
-              <circle cx="6" cy="9" r="1"/>
-              <circle cx="9" cy="3" r="1"/>
-              <circle cx="9" cy="6" r="1"/>
-              <circle cx="9" cy="9" r="1"/>
+              <circle cx="3" cy="3" r="1" />
+              <circle cx="3" cy="6" r="1" />
+              <circle cx="3" cy="9" r="1" />
+              <circle cx="6" cy="3" r="1" />
+              <circle cx="6" cy="6" r="1" />
+              <circle cx="6" cy="9" r="1" />
+              <circle cx="9" cy="3" r="1" />
+              <circle cx="9" cy="6" r="1" />
+              <circle cx="9" cy="9" r="1" />
             </svg>
           </div>
         )}
@@ -189,7 +186,7 @@ export const DraggableCalendarEvent = forwardRef<HTMLDivElement, DraggableCalend
         {/* Event content */}
         <div className="flex items-start gap-1">
           {/* Focus type icon */}
-          <span 
+          <span
             className="flex-shrink-0 text-xs"
             aria-label={`Focus type: ${event.focusType || 'General'}`}
           >
@@ -198,7 +195,7 @@ export const DraggableCalendarEvent = forwardRef<HTMLDivElement, DraggableCalend
 
           <div className="flex-1 min-w-0">
             {/* Event title */}
-            <div 
+            <div
               className={`font-medium ${compact ? 'text-xs' : 'text-sm'} truncate`}
               title={event.title}
             >
@@ -207,7 +204,9 @@ export const DraggableCalendarEvent = forwardRef<HTMLDivElement, DraggableCalend
 
             {/* Time and duration */}
             {showTime && (
-              <div className={`opacity-90 ${compact ? 'text-xs' : 'text-xs'} flex items-center gap-1`}>
+              <div
+                className={`opacity-90 ${compact ? 'text-xs' : 'text-xs'} flex items-center gap-1`}
+              >
                 <span>{formatTime(event.startTime)}</span>
                 {!compact && (
                   <>
@@ -221,33 +220,31 @@ export const DraggableCalendarEvent = forwardRef<HTMLDivElement, DraggableCalend
             {/* Energy level indicator */}
             {adhdSettings?.showEnergyIndicators && (
               <div className="flex items-center gap-1 mt-1">
-                <div 
+                <div
                   className={`w-2 h-2 rounded-full`}
                   style={{ backgroundColor: getEnergyLevelColor(event.energyLevel || 'MEDIUM') }}
                   aria-label={`Energy level: ${event.energyLevel || 'Medium'}`}
                 />
-                <span className="text-xs opacity-75">
-                  {event.energyLevel || 'Medium'}
-                </span>
+                <span className="text-xs opacity-75">{event.energyLevel || 'Medium'}</span>
               </div>
             )}
 
             {/* Description (if not compact) */}
             {!compact && event.description && (
-              <div className="text-xs opacity-75 mt-1 line-clamp-2">
-                {event.description}
-              </div>
+              <div className="text-xs opacity-75 mt-1 line-clamp-2">{event.description}</div>
             )}
           </div>
         </div>
 
         {/* Calendar source indicator */}
         <div className="absolute bottom-1 right-1">
-          <span 
+          <span
             className={`inline-block w-2 h-2 rounded-full ${
-              event.source === 'google' ? 'bg-blue-500' :
-              event.source === 'outlook' ? 'bg-orange-500' :
-              'bg-purple-500'
+              event.source === 'google'
+                ? 'bg-blue-500'
+                : event.source === 'outlook'
+                  ? 'bg-orange-500'
+                  : 'bg-purple-500'
             }`}
             aria-label={`Source: ${event.source || 'task'}`}
           />
@@ -256,7 +253,7 @@ export const DraggableCalendarEvent = forwardRef<HTMLDivElement, DraggableCalend
         {/* All-day indicator */}
         {event.isAllDay && (
           <div className="absolute top-1 left-1">
-            <span 
+            <span
               className="text-xs px-1 py-0.5 bg-black/20 rounded text-white"
               aria-label="All day event"
             >

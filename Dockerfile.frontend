@@ -15,7 +15,7 @@ RUN apk add --no-cache libc6-compat && \
 COPY frontend/package*.json ./
 COPY frontend/pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile --ignore-scripts && \
-    pnpm audit --audit-level moderate && \
+    pnpm audit --audit-level high && \
     rm -rf ~/.npm /tmp/* /var/tmp/*
 
 # Builder stage - Use same pinned version

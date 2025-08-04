@@ -43,12 +43,6 @@ export interface OAuthTokens {
   scopes: string[];
 }
 
-export interface SessionTokens {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: Date;
-}
-
 export interface JWTPayload {
   sub: string; // User ID
   email: string;
@@ -111,7 +105,7 @@ export interface RefreshTokenRequest {
 export interface RefreshTokenResponse {
   accessToken: string;
   refreshToken: string;
-  expiresAt: string; // ISO date string
+  expiresAt: Date;
 }
 
 export interface UserProfileResponse {
@@ -147,7 +141,7 @@ export const AUTH_ERROR_CODES = {
   USER_NOT_FOUND: 'auth/user-not-found',
   PROVIDER_ERROR: 'auth/provider-error',
   RATE_LIMITED: 'auth/rate-limited',
-  INTERNAL_ERROR: 'auth/internal-error'
+  INTERNAL_ERROR: 'auth/internal-error',
 } as const;
 
 // OAuth scopes for different providers
@@ -156,7 +150,7 @@ export const GOOGLE_SCOPES = {
   EMAIL: 'https://www.googleapis.com/auth/userinfo.email',
   CALENDAR_READONLY: 'https://www.googleapis.com/auth/calendar.readonly',
   CALENDAR: 'https://www.googleapis.com/auth/calendar',
-  GMAIL_READONLY: 'https://www.googleapis.com/auth/gmail.readonly'
+  GMAIL_READONLY: 'https://www.googleapis.com/auth/gmail.readonly',
 } as const;
 
 export const MICROSOFT_SCOPES = {
@@ -164,7 +158,7 @@ export const MICROSOFT_SCOPES = {
   EMAIL: 'https://graph.microsoft.com/Mail.Read',
   CALENDAR_READ: 'https://graph.microsoft.com/Calendars.Read',
   CALENDAR_WRITE: 'https://graph.microsoft.com/Calendars.ReadWrite',
-  OFFLINE_ACCESS: 'offline_access'
+  OFFLINE_ACCESS: 'offline_access',
 } as const;
 
 // Middleware interfaces
@@ -192,33 +186,36 @@ export interface RequiredScopes {
 export interface IAuthService {
   // OAuth flow management
   initiateOAuth(
-    provider: 'google' | 'microsoft', 
+    provider: 'google' | 'microsoft',
     options?: { redirectUri?: string; scopes?: string[]; userId?: string }
   ): Promise<{ authUrl: string; state: string }>;
-  
+
   handleCallback(
     provider: 'google' | 'microsoft',
     code: string,
     state: string
   ): Promise<AuthResult>;
-  
+
   // Session management
-  createSession(user: any, metadata?: { userAgent?: string; ipAddress?: string }): Promise<SessionTokens>;
+  createSession(
+    user: any,
+    metadata?: { userAgent?: string; ipAddress?: string }
+  ): Promise<SessionTokens>;
   refreshSession(refreshToken: string): Promise<SessionTokens>;
   revokeSession(sessionId: string): Promise<void>;
   revokeAllUserSessions(userId: string): Promise<void>;
-  
+
   // User management
   findOrCreateUser(oauthProfile: OAuthProfile): Promise<any>;
   linkProvider(userId: string, provider: OAuthProfile, tokens: OAuthTokens): Promise<void>;
   unlinkProvider(userId: string, provider: 'google' | 'microsoft'): Promise<void>;
-  
+
   // Calendar permissions
   requestCalendarPermissions(
     userId: string,
     provider: 'google' | 'microsoft'
   ): Promise<{ authUrl: string; state: string }>;
-  
+
   getCalendarPermissions(userId: string): Promise<CalendarPermissions[]>;
 }
 
@@ -228,11 +225,11 @@ export interface ITokenManager {
   generateRefreshToken(): string;
   verifyAccessToken(token: string): JWTPayload;
   verifyRefreshToken(token: string): Promise<{ userId: string; sessionId: string }>;
-  
+
   // OAuth token management
   encryptToken(token: string): string;
   decryptToken(encryptedToken: string): string;
-  
+
   // Token blacklisting
   blacklistToken(tokenId: string, expiresAt: Date): Promise<void>;
   isTokenBlacklisted(tokenId: string): Promise<boolean>;
@@ -243,11 +240,11 @@ export interface ISessionMiddleware {
   // Authentication middleware
   authenticate(required?: boolean): (req: any, res: any, next: any) => void;
   requireAuth(): (req: any, res: any, next: any) => void;
-  
+
   // Permission checking
   requireScopes(scopes: RequiredScopes): (req: any, res: any, next: any) => void;
   requireCalendarAccess(provider?: 'google' | 'microsoft'): (req: any, res: any, next: any) => void;
-  
+
   // Session management
   refreshTokenMiddleware(): (req: any, res: any, next: any) => void;
 }

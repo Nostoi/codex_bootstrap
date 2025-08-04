@@ -8,8 +8,8 @@ import { useState, useEffect, useCallback } from 'react';
 // Performance budget thresholds for ADHD-friendly experience
 export const PERFORMANCE_BUDGET = {
   LCP: 2500, // Largest Contentful Paint < 2.5s
-  FID: 100,  // First Input Delay < 100ms
-  CLS: 0.1,  // Cumulative Layout Shift < 0.1
+  FID: 100, // First Input Delay < 100ms
+  CLS: 0.1, // Cumulative Layout Shift < 0.1
   BUNDLE_SIZE_INITIAL: 500 * 1024, // 500KB initial bundle
   BUNDLE_SIZE_TOTAL: 2 * 1024 * 1024, // 2MB total
 } as const;
@@ -47,10 +47,13 @@ export class PerformanceMonitor {
   private initializeObservers() {
     // Guard against SSR
     if (typeof window === 'undefined') return;
-    
+
     // Largest Contentful Paint observer
-    if ('PerformanceObserver' in window && PerformanceObserver.supportedEntryTypes?.includes('largest-contentful-paint')) {
-      const lcpObserver = new PerformanceObserver((list) => {
+    if (
+      'PerformanceObserver' in window &&
+      PerformanceObserver.supportedEntryTypes?.includes('largest-contentful-paint')
+    ) {
+      const lcpObserver = new PerformanceObserver(list => {
         const entries = list.getEntries();
         const lastEntry = entries[entries.length - 1] as PerformanceEntry & { size?: number };
         this.metrics.lcp = lastEntry.startTime;
@@ -61,10 +64,13 @@ export class PerformanceMonitor {
     }
 
     // First Input Delay observer
-    if ('PerformanceObserver' in window && PerformanceObserver.supportedEntryTypes?.includes('first-input')) {
-      const fidObserver = new PerformanceObserver((list) => {
+    if (
+      'PerformanceObserver' in window &&
+      PerformanceObserver.supportedEntryTypes?.includes('first-input')
+    ) {
+      const fidObserver = new PerformanceObserver(list => {
         const entries = list.getEntries();
-        entries.forEach((entry) => {
+        entries.forEach(entry => {
           const fidEntry = entry as PerformanceEntry & { processingStart?: number };
           if (fidEntry.processingStart) {
             const fid = fidEntry.processingStart - entry.startTime;
@@ -78,11 +84,14 @@ export class PerformanceMonitor {
     }
 
     // Layout Shift observer
-    if ('PerformanceObserver' in window && PerformanceObserver.supportedEntryTypes?.includes('layout-shift')) {
+    if (
+      'PerformanceObserver' in window &&
+      PerformanceObserver.supportedEntryTypes?.includes('layout-shift')
+    ) {
       let clsValue = 0;
-      const clsObserver = new PerformanceObserver((list) => {
+      const clsObserver = new PerformanceObserver(list => {
         const entries = list.getEntries();
-        entries.forEach((entry) => {
+        entries.forEach(entry => {
           const lsEntry = entry as PerformanceEntry & { value?: number; hadRecentInput?: boolean };
           if (lsEntry.value && !lsEntry.hadRecentInput) {
             clsValue += lsEntry.value;
@@ -128,7 +137,7 @@ export class PerformanceMonitor {
   }
 
   cleanup() {
-    this.observers.forEach((observer) => observer.disconnect());
+    this.observers.forEach(observer => observer.disconnect());
     this.observers.clear();
   }
 }
@@ -151,7 +160,7 @@ export const usePerformanceMonitor = () => {
     if (typeof window === 'undefined') return;
 
     const monitor = getPerformanceMonitor();
-    
+
     // Update metrics periodically
     const interval = setInterval(() => {
       setMetrics(monitor.getMetrics());
@@ -194,12 +203,13 @@ export const analyzeBundleSize = async () => {
     const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
     const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
 
-    const jsResources = resources.filter(resource => 
-      resource.name.includes('.js') && resource.transferSize
+    const jsResources = resources.filter(
+      resource => resource.name.includes('.js') && resource.transferSize
     );
 
-    const totalJSSize = jsResources.reduce((total, resource) => 
-      total + (resource.transferSize || 0), 0
+    const totalJSSize = jsResources.reduce(
+      (total, resource) => total + (resource.transferSize || 0),
+      0
     );
 
     const analysis = {
@@ -254,7 +264,9 @@ export const useMemoryMonitor = () => {
 
       // Warn about high memory usage that could impact ADHD users
       if (info.isHigh) {
-        console.warn('⚠️ High memory usage detected. This may cause performance issues for ADHD users.');
+        console.warn(
+          '⚠️ High memory usage detected. This may cause performance issues for ADHD users.'
+        );
       }
     };
 

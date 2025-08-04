@@ -138,9 +138,9 @@ describe('CalendarSyncService', () => {
       graphAuthService.isTokenValid.mockResolvedValue(false);
 
       // Act & Assert
-      await expect(
-        service.startSync(mockUser.id, 'bidirectional')
-      ).rejects.toThrow('Invalid or expired access token');
+      await expect(service.startSync(mockUser.id, 'bidirectional')).rejects.toThrow(
+        'Invalid or expired access token'
+      );
     });
   });
 
@@ -209,9 +209,7 @@ describe('CalendarSyncService', () => {
 
     it('should handle delta sync errors gracefully', async () => {
       // Arrange
-      deltaSyncManager.getDeltaChanges.mockRejectedValue(
-        new Error('DELTA_TOKEN_INVALID')
-      );
+      deltaSyncManager.getDeltaChanges.mockRejectedValue(new Error('DELTA_TOKEN_INVALID'));
       graphService.getCalendarEvents.mockResolvedValue([mockGraphEvent]);
 
       // Act

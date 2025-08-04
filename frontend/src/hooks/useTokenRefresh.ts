@@ -18,13 +18,16 @@ export function useTokenRefresh() {
     }
 
     // Set up token refresh interval (refresh every 13 minutes, tokens expire in 15)
-    intervalRef.current = setInterval(async () => {
-      try {
-        await refreshToken();
-      } catch (error) {
-        console.error('Automatic token refresh failed:', error);
-      }
-    }, 13 * 60 * 1000); // 13 minutes
+    intervalRef.current = setInterval(
+      async () => {
+        try {
+          await refreshToken();
+        } catch (error) {
+          console.error('Automatic token refresh failed:', error);
+        }
+      },
+      13 * 60 * 1000
+    ); // 13 minutes
 
     // Cleanup on unmount
     return () => {

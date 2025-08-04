@@ -2,20 +2,20 @@
 
 /**
  * Data Migration Script: Backfill Task Metadata
- * 
+ *
  * This script backfills existing tasks with default metadata values for the new
  * ADHD-optimized task management fields added to the Task model.
- * 
+ *
  * Default values applied:
  * - energyLevel: MEDIUM
- * - focusType: ADMINISTRATIVE  
+ * - focusType: ADMINISTRATIVE
  * - priority: 3
  * - source: SELF
- * 
+ *
  * Usage:
  *   npm run migration:backfill-tasks
  *   DATABASE_URL="postgres://user:pass@localhost:5487/db" npm run migration:backfill-tasks
- * 
+ *
  * Options:
  *   --dry-run: Preview changes without applying them
  *   --rollback: Revert metadata fields to null
@@ -23,7 +23,8 @@
 
 // Ensure DATABASE_URL is set, provide default for local development
 if (!process.env.DATABASE_URL) {
-  process.env.DATABASE_URL = "postgresql://codex:codex@localhost:5487/codex_bootstrap?schema=public";
+  process.env.DATABASE_URL =
+    'postgresql://codex:codex@localhost:5487/codex_bootstrap?schema=public';
   console.log('ℹ️  Using default DATABASE_URL for local development');
 }
 
@@ -43,7 +44,7 @@ class TaskMetadataBackfillMigration {
     totalTasks: 0,
     tasksUpdated: 0,
     tasksSkipped: 0,
-    errors: 0
+    errors: 0,
   };
 
   private isDryRun = false;
@@ -78,7 +79,6 @@ class TaskMetadataBackfillMigration {
 
       // Summary report
       this.printSummary();
-
     } catch (error) {
       console.error('❌ Migration failed:', error);
       process.exit(1);
@@ -106,13 +106,8 @@ class TaskMetadataBackfillMigration {
       // Count tasks missing metadata
       const tasksNeedingUpdate = await prisma.task.count({
         where: {
-          OR: [
-            { energyLevel: null },
-            { focusType: null },
-            { priority: null },
-            { source: null }
-          ]
-        }
+          OR: [{ energyLevel: null }, { focusType: null }, { priority: null }, { source: null }],
+        },
       });
 
       console.log(`🎯 Tasks needing metadata backfill: ${tasksNeedingUpdate}`);
@@ -128,9 +123,9 @@ class TaskMetadataBackfillMigration {
           OR: [
             { energyLevel: { not: null } },
             { focusType: { not: null } },
-            { source: { not: null } }
-          ]
-        }
+            { source: { not: null } },
+          ],
+        },
       });
 
       console.log(`🔄 Tasks with metadata to rollback: ${tasksWithMetadata}`);
@@ -158,12 +153,7 @@ class TaskMetadataBackfillMigration {
       // Find tasks that need metadata updates
       const tasksToUpdate = await prisma.task.findMany({
         where: {
-          OR: [
-            { energyLevel: null },
-            { focusType: null },
-            { priority: null },
-            { source: null }
-          ]
+          OR: [{ energyLevel: null }, { focusType: null }, { priority: null }, { source: null }],
         },
         select: {
           id: true,
@@ -171,8 +161,8 @@ class TaskMetadataBackfillMigration {
           energyLevel: true,
           focusType: true,
           priority: true,
-          source: true
-        }
+          source: true,
+        },
       });
 
       console.log(`🎯 Found ${tasksToUpdate.length} tasks to update`);
@@ -187,23 +177,23 @@ class TaskMetadataBackfillMigration {
                 energyLevel: task.energyLevel ?? EnergyLevel.MEDIUM,
                 focusType: task.focusType ?? FocusType.ADMINISTRATIVE,
                 priority: task.priority ?? 3,
-                source: task.source ?? TaskSource.SELF
-              }
+                source: task.source ?? TaskSource.SELF,
+              },
             });
           }
 
           this.stats.tasksUpdated++;
-          
-          if (this.isDryRun || process.env.NODE_ENV === 'development') {
-            console.log(`  ✅ ${this.isDryRun ? '[DRY RUN] Would update' : 'Updated'} task: ${task.title?.substring(0, 50)}...`);
-          }
 
+          if (this.isDryRun || process.env.NODE_ENV === 'development') {
+            console.log(
+              `  ✅ ${this.isDryRun ? '[DRY RUN] Would update' : 'Updated'} task: ${task.title?.substring(0, 50)}...`
+            );
+          }
         } catch (error) {
           this.stats.errors++;
           console.error(`  ❌ Failed to update task ${task.id}:`, error);
         }
       }
-
     } catch (error) {
       console.error('❌ Error during backfill:', error);
       throw error;
@@ -227,13 +217,13 @@ class TaskMetadataBackfillMigration {
           OR: [
             { energyLevel: { not: null } },
             { focusType: { not: null } },
-            { source: { not: null } }
-          ]
+            { source: { not: null } },
+          ],
         },
         select: {
           id: true,
-          title: true
-        }
+          title: true,
+        },
       });
 
       console.log(`🎯 Found ${tasksToRollback.length} tasks to rollback`);
@@ -247,24 +237,24 @@ class TaskMetadataBackfillMigration {
               data: {
                 energyLevel: null,
                 focusType: null,
-                source: null
+                source: null,
                 // Note: priority stays at 3 as it has a default value
-              }
+              },
             });
           }
 
           this.stats.tasksUpdated++;
-          
-          if (this.isDryRun || process.env.NODE_ENV === 'development') {
-            console.log(`  ✅ ${this.isDryRun ? '[DRY RUN] Would rollback' : 'Rolled back'} task: ${task.title?.substring(0, 50)}...`);
-          }
 
+          if (this.isDryRun || process.env.NODE_ENV === 'development') {
+            console.log(
+              `  ✅ ${this.isDryRun ? '[DRY RUN] Would rollback' : 'Rolled back'} task: ${task.title?.substring(0, 50)}...`
+            );
+          }
         } catch (error) {
           this.stats.errors++;
           console.error(`  ❌ Failed to rollback task ${task.id}:`, error);
         }
       }
-
     } catch (error) {
       console.error('❌ Error during rollback:', error);
       throw error;
@@ -288,13 +278,8 @@ class TaskMetadataBackfillMigration {
       if (!this.isRollback) {
         const tasksWithoutMetadata = await prisma.task.count({
           where: {
-            OR: [
-              { energyLevel: null },
-              { focusType: null },
-              { priority: null },
-              { source: null }
-            ]
-          }
+            OR: [{ energyLevel: null }, { focusType: null }, { priority: null }, { source: null }],
+          },
         });
 
         if (tasksWithoutMetadata === 0) {
@@ -312,24 +297,25 @@ class TaskMetadataBackfillMigration {
             energyLevel: true,
             focusType: true,
             priority: true,
-            source: true
-          }
+            source: true,
+          },
         });
 
         console.log('📋 Sample task metadata:');
         sampleTasks.forEach(task => {
-          console.log(`  • ${task.title?.substring(0, 30)}... | Energy: ${task.energyLevel} | Focus: ${task.focusType} | Priority: ${task.priority} | Source: ${task.source}`);
+          console.log(
+            `  • ${task.title?.substring(0, 30)}... | Energy: ${task.energyLevel} | Focus: ${task.focusType} | Priority: ${task.priority} | Source: ${task.source}`
+          );
         });
-
       } else {
         const tasksWithMetadata = await prisma.task.count({
           where: {
             OR: [
               { energyLevel: { not: null } },
               { focusType: { not: null } },
-              { source: { not: null } }
-            ]
-          }
+              { source: { not: null } },
+            ],
+          },
         });
 
         if (tasksWithMetadata === 0) {
@@ -338,7 +324,6 @@ class TaskMetadataBackfillMigration {
           console.warn(`⚠️  Warning: ${tasksWithMetadata} tasks still have metadata`);
         }
       }
-
     } catch (error) {
       console.error('❌ Verification failed:', error);
       throw error;
@@ -356,7 +341,7 @@ class TaskMetadataBackfillMigration {
     console.log(`Tasks ${this.isRollback ? 'rolled back' : 'updated'}: ${this.stats.tasksUpdated}`);
     console.log(`Tasks skipped: ${this.stats.tasksSkipped}`);
     console.log(`Errors encountered: ${this.stats.errors}`);
-    
+
     if (this.stats.errors === 0) {
       console.log('✅ Migration completed successfully!');
     } else {

@@ -6,14 +6,14 @@ import { Button, IconButton, ButtonGroup } from './Button';
 // Mock icon for testing
 const TestIcon = () => (
   <svg data-testid="test-icon" width="16" height="16" viewBox="0 0 24 24">
-    <path d="M12 2L2 7v10c0 5.55 3.84 10 9 11 1.14.18 2.43.18 3.57.02.16.03.33.03.5 0 5.16-1 9-5.45 9-11V7l-10-5z"/>
+    <path d="M12 2L2 7v10c0 5.55 3.84 10 9 11 1.14.18 2.43.18 3.57.02.16.03.33.03.5 0 5.16-1 9-5.45 9-11V7l-10-5z" />
   </svg>
 );
 
 describe('Button Component', () => {
   it('renders with default props', () => {
     render(<Button>Click me</Button>);
-    
+
     const button = screen.getByRole('button');
     expect(button).toBeInTheDocument();
     expect(button).toHaveTextContent('Click me');
@@ -28,7 +28,12 @@ describe('Button Component', () => {
     expect(screen.getByRole('button')).toHaveClass('bg-neutral-100', 'text-neutral-900');
 
     rerender(<Button variant="outline">Outline</Button>);
-    expect(screen.getByRole('button')).toHaveClass('bg-transparent', 'text-brand-600', 'border-2', 'border-brand-600');
+    expect(screen.getByRole('button')).toHaveClass(
+      'bg-transparent',
+      'text-brand-600',
+      'border-2',
+      'border-brand-600'
+    );
 
     rerender(<Button variant="destructive">Destructive</Button>);
     expect(screen.getByRole('button')).toHaveClass('bg-red-600', 'text-white');
@@ -47,7 +52,7 @@ describe('Button Component', () => {
 
   it('shows loading state correctly', () => {
     render(<Button loading>Loading</Button>);
-    
+
     const button = screen.getByRole('button');
     expect(button).toBeDisabled();
     expect(button).toHaveAttribute('aria-disabled', 'true');
@@ -56,7 +61,7 @@ describe('Button Component', () => {
 
   it('handles disabled state', () => {
     render(<Button disabled>Disabled</Button>);
-    
+
     const button = screen.getByRole('button');
     expect(button).toBeDisabled();
     expect(button).toHaveAttribute('aria-disabled', 'true');
@@ -64,21 +69,21 @@ describe('Button Component', () => {
 
   it('applies full width styling', () => {
     render(<Button fullWidth>Full Width</Button>);
-    
+
     const button = screen.getByRole('button');
     expect(button).toHaveClass('w-full');
   });
 
   it('renders with left icon', () => {
     render(<Button leftIcon={<TestIcon />}>With Icon</Button>);
-    
+
     expect(screen.getByTestId('test-icon')).toBeInTheDocument();
     expect(screen.getByText('With Icon')).toBeInTheDocument();
   });
 
   it('renders with right icon', () => {
     render(<Button rightIcon={<TestIcon />}>With Icon</Button>);
-    
+
     expect(screen.getByTestId('test-icon')).toBeInTheDocument();
     expect(screen.getByText('With Icon')).toBeInTheDocument();
   });
@@ -86,9 +91,9 @@ describe('Button Component', () => {
   it('handles click events', async () => {
     const handleClick = vi.fn();
     const user = userEvent.setup();
-    
+
     render(<Button onClick={handleClick}>Click me</Button>);
-    
+
     await user.click(screen.getByRole('button'));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
@@ -96,9 +101,13 @@ describe('Button Component', () => {
   it('does not trigger click when disabled', async () => {
     const handleClick = vi.fn();
     const user = userEvent.setup();
-    
-    render(<Button disabled onClick={handleClick}>Disabled</Button>);
-    
+
+    render(
+      <Button disabled onClick={handleClick}>
+        Disabled
+      </Button>
+    );
+
     await user.click(screen.getByRole('button'));
     expect(handleClick).not.toHaveBeenCalled();
   });
@@ -116,7 +125,7 @@ describe('Button Component', () => {
 
   it('supports keyboard navigation', () => {
     render(<Button>Keyboard Test</Button>);
-    
+
     const button = screen.getByRole('button');
     button.focus();
     expect(button).toHaveFocus();
@@ -126,7 +135,7 @@ describe('Button Component', () => {
 describe('IconButton Component', () => {
   it('renders icon button correctly', () => {
     render(<IconButton icon={<TestIcon />} aria-label="Test icon button" />);
-    
+
     const button = screen.getByRole('button');
     expect(button).toHaveAttribute('aria-label', 'Test icon button');
     expect(screen.getByTestId('test-icon')).toBeInTheDocument();
@@ -136,7 +145,7 @@ describe('IconButton Component', () => {
   it('requires aria-label for accessibility', () => {
     // This should be caught by TypeScript, but we can test the rendered output
     render(<IconButton icon={<TestIcon />} aria-label="Required label" />);
-    
+
     const button = screen.getByRole('button');
     expect(button).toHaveAttribute('aria-label', 'Required label');
   });
@@ -159,7 +168,7 @@ describe('ButtonGroup Component', () => {
         <Button>Third</Button>
       </ButtonGroup>
     );
-    
+
     const group = screen.getByRole('group');
     expect(group).toHaveClass('flex-row');
     expect(group).toBeInTheDocument();
@@ -172,7 +181,7 @@ describe('ButtonGroup Component', () => {
         <Button>Second</Button>
       </ButtonGroup>
     );
-    
+
     const group = screen.getByRole('group');
     expect(group).toHaveClass('flex-col');
   });
@@ -184,7 +193,7 @@ describe('ButtonGroup Component', () => {
         <Button>Second</Button>
       </ButtonGroup>
     );
-    
+
     const group = screen.getByRole('group');
     expect(group).toHaveClass('w-full');
   });
@@ -195,7 +204,7 @@ describe('ButtonGroup Component', () => {
         <Button>First</Button>
       </ButtonGroup>
     );
-    
+
     const group = screen.getByRole('group');
     expect(group).toHaveClass('custom-group');
   });

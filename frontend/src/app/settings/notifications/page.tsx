@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React from 'react';
 import { NotificationPreferences } from '@/components/NotificationPreferences';
@@ -14,13 +14,13 @@ export default function NotificationSettingsPage() {
             Manage your notification preferences and view your notification history.
           </p>
         </div>
-        
-        <NotificationPreferences 
-          onPreferencesChange={(preferences) => {
+
+        <NotificationPreferences
+          onPreferencesChange={preferences => {
             console.log('Preferences updated:', preferences);
           }}
         />
-        
+
         <div className="border-t pt-8">
           <h2 className="text-2xl font-semibold mb-4">Notification History</h2>
           <NotificationHistory />

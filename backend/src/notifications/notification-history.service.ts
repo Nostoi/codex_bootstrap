@@ -26,7 +26,9 @@ export class NotificationHistoryService {
   /**
    * Save notification to database with delivery tracking
    */
-  async saveNotificationToDatabase(notificationData: CreateNotificationData): Promise<Notification> {
+  async saveNotificationToDatabase(
+    notificationData: CreateNotificationData
+  ): Promise<Notification> {
     try {
       const notification = await this.prisma.notification.create({
         data: {
@@ -39,15 +41,17 @@ export class NotificationHistoryService {
         },
         include: {
           user: {
-            select: { id: true, name: true, email: true }
+            select: { id: true, name: true, email: true },
           },
           task: {
-            select: { id: true, title: true, priority: true }
-          }
-        }
+            select: { id: true, title: true, priority: true },
+          },
+        },
       });
 
-      this.logger.log(`Notification saved to database: ${notification.id} for user ${notificationData.userId}`);
+      this.logger.log(
+        `Notification saved to database: ${notification.id} for user ${notificationData.userId}`
+      );
       return notification;
     } catch (error) {
       this.logger.error('Failed to save notification to database:', error);
@@ -58,14 +62,19 @@ export class NotificationHistoryService {
   /**
    * Mark notification as read with timestamp
    */
-  async markNotificationAsRead(notificationId: string, userId: string): Promise<Notification | null> {
+  async markNotificationAsRead(
+    notificationId: string,
+    userId: string
+  ): Promise<Notification | null> {
     try {
       const notification = await this.prisma.notification.findFirst({
-        where: { id: notificationId, userId }
+        where: { id: notificationId, userId },
       });
 
       if (!notification) {
-        this.logger.warn(`Notification not found or access denied: ${notificationId} for user ${userId}`);
+        this.logger.warn(
+          `Notification not found or access denied: ${notificationId} for user ${userId}`
+        );
         return null;
       }
 
@@ -77,8 +86,8 @@ export class NotificationHistoryService {
         },
         include: {
           user: { select: { id: true, name: true } },
-          task: { select: { id: true, title: true } }
-        }
+          task: { select: { id: true, title: true } },
+        },
       });
 
       this.logger.log(`Notification marked as read: ${notificationId}`);
@@ -100,17 +109,17 @@ export class NotificationHistoryService {
   ): Promise<{ notifications: Notification[]; total: number; hasMore: boolean }> {
     try {
       const offset = (page - 1) * limit;
-      
+
       const whereClause: any = { userId };
-      
+
       if (filters.type) {
         whereClause.notificationType = filters.type;
       }
-      
+
       if (filters.read !== undefined) {
         whereClause.read = filters.read;
       }
-      
+
       if (filters.startDate || filters.endDate) {
         whereClause.createdAt = {};
         if (filters.startDate) {
@@ -126,18 +135,20 @@ export class NotificationHistoryService {
           where: whereClause,
           include: {
             user: { select: { id: true, name: true } },
-            task: { select: { id: true, title: true, priority: true } }
+            task: { select: { id: true, title: true, priority: true } },
           },
           orderBy: { createdAt: 'desc' },
           skip: offset,
           take: limit,
         }),
-        this.prisma.notification.count({ where: whereClause })
+        this.prisma.notification.count({ where: whereClause }),
       ]);
 
       const hasMore = offset + notifications.length < total;
 
-      this.logger.log(`Retrieved ${notifications.length} notifications for user ${userId} (page ${page})`);
+      this.logger.log(
+        `Retrieved ${notifications.length} notifications for user ${userId} (page ${page})`
+      );
       return { notifications, total, hasMore };
     } catch (error) {
       this.logger.error(`Failed to get notification history for user ${userId}:`, error);
@@ -151,7 +162,7 @@ export class NotificationHistoryService {
   async getUnreadCount(userId: string): Promise<number> {
     try {
       const count = await this.prisma.notification.count({
-        where: { userId, read: false }
+        where: { userId, read: false },
       });
 
       this.logger.debug(`Unread count for user ${userId}: ${count}`);
@@ -172,7 +183,7 @@ export class NotificationHistoryService {
   ): Promise<Notification | null> {
     try {
       const updateData: any = { deliveryStatus: status };
-      
+
       if (status === 'failed' && retryCount !== undefined) {
         updateData.retryCount = retryCount;
         updateData.lastRetryAt = new Date();
@@ -186,7 +197,10 @@ export class NotificationHistoryService {
       this.logger.debug(`Updated notification ${notificationId} delivery status to ${status}`);
       return notification;
     } catch (error) {
-      this.logger.error(`Failed to update delivery status for notification ${notificationId}:`, error);
+      this.logger.error(
+        `Failed to update delivery status for notification ${notificationId}:`,
+        error
+      );
       return null;
     }
   }
@@ -198,7 +212,7 @@ export class NotificationHistoryService {
     try {
       const notification = await this.prisma.notification.findUnique({
         where: { id: notificationId },
-        select: { deliveryStatus: true }
+        select: { deliveryStatus: true },
       });
 
       return notification?.deliveryStatus || null;
@@ -220,7 +234,7 @@ export class NotificationHistoryService {
         where: {
           createdAt: { lt: cutoffDate },
           read: true, // Only delete read notifications
-        }
+        },
       });
 
       this.logger.log(`Deleted ${result.count} old notifications older than ${daysToKeep} days`);
@@ -245,7 +259,7 @@ export class NotificationHistoryService {
         data: {
           read: true,
           readAt: new Date(),
-        }
+        },
       });
 
       this.logger.log(`Marked ${result.count} notifications as read for user ${userId}`);
@@ -262,14 +276,16 @@ export class NotificationHistoryService {
   async deleteNotification(notificationId: string, userId: string): Promise<boolean> {
     try {
       const result = await this.prisma.notification.deleteMany({
-        where: { id: notificationId, userId }
+        where: { id: notificationId, userId },
       });
 
       if (result.count > 0) {
         this.logger.log(`Deleted notification ${notificationId} for user ${userId}`);
         return true;
       } else {
-        this.logger.warn(`Notification not found or access denied: ${notificationId} for user ${userId}`);
+        this.logger.warn(
+          `Notification not found or access denied: ${notificationId} for user ${userId}`
+        );
         return false;
       }
     } catch (error) {

@@ -31,14 +31,14 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   // Format current date for display
   const formatDateDisplay = () => {
     const date = new Date(currentDate.year, currentDate.month - 1, currentDate.day);
-    
+
     switch (currentView) {
       case 'daily':
-        return date.toLocaleDateString('en-US', { 
-          weekday: 'long', 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric' 
+        return date.toLocaleDateString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
         });
       case 'weekly':
         // Show week range
@@ -46,51 +46,48 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
         startOfWeek.setDate(date.getDate() - date.getDay());
         const endOfWeek = new Date(startOfWeek);
         endOfWeek.setDate(startOfWeek.getDate() + 6);
-        
+
         if (startOfWeek.getMonth() === endOfWeek.getMonth()) {
           return `${startOfWeek.toLocaleDateString('en-US', { month: 'long' })} ${startOfWeek.getDate()}-${endOfWeek.getDate()}, ${startOfWeek.getFullYear()}`;
         } else {
           return `${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
         }
       case 'monthly':
-        return date.toLocaleDateString('en-US', { 
-          year: 'numeric', 
-          month: 'long' 
+        return date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
         });
     }
   };
 
   const getNavigationLabel = (direction: 'previous' | 'next') => {
     const date = new Date(currentDate.year, currentDate.month - 1, currentDate.day);
-    
+
     switch (currentView) {
       case 'daily':
         const dayOffset = direction === 'previous' ? -1 : 1;
         const targetDate = new Date(date);
         targetDate.setDate(date.getDate() + dayOffset);
         return `${direction === 'previous' ? 'Previous' : 'Next'} day, ${targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}`;
-      
+
       case 'weekly':
         const weekOffset = direction === 'previous' ? -7 : 7;
         const targetWeek = new Date(date);
         targetWeek.setDate(date.getDate() + weekOffset);
         return `${direction === 'previous' ? 'Previous' : 'Next'} week`;
-      
+
       case 'monthly':
         const monthOffset = direction === 'previous' ? -1 : 1;
         const targetMonth = new Date(date.getFullYear(), date.getMonth() + monthOffset, 1);
         return `${direction === 'previous' ? 'Previous' : 'Next'} month, ${targetMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`;
-        
+
       default:
         return `${direction === 'previous' ? 'Previous' : 'Next'}`;
     }
   };
 
   return (
-    <header 
-      className="calendar-header"
-      role={CALENDAR_ARIA.BANNER}
-    >
+    <header className="calendar-header" role={CALENDAR_ARIA.BANNER}>
       <div className="flex justify-between items-center p-4 border-b">
         {/* Navigation Controls */}
         <div className="flex items-center gap-2">
@@ -103,7 +100,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             <span aria-hidden="true">←</span>
             <span className="hidden sm:inline ml-1">Previous</span>
           </button>
-          
+
           <button
             className="btn btn-sm btn-outline"
             onClick={onToday}
@@ -111,7 +108,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
           >
             Today
           </button>
-          
+
           <button
             className="btn btn-sm btn-ghost"
             onClick={onNext}
@@ -124,10 +121,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
         </div>
 
         {/* Current Date Display */}
-        <h1 
-          className="text-lg font-semibold text-center"
-          aria-live="polite"
-        >
+        <h1 className="text-lg font-semibold text-center" aria-live="polite">
           {formatDateDisplay()}
         </h1>
 
@@ -143,7 +137,12 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             >
               {!isLoading && (
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
                 </svg>
               )}
               <span className="hidden sm:inline ml-1">Refresh</span>

@@ -1,6 +1,6 @@
 /**
  * Comprehensive accessibility tests for ADHD-friendly components
- * 
+ *
  * Tests WCAG 2.2 AA compliance, keyboard navigation, screen reader
  * announcements, and ADHD-specific accessibility features.
  */
@@ -18,14 +18,14 @@ import {
   EnergyIndicator,
   ProgressIndicator,
   LoadingSpinner,
-  KeyboardNavigationContainer
+  KeyboardNavigationContainer,
 } from '../AccessibilityComponents';
 import { AccessibleCalendar } from '../AccessibleCalendar';
-import { 
+import {
   AccessibilityTester,
   expectToBeAccessible,
   expectKeyboardNavigation,
-  expectAnnouncement 
+  expectAnnouncement,
 } from '../../../lib/accessibility-testing';
 
 // Extend Jest matchers
@@ -33,17 +33,12 @@ expect.extend(toHaveNoViolations);
 
 // Test wrapper component
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return (
-    <AccessibilityProvider>
-      {children}
-    </AccessibilityProvider>
-  );
+  return <AccessibilityProvider>{children}</AccessibilityProvider>;
 };
 
 describe('Accessibility Components', () => {
-  
   // ===== ACCESSIBILITY PROVIDER TESTS =====
-  
+
   describe('AccessibilityProvider', () => {
     test('provides accessibility context to children', () => {
       const TestComponent = () => {
@@ -90,19 +85,17 @@ describe('Accessibility Components', () => {
 
     test('announces custom messages', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <TestWrapper>
-          <AccessibleButton announcement="Task created successfully">
-            Create Task
-          </AccessibleButton>
+          <AccessibleButton announcement="Task created successfully">Create Task</AccessibleButton>
         </TestWrapper>
       );
 
       const button = screen.getByRole('button', { name: 'Create Task' });
-      
+
       await user.click(button);
-      
+
       // Test would check for live region announcement
       // This would be handled by the LiveAnnouncer in real implementation
     });
@@ -110,9 +103,7 @@ describe('Accessibility Components', () => {
     test('supports energy level indicators', () => {
       render(
         <TestWrapper>
-          <AccessibleButton energyLevel="high">
-            High energy task
-          </AccessibleButton>
+          <AccessibleButton energyLevel="high">High energy task</AccessibleButton>
         </TestWrapper>
       );
 
@@ -142,7 +133,7 @@ describe('Accessibility Components', () => {
       );
 
       const button = screen.getByRole('button');
-      
+
       // Test Enter key
       button.focus();
       await user.keyboard('{Enter}');
@@ -160,10 +151,7 @@ describe('Accessibility Components', () => {
     test('renders with proper labeling', () => {
       render(
         <TestWrapper>
-          <AccessibleInput 
-            label="Task name" 
-            placeholder="Enter task name"
-          />
+          <AccessibleInput label="Task name" placeholder="Enter task name" />
         </TestWrapper>
       );
 
@@ -175,10 +163,7 @@ describe('Accessibility Components', () => {
     test('handles required fields correctly', () => {
       render(
         <TestWrapper>
-          <AccessibleInput 
-            label="Required field" 
-            required
-          />
+          <AccessibleInput label="Required field" required />
         </TestWrapper>
       );
 
@@ -190,10 +175,7 @@ describe('Accessibility Components', () => {
     test('displays error states properly', () => {
       render(
         <TestWrapper>
-          <AccessibleInput 
-            label="Email" 
-            error="Please enter a valid email"
-          />
+          <AccessibleInput label="Email" error="Please enter a valid email" />
         </TestWrapper>
       );
 
@@ -205,10 +187,7 @@ describe('Accessibility Components', () => {
     test('provides hint text', () => {
       render(
         <TestWrapper>
-          <AccessibleInput 
-            label="Password" 
-            hint="Must be at least 8 characters"
-          />
+          <AccessibleInput label="Password" hint="Must be at least 8 characters" />
         </TestWrapper>
       );
 
@@ -219,11 +198,7 @@ describe('Accessibility Components', () => {
     test('meets accessibility standards', async () => {
       const { container } = render(
         <TestWrapper>
-          <AccessibleInput 
-            label="Test input"
-            hint="Helper text"
-            error="Error message"
-          />
+          <AccessibleInput label="Test input" hint="Helper text" error="Error message" />
         </TestWrapper>
       );
 
@@ -238,7 +213,7 @@ describe('Accessibility Components', () => {
     test('renders with proper ARIA attributes', () => {
       render(
         <TestWrapper>
-          <Modal 
+          <Modal
             isOpen={true}
             onClose={() => {}}
             title="Test Modal"
@@ -257,15 +232,11 @@ describe('Accessibility Components', () => {
 
     test('traps focus correctly', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <TestWrapper>
           <button>Outside button</button>
-          <Modal 
-            isOpen={true}
-            onClose={() => {}}
-            title="Focus trap test"
-          >
+          <Modal isOpen={true} onClose={() => {}} title="Focus trap test">
             <button>Modal button 1</button>
             <button>Modal button 2</button>
           </Modal>
@@ -281,10 +252,10 @@ describe('Accessibility Components', () => {
       modalButton1.focus();
       await user.tab();
       expect(modalButton2).toHaveFocus();
-      
+
       await user.tab();
       expect(closeButton).toHaveFocus();
-      
+
       await user.tab();
       expect(modalButton1).toHaveFocus(); // Should wrap around
     });
@@ -295,11 +266,7 @@ describe('Accessibility Components', () => {
 
       render(
         <TestWrapper>
-          <Modal 
-            isOpen={true}
-            onClose={onClose}
-            title="Escape test"
-          >
+          <Modal isOpen={true} onClose={onClose} title="Escape test">
             Modal content
           </Modal>
         </TestWrapper>
@@ -312,11 +279,7 @@ describe('Accessibility Components', () => {
     test('does not render when closed', () => {
       render(
         <TestWrapper>
-          <Modal 
-            isOpen={false}
-            onClose={() => {}}
-            title="Hidden modal"
-          >
+          <Modal isOpen={false} onClose={() => {}} title="Hidden modal">
             Should not be visible
           </Modal>
         </TestWrapper>
@@ -328,11 +291,7 @@ describe('Accessibility Components', () => {
     test('meets accessibility standards', async () => {
       const { container } = render(
         <TestWrapper>
-          <Modal 
-            isOpen={true}
-            onClose={() => {}}
-            title="Accessibility test"
-          >
+          <Modal isOpen={true} onClose={() => {}} title="Accessibility test">
             <p>Modal content for testing</p>
           </Modal>
         </TestWrapper>
@@ -399,11 +358,7 @@ describe('Accessibility Components', () => {
     test('renders with proper ARIA attributes', () => {
       render(
         <TestWrapper>
-          <ProgressIndicator 
-            current={3} 
-            total={10} 
-            label="Task progress" 
-          />
+          <ProgressIndicator current={3} total={10} label="Task progress" />
         </TestWrapper>
       );
 
@@ -450,7 +405,7 @@ describe('Accessibility Components', () => {
   describe('KeyboardNavigationContainer', () => {
     test('enables keyboard navigation for child elements', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <TestWrapper>
           <KeyboardNavigationContainer>
@@ -468,21 +423,21 @@ describe('Accessibility Components', () => {
       // Focus first button and check initial state
       await user.click(button1);
       expect(button1).toHaveFocus();
-      
+
       // Test arrow key navigation
       await user.keyboard('{ArrowDown}');
-      
+
       // In test environment, we need to check the tabindex and class instead of focus
       expect(button2).toHaveAttribute('tabindex', '0');
       expect(button2).toHaveClass('kb-focused');
       expect(button1).toHaveAttribute('tabindex', '-1');
       expect(button1).not.toHaveClass('kb-focused');
-      
+
       await user.keyboard('{ArrowDown}');
       expect(button3).toHaveAttribute('tabindex', '0');
       expect(button3).toHaveClass('kb-focused');
       expect(button2).toHaveAttribute('tabindex', '-1');
-      
+
       // Test looping
       await user.keyboard('{ArrowDown}');
       expect(button1).toHaveAttribute('tabindex', '0');
@@ -492,7 +447,7 @@ describe('Accessibility Components', () => {
 
     test('supports different navigation directions', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <TestWrapper>
           <KeyboardNavigationContainer direction="horizontal">
@@ -508,12 +463,12 @@ describe('Accessibility Components', () => {
       // Focus first button
       await user.click(leftButton);
       expect(leftButton).toHaveFocus();
-      
+
       await user.keyboard('{ArrowRight}');
       expect(rightButton).toHaveAttribute('tabindex', '0');
       expect(rightButton).toHaveClass('kb-focused');
       expect(leftButton).toHaveAttribute('tabindex', '-1');
-      
+
       await user.keyboard('{ArrowLeft}');
       expect(leftButton).toHaveAttribute('tabindex', '0');
       expect(leftButton).toHaveClass('kb-focused');
@@ -553,7 +508,7 @@ describe('Accessibility Components', () => {
 
     test('supports keyboard navigation', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <TestWrapper>
           <AccessibleCalendar selectedDate={new Date(2024, 0, 15)} />
@@ -581,7 +536,7 @@ describe('Accessibility Components', () => {
     test('announces date selections', async () => {
       const user = userEvent.setup();
       const onDateSelect = vi.fn();
-      
+
       render(
         <TestWrapper>
           <AccessibleCalendar onDateSelect={onDateSelect} />
@@ -590,7 +545,7 @@ describe('Accessibility Components', () => {
 
       const firstDay = screen.getAllByRole('gridcell')[7]; // Skip header row
       await user.click(firstDay);
-      
+
       expect(onDateSelect).toHaveBeenCalled();
     });
 
@@ -609,10 +564,7 @@ describe('Accessibility Components', () => {
     test('shows energy levels when enabled', () => {
       render(
         <TestWrapper>
-          <AccessibleCalendar 
-            events={mockEvents} 
-            showEnergyLevels={true}
-          />
+          <AccessibleCalendar events={mockEvents} showEnergyLevels={true} />
         </TestWrapper>
       );
 
@@ -638,7 +590,7 @@ describe('Accessibility Components', () => {
   describe('Integration Tests', () => {
     test('multiple components work together', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <TestWrapper>
           <div>
@@ -659,10 +611,10 @@ describe('Accessibility Components', () => {
       // Test keyboard navigation between components
       const button = screen.getByText('Open Calendar');
       button.focus();
-      
+
       await user.tab();
       // Focus should move to calendar
-      
+
       await user.tab();
       // Focus should continue through focusable elements
     });
@@ -707,7 +659,7 @@ describe('Accessibility Components', () => {
       }));
 
       const startTime = performance.now();
-      
+
       render(
         <TestWrapper>
           <AccessibleCalendar events={manyEvents} />
@@ -829,7 +781,7 @@ describe('ADHD-Specific Features', () => {
 
     const indicators = screen.getAllByRole('status');
     expect(indicators).toHaveLength(3);
-    
+
     expect(indicators[0]).toHaveAttribute('data-energy-level', 'high');
     expect(indicators[1]).toHaveAttribute('data-energy-level', 'medium');
     expect(indicators[2]).toHaveAttribute('data-energy-level', 'low');
@@ -838,9 +790,7 @@ describe('ADHD-Specific Features', () => {
   test('cognitive load indicators provide appropriate feedback', () => {
     render(
       <TestWrapper>
-        <AccessibleButton cognitiveLoad="high">
-          Complex Action
-        </AccessibleButton>
+        <AccessibleButton cognitiveLoad="high">Complex Action</AccessibleButton>
       </TestWrapper>
     );
 
@@ -851,12 +801,7 @@ describe('ADHD-Specific Features', () => {
   test('progress indicators help with task completion awareness', () => {
     render(
       <TestWrapper>
-        <ProgressIndicator 
-          current={7} 
-          total={10} 
-          label="Daily tasks" 
-          showPercentage
-        />
+        <ProgressIndicator current={7} total={10} label="Daily tasks" showPercentage />
       </TestWrapper>
     );
 

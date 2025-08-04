@@ -39,9 +39,7 @@ function AuthErrorContent() {
           <CardTitle className="text-xl font-semibold text-gray-900">
             Authentication Failed
           </CardTitle>
-          <CardDescription>
-            {errorMessage}
-          </CardDescription>
+          <CardDescription>{errorMessage}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <Button onClick={handleRetry} className="w-full">

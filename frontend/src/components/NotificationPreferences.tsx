@@ -3,19 +3,28 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useNotificationPreferences, NotificationPreferences as NotificationPreferencesType } from '@/hooks/useNotificationPreferences';
-import { 
-  Bell, 
-  BellOff, 
-  Volume2, 
-  VolumeX, 
-  Clock, 
+import {
+  useNotificationPreferences,
+  NotificationPreferences as NotificationPreferencesType,
+} from '@/hooks/useNotificationPreferences';
+import {
+  Bell,
+  BellOff,
+  Volume2,
+  VolumeX,
+  Clock,
   Settings,
   CheckCircle,
   Calendar,
@@ -33,7 +42,7 @@ import {
   Play,
   Pause,
   Music,
-  Upload
+  Upload,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -52,12 +61,37 @@ interface TemplatePreviewData {
 
 // Sound options
 const notificationSounds = [
-  { id: 'gentle-chime', name: 'Gentle Chime', file: '/sounds/gentle-chime.mp3', description: 'Soft, calming notification' },
-  { id: 'soft-bell', name: 'Soft Bell', file: '/sounds/soft-bell.mp3', description: 'Traditional but gentle' },
-  { id: 'water-drop', name: 'Water Drop', file: '/sounds/water-drop.mp3', description: 'Natural, subtle sound' },
-  { id: 'wind-chime', name: 'Wind Chime', file: '/sounds/wind-chime.mp3', description: 'Peaceful, ambient' },
-  { id: 'digital-beep', name: 'Digital Beep', file: '/sounds/digital-beep.mp3', description: 'Clear, modern alert' },
-  { id: 'none', name: 'Silent', file: '', description: 'No sound' }
+  {
+    id: 'gentle-chime',
+    name: 'Gentle Chime',
+    file: '/sounds/gentle-chime.mp3',
+    description: 'Soft, calming notification',
+  },
+  {
+    id: 'soft-bell',
+    name: 'Soft Bell',
+    file: '/sounds/soft-bell.mp3',
+    description: 'Traditional but gentle',
+  },
+  {
+    id: 'water-drop',
+    name: 'Water Drop',
+    file: '/sounds/water-drop.mp3',
+    description: 'Natural, subtle sound',
+  },
+  {
+    id: 'wind-chime',
+    name: 'Wind Chime',
+    file: '/sounds/wind-chime.mp3',
+    description: 'Peaceful, ambient',
+  },
+  {
+    id: 'digital-beep',
+    name: 'Digital Beep',
+    file: '/sounds/digital-beep.mp3',
+    description: 'Clear, modern alert',
+  },
+  { id: 'none', name: 'Silent', file: '', description: 'No sound' },
 ];
 
 const notificationTypeConfig = {
@@ -65,44 +99,44 @@ const notificationTypeConfig = {
     label: 'Task Updates',
     description: 'Notifications when tasks are created, updated, or completed',
     icon: CheckCircle,
-    color: 'text-blue-500'
+    color: 'text-blue-500',
   },
   'calendar-sync': {
     label: 'Calendar Sync',
     description: 'Notifications about calendar synchronization and events',
     icon: Calendar,
-    color: 'text-green-500'
+    color: 'text-green-500',
   },
   'deadline-reminder': {
     label: 'Deadline Reminders',
     description: 'Alerts for upcoming task deadlines and due dates',
     icon: AlertTriangle,
-    color: 'text-orange-500'
+    color: 'text-orange-500',
   },
   'conflict-alert': {
     label: 'Conflict Alerts',
     description: 'Warnings about scheduling conflicts and calendar issues',
     icon: AlertTriangle,
-    color: 'text-red-500'
+    color: 'text-red-500',
   },
   'plan-regeneration': {
     label: 'Plan Updates',
     description: 'Notifications when daily plans are updated or regenerated',
     icon: RefreshCw,
-    color: 'text-purple-500'
-  }
+    color: 'text-purple-500',
+  },
 };
 
 const urgencyLevels = {
   low: { label: 'Low', color: 'bg-blue-100 text-blue-800' },
   medium: { label: 'Medium', color: 'bg-yellow-100 text-yellow-800' },
   high: { label: 'High', color: 'bg-orange-100 text-orange-800' },
-  critical: { label: 'Critical', color: 'bg-red-100 text-red-800' }
+  critical: { label: 'Critical', color: 'bg-red-100 text-red-800' },
 };
 
-export const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({ 
-  className, 
-  onPreferencesChange 
+export const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({
+  className,
+  onPreferencesChange,
 }) => {
   const {
     preferences,
@@ -119,7 +153,7 @@ export const NotificationPreferences: React.FC<NotificationPreferencesProps> = (
     toggleGlobalNotifications,
     toggleNotificationType,
     isValidTimeFormat,
-    hasPreferences
+    hasPreferences,
   } = useNotificationPreferences();
 
   const [previewMode, setPreviewMode] = useState(false);
@@ -150,9 +184,7 @@ export const NotificationPreferences: React.FC<NotificationPreferencesProps> = (
       const mockUserData = {
         name: 'John Doe',
         currentEnergyLevel: 'HIGH',
-        tasks: [
-          { title: 'Complete project documentation', status: 'IN_PROGRESS', priority: 4 }
-        ]
+        tasks: [{ title: 'Complete project documentation', status: 'IN_PROGRESS', priority: 4 }],
       };
 
       // Generate previews for each notification type
@@ -163,7 +195,7 @@ export const NotificationPreferences: React.FC<NotificationPreferencesProps> = (
             type,
             label: config.label,
             content,
-            format: 'full' as const
+            format: 'full' as const,
           };
         })
       );
@@ -185,26 +217,26 @@ Your 📌 task "${userData.tasks[0]?.title || 'Sample Task'}" was updated.
 ⚡ Energy: 🚀 High Energy
 🎯 Focus: 🎨 Creative Work
 ✨ You're crushing it today! 🚀`,
-      
+
       'calendar-sync': `📅 Calendar Update ${userData.name}!
 Your schedule has been synchronized with 3 new events.
 🔄 Next: Team Meeting in 30 minutes
 💡 Energy tip: You're in a high-energy zone right now!`,
-      
+
       'deadline-reminder': `⏰ Gentle Reminder ${userData.name}!
 Your 📌 task "${userData.tasks[0]?.title || 'Sample Task'}" is due tomorrow.
 ⚡ Energy required: 🚀 High Energy (perfect for you right now!)
 💪 You've got this! One step at a time.`,
-      
+
       'conflict-alert': `⚠️ Schedule Conflict Alert ${userData.name}!
 Two meetings overlap tomorrow at 2:00 PM.
 🔧 Suggested action: Reschedule the shorter meeting
 🧠 ADHD tip: Color-code your calendar to avoid future conflicts!`,
-      
+
       'plan-regeneration': `🔄 Daily Plan Updated ${userData.name}!
 Your plan has been optimized based on your energy patterns.
 ✨ 3 tasks moved to high-energy morning slots
-💡 Break suggestions added for sustained focus`
+💡 Break suggestions added for sustained focus`,
     };
 
     return templates[type as keyof typeof templates] || `${type} notification preview`;
@@ -212,19 +244,22 @@ Your plan has been optimized based on your energy patterns.
 
   const playNotificationSound = (soundId: string) => {
     if (soundId === 'none') return;
-    
+
     const sound = notificationSounds.find(s => s.id === soundId);
     if (!sound || !sound.file) return;
 
     const audio = new Audio(sound.file);
     setAudioPlaying(soundId);
-    
-    audio.play().then(() => {
-      audio.addEventListener('ended', () => setAudioPlaying(null));
-    }).catch((error) => {
-      console.error('Failed to play sound:', error);
-      setAudioPlaying(null);
-    });
+
+    audio
+      .play()
+      .then(() => {
+        audio.addEventListener('ended', () => setAudioPlaying(null));
+      })
+      .catch(error => {
+        console.error('Failed to play sound:', error);
+        setAudioPlaying(null);
+      });
   };
 
   const handleSoundChange = async (soundId: string) => {
@@ -271,12 +306,18 @@ Your plan has been optimized based on your energy patterns.
     onPreferencesChange?.(preferences);
   };
 
-  const handleTypeToggle = async (type: keyof NotificationPreferencesType['types'], enabled: boolean) => {
+  const handleTypeToggle = async (
+    type: keyof NotificationPreferencesType['types'],
+    enabled: boolean
+  ) => {
     await toggleNotificationType(type, enabled);
     onPreferencesChange?.(preferences);
   };
 
-  const handleUrgencyChange = async (type: keyof NotificationPreferencesType['types'], urgency: string) => {
+  const handleUrgencyChange = async (
+    type: keyof NotificationPreferencesType['types'],
+    urgency: string
+  ) => {
     await updateTypePreference(type, { urgencyThreshold: urgency as any });
     onPreferencesChange?.(preferences);
   };
@@ -313,13 +354,18 @@ Your plan has been optimized based on your energy patterns.
     onPreferencesChange?.(preferences);
   };
 
-  const handleAdhdSettingToggle = async (setting: keyof NotificationPreferencesType['adhd'], enabled: boolean) => {
+  const handleAdhdSettingToggle = async (
+    setting: keyof NotificationPreferencesType['adhd'],
+    enabled: boolean
+  ) => {
     await updateAdhdSettings({ [setting]: enabled });
     onPreferencesChange?.(preferences);
   };
 
   const handleReset = async () => {
-    if (window.confirm('Are you sure you want to reset all notification preferences to defaults?')) {
+    if (
+      window.confirm('Are you sure you want to reset all notification preferences to defaults?')
+    ) {
       await resetToDefaults();
       onPreferencesChange?.(preferences);
     }
@@ -347,31 +393,24 @@ Your plan has been optimized based on your energy patterns.
                 </Badge>
               )}
             </div>
-            
+
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPreviewMode(!previewMode)}
-              >
+              <Button variant="outline" size="sm" onClick={() => setPreviewMode(!previewMode)}>
                 {previewMode ? 'Hide Templates' : 'Preview Templates & Sounds'}
               </Button>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleReset}
-                disabled={saving}
-              >
+
+              <Button variant="outline" size="sm" onClick={handleReset} disabled={saving}>
                 <RotateCcw className="w-4 h-4 mr-1" />
                 Reset
               </Button>
             </div>
           </div>
-          
+
           {summary && (
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <span>{summary.totalEnabled} of {summary.totalTypes} types enabled</span>
+              <span>
+                {summary.totalEnabled} of {summary.totalTypes} types enabled
+              </span>
               {summary.quietHoursEnabled && <span>• Quiet hours enabled</span>}
               {summary.batchingEnabled && <span>• Batching enabled</span>}
               {summary.adhdOptimized && (
@@ -383,7 +422,7 @@ Your plan has been optimized based on your energy patterns.
             </div>
           )}
         </CardHeader>
-        
+
         <CardContent>
           {/* Global Enable/Disable */}
           <div className="flex items-center justify-between py-4">
@@ -412,9 +451,10 @@ Your plan has been optimized based on your energy patterns.
         </CardHeader>
         <CardContent className="space-y-6">
           {Object.entries(notificationTypeConfig).map(([type, config]) => {
-            const typePreference = preferences.types[type as keyof NotificationPreferencesType['types']];
+            const typePreference =
+              preferences.types[type as keyof NotificationPreferencesType['types']];
             const IconComponent = config.icon;
-            
+
             return (
               <div key={type} className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -427,17 +467,17 @@ Your plan has been optimized based on your energy patterns.
                   </div>
                   <Switch
                     checked={typePreference.enabled}
-                    onCheckedChange={(enabled) => handleTypeToggle(type as any, enabled)}
+                    onCheckedChange={enabled => handleTypeToggle(type as any, enabled)}
                     disabled={saving || !preferences.globalEnabled}
                   />
                 </div>
-                
+
                 {typePreference.enabled && (
                   <div className="ml-8 space-y-2">
                     <Label className="text-sm">Urgency Threshold</Label>
                     <Select
                       value={typePreference.urgencyThreshold}
-                      onValueChange={(value) => handleUrgencyChange(type as any, value)}
+                      onValueChange={value => handleUrgencyChange(type as any, value)}
                       disabled={saving}
                     >
                       <SelectTrigger className="w-40">
@@ -460,10 +500,11 @@ Your plan has been optimized based on your energy patterns.
                     </p>
                   </div>
                 )}
-                
-                {type !== Object.keys(notificationTypeConfig)[Object.keys(notificationTypeConfig).length - 1] && (
-                  <Separator />
-                )}
+
+                {type !==
+                  Object.keys(notificationTypeConfig)[
+                    Object.keys(notificationTypeConfig).length - 1
+                  ] && <Separator />}
               </div>
             );
           })}
@@ -492,7 +533,7 @@ Your plan has been optimized based on your energy patterns.
               disabled={saving}
             />
           </div>
-          
+
           {preferences.quietHours.enabled && (
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -500,7 +541,7 @@ Your plan has been optimized based on your energy patterns.
                 <Input
                   type="time"
                   value={preferences.quietHours.start}
-                  onChange={(e) => handleQuietHoursTimeChange('start', e.target.value)}
+                  onChange={e => handleQuietHoursTimeChange('start', e.target.value)}
                   disabled={saving}
                 />
               </div>
@@ -509,7 +550,7 @@ Your plan has been optimized based on your energy patterns.
                 <Input
                   type="time"
                   value={preferences.quietHours.end}
-                  onChange={(e) => handleQuietHoursTimeChange('end', e.target.value)}
+                  onChange={e => handleQuietHoursTimeChange('end', e.target.value)}
                   disabled={saving}
                 />
               </div>
@@ -546,9 +587,9 @@ Your plan has been optimized based on your energy patterns.
               disabled={saving}
             />
           </div>
-          
+
           <Separator />
-          
+
           {/* Batching */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -564,11 +605,13 @@ Your plan has been optimized based on your energy patterns.
                 disabled={saving}
               />
             </div>
-            
+
             {preferences.batchingEnabled && (
               <div className="ml-0 space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-sm">Batch Interval: {preferences.batchInterval / 1000}s</Label>
+                  <Label className="text-sm">
+                    Batch Interval: {preferences.batchInterval / 1000}s
+                  </Label>
                   <Slider
                     value={[preferences.batchInterval / 1000]}
                     onValueChange={([value]) => handleBatchIntervalChange(value)}
@@ -582,9 +625,11 @@ Your plan has been optimized based on your energy patterns.
                     Wait time before sending grouped notifications
                   </p>
                 </div>
-                
+
                 <div className="space-y-2">
-                  <Label className="text-sm">Max per Batch: {preferences.maxNotificationsPerBatch}</Label>
+                  <Label className="text-sm">
+                    Max per Batch: {preferences.maxNotificationsPerBatch}
+                  </Label>
                   <Slider
                     value={[preferences.maxNotificationsPerBatch]}
                     onValueChange={([value]) => handleMaxBatchChange(value)}
@@ -622,11 +667,11 @@ Your plan has been optimized based on your energy patterns.
             </div>
             <Switch
               checked={preferences.adhd.focusModeEnabled}
-              onCheckedChange={(enabled) => handleAdhdSettingToggle('focusModeEnabled', enabled)}
+              onCheckedChange={enabled => handleAdhdSettingToggle('focusModeEnabled', enabled)}
               disabled={saving}
             />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <Label className="text-base font-medium">Gentle Alerts Only</Label>
@@ -636,11 +681,11 @@ Your plan has been optimized based on your energy patterns.
             </div>
             <Switch
               checked={preferences.adhd.gentleAlertsOnly}
-              onCheckedChange={(enabled) => handleAdhdSettingToggle('gentleAlertsOnly', enabled)}
+              onCheckedChange={enabled => handleAdhdSettingToggle('gentleAlertsOnly', enabled)}
               disabled={saving}
             />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Heart className="w-5 h-5 text-pink-500" />
@@ -653,7 +698,7 @@ Your plan has been optimized based on your energy patterns.
             </div>
             <Switch
               checked={preferences.adhd.progressCelebration}
-              onCheckedChange={(enabled) => handleAdhdSettingToggle('progressCelebration', enabled)}
+              onCheckedChange={enabled => handleAdhdSettingToggle('progressCelebration', enabled)}
               disabled={saving}
             />
           </div>
@@ -669,7 +714,9 @@ Your plan has been optimized based on your energy patterns.
               <CardTitle className="flex items-center gap-2">
                 <Eye className="w-5 h-5" />
                 Template Previews
-                <Badge variant="default" className="ml-2">With Your Data</Badge>
+                <Badge variant="default" className="ml-2">
+                  With Your Data
+                </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -681,14 +728,14 @@ Your plan has been optimized based on your energy patterns.
               ) : (
                 <Tabs defaultValue="task-update" className="w-full">
                   <TabsList className="grid grid-cols-5 w-full">
-                    {templatePreviews.map((preview) => (
+                    {templatePreviews.map(preview => (
                       <TabsTrigger key={preview.type} value={preview.type} className="text-xs">
                         {preview.label}
                       </TabsTrigger>
                     ))}
                   </TabsList>
-                  
-                  {templatePreviews.map((preview) => (
+
+                  {templatePreviews.map(preview => (
                     <TabsContent key={preview.type} value={preview.type} className="mt-4">
                       <div className="space-y-4">
                         <div className="p-4 bg-white border rounded-lg shadow-sm">
@@ -696,21 +743,25 @@ Your plan has been optimized based on your energy patterns.
                             <Bell className="w-4 h-4 text-primary" />
                             <span className="text-sm font-medium">Live Preview</span>
                           </div>
-                          <div 
+                          <div
                             className="text-sm leading-relaxed whitespace-pre-line"
-                            dangerouslySetInnerHTML={{ 
-                              __html: preview.content.replace(/\n/g, '<br>') 
+                            dangerouslySetInnerHTML={{
+                              __html: preview.content.replace(/\n/g, '<br>'),
                             }}
                           />
                         </div>
-                        
+
                         <div className="grid grid-cols-2 gap-4">
                           <div className="p-3 bg-gray-50 rounded border">
-                            <Label className="text-xs font-medium text-gray-600">Subject Line</Label>
+                            <Label className="text-xs font-medium text-gray-600">
+                              Subject Line
+                            </Label>
                             <p className="text-sm mt-1">✨ {preview.label}: Sample Task Update</p>
                           </div>
                           <div className="p-3 bg-gray-50 rounded border">
-                            <Label className="text-xs font-medium text-gray-600">Fallback (Plain Text)</Label>
+                            <Label className="text-xs font-medium text-gray-600">
+                              Fallback (Plain Text)
+                            </Label>
                             <p className="text-sm mt-1">
                               {preview.content.replace(/[🌟📌⏰⚡🎯✨🚀📅🔄💡⭐💪🧠🔧⚠️]/g, '')}
                             </p>
@@ -723,7 +774,7 @@ Your plan has been optimized based on your energy patterns.
               )}
             </CardContent>
           </Card>
-          
+
           {/* Sound Selection */}
           <Card>
             <CardHeader>
@@ -734,14 +785,14 @@ Your plan has been optimized based on your energy patterns.
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {notificationSounds.map((sound) => (
+                {notificationSounds.map(sound => (
                   <div
                     key={sound.id}
                     className={cn(
-                      "p-4 border rounded-lg cursor-pointer transition-colors",
-                      selectedSound === sound.id 
-                        ? "border-primary bg-primary/5" 
-                        : "border-gray-200 hover:border-gray-300"
+                      'p-4 border rounded-lg cursor-pointer transition-colors',
+                      selectedSound === sound.id
+                        ? 'border-primary bg-primary/5'
+                        : 'border-gray-200 hover:border-gray-300'
                     )}
                     onClick={() => handleSoundChange(sound.id)}
                   >
@@ -755,7 +806,7 @@ Your plan has been optimized based on your energy patterns.
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
                               playNotificationSound(sound.id);
                             }}
@@ -776,9 +827,9 @@ Your plan has been optimized based on your energy patterns.
                   </div>
                 ))}
               </div>
-              
+
               <Separator />
-              
+
               <div className="flex items-center justify-between">
                 <div>
                   <Label className="text-base font-medium">Custom Sound Upload</Label>
@@ -804,13 +855,37 @@ Your plan has been optimized based on your energy patterns.
             </CardHeader>
             <CardContent>
               <div className="space-y-2 text-sm">
-                <p><strong>Status:</strong> {preferences.globalEnabled ? 'Enabled' : 'Disabled'}</p>
-                <p><strong>Active Types:</strong> {Object.values(preferences.types).filter(t => t.enabled).length} of {Object.keys(preferences.types).length}</p>
-                <p><strong>Quiet Hours:</strong> {preferences.quietHours.enabled ? `${preferences.quietHours.start} - ${preferences.quietHours.end}` : 'Disabled'}</p>
-                <p><strong>Audio:</strong> {preferences.audioEnabled ? 'Enabled' : 'Disabled'}</p>
-                <p><strong>Sound Theme:</strong> {notificationSounds.find(s => s.id === selectedSound)?.name || 'Default'}</p>
-                <p><strong>Batching:</strong> {preferences.batchingEnabled ? `${preferences.batchInterval / 1000}s intervals, max ${preferences.maxNotificationsPerBatch}` : 'Disabled'}</p>
-                <p><strong>ADHD Features:</strong> {Object.values(preferences.adhd).filter(Boolean).length} enabled</p>
+                <p>
+                  <strong>Status:</strong> {preferences.globalEnabled ? 'Enabled' : 'Disabled'}
+                </p>
+                <p>
+                  <strong>Active Types:</strong>{' '}
+                  {Object.values(preferences.types).filter(t => t.enabled).length} of{' '}
+                  {Object.keys(preferences.types).length}
+                </p>
+                <p>
+                  <strong>Quiet Hours:</strong>{' '}
+                  {preferences.quietHours.enabled
+                    ? `${preferences.quietHours.start} - ${preferences.quietHours.end}`
+                    : 'Disabled'}
+                </p>
+                <p>
+                  <strong>Audio:</strong> {preferences.audioEnabled ? 'Enabled' : 'Disabled'}
+                </p>
+                <p>
+                  <strong>Sound Theme:</strong>{' '}
+                  {notificationSounds.find(s => s.id === selectedSound)?.name || 'Default'}
+                </p>
+                <p>
+                  <strong>Batching:</strong>{' '}
+                  {preferences.batchingEnabled
+                    ? `${preferences.batchInterval / 1000}s intervals, max ${preferences.maxNotificationsPerBatch}`
+                    : 'Disabled'}
+                </p>
+                <p>
+                  <strong>ADHD Features:</strong>{' '}
+                  {Object.values(preferences.adhd).filter(Boolean).length} enabled
+                </p>
               </div>
             </CardContent>
           </Card>

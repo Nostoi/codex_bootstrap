@@ -1,9 +1,6 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
-import {
-  FeatureFlags,
-  FeatureFlagConfig,
-} from "./feature-flags.types";
+import { Injectable, Logger } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { FeatureFlags, FeatureFlagConfig } from './feature-flags.types';
 
 @Injectable()
 export class FeatureFlagsService {
@@ -13,21 +10,19 @@ export class FeatureFlagsService {
   private readonly flagConfigs: Record<FeatureFlags, FeatureFlagConfig> = {
     [FeatureFlags.ENHANCED_TASK_METADATA]: {
       flag: FeatureFlags.ENHANCED_TASK_METADATA,
-      description:
-        "Enable enhanced task metadata fields (energy level, focus type, etc.)",
+      description: 'Enable enhanced task metadata fields (energy level, focus type, etc.)',
       defaultEnabled: true, // Already implemented and stable
       requiresAuth: true,
     },
     [FeatureFlags.AI_TASK_EXTRACTION]: {
       flag: FeatureFlags.AI_TASK_EXTRACTION,
-      description: "Enable OpenAI integration for task parsing and extraction",
+      description: 'Enable OpenAI integration for task parsing and extraction',
       defaultEnabled: true, // Recently implemented and tested
       requiresAuth: true,
     },
     [FeatureFlags.DAILY_PLANNING]: {
       flag: FeatureFlags.DAILY_PLANNING,
-      description:
-        "Enable intelligent scheduling algorithm and daily planning features",
+      description: 'Enable intelligent scheduling algorithm and daily planning features',
       defaultEnabled: false, // Not yet implemented
       rolloutPercentage: 0,
       requiresAuth: true,
@@ -35,22 +30,18 @@ export class FeatureFlagsService {
     },
     [FeatureFlags.MEM0_INTEGRATION]: {
       flag: FeatureFlags.MEM0_INTEGRATION,
-      description: "Enable semantic memory and context with Mem0 integration",
+      description: 'Enable semantic memory and context with Mem0 integration',
       defaultEnabled: false, // Not yet implemented
       rolloutPercentage: 0,
       requiresAuth: true,
     },
     [FeatureFlags.ADVANCED_AI_FEATURES]: {
       flag: FeatureFlags.ADVANCED_AI_FEATURES,
-      description:
-        "Enable proactive suggestions and advanced AI learning features",
+      description: 'Enable proactive suggestions and advanced AI learning features',
       defaultEnabled: false, // Not yet implemented
       rolloutPercentage: 0,
       requiresAuth: true,
-      dependencies: [
-        FeatureFlags.AI_TASK_EXTRACTION,
-        FeatureFlags.MEM0_INTEGRATION,
-      ],
+      dependencies: [FeatureFlags.AI_TASK_EXTRACTION, FeatureFlags.MEM0_INTEGRATION],
     },
   };
 
@@ -63,11 +54,7 @@ export class FeatureFlagsService {
    * @param userHash Optional hash for percentage rollouts
    * @returns true if the feature is enabled
    */
-  async isEnabled(
-    flag: FeatureFlags,
-    userId?: string,
-    userHash?: number,
-  ): Promise<boolean> {
+  async isEnabled(flag: FeatureFlags, userId?: string, userHash?: number): Promise<boolean> {
     try {
       const config = this.flagConfigs[flag];
       if (!config) {
@@ -78,10 +65,8 @@ export class FeatureFlagsService {
       // Check environment variable override (global)
       const envValue = process.env[`FF_${flag}`];
       if (envValue !== undefined) {
-        const enabled = envValue.toLowerCase() === "true";
-        this.logger.debug(
-          `Feature flag ${flag} set via environment: ${enabled}`,
-        );
+        const enabled = envValue.toLowerCase() === 'true';
+        this.logger.debug(`Feature flag ${flag} set via environment: ${enabled}`);
         return enabled;
       }
 
@@ -89,9 +74,7 @@ export class FeatureFlagsService {
       if (userId) {
         const userOverride = await this.getUserOverride(flag, userId);
         if (userOverride !== null) {
-          this.logger.debug(
-            `Feature flag ${flag} overridden for user ${userId}: ${userOverride}`,
-          );
+          this.logger.debug(`Feature flag ${flag} overridden for user ${userId}: ${userOverride}`);
           return userOverride;
         }
       }
@@ -99,15 +82,9 @@ export class FeatureFlagsService {
       // Check dependencies
       if (config.dependencies?.length) {
         for (const dependency of config.dependencies) {
-          const dependencyEnabled = await this.isEnabled(
-            dependency,
-            userId,
-            userHash,
-          );
+          const dependencyEnabled = await this.isEnabled(dependency, userId, userHash);
           if (!dependencyEnabled) {
-            this.logger.debug(
-              `Feature flag ${flag} disabled due to dependency ${dependency}`,
-            );
+            this.logger.debug(`Feature flag ${flag} disabled due to dependency ${dependency}`);
             return false;
           }
         }
@@ -117,7 +94,7 @@ export class FeatureFlagsService {
       if (config.rolloutPercentage !== undefined && userHash !== undefined) {
         const enabled = userHash % 100 < config.rolloutPercentage;
         this.logger.debug(
-          `Feature flag ${flag} percentage rollout (${config.rolloutPercentage}%): ${enabled}`,
+          `Feature flag ${flag} percentage rollout (${config.rolloutPercentage}%): ${enabled}`
         );
         return enabled;
       }
@@ -136,10 +113,7 @@ export class FeatureFlagsService {
    * @param userId The user ID
    * @returns true/false if override exists, null if no override
    */
-  private async getUserOverride(
-    _flag: FeatureFlags,
-    _userId: string,
-  ): Promise<boolean | null> {
+  private async getUserOverride(_flag: FeatureFlags, _userId: string): Promise<boolean | null> {
     // For now, return null since we don't have the user overrides table
     // This would be implemented when we add a UserFeatureOverrides table to Prisma schema
     return null;
@@ -156,13 +130,11 @@ export class FeatureFlagsService {
     flag: FeatureFlags,
     userId: string,
     enabled: boolean,
-    _expiresAt?: Date,
+    _expiresAt?: Date
   ): Promise<void> {
     try {
       // This would be implemented when we add a UserFeatureOverrides table
-      this.logger.log(
-        `Would set user override: ${flag} = ${enabled} for user ${userId}`,
-      );
+      this.logger.log(`Would set user override: ${flag} = ${enabled} for user ${userId}`);
     } catch (error) {
       this.logger.error(`Error setting user override for ${flag}:`, error);
     }
@@ -182,10 +154,7 @@ export class FeatureFlagsService {
    * @param userHash Optional hash for percentage rollouts
    * @returns Object with all flags and their status
    */
-  async getAllFlags(
-    userId?: string,
-    userHash?: number,
-  ): Promise<Record<FeatureFlags, boolean>> {
+  async getAllFlags(userId?: string, userHash?: number): Promise<Record<FeatureFlags, boolean>> {
     const flags: Record<FeatureFlags, boolean> = {} as any;
 
     for (const flag of Object.values(FeatureFlags)) {
@@ -228,19 +197,19 @@ export class FeatureFlagsService {
       // Check if we can read environment variables
       for (const flag of Object.values(FeatureFlags)) {
         const envValue = process.env[`FF_${flag}`];
-        if (envValue && !["true", "false"].includes(envValue.toLowerCase())) {
+        if (envValue && !['true', 'false'].includes(envValue.toLowerCase())) {
           errors.push(`Invalid environment value for ${flag}: ${envValue}`);
         }
       }
 
       return {
-        status: errors.length === 0 ? "healthy" : "degraded",
+        status: errors.length === 0 ? 'healthy' : 'degraded',
         flags: flagCount,
         errors,
       };
     } catch (error) {
       return {
-        status: "unhealthy",
+        status: 'unhealthy',
         flags: 0,
         errors: [error.message],
       };

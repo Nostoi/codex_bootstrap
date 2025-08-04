@@ -19,7 +19,7 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly tokenManager: TokenManagerService,
-    private readonly sessionManager: SessionManagerService,
+    private readonly sessionManager: SessionManagerService
   ) {}
 
   /**
@@ -27,7 +27,9 @@ export class AuthService {
    */
   async validateOAuthLogin(oauthProfile: OAuthProfile): Promise<LoginResult> {
     try {
-      this.logger.debug(`Validating OAuth login for ${oauthProfile.provider}: ${oauthProfile.email}`);
+      this.logger.debug(
+        `Validating OAuth login for ${oauthProfile.provider}: ${oauthProfile.email}`
+      );
 
       // Find existing OAuth provider link
       let oauthProvider = await this.prisma.oAuthProvider.findUnique({
@@ -49,8 +51,8 @@ export class AuthService {
         this.logger.debug(`Existing user found: ${user.email}`);
       } else {
         // Try to find user by email (to link accounts)
-        user = await this.prisma.user.findUnique({ 
-          where: { email: oauthProfile.email } 
+        user = await this.prisma.user.findUnique({
+          where: { email: oauthProfile.email },
         });
 
         if (!user) {
@@ -79,7 +81,9 @@ export class AuthService {
   /**
    * Find user by ID (used by JWT strategy)
    */
-  async findUserById(userId: string): Promise<User & { oauthProviders?: { provider: string; scopes: string[] }[] } | null> {
+  async findUserById(
+    userId: string
+  ): Promise<(User & { oauthProviders?: { provider: string; scopes: string[] }[] }) | null> {
     try {
       return await this.prisma.user.findUnique({
         where: { id: userId },
@@ -132,7 +136,9 @@ export class AuthService {
   /**
    * Generate access and refresh tokens
    */
-  async generateTokens(user: User): Promise<{ accessToken: string; refreshToken: string; expiresAt: Date }> {
+  async generateTokens(
+    user: User
+  ): Promise<{ accessToken: string; refreshToken: string; expiresAt: Date }> {
     const tokenPayload = {
       sub: user.id,
       email: user.email,
@@ -156,11 +162,13 @@ export class AuthService {
   /**
    * Refresh access token
    */
-  async refreshAccessToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string; expiresAt: Date }> {
+  async refreshAccessToken(
+    refreshToken: string
+  ): Promise<{ accessToken: string; refreshToken: string; expiresAt: Date }> {
     try {
       // Verify refresh token
       const payload = await this.tokenManager.verifyRefreshToken(refreshToken);
-      
+
       // Find user
       const user = await this.findUserById(payload.sub);
       if (!user) {
@@ -175,7 +183,7 @@ export class AuthService {
 
       // Generate new tokens
       const tokens = await this.generateTokens(user);
-      
+
       // Invalidate old session and refresh token
       await this.sessionManager.invalidateSession(session.id);
       await this.tokenManager.blacklistToken(refreshToken);
@@ -194,7 +202,7 @@ export class AuthService {
     try {
       // Blacklist the access token
       await this.tokenManager.blacklistToken(tokenId);
-      
+
       // Invalidate all active sessions for the user
       await this.sessionManager.invalidateUserSessions(userId);
 
@@ -209,9 +217,8 @@ export class AuthService {
    * Create new user from OAuth profile
    */
   private async createUserFromOAuth(oauthProfile: OAuthProfile): Promise<User> {
-    const displayName = [oauthProfile.firstName, oauthProfile.lastName]
-      .filter(Boolean)
-      .join(' ') || null;
+    const displayName =
+      [oauthProfile.firstName, oauthProfile.lastName].filter(Boolean).join(' ') || null;
 
     return await this.prisma.user.create({
       data: {
@@ -225,9 +232,12 @@ export class AuthService {
   /**
    * Create OAuth provider link
    */
-  private async createOAuthProvider(userId: string, oauthProfile: OAuthProfile): Promise<OAuthProvider> {
+  private async createOAuthProvider(
+    userId: string,
+    oauthProfile: OAuthProfile
+  ): Promise<OAuthProvider> {
     const scopes = this.getOAuthScopes(oauthProfile.provider);
-    
+
     return await this.prisma.oAuthProvider.create({
       data: {
         provider: oauthProfile.provider,

@@ -1,13 +1,13 @@
-import type { Task, EnergyLevel, FocusType, Priority } from '@/hooks/useApi'
+import type { Task, EnergyLevel, FocusType, Priority } from '@/hooks/useApi';
 
 export interface TestTask extends Task {
   metadata?: {
-    energyLevel?: EnergyLevel
-    focusType?: FocusType
-    deadline?: string
-    estimatedDuration?: number
-    complexity?: number
-  }
+    energyLevel?: EnergyLevel;
+    focusType?: FocusType;
+    deadline?: string;
+    estimatedDuration?: number;
+    complexity?: number;
+  };
 }
 
 export const mockTasks: TestTask[] = [
@@ -26,11 +26,11 @@ export const mockTasks: TestTask[] = [
       focusType: 'creative' as FocusType,
       deadline: '2025-01-15T17:00:00Z',
       estimatedDuration: 120,
-      complexity: 8
-    }
+      complexity: 8,
+    },
   },
   {
-    id: 'task-2', 
+    id: 'task-2',
     title: 'Medium Energy Analysis Task',
     description: 'Review quarterly metrics and prepare summary report',
     status: 'in-progress',
@@ -44,8 +44,8 @@ export const mockTasks: TestTask[] = [
       focusType: 'analytical' as FocusType,
       deadline: '2025-01-10T12:00:00Z',
       estimatedDuration: 90,
-      complexity: 6
-    }
+      complexity: 6,
+    },
   },
   {
     id: 'task-3',
@@ -53,7 +53,7 @@ export const mockTasks: TestTask[] = [
     description: 'Update project documentation and organize files',
     status: 'pending',
     priority: 'low' as Priority,
-    projectId: 'project-2', 
+    projectId: 'project-2',
     userId: 'user-1',
     createdAt: '2025-01-01T14:00:00Z',
     updatedAt: '2025-01-01T14:00:00Z',
@@ -62,8 +62,8 @@ export const mockTasks: TestTask[] = [
       focusType: 'administrative' as FocusType,
       deadline: '2025-01-20T17:00:00Z',
       estimatedDuration: 45,
-      complexity: 3
-    }
+      complexity: 3,
+    },
   },
   {
     id: 'task-4',
@@ -80,8 +80,8 @@ export const mockTasks: TestTask[] = [
       focusType: 'technical' as FocusType,
       deadline: '2025-01-03T18:00:00Z',
       estimatedDuration: 180,
-      complexity: 9
-    }
+      complexity: 9,
+    },
   },
   {
     id: 'task-5',
@@ -98,10 +98,10 @@ export const mockTasks: TestTask[] = [
       focusType: 'collaborative' as FocusType,
       deadline: '2024-12-30T17:00:00Z',
       estimatedDuration: 60,
-      complexity: 4
-    }
-  }
-]
+      complexity: 4,
+    },
+  },
+];
 
 export const mockTasksWithDependencies: TestTask[] = [
   {
@@ -117,8 +117,8 @@ export const mockTasksWithDependencies: TestTask[] = [
     metadata: {
       energyLevel: 'medium' as EnergyLevel,
       focusType: 'technical' as FocusType,
-      complexity: 5
-    }
+      complexity: 5,
+    },
   },
   {
     id: 'dep-task-2',
@@ -134,8 +134,8 @@ export const mockTasksWithDependencies: TestTask[] = [
     metadata: {
       energyLevel: 'high' as EnergyLevel,
       focusType: 'technical' as FocusType,
-      complexity: 7
-    }
+      complexity: 7,
+    },
   },
   {
     id: 'dep-task-3',
@@ -151,16 +151,17 @@ export const mockTasksWithDependencies: TestTask[] = [
     metadata: {
       energyLevel: 'high' as EnergyLevel,
       focusType: 'technical' as FocusType,
-      complexity: 8
-    }
-  }
-]
+      complexity: 8,
+    },
+  },
+];
 
 export const mockLargeDashboardTasks: TestTask[] = Array.from({ length: 120 }, (_, i) => ({
   id: `perf-task-${i + 1}`,
   title: `Performance Test Task ${i + 1}`,
   description: `A task designed to test dashboard performance with large datasets - Item ${i + 1}`,
-  status: i % 4 === 0 ? 'completed' : i % 4 === 1 ? 'in-progress' : i % 4 === 2 ? 'blocked' : 'pending',
+  status:
+    i % 4 === 0 ? 'completed' : i % 4 === 1 ? 'in-progress' : i % 4 === 2 ? 'blocked' : 'pending',
   priority: (i % 3 === 0 ? 'high' : i % 3 === 1 ? 'medium' : 'low') as Priority,
   projectId: `perf-project-${Math.floor(i / 20) + 1}`,
   userId: 'user-1',
@@ -168,16 +169,19 @@ export const mockLargeDashboardTasks: TestTask[] = Array.from({ length: 120 }, (
   updatedAt: new Date(2025, 0, 1 + Math.floor(i / 3)).toISOString(),
   metadata: {
     energyLevel: (i % 3 === 0 ? 'high' : i % 3 === 1 ? 'medium' : 'low') as EnergyLevel,
-    focusType: (['creative', 'analytical', 'technical', 'administrative', 'collaborative'] as FocusType[])[i % 5],
+    focusType: (
+      ['creative', 'analytical', 'technical', 'administrative', 'collaborative'] as FocusType[]
+    )[i % 5],
     deadline: new Date(2025, 0, 15 + Math.floor(i / 10)).toISOString(),
     estimatedDuration: 30 + (i % 120),
-    complexity: 1 + (i % 10)
-  }
-}))
+    complexity: 1 + (i % 10),
+  },
+}));
 
 export const mockAIExtractionTexts = [
   {
-    input: 'I need to finish the project documentation by Friday and also schedule a team meeting for next week to discuss the quarterly review.',
+    input:
+      'I need to finish the project documentation by Friday and also schedule a team meeting for next week to discuss the quarterly review.',
     expectedTasks: [
       {
         title: 'Finish project documentation',
@@ -185,8 +189,8 @@ export const mockAIExtractionTexts = [
         metadata: {
           deadline: 'Friday',
           energyLevel: 'medium' as EnergyLevel,
-          focusType: 'administrative' as FocusType
-        }
+          focusType: 'administrative' as FocusType,
+        },
       },
       {
         title: 'Schedule team meeting for quarterly review',
@@ -194,13 +198,14 @@ export const mockAIExtractionTexts = [
         metadata: {
           deadline: 'next week',
           energyLevel: 'low' as EnergyLevel,
-          focusType: 'collaborative' as FocusType
-        }
-      }
-    ]
+          focusType: 'collaborative' as FocusType,
+        },
+      },
+    ],
   },
   {
-    input: 'Debug the authentication system - it\'s critical and blocking other work. High complexity task that requires deep focus.',
+    input:
+      "Debug the authentication system - it's critical and blocking other work. High complexity task that requires deep focus.",
     expectedTasks: [
       {
         title: 'Debug authentication system',
@@ -208,13 +213,14 @@ export const mockAIExtractionTexts = [
         metadata: {
           energyLevel: 'high' as EnergyLevel,
           focusType: 'technical' as FocusType,
-          complexity: 8
-        }
-      }
-    ]
+          complexity: 8,
+        },
+      },
+    ],
   },
   {
-    input: 'Creative brainstorming session for new product features. Low pressure, just need to generate ideas.',
+    input:
+      'Creative brainstorming session for new product features. Low pressure, just need to generate ideas.',
     expectedTasks: [
       {
         title: 'Creative brainstorming for new product features',
@@ -222,12 +228,12 @@ export const mockAIExtractionTexts = [
         metadata: {
           energyLevel: 'medium' as EnergyLevel,
           focusType: 'creative' as FocusType,
-          complexity: 3
-        }
-      }
-    ]
-  }
-]
+          complexity: 3,
+        },
+      },
+    ],
+  },
+];
 
 export const mockDailyPlans = [
   {
@@ -235,27 +241,27 @@ export const mockDailyPlans = [
     userEnergyPattern: {
       morning: 'high' as EnergyLevel,
       afternoon: 'medium' as EnergyLevel,
-      evening: 'low' as EnergyLevel
+      evening: 'low' as EnergyLevel,
     },
     scheduledTasks: [
       {
         taskId: 'task-1',
         timeSlot: '09:00-11:00',
-        energyMatch: 'optimal'
+        energyMatch: 'optimal',
       },
       {
-        taskId: 'task-2', 
+        taskId: 'task-2',
         timeSlot: '14:00-15:30',
-        energyMatch: 'good'
+        energyMatch: 'good',
       },
       {
         taskId: 'task-3',
         timeSlot: '16:00-16:45',
-        energyMatch: 'optimal'
-      }
-    ]
-  }
-]
+        energyMatch: 'optimal',
+      },
+    ],
+  },
+];
 
 export const testSelectors = {
   dashboard: {
@@ -264,7 +270,7 @@ export const testSelectors = {
     taskGrid: '[data-testid="task-grid"]',
     taskCard: '[data-testid="task-card"]',
     focusView: '[data-testid="focus-view"]',
-    calendarEvents: '[data-testid="calendar-events"]'
+    calendarEvents: '[data-testid="calendar-events"]',
   },
   taskCard: {
     title: '[data-testid="task-title"]',
@@ -274,7 +280,7 @@ export const testSelectors = {
     focusType: '[data-testid="focus-type"]',
     deadline: '[data-testid="task-deadline"]',
     complexity: '[data-testid="task-complexity"]',
-    duration: '[data-testid="estimated-duration"]'
+    duration: '[data-testid="estimated-duration"]',
   },
   filterBar: {
     searchInput: '[data-testid="search-input"]',
@@ -282,20 +288,20 @@ export const testSelectors = {
     focusFilter: '[data-testid="focus-filter"]',
     statusFilter: '[data-testid="status-filter"]',
     priorityFilter: '[data-testid="priority-filter"]',
-    clearFilters: '[data-testid="clear-filters"]'
+    clearFilters: '[data-testid="clear-filters"]',
   },
   dailyPlanning: {
     planHeader: '[data-testid="plan-header"]',
     timeSlot: '[data-testid="time-slot"]',
     energyIndicator: '[data-testid="energy-indicator"]',
     scheduledTask: '[data-testid="scheduled-task"]',
-    generatePlan: '[data-testid="generate-plan"]'
+    generatePlan: '[data-testid="generate-plan"]',
   },
   aiIntegration: {
     textInput: '[data-testid="ai-text-input"]',
     extractButton: '[data-testid="extract-tasks"]',
     suggestedTasks: '[data-testid="suggested-tasks"]',
     acceptSuggestion: '[data-testid="accept-suggestion"]',
-    rejectSuggestion: '[data-testid="reject-suggestion"]'
-  }
-}
+    rejectSuggestion: '[data-testid="reject-suggestion"]',
+  },
+};

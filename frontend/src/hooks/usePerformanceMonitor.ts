@@ -4,7 +4,11 @@
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { getPerformanceMonitor, PERFORMANCE_BUDGET, type PerformanceMetrics } from '@/lib/performance';
+import {
+  getPerformanceMonitor,
+  PERFORMANCE_BUDGET,
+  type PerformanceMetrics,
+} from '@/lib/performance';
 
 interface PerformanceState {
   metrics: PerformanceMetrics;
@@ -31,17 +35,17 @@ interface PerformanceScore {
 
 /**
  * Performance monitoring hook that tracks Web Vitals and provides ADHD-friendly insights
- * 
+ *
  * Features:
  * - Real-time performance metrics
  * - Performance budget violation tracking
  * - Actionable recommendations for optimization
  * - ADHD-specific performance considerations
- * 
+ *
  * @example
  * ```tsx
  * const { metrics, score, violations } = usePerformanceMonitor();
- * 
+ *
  * if (score.overall < 70) {
  *   console.warn('Performance issues detected that may frustrate ADHD users');
  * }
@@ -109,7 +113,7 @@ export const usePerformanceMonitor = () => {
     };
 
     violationsRef.current = [...violationsRef.current.slice(-9), violation]; // Keep last 10
-    
+
     setState(prev => ({
       ...prev,
       violations: violationsRef.current,
@@ -120,7 +124,7 @@ export const usePerformanceMonitor = () => {
     if (typeof window === 'undefined') return;
 
     const monitor = getPerformanceMonitor();
-    
+
     // Update metrics and scores periodically
     const updateMetrics = () => {
       const metrics = monitor.getMetrics();
@@ -170,7 +174,7 @@ export const usePerformanceMonitor = () => {
 /**
  * Hook to monitor component render performance
  * Useful for identifying slow components that could impact ADHD user experience
- * 
+ *
  * @param componentName Name of the component for debugging
  * @returns Render performance metrics
  */
@@ -193,7 +197,7 @@ export const useRenderPerformance = (componentName: string) => {
       setRenderStats(prev => {
         const newCount = renderCountRef.current;
         const isSlowRender = renderTime > 16; // 60fps threshold
-        
+
         return {
           count: newCount,
           averageTime: (prev.averageTime * (newCount - 1) + renderTime) / newCount,
@@ -205,7 +209,7 @@ export const useRenderPerformance = (componentName: string) => {
       if (renderTime > 16) {
         console.warn(
           `🐌 Slow render detected: ${componentName} took ${renderTime.toFixed(2)}ms. ` +
-          'This may cause stuttering that frustrates ADHD users.'
+            'This may cause stuttering that frustrates ADHD users.'
         );
       }
     };
@@ -217,7 +221,7 @@ export const useRenderPerformance = (componentName: string) => {
 /**
  * Hook to track user interaction latency
  * Critical for ADHD users who need immediate feedback
- * 
+ *
  * @returns Interaction tracking utilities
  */
 export const useInteractionTracking = () => {
@@ -250,7 +254,7 @@ export const useInteractionTracking = () => {
     if (latency > 100) {
       console.warn(
         `⏱️ Slow interaction: ${latency.toFixed(2)}ms latency. ` +
-        'ADHD users need immediate feedback to maintain focus.'
+          'ADHD users need immediate feedback to maintain focus.'
       );
     }
 
@@ -292,20 +296,22 @@ export const useBundleMonitor = () => {
 
     const analyzeBundleSize = () => {
       const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
-      
-      const jsResources = resources.filter(resource => 
-        resource.name.includes('.js') && resource.transferSize
+
+      const jsResources = resources.filter(
+        resource => resource.name.includes('.js') && resource.transferSize
       );
 
-      const totalSize = jsResources.reduce((total, resource) => 
-        total + (resource.transferSize || 0), 0
+      const totalSize = jsResources.reduce(
+        (total, resource) => total + (resource.transferSize || 0),
+        0
       );
 
       const initialSize = jsResources
-        .filter(resource => 
-          resource.name.includes('_app') || 
-          resource.name.includes('index') ||
-          resource.name.includes('main')
+        .filter(
+          resource =>
+            resource.name.includes('_app') ||
+            resource.name.includes('index') ||
+            resource.name.includes('main')
         )
         .reduce((total, resource) => total + (resource.transferSize || 0), 0);
 

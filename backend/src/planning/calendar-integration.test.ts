@@ -251,7 +251,7 @@ describe('DailyPlannerService - Calendar Integration', () => {
         userId,
         'primary',
         expect.any(Date),
-        expect.any(Date),
+        expect.any(Date)
       );
 
       // Verify plan was generated

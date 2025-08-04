@@ -1,4 +1,4 @@
-import { EnergyLevel, FocusType, TaskSource } from "@prisma/client";
+import { EnergyLevel, FocusType, TaskSource } from '@prisma/client';
 
 export class CreateTaskDto {
   title!: string;

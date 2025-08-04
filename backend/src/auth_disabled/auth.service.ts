@@ -1,6 +1,6 @@
-import { Injectable } from "@nestjs/common";
-import { UsersService } from "../users/users.service";
-import { sign } from "./jwt.util";
+import { Injectable } from '@nestjs/common';
+import { UsersService } from '../users/users.service';
+import { sign } from './jwt.util';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +18,7 @@ export class AuthService {
     }
     const payload = { sub: user.id, email: user.email };
     return {
-      access_token: sign(payload, process.env.JWT_SECRET || "changeme"),
+      access_token: sign(payload, process.env.JWT_SECRET || 'changeme'),
     };
   }
 
@@ -44,7 +44,7 @@ export class AuthService {
 
   async getCurrentUser(userId: string): Promise<any> {
     // Mock implementation for test compatibility
-    const user = await this.users.findById(userId);
+    const user = await this.users.findOne(userId);
     return user;
   }
 }

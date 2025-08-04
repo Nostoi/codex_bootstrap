@@ -43,7 +43,7 @@ describe('AppShell', () => {
   beforeEach(() => {
     mockOnSidebarToggle = vi.fn();
     mockOnAIPanelToggle = vi.fn();
-    
+
     // Reset window size to desktop
     mockInnerWidth(1024);
   });
@@ -95,8 +95,12 @@ describe('AppShell', () => {
 
       const dashboardLink = screen.getByLabelText('Dashboard - View your tasks and daily planning');
       const projectsLink = screen.getByLabelText('Projects - Manage your projects and tasks');
-      const reflectionLink = screen.getByLabelText('Reflection - Journal your thoughts and insights');
-      const settingsLink = screen.getByLabelText('Settings - Configure your preferences and account');
+      const reflectionLink = screen.getByLabelText(
+        'Reflection - Journal your thoughts and insights'
+      );
+      const settingsLink = screen.getByLabelText(
+        'Settings - Configure your preferences and account'
+      );
 
       expect(dashboardLink).toBeInTheDocument();
       expect(projectsLink).toBeInTheDocument();
@@ -167,7 +171,7 @@ describe('AppShell', () => {
 
     it('calls onSidebarToggle when sidebar toggle button is clicked', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <AppShell onSidebarToggle={mockOnSidebarToggle}>
           <TestContent />
@@ -223,7 +227,7 @@ describe('AppShell', () => {
 
     it('calls onAIPanelToggle when AI toggle button is clicked', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <AppShell onAIPanelToggle={mockOnAIPanelToggle}>
           <TestContent />
@@ -256,7 +260,7 @@ describe('AppShell', () => {
 
     it('renders AI panel close button and handles click', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <AppShell aiPanelOpen={true} onAIPanelToggle={mockOnAIPanelToggle}>
           <TestContent />
@@ -338,13 +342,13 @@ describe('AppShell', () => {
         </AppShell>
       );
 
-      const event = new KeyboardEvent('keydown', { 
-        key: 'b', 
-        ctrlKey: true, 
+      const event = new KeyboardEvent('keydown', {
+        key: 'b',
+        ctrlKey: true,
         bubbles: true,
-        cancelable: true 
+        cancelable: true,
       });
-      
+
       const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
       document.dispatchEvent(event);
 
@@ -396,7 +400,7 @@ describe('AppShell', () => {
 
       // Switch to mobile
       mockInnerWidth(640);
-      
+
       await waitFor(() => {
         const sidebar = screen.getByLabelText('Main navigation');
         expect(sidebar).toHaveClass('hidden', 'md:flex');
@@ -405,7 +409,7 @@ describe('AppShell', () => {
 
     it('shows mobile overlay when sidebar is open on mobile', async () => {
       mockInnerWidth(640);
-      
+
       render(
         <AppShell sidebarCollapsed={false} onSidebarToggle={mockOnSidebarToggle}>
           <TestContent />
@@ -422,7 +426,7 @@ describe('AppShell', () => {
     it('handles overlay click to close sidebar on mobile', async () => {
       const user = userEvent.setup();
       mockInnerWidth(640);
-      
+
       render(
         <AppShell sidebarCollapsed={false} onSidebarToggle={mockOnSidebarToggle}>
           <TestContent />
@@ -446,7 +450,7 @@ describe('AppShell', () => {
   describe('Focus Management', () => {
     it('focuses main content when skip to main is clicked', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <AppShell>
           <TestContent />
@@ -462,7 +466,7 @@ describe('AppShell', () => {
 
     it('focuses sidebar when skip to navigation is clicked', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <AppShell>
           <TestContent />
@@ -478,7 +482,7 @@ describe('AppShell', () => {
 
     it('focuses AI panel when skip to AI is clicked', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <AppShell aiPanelOpen={true}>
           <TestContent />
@@ -507,12 +511,8 @@ describe('AppShell', () => {
 
     it('renders custom children content', () => {
       const customContent = <div data-testid="custom-content">Custom Content</div>;
-      
-      render(
-        <AppShell>
-          {customContent}
-        </AppShell>
-      );
+
+      render(<AppShell>{customContent}</AppShell>);
 
       expect(screen.getByTestId('custom-content')).toBeInTheDocument();
     });
@@ -554,7 +554,7 @@ describe('AppShell', () => {
     it('cleans up event listeners on unmount', () => {
       const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
       const windowRemoveEventListenerSpy = vi.spyOn(window, 'removeEventListener');
-      
+
       const { unmount } = render(
         <AppShell>
           <TestContent />

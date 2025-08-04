@@ -44,7 +44,7 @@ export const MonthlyGrid: React.FC<MonthlyGridProps> = ({
   const { handlers } = useDragAndDrop({
     adhdSettings,
     onEventMove,
-    onConflictDetected: (conflicts) => {
+    onConflictDetected: conflicts => {
       console.warn('Calendar conflicts detected:', conflicts);
     },
   });
@@ -53,14 +53,14 @@ export const MonthlyGrid: React.FC<MonthlyGridProps> = ({
   const monthGrid = useMemo(() => {
     const firstDay = new Date(currentDate.year, currentDate.month - 1, 1);
     const startDate = new Date(firstDay);
-    
+
     // Start from Sunday of the week containing the first day
     const dayOfWeek = firstDay.getDay();
     startDate.setDate(firstDay.getDate() - dayOfWeek);
-    
+
     const grid = [];
     const currentIterDate = new Date(startDate);
-    
+
     // Generate 6 weeks of days
     for (let week = 0; week < 6; week++) {
       const weekDays = [];
@@ -73,30 +73,30 @@ export const MonthlyGrid: React.FC<MonthlyGridProps> = ({
           year: date.getFullYear(),
           isToday: date.toDateString() === new Date().toDateString(),
           isCurrentMonth: date.getMonth() === currentDate.month - 1,
-          isPastDate: date < new Date(new Date().toDateString())
+          isPastDate: date < new Date(new Date().toDateString()),
         });
         currentIterDate.setDate(currentIterDate.getDate() + 1);
       }
       grid.push(weekDays);
     }
-    
+
     return grid;
   }, [currentDate]);
 
   // Group events by date
   const eventsByDate = useMemo(() => {
     const groupedEvents: Record<string, CalendarEvent[]> = {};
-    
+
     events.forEach(event => {
       const eventDate = new Date(event.startTime);
       const dateKey = eventDate.toDateString();
-      
+
       if (!groupedEvents[dateKey]) {
         groupedEvents[dateKey] = [];
       }
       groupedEvents[dateKey].push(event);
     });
-    
+
     return groupedEvents;
   }, [events]);
 
@@ -108,7 +108,7 @@ export const MonthlyGrid: React.FC<MonthlyGridProps> = ({
 
   if (isLoading) {
     return (
-      <div 
+      <div
         className="grid grid-cols-7 gap-1 h-full animate-pulse"
         role="grid"
         aria-label="Loading monthly calendar"
@@ -122,12 +122,10 @@ export const MonthlyGrid: React.FC<MonthlyGridProps> = ({
   }
 
   return (
-    <DragWrapper
-      adhdSettings={adhdSettings}
-    >
+    <DragWrapper adhdSettings={adhdSettings}>
       <div className="h-full flex flex-col">
         <div className="grid grid-cols-7 gap-1 mb-2">
-          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((dayName) => (
+          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(dayName => (
             <div
               key={dayName}
               className="text-center py-2 text-sm font-medium text-gray-700 bg-base-200 rounded"
@@ -137,7 +135,7 @@ export const MonthlyGrid: React.FC<MonthlyGridProps> = ({
           ))}
         </div>
 
-        <div 
+        <div
           className="grid grid-cols-7 gap-1 flex-1"
           role="grid"
           aria-label={`Monthly calendar for ${new Date(currentDate.year, currentDate.month - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`}
@@ -147,7 +145,7 @@ export const MonthlyGrid: React.FC<MonthlyGridProps> = ({
             const dayEvents = getEventsForDate(dayInfo.date);
             const displayEvents = dayEvents.slice(0, maxEventsPerDay);
             const hasMoreEvents = dayEvents.length > maxEventsPerDay;
-            
+
             return (
               <div
                 key={`${dayInfo.date.toDateString()}-${index}`}
@@ -164,7 +162,7 @@ export const MonthlyGrid: React.FC<MonthlyGridProps> = ({
                 onClick={() => onTimeSlotClick?.(dayInfo.date)}
               >
                 <div className="flex justify-between items-start mb-1">
-                  <span 
+                  <span
                     className={`
                       text-sm font-medium
                       ${dayInfo.isToday ? 'text-primary font-bold' : ''}
@@ -173,7 +171,7 @@ export const MonthlyGrid: React.FC<MonthlyGridProps> = ({
                   >
                     {dayInfo.day}
                   </span>
-                  
+
                   {dayEvents.length > 0 && (
                     <span className="text-xs bg-primary text-primary-content rounded-full px-1 min-w-[16px] text-center">
                       {dayEvents.length}
@@ -193,16 +191,16 @@ export const MonthlyGrid: React.FC<MonthlyGridProps> = ({
                       className="w-full text-xs"
                     />
                   ))}
-                  
+
                   {hasMoreEvents && (
                     <div className="text-xs text-gray-500 text-center py-1 bg-gray-100 rounded">
                       +{dayEvents.length - maxEventsPerDay} more
                     </div>
                   )}
                 </div>
-                
+
                 {dayInfo.isToday && (
-                  <div 
+                  <div
                     className="absolute bottom-1 right-1 w-2 h-2 bg-primary rounded-full"
                     aria-hidden="true"
                   />

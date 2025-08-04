@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 export interface ProjectCardProps {
   id: string;
@@ -16,8 +16,8 @@ export default function ProjectCard({ id: _id, name, area, purpose, onClick }: P
       role="button"
       aria-label={`Project: ${name}`}
       onClick={onClick}
-      onKeyPress={(e) => {
-        if (e.key === "Enter" && onClick) onClick();
+      onKeyPress={e => {
+        if (e.key === 'Enter' && onClick) onClick();
       }}
     >
       <div className="font-semibold text-lg text-dark mb-1">{name}</div>

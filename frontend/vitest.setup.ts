@@ -4,7 +4,7 @@ import { vi } from 'vitest';
 // Mock window.matchMedia for accessibility testing
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation((query) => ({
+  value: vi.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     onchange: null,
@@ -27,9 +27,9 @@ class MockIntersectionObserver implements IntersectionObserver {
   readonly root: Element | null = null;
   readonly rootMargin: string = '';
   readonly thresholds: ReadonlyArray<number> = [];
-  
+
   constructor(private callback: IntersectionObserverCallback) {}
-  
+
   observe(): void {}
   unobserve(): void {}
   disconnect(): void {}

@@ -1,13 +1,13 @@
 # Container Security Report
 
-**Generated:** Sun Aug  3 14:26:28 CDT 2025
+**Generated:** Sun Aug 3 14:26:28 CDT 2025
 **Project:** Codex Bootstrap
 **Environment:** Development/Testing
 
 ## Summary
 
 - **Passed:** 9
-- **Failed:** 0  
+- **Failed:** 0
 - **Warnings:** 3
 
 ## Images Scanned
@@ -26,16 +26,19 @@
 ## Recommendations
 
 ### High Priority
+
 - Address any CRITICAL vulnerabilities found
 - Ensure all containers run as non-root users
 - Remove any exposed secrets from images
 
 ### Medium Priority
+
 - Configure security labels for better tracking
 - Implement image signing for production
 - Enable read-only root filesystem where possible
 
 ### Low Priority
+
 - Regular vulnerability scanning in CI/CD
 - Implement runtime security monitoring
 - Consider using distroless images for smaller attack surface
@@ -43,6 +46,7 @@
 ## Detailed Reports
 
 Individual vulnerability reports are available in:
+
 - `security-reports/codex-backend_security-scan-scan.json`
 - `security-reports/codex-frontend_security-scan-scan.json`
 
@@ -54,4 +58,5 @@ Individual vulnerability reports are available in:
 4. Consider using vulnerability databases for continuous monitoring
 
 ---
-*This report was generated automatically by the Codex Bootstrap security scanner.*
+
+_This report was generated automatically by the Codex Bootstrap security scanner._

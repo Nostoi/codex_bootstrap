@@ -4,12 +4,18 @@
   "type": "object",
   "properties": {
     "energyLevel": { "type": ["string", "null"], "enum": ["LOW", "MEDIUM", "HIGH", null] },
-    "focusType": { "type": ["string", "null"], "enum": ["CREATIVE", "TECHNICAL", "ADMINISTRATIVE", "SOCIAL", null] },
+    "focusType": {
+      "type": ["string", "null"],
+      "enum": ["CREATIVE", "TECHNICAL", "ADMINISTRATIVE", "SOCIAL", null]
+    },
     "estimatedMinutes": { "type": ["integer", "null"], "minimum": 1 },
     "priority": { "type": ["integer", "null"], "minimum": 1, "maximum": 5 },
     "softDeadline": { "type": ["string", "null"], "format": "date-time" },
     "hardDeadline": { "type": ["string", "null"], "format": "date-time" },
-    "source": { "type": ["string", "null"], "enum": ["SELF", "BOSS", "TEAM", "AI_GENERATED", null] },
+    "source": {
+      "type": ["string", "null"],
+      "enum": ["SELF", "BOSS", "TEAM", "AI_GENERATED", null]
+    },
     "aiSuggestion": { "type": ["string", "null"] }
   },
   "required": []

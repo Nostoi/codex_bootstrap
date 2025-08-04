@@ -4,7 +4,7 @@ import '../frontend/src/app/globals.css';
 
 const preview: Preview = {
   parameters: {
-    actions: { 
+    actions: {
       // Use explicit action handlers instead of regex pattern
       disable: false,
     },
@@ -28,18 +28,18 @@ const preview: Preview = {
           // Color and Contrast
           { id: 'color-contrast', enabled: true },
           { id: 'color-contrast-enhanced', enabled: true },
-          
+
           // Focus Management (Critical for ADHD)
           { id: 'focus-order-semantics', enabled: true },
           { id: 'focus-trap', enabled: true },
           { id: 'focusable-content', enabled: true },
           { id: 'focus-indicator', enabled: true },
-          
+
           // Keyboard Navigation
           { id: 'keyboard-navigation', enabled: true },
           { id: 'keyboard', enabled: true },
           { id: 'bypass', enabled: true },
-          
+
           // ARIA and Semantics
           { id: 'aria-allowed-attr', enabled: true },
           { id: 'aria-hidden-focus', enabled: true },
@@ -47,24 +47,24 @@ const preview: Preview = {
           { id: 'aria-roles', enabled: true },
           { id: 'aria-valid-attr', enabled: true },
           { id: 'aria-valid-attr-value', enabled: true },
-          
+
           // Structure and Headings
           { id: 'heading-order', enabled: true },
           { id: 'landmark-banner-is-top-level', enabled: true },
           { id: 'landmark-main-is-top-level', enabled: true },
           { id: 'page-has-heading-one', enabled: true },
-          
+
           // Forms and Labels
           { id: 'label', enabled: true },
           { id: 'form-field-multiple-labels', enabled: true },
-          
+
           // Motion and Animation (ADHD-specific)
           { id: 'motion', enabled: true },
-          
+
           // Content and Language
           { id: 'html-has-lang', enabled: true },
           { id: 'html-lang-valid', enabled: true },
-          
+
           // Images and Media
           { id: 'image-alt', enabled: true },
           { id: 'audio-caption', enabled: true },
@@ -144,18 +144,19 @@ const preview: Preview = {
   tags: ['autodocs'],
   // Global decorators for consistent testing environment
   decorators: [
-    (Story) => React.createElement(
-      'div',
-      {
-        style: {
-          fontFamily: 'system-ui, -apple-system, sans-serif',
-          // Ensure proper focus visibility with CSS custom properties
-          '--focus-ring-color': '#0066cc',
-          '--focus-ring-width': '2px',
-        } as React.CSSProperties,
-      },
-      React.createElement(Story)
-    ),
+    Story =>
+      React.createElement(
+        'div',
+        {
+          style: {
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+            // Ensure proper focus visibility with CSS custom properties
+            '--focus-ring-color': '#0066cc',
+            '--focus-ring-width': '2px',
+          } as React.CSSProperties,
+        },
+        React.createElement(Story)
+      ),
   ],
   // Global types for toolbar configuration
   globalTypes: {

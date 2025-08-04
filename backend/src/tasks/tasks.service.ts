@@ -4,24 +4,24 @@ import {
   BadRequestException,
   Inject,
   forwardRef,
-} from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
-import { Task, TaskDependency, UserSettings, Prisma } from "@prisma/client";
+} from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { Task, TaskDependency, UserSettings, Prisma } from '@prisma/client';
 import {
   CreateTaskDto,
   UpdateTaskDto,
   CreateTaskDependencyDto,
   CreateUserSettingsDto,
   UpdateUserSettingsDto,
-} from "./dto";
-import { NotificationsService } from "../notifications/notifications.service";
+} from './dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class TasksService {
   constructor(
     private prisma: PrismaService,
     @Inject(forwardRef(() => NotificationsService))
-    private notificationsService: NotificationsService,
+    private notificationsService: NotificationsService
   ) {}
 
   async findAll(ownerId?: string): Promise<Task[]> {
@@ -55,7 +55,7 @@ export class TasksService {
         },
         tags: true,
       },
-      orderBy: [{ priority: "desc" }, { createdAt: "desc" }],
+      orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
     });
   }
 
@@ -103,12 +103,8 @@ export class TasksService {
       focusType: createTaskDto.focusType,
       estimatedMinutes: createTaskDto.estimatedMinutes,
       priority: createTaskDto.priority ?? 3,
-      softDeadline: createTaskDto.softDeadline
-        ? new Date(createTaskDto.softDeadline)
-        : null,
-      hardDeadline: createTaskDto.hardDeadline
-        ? new Date(createTaskDto.hardDeadline)
-        : null,
+      softDeadline: createTaskDto.softDeadline ? new Date(createTaskDto.softDeadline) : null,
+      hardDeadline: createTaskDto.hardDeadline ? new Date(createTaskDto.hardDeadline) : null,
       source: createTaskDto.source,
       aiSuggestion: createTaskDto.aiSuggestion,
       owner: { connect: { id: ownerId } },
@@ -152,37 +148,25 @@ export class TasksService {
     const data: Prisma.TaskUpdateInput = {};
 
     if (updateTaskDto.title !== undefined) data.title = updateTaskDto.title;
-    if (updateTaskDto.description !== undefined)
-      data.description = updateTaskDto.description;
-    if (updateTaskDto.completed !== undefined)
-      data.completed = updateTaskDto.completed;
+    if (updateTaskDto.description !== undefined) data.description = updateTaskDto.description;
+    if (updateTaskDto.completed !== undefined) data.completed = updateTaskDto.completed;
     if (updateTaskDto.status !== undefined) data.status = updateTaskDto.status;
     if (updateTaskDto.dueDate !== undefined) {
-      data.dueDate = updateTaskDto.dueDate
-        ? new Date(updateTaskDto.dueDate)
-        : null;
+      data.dueDate = updateTaskDto.dueDate ? new Date(updateTaskDto.dueDate) : null;
     }
-    if (updateTaskDto.energyLevel !== undefined)
-      data.energyLevel = updateTaskDto.energyLevel;
-    if (updateTaskDto.focusType !== undefined)
-      data.focusType = updateTaskDto.focusType;
+    if (updateTaskDto.energyLevel !== undefined) data.energyLevel = updateTaskDto.energyLevel;
+    if (updateTaskDto.focusType !== undefined) data.focusType = updateTaskDto.focusType;
     if (updateTaskDto.estimatedMinutes !== undefined)
       data.estimatedMinutes = updateTaskDto.estimatedMinutes;
-    if (updateTaskDto.priority !== undefined)
-      data.priority = updateTaskDto.priority;
+    if (updateTaskDto.priority !== undefined) data.priority = updateTaskDto.priority;
     if (updateTaskDto.softDeadline !== undefined) {
-      data.softDeadline = updateTaskDto.softDeadline
-        ? new Date(updateTaskDto.softDeadline)
-        : null;
+      data.softDeadline = updateTaskDto.softDeadline ? new Date(updateTaskDto.softDeadline) : null;
     }
     if (updateTaskDto.hardDeadline !== undefined) {
-      data.hardDeadline = updateTaskDto.hardDeadline
-        ? new Date(updateTaskDto.hardDeadline)
-        : null;
+      data.hardDeadline = updateTaskDto.hardDeadline ? new Date(updateTaskDto.hardDeadline) : null;
     }
     if (updateTaskDto.source !== undefined) data.source = updateTaskDto.source;
-    if (updateTaskDto.aiSuggestion !== undefined)
-      data.aiSuggestion = updateTaskDto.aiSuggestion;
+    if (updateTaskDto.aiSuggestion !== undefined) data.aiSuggestion = updateTaskDto.aiSuggestion;
     if (updateTaskDto.projectId !== undefined) {
       data.project = updateTaskDto.projectId
         ? { connect: { id: updateTaskDto.projectId } }
@@ -216,7 +200,7 @@ export class TasksService {
   }
 
   async remove(id: string): Promise<void> {
-    const existingTask = await this.prisma.task.findUnique({ 
+    const existingTask = await this.prisma.task.findUnique({
       where: { id },
       include: {
         owner: {
@@ -234,7 +218,7 @@ export class TasksService {
     await this.notificationsService.notifyTaskDeleted(
       existingTask.ownerId,
       existingTask.id,
-      existingTask.title,
+      existingTask.title
     );
   }
 
@@ -276,7 +260,7 @@ export class TasksService {
   }
 
   async createTaskDependency(
-    createDependencyDto: CreateTaskDependencyDto,
+    createDependencyDto: CreateTaskDependencyDto
   ): Promise<TaskDependency> {
     const { taskId, dependsOn } = createDependencyDto;
 
@@ -290,9 +274,7 @@ export class TasksService {
       throw new NotFoundException(`Task with ID ${taskId} not found`);
     }
     if (!prerequisiteTask) {
-      throw new NotFoundException(
-        `Prerequisite task with ID ${dependsOn} not found`,
-      );
+      throw new NotFoundException(`Prerequisite task with ID ${dependsOn} not found`);
     }
 
     // Check for circular dependencies
@@ -303,11 +285,11 @@ export class TasksService {
     const wouldCreateCircle = await this.checkCircularDependency(
       dependsOn,
       taskId,
-      existingDependencies,
+      existingDependencies
     );
     if (wouldCreateCircle) {
       throw new BadRequestException(
-        "Creating this dependency would result in a circular dependency",
+        'Creating this dependency would result in a circular dependency'
       );
     }
 
@@ -319,7 +301,7 @@ export class TasksService {
     });
 
     if (existingDependency) {
-      throw new BadRequestException("Dependency already exists");
+      throw new BadRequestException('Dependency already exists');
     }
 
     return this.prisma.taskDependency.create({
@@ -332,24 +314,17 @@ export class TasksService {
     });
   }
 
-  async removeTaskDependency(
-    taskId: string,
-    dependencyId: string,
-  ): Promise<void> {
+  async removeTaskDependency(taskId: string, dependencyId: string): Promise<void> {
     const dependency = await this.prisma.taskDependency.findUnique({
       where: { id: dependencyId },
     });
 
     if (!dependency) {
-      throw new NotFoundException(
-        `Dependency with ID ${dependencyId} not found`,
-      );
+      throw new NotFoundException(`Dependency with ID ${dependencyId} not found`);
     }
 
     if (dependency.taskId !== taskId) {
-      throw new BadRequestException(
-        "Dependency does not belong to the specified task",
-      );
+      throw new BadRequestException('Dependency does not belong to the specified task');
     }
 
     await this.prisma.taskDependency.delete({
@@ -360,7 +335,7 @@ export class TasksService {
   private async checkCircularDependency(
     startTaskId: string,
     targetTaskId: string,
-    dependencies: TaskDependency[],
+    dependencies: TaskDependency[]
   ): Promise<boolean> {
     const visited = new Set<string>();
 
@@ -370,10 +345,8 @@ export class TasksService {
 
       visited.add(currentTaskId);
 
-      const taskDependencies = dependencies.filter(
-        (dep) => dep.taskId === currentTaskId,
-      );
-      return taskDependencies.some((dep) => checkCircle(dep.dependsOn));
+      const taskDependencies = dependencies.filter(dep => dep.taskId === currentTaskId);
+      return taskDependencies.some(dep => checkCircle(dep.dependsOn));
     };
 
     return checkCircle(startTaskId);
@@ -388,7 +361,7 @@ export class TasksService {
 
   async createUserSettings(
     userId: string,
-    createSettingsDto: CreateUserSettingsDto,
+    createSettingsDto: CreateUserSettingsDto
   ): Promise<UserSettings> {
     // Check if user exists
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
@@ -402,9 +375,7 @@ export class TasksService {
     });
 
     if (existingSettings) {
-      throw new BadRequestException(
-        "User settings already exist. Use update instead.",
-      );
+      throw new BadRequestException('User settings already exist. Use update instead.');
     }
 
     return this.prisma.userSettings.create({
@@ -417,7 +388,7 @@ export class TasksService {
 
   async updateUserSettings(
     userId: string,
-    updateSettingsDto: UpdateUserSettingsDto,
+    updateSettingsDto: UpdateUserSettingsDto
   ): Promise<UserSettings> {
     const existingSettings = await this.prisma.userSettings.findUnique({
       where: { userId },

@@ -7,12 +7,14 @@ The Calendar Event Synchronization Service provides comprehensive bidirectional 
 ## Features
 
 ### Core Synchronization
+
 - **Bidirectional Sync**: Pull from Graph, push to Graph, or sync both directions
 - **Delta Queries**: Efficient incremental synchronization using Microsoft Graph delta tokens
 - **Conflict Detection**: Automatic detection of conflicting changes between local and remote events
 - **Conflict Resolution**: Multiple strategies for resolving conflicts (prefer local, prefer remote, prefer latest, merge, manual)
 
 ### Advanced Capabilities
+
 - **Job Management**: Track sync operations with progress monitoring
 - **Sync History**: Complete audit trail of all sync operations
 - **Metrics & Analytics**: Detailed sync performance and conflict statistics
@@ -23,7 +25,9 @@ The Calendar Event Synchronization Service provides comprehensive bidirectional 
 ### Database Models
 
 #### CalendarEvent
+
 Stores local calendar events with Graph metadata:
+
 ```prisma
 model CalendarEvent {
   id                     String    @id @default(cuid())
@@ -46,7 +50,9 @@ model CalendarEvent {
 ```
 
 #### CalendarSyncState
+
 Tracks synchronization metadata:
+
 ```prisma
 model CalendarSyncState {
   id               String              @id @default(cuid())
@@ -69,7 +75,9 @@ model CalendarSyncState {
 ```
 
 #### CalendarSyncConflict
+
 Records synchronization conflicts:
+
 ```prisma
 model CalendarSyncConflict {
   id             String                    @id @default(cuid())
@@ -86,21 +94,27 @@ model CalendarSyncConflict {
 ### Core Services
 
 #### CalendarSyncService
+
 Main orchestrator for synchronization operations:
+
 - Manages sync jobs and their lifecycle
 - Coordinates between Graph API and local database
 - Handles bidirectional synchronization logic
 - Provides progress tracking and status reporting
 
 #### DeltaSyncManager
+
 Handles Microsoft Graph delta queries:
+
 - Manages delta tokens for incremental sync
 - Processes Graph delta responses
 - Handles pagination and error recovery
 - Optimizes API requests for efficiency
 
 #### ConflictResolver
+
 Manages synchronization conflicts:
+
 - Detects conflicts between local and remote events
 - Implements multiple resolution strategies
 - Records conflicts for manual review
@@ -109,6 +123,7 @@ Manages synchronization conflicts:
 ## API Endpoints
 
 ### Start Synchronization
+
 ```http
 POST /calendar/sync/start
 Content-Type: application/json
@@ -126,6 +141,7 @@ Content-Type: application/json
 ```
 
 Response:
+
 ```json
 {
   "jobId": "sync-job-123",
@@ -134,11 +150,13 @@ Response:
 ```
 
 ### Get Sync Status
+
 ```http
 GET /calendar/sync/status/{jobId}
 ```
 
 Response:
+
 ```json
 {
   "jobId": "sync-job-123",
@@ -161,23 +179,27 @@ Response:
 ```
 
 ### Get Sync History
+
 ```http
 GET /calendar/sync/history?limit=10&offset=0
 ```
 
 ### Manage Conflicts
+
 ```http
 GET /calendar/sync/conflicts
 PUT /calendar/sync/conflicts/{conflictId}/resolve
 ```
 
 ### Sync Settings
+
 ```http
 GET /calendar/sync/settings
 PUT /calendar/sync/settings
 ```
 
 ### Metrics
+
 ```http
 GET /calendar/sync/metrics?days=7
 GET /calendar/sync/conflicts/stats?days=30
@@ -186,6 +208,7 @@ GET /calendar/sync/conflicts/stats?days=30
 ## Usage Examples
 
 ### Basic Synchronization
+
 ```typescript
 // Start a bidirectional sync
 const response = await fetch('/calendar/sync/start', {
@@ -193,8 +216,8 @@ const response = await fetch('/calendar/sync/start', {
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
     direction: 'bidirectional',
-    conflictResolution: 'prefer_latest'
-  })
+    conflictResolution: 'prefer_latest',
+  }),
 });
 
 const { jobId } = await response.json();
@@ -205,6 +228,7 @@ const syncStatus = await status.json();
 ```
 
 ### Conflict Resolution
+
 ```typescript
 // Get pending conflicts
 const conflicts = await fetch('/calendar/sync/conflicts');
@@ -217,15 +241,16 @@ await fetch(`/calendar/sync/conflicts/${conflictId}/resolve`, {
   body: JSON.stringify({
     resolution: 'PREFER_LOCAL',
     resolvedData: {
-      reason: 'User prefers local version'
-    }
-  })
+      reason: 'User prefers local version',
+    },
+  }),
 });
 ```
 
 ## Configuration
 
 ### Environment Variables
+
 ```env
 # Microsoft Graph API
 GRAPH_CLIENT_ID=your-client-id
@@ -241,13 +266,15 @@ CALENDAR_DELTA_TOKEN_EXPIRY=24  # hours
 ### Sync Strategies
 
 #### Conflict Resolution Strategies
+
 - **prefer_local**: Always use local changes
-- **prefer_remote**: Always use Graph changes  
+- **prefer_remote**: Always use Graph changes
 - **prefer_latest**: Use most recently modified version
 - **merge**: Intelligently merge compatible changes
 - **manual**: Require manual resolution
 
 #### Sync Directions
+
 - **pull**: Import events from Graph to local
 - **push**: Export local events to Graph
 - **bidirectional**: Sync in both directions
@@ -255,17 +282,20 @@ CALENDAR_DELTA_TOKEN_EXPIRY=24  # hours
 ## Performance Considerations
 
 ### Delta Queries
+
 - Delta tokens enable efficient incremental sync
 - Reduces API calls and bandwidth usage
 - Automatically handles pagination
 - Falls back to full sync if delta token expires
 
 ### Batch Operations
+
 - Events are processed in batches for efficiency
 - Configurable batch sizes based on API limits
 - Parallel processing where possible
 
 ### Rate Limiting
+
 - Implements exponential backoff for rate limits
 - Respects Microsoft Graph throttling headers
 - Queues requests during high-load periods
@@ -273,6 +303,7 @@ CALENDAR_DELTA_TOKEN_EXPIRY=24  # hours
 ## Error Handling
 
 ### Common Scenarios
+
 - **Token Expiration**: Automatic token refresh
 - **Delta Token Invalid**: Fallback to full sync
 - **API Rate Limits**: Exponential backoff retry
@@ -280,6 +311,7 @@ CALENDAR_DELTA_TOKEN_EXPIRY=24  # hours
 - **Conflict Detection**: Structured conflict recording
 
 ### Monitoring
+
 - Comprehensive logging for troubleshooting
 - Metrics collection for performance monitoring
 - Error categorization and alerting
@@ -288,6 +320,7 @@ CALENDAR_DELTA_TOKEN_EXPIRY=24  # hours
 ## Testing
 
 ### Unit Tests
+
 ```bash
 npm test -- calendar-sync.service.spec.ts
 npm test -- delta-sync.manager.spec.ts
@@ -295,12 +328,15 @@ npm test -- conflict-resolver.service.spec.ts
 ```
 
 ### Integration Tests
+
 ```bash
 npm run test:e2e -- calendar-sync
 ```
 
 ### Mock Data
+
 The test suite includes comprehensive mock data for:
+
 - Graph API responses
 - Delta query results
 - Conflict scenarios
@@ -309,16 +345,19 @@ The test suite includes comprehensive mock data for:
 ## Security
 
 ### Authentication
+
 - Uses OAuth 2.0 with Microsoft Graph
 - Secure token storage and refresh
 - User-scoped access to calendar data
 
 ### Data Privacy
+
 - Events stored locally with encryption at rest
 - Minimal data retention policies
 - GDPR compliance for European users
 
 ### API Security
+
 - JWT authentication for all endpoints
 - Role-based access control
 - Rate limiting and request validation
@@ -326,17 +365,20 @@ The test suite includes comprehensive mock data for:
 ## Deployment
 
 ### Database Migration
+
 ```bash
 npx prisma migrate deploy
 ```
 
 ### Environment Setup
+
 1. Configure Microsoft Graph application
 2. Set environment variables
 3. Run database migrations
 4. Start the service
 
 ### Monitoring
+
 - Health check endpoint: `/calendar/sync/health`
 - Metrics endpoint: `/calendar/sync/metrics`
 - Structured logging with correlation IDs
@@ -344,6 +386,7 @@ npx prisma migrate deploy
 ## Future Enhancements
 
 ### Planned Features
+
 - Multi-calendar synchronization
 - Recurring event optimization
 - Real-time sync with webhooks
@@ -352,6 +395,7 @@ npx prisma migrate deploy
 - Calendar sharing and permissions
 
 ### Performance Improvements
+
 - Caching layer for frequently accessed events
 - Background sync scheduling
 - Event deduplication

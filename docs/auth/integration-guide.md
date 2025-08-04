@@ -5,8 +5,9 @@ This guide provides step-by-step instructions for integrating the OAuth2 authent
 ## 📋 Overview
 
 The OAuth2 authentication system provides:
+
 - Google and Microsoft OAuth2 authentication
-- Secure JWT-based session management  
+- Secure JWT-based session management
 - Calendar permission management
 - User profile management
 - Multi-provider support per user
@@ -27,10 +28,11 @@ npx prisma generate
 ```
 
 **Verify migration success:**
+
 ```sql
 -- Check that new tables exist
 \dt oauth_providers
-\dt user_sessions  
+\dt user_sessions
 \dt blacklisted_tokens
 ```
 
@@ -46,7 +48,7 @@ cp .env.example .env.development
 # Required variables:
 # - JWT_SECRET
 # - GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
-# - MICROSOFT_CLIENT_ID, MICROSOFT_CLIENT_SECRET  
+# - MICROSOFT_CLIENT_ID, MICROSOFT_CLIENT_SECRET
 # - ENCRYPTION_KEY
 # - FRONTEND_URL
 ```
@@ -81,11 +83,11 @@ import { ITokenManager, JWTPayload } from '../types/auth.types';
 @Injectable()
 export class TokenManagerService implements ITokenManager {
   private readonly encryptionKey: Buffer;
-  
+
   constructor(
     private jwtService: JwtService,
     private prisma: PrismaService,
-    private configService: ConfigService,
+    private configService: ConfigService
   ) {
     const key = this.configService.get<string>('ENCRYPTION_KEY');
     this.encryptionKey = Buffer.from(key, 'hex');
@@ -107,45 +109,45 @@ export class TokenManagerService implements ITokenManager {
   encryptToken(token: string): string {
     const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipher('aes-256-gcm', this.encryptionKey);
-    
+
     let encrypted = cipher.update(token, 'utf8', 'hex');
     encrypted += cipher.final('hex');
-    
+
     const authTag = cipher.getAuthTag();
     return iv.toString('hex') + ':' + encrypted + ':' + authTag.toString('hex');
   }
 
   decryptToken(encryptedToken: string): string {
     const [ivHex, encrypted, authTagHex] = encryptedToken.split(':');
-    
+
     const iv = Buffer.from(ivHex, 'hex');
     const authTag = Buffer.from(authTagHex, 'hex');
     const decipher = crypto.createDecipher('aes-256-gcm', this.encryptionKey);
-    
+
     decipher.setAuthTag(authTag);
-    
+
     let decrypted = decipher.update(encrypted, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
-    
+
     return decrypted;
   }
 
   async blacklistToken(tokenId: string, expiresAt: Date): Promise<void> {
     await this.prisma.blacklistedToken.create({
-      data: { tokenId, expiresAt }
+      data: { tokenId, expiresAt },
     });
   }
 
   async isTokenBlacklisted(tokenId: string): Promise<boolean> {
     const token = await this.prisma.blacklistedToken.findUnique({
-      where: { tokenId }
+      where: { tokenId },
     });
     return !!token && token.expiresAt > new Date();
   }
 
   async cleanupExpiredTokens(): Promise<void> {
     await this.prisma.blacklistedToken.deleteMany({
-      where: { expiresAt: { lt: new Date() } }
+      where: { expiresAt: { lt: new Date() } },
     });
   }
 }
@@ -154,7 +156,7 @@ export class TokenManagerService implements ITokenManager {
 #### B. OAuth Service Interface
 
 ```typescript
-// backend/src/auth/services/oauth.service.ts  
+// backend/src/auth/services/oauth.service.ts
 import { Injectable } from '@nestjs/common';
 import { GoogleOAuthService } from './google-oauth.service';
 import { MicrosoftOAuthService } from './microsoft-oauth.service';
@@ -164,7 +166,7 @@ import { IAuthService, OAuthProfile, AuthResult, SessionTokens } from '../types/
 export class OAuthService implements IAuthService {
   constructor(
     private googleService: GoogleOAuthService,
-    private microsoftService: MicrosoftOAuthService,
+    private microsoftService: MicrosoftOAuthService
   ) {}
 
   async initiateOAuth(
@@ -309,9 +311,9 @@ export class AuthController {
     const scopes = query.scopes?.split(',');
     const { authUrl } = await this.oauthService.initiateOAuth(provider, {
       redirectUri: query.redirect_uri,
-      scopes
+      scopes,
     });
-    
+
     return res.redirect(authUrl);
   }
 
@@ -326,15 +328,10 @@ export class AuthController {
         return res.redirect(`${process.env.FRONTEND_URL}/login?error=${query.error}`);
       }
 
-      const result = await this.oauthService.handleCallback(
-        provider,
-        query.code,
-        query.state
-      );
+      const result = await this.oauthService.handleCallback(provider, query.code, query.state);
 
       const redirectUrl = `${process.env.FRONTEND_URL}?token=${result.tokens.accessToken}&refresh=${result.tokens.refreshToken}`;
       return res.redirect(redirectUrl);
-      
     } catch (error) {
       console.error('OAuth callback error:', error);
       return res.redirect(`${process.env.FRONTEND_URL}/login?error=auth_failed`);
@@ -383,7 +380,7 @@ export class AuthGuard implements CanActivate {
 
     try {
       const payload = this.tokenManager.verifyAccessToken(token);
-      
+
       // Check if token is blacklisted
       const isBlacklisted = await this.tokenManager.isTokenBlacklisted(payload.jti);
       if (isBlacklisted) {
@@ -436,10 +433,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (token && refreshToken) {
       localStorage.setItem('accessToken', token);
       localStorage.setItem('refreshToken', refreshToken);
-      
+
       // Clean URL
       window.history.replaceState({}, document.title, window.location.pathname);
-      
+
       // Fetch user profile
       fetchUserProfile();
     } else {
@@ -479,7 +476,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
         }
       });
-      
+
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);
@@ -546,7 +543,7 @@ export function LoginPage() {
             <GoogleIcon className="w-5 h-5 mr-3" />
             Continue with Google
           </Button>
-          
+
           <Button
             onClick={() => login('microsoft')}
             className="w-full flex justify-center items-center"
@@ -596,7 +593,7 @@ Update the existing Google and Microsoft Graph services to use the new authentic
 async getCalendarEvents(userId: string, startDate: Date, endDate: Date) {
   // Get user's Google OAuth tokens
   const oauthProvider = await this.prisma.oAuthProvider.findUnique({
-    where: { 
+    where: {
       provider_userId: {
         provider: 'google',
         userId: userId
@@ -610,7 +607,7 @@ async getCalendarEvents(userId: string, startDate: Date, endDate: Date) {
 
   // Decrypt and use the access token
   const accessToken = this.tokenManager.decryptToken(oauthProvider.accessToken);
-  
+
   // Use token for Google Calendar API calls
   // ... existing calendar logic
 }
@@ -701,7 +698,7 @@ Configure OAuth applications in Google Cloud Console and Azure Portal with produ
 With the OAuth2 authentication architecture fully designed and documented, the next implementation steps are:
 
 1. **Implement Google OAuth2 Integration** (Subtask 2)
-2. **Implement Microsoft OAuth2 Integration** (Subtask 3)  
+2. **Implement Microsoft OAuth2 Integration** (Subtask 3)
 3. **Implement User Session Management** (Subtask 4)
 4. **Implement Frontend Authentication Integration** (Subtask 5)
 

@@ -113,15 +113,10 @@ export const ServiceWorkerProvider: React.FC<ServiceWorkerProviderProps> = ({ ch
       {children}
       {/* Update notification */}
       {showUpdateNotification && (
-        <UpdateNotification
-          onAccept={acceptUpdate}
-          onDismiss={dismissUpdateNotification}
-        />
+        <UpdateNotification onAccept={acceptUpdate} onDismiss={dismissUpdateNotification} />
       )}
       {/* Offline ready notification */}
-      {showOfflineNotification && (
-        <OfflineNotification onDismiss={dismissOfflineNotification} />
-      )}
+      {showOfflineNotification && <OfflineNotification onDismiss={dismissOfflineNotification} />}
     </ServiceWorkerContext.Provider>
   );
 };
@@ -138,8 +133,12 @@ const UpdateNotification: React.FC<{
       <div className="flex items-start space-x-3">
         <div className="flex-shrink-0">
           <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+            />
           </svg>
         </div>
         <div className="flex-1">
@@ -168,7 +167,12 @@ const UpdateNotification: React.FC<{
           aria-label="Dismiss notification"
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>
@@ -187,8 +191,12 @@ const OfflineNotification: React.FC<{
       <div className="flex items-start space-x-3">
         <div className="flex-shrink-0">
           <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
         </div>
         <div className="flex-1">
@@ -203,7 +211,12 @@ const OfflineNotification: React.FC<{
           aria-label="Dismiss notification"
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>

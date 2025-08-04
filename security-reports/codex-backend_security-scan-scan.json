@@ -29,10 +29,7 @@
       "sha256:61d4be3a7ea205da7c41d29ba5b76c3dc372d9c6f1d15559b7033369f0e54a4b",
       "sha256:dda3268c77e2c47ec6a519ecff3293fd8b13a7a728f8d75498832e9111582368"
     ],
-    "RepoTags": [
-      "codex-backend:security-scan",
-      "codex-backend:security-test"
-    ],
+    "RepoTags": ["codex-backend:security-scan", "codex-backend:security-test"],
     "ImageConfig": {
       "architecture": "arm64",
       "created": "2025-08-03T19:23:25.664559052Z",
@@ -251,19 +248,13 @@
           "npx prisma migrate deploy \u0026\u0026 node dist/main"
         ],
         "Healthcheck": {
-          "Test": [
-            "CMD-SHELL",
-            "curl -f http://localhost:8000/health || exit 1"
-          ],
+          "Test": ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"],
           "Interval": 15000000000,
           "Timeout": 5000000000,
           "StartPeriod": 30000000000,
           "Retries": 3
         },
-        "Entrypoint": [
-          "/sbin/tini",
-          "--"
-        ],
+        "Entrypoint": ["/sbin/tini", "--"],
         "Env": [
           "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
           "NODE_VERSION=20.18.0",
@@ -413,9 +404,7 @@
           "Title": "cross-spawn: regular expression denial of service",
           "Description": "Versions of the package cross-spawn before 6.0.6, from 7.0.0 and before 7.0.5 are vulnerable to Regular Expression Denial of Service (ReDoS) due to improper input sanitization. An attacker can increase the CPU usage and crash the program by crafting a very large and well crafted string.",
           "Severity": "HIGH",
-          "CweIDs": [
-            "CWE-1333"
-          ],
+          "CweIDs": ["CWE-1333"],
           "VendorSeverity": {
             "amazon": 2,
             "azure": 3,
@@ -474,9 +463,7 @@
           "Title": "cross-spawn: regular expression denial of service",
           "Description": "Versions of the package cross-spawn before 6.0.6, from 7.0.0 and before 7.0.5 are vulnerable to Regular Expression Denial of Service (ReDoS) due to improper input sanitization. An attacker can increase the CPU usage and crash the program by crafting a very large and well crafted string.",
           "Severity": "HIGH",
-          "CweIDs": [
-            "CWE-1333"
-          ],
+          "CweIDs": ["CWE-1333"],
           "VendorSeverity": {
             "amazon": 2,
             "azure": 3,

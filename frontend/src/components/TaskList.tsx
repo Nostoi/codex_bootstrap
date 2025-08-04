@@ -1,21 +1,21 @@
-import React from 'react'
+import React from 'react';
 
 export interface Task {
-  id: number
-  title: string
-  completed: boolean
-  dueDate: string
+  id: number;
+  title: string;
+  completed: boolean;
+  dueDate: string;
 }
 
 interface TaskListProps {
-  tasks: Task[]
-  onToggle?: (id: number) => void
+  tasks: Task[];
+  onToggle?: (id: number) => void;
 }
 
 export default function TaskList({ tasks, onToggle }: TaskListProps) {
   return (
     <ul className="space-y-2">
-      {tasks.map((task) => (
+      {tasks.map(task => (
         <li key={task.id} className="flex items-center gap-2 p-2 rounded bg-base-200">
           <input
             type="checkbox"
@@ -31,5 +31,5 @@ export default function TaskList({ tasks, onToggle }: TaskListProps) {
         </li>
       ))}
     </ul>
-  )
+  );
 }

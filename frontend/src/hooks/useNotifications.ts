@@ -22,13 +22,13 @@ const defaultSettings: NotificationSettings = {
 };
 
 export function useNotifications(customSettings?: Partial<NotificationSettings>) {
-  const { 
-    notifications, 
-    unreadCount, 
-    markNotificationAsRead, 
-    markAllAsRead, 
+  const {
+    notifications,
+    unreadCount,
+    markNotificationAsRead,
+    markAllAsRead,
     clearNotifications,
-    isConnected 
+    isConnected,
   } = useWebSocket();
 
   const [settings, setSettings] = useState<NotificationSettings>({
@@ -64,9 +64,8 @@ export function useNotifications(customSettings?: Partial<NotificationSettings>)
       return;
     }
 
-    const newNotifications = notifications.filter(n => 
-      !n.read && 
-      !batchedNotifications.some(bn => bn.id === n.id)
+    const newNotifications = notifications.filter(
+      n => !n.read && !batchedNotifications.some(bn => bn.id === n.id)
     );
 
     if (newNotifications.length === 0) {
@@ -88,45 +87,55 @@ export function useNotifications(customSettings?: Partial<NotificationSettings>)
     }, settings.batchInterval);
 
     return () => clearTimeout(batchTimer);
-  }, [notifications, settings.batchNotifications, settings.batchInterval, settings.adhdFriendlyMode, focusMode, batchedNotifications]);
+  }, [
+    notifications,
+    settings.batchNotifications,
+    settings.batchInterval,
+    settings.adhdFriendlyMode,
+    focusMode,
+    batchedNotifications,
+  ]);
 
   // Play notification sound (gentle for ADHD-friendly mode)
-  const playNotificationSound = useCallback((severity: string) => {
-    if (!settings.enableSoundAlerts) return;
+  const playNotificationSound = useCallback(
+    (severity: string) => {
+      if (!settings.enableSoundAlerts) return;
 
-    const audio = new Audio();
-    
-    if (settings.adhdFriendlyMode) {
-      // Gentle, non-startling sounds for ADHD users
-      switch (severity) {
-        case 'low':
-          audio.src = '/sounds/gentle-chime.mp3';
-          audio.volume = 0.3;
-          break;
-        case 'medium':
-          audio.src = '/sounds/soft-bell.mp3';
-          audio.volume = 0.4;
-          break;
-        case 'high':
-          audio.src = '/sounds/calm-alert.mp3';
-          audio.volume = 0.5;
-          break;
-        case 'urgent':
-          audio.src = '/sounds/priority-tone.mp3';
-          audio.volume = 0.6;
-          break;
-        default:
-          audio.src = '/sounds/gentle-chime.mp3';
-          audio.volume = 0.3;
+      const audio = new Audio();
+
+      if (settings.adhdFriendlyMode) {
+        // Gentle, non-startling sounds for ADHD users
+        switch (severity) {
+          case 'low':
+            audio.src = '/sounds/gentle-chime.mp3';
+            audio.volume = 0.3;
+            break;
+          case 'medium':
+            audio.src = '/sounds/soft-bell.mp3';
+            audio.volume = 0.4;
+            break;
+          case 'high':
+            audio.src = '/sounds/calm-alert.mp3';
+            audio.volume = 0.5;
+            break;
+          case 'urgent':
+            audio.src = '/sounds/priority-tone.mp3';
+            audio.volume = 0.6;
+            break;
+          default:
+            audio.src = '/sounds/gentle-chime.mp3';
+            audio.volume = 0.3;
+        }
+      } else {
+        // Standard notification sounds
+        audio.src = '/sounds/notification.mp3';
+        audio.volume = 0.7;
       }
-    } else {
-      // Standard notification sounds
-      audio.src = '/sounds/notification.mp3';
-      audio.volume = 0.7;
-    }
 
-    audio.play().catch(console.warn);
-  }, [settings.enableSoundAlerts, settings.adhdFriendlyMode]);
+      audio.play().catch(console.warn);
+    },
+    [settings.enableSoundAlerts, settings.adhdFriendlyMode]
+  );
 
   // Handle new notifications with ADHD-friendly features
   useEffect(() => {
@@ -142,8 +151,10 @@ export function useNotifications(customSettings?: Partial<NotificationSettings>)
       }
 
       // Show browser notification for important items
-      if (settings.enableBrowserNotifications && 
-          ['high', 'urgent'].includes(notification.severity || '')) {
+      if (
+        settings.enableBrowserNotifications &&
+        ['high', 'urgent'].includes(notification.severity || '')
+      ) {
         showBrowserNotification(notification);
       }
     };
@@ -157,38 +168,47 @@ export function useNotifications(customSettings?: Partial<NotificationSettings>)
         }
       }
     });
-  }, [notifications, focusMode, settings.enableBrowserNotifications, playNotificationSound, lastNotificationTime]);
+  }, [
+    notifications,
+    focusMode,
+    settings.enableBrowserNotifications,
+    playNotificationSound,
+    lastNotificationTime,
+  ]);
 
   // Browser notification helper
-  const showBrowserNotification = useCallback((notification: NotificationData) => {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      const browserNotification = new Notification(notification.title, {
-        body: notification.message,
-        icon: '/favicon.ico',
-        tag: notification.id,
-        requireInteraction: notification.severity === 'urgent',
-        silent: settings.adhdFriendlyMode, // Non-intrusive for ADHD users
-      });
+  const showBrowserNotification = useCallback(
+    (notification: NotificationData) => {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        const browserNotification = new Notification(notification.title, {
+          body: notification.message,
+          icon: '/favicon.ico',
+          tag: notification.id,
+          requireInteraction: notification.severity === 'urgent',
+          silent: settings.adhdFriendlyMode, // Non-intrusive for ADHD users
+        });
 
-      // Auto-close non-urgent notifications after 5 seconds
-      if (notification.severity !== 'urgent') {
-        setTimeout(() => {
+        // Auto-close non-urgent notifications after 5 seconds
+        if (notification.severity !== 'urgent') {
+          setTimeout(() => {
+            browserNotification.close();
+          }, 5000);
+        }
+
+        browserNotification.onclick = () => {
+          markNotificationAsRead(notification.id);
           browserNotification.close();
-        }, 5000);
+          // Could navigate to relevant page here
+        };
       }
-
-      browserNotification.onclick = () => {
-        markNotificationAsRead(notification.id);
-        browserNotification.close();
-        // Could navigate to relevant page here
-      };
-    }
-  }, [settings.adhdFriendlyMode, markNotificationAsRead]);
+    },
+    [settings.adhdFriendlyMode, markNotificationAsRead]
+  );
 
   // Focus mode management
   const enableFocusMode = useCallback((duration?: number) => {
     setFocusMode(true);
-    
+
     if (duration) {
       setTimeout(() => {
         setFocusMode(false);
@@ -210,7 +230,7 @@ export function useNotifications(customSettings?: Partial<NotificationSettings>)
     if (batchedNotifications.length > 0) {
       // Process all batched notifications at once
       setBatchedNotifications([]);
-      
+
       // Show summary notification for ADHD-friendly experience
       if (settings.adhdFriendlyMode && batchedNotifications.length > 1) {
         const summaryNotification: NotificationData = {
@@ -221,7 +241,7 @@ export function useNotifications(customSettings?: Partial<NotificationSettings>)
           timestamp: new Date().toISOString(),
           severity: 'medium',
         };
-        
+
         showBrowserNotification(summaryNotification);
       }
     }
@@ -231,7 +251,7 @@ export function useNotifications(customSettings?: Partial<NotificationSettings>)
   const snoozeNotifications = useCallback((duration: number = 15 * 60 * 1000) => {
     const snoozeUntil = new Date(Date.now() + duration);
     setSettings(prev => ({ ...prev, snoozeUntil }));
-    
+
     setTimeout(() => {
       setSettings(prev => ({ ...prev, snoozeUntil: undefined }));
     }, duration);
@@ -270,7 +290,7 @@ export function useNotifications(customSettings?: Partial<NotificationSettings>)
 // Hook for deadline reminders with ADHD-friendly features
 export function useDeadlineReminders() {
   const { notifications } = useWebSocket();
-  
+
   const deadlineNotifications = notifications.filter(
     n => n.type === 'deadline-reminder' && !n.read
   );
@@ -297,14 +317,15 @@ export function useDeadlineReminders() {
 // Hook for calendar conflict management
 export function useCalendarConflicts() {
   const { notifications, sendMessage } = useWebSocket();
-  
-  const conflictNotifications = notifications.filter(
-    n => n.type === 'conflict-alert' && !n.read
-  );
 
-  const resolveConflict = useCallback((conflictId: string, resolution: 'reschedule' | 'override' | 'cancel') => {
-    sendMessage('resolve-calendar-conflict', { conflictId, resolution });
-  }, [sendMessage]);
+  const conflictNotifications = notifications.filter(n => n.type === 'conflict-alert' && !n.read);
+
+  const resolveConflict = useCallback(
+    (conflictId: string, resolution: 'reschedule' | 'override' | 'cancel') => {
+      sendMessage('resolve-calendar-conflict', { conflictId, resolution });
+    },
+    [sendMessage]
+  );
 
   return {
     conflictNotifications,

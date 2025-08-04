@@ -68,7 +68,7 @@ Your {{priorityEmoji}} task "{{task.title}}" was {{actionPast}}.
 {{#if task.focusType}}🎯 Focus: {{formatFocusType task.focusType}}{{/if}}
 
 {{#if encouragement}}✨ {{encouragement}}{{/if}}`,
-    fallback: 'Task "{{task.title}}" was updated'
+    fallback: 'Task "{{task.title}}" was updated',
   },
 
   'task-created': {
@@ -85,7 +85,7 @@ A new {{priorityEmoji}} task has been created: "{{task.title}}"
 {{#if task.aiSuggestion}}🤖 AI Suggestion: {{task.aiSuggestion}}{{/if}}
 
 {{#if motivation}}💪 {{motivation}}{{/if}}`,
-    fallback: 'New task "{{task.title}}" was created'
+    fallback: 'New task "{{task.title}}" was created',
   },
 
   'deadline-reminder': {
@@ -100,7 +100,7 @@ Your {{priorityEmoji}} task "{{task.title}}" is due {{relativeTime}}.
 {{#if encouragement}}{{encouragement}}{{/if}}
 
 {{#if suggestion}}💡 Suggestion: {{suggestion}}{{/if}}`,
-    fallback: 'Task "{{task.title}}" is due {{relativeTime}}'
+    fallback: 'Task "{{task.title}}" is due {{relativeTime}}',
   },
 
   'calendar-sync': {
@@ -115,7 +115,7 @@ Your {{calendar.source}} calendar has been synchronized successfully.
 • Last sync: {{formatDate calendar.lastSyncTime}}
 
 {{#if calendar.conflictCount}}⚠️ Please review conflicts in your dashboard{{/if}}`,
-    fallback: 'Calendar sync completed: {{calendar.eventCount}} events from {{calendar.source}}'
+    fallback: 'Calendar sync completed: {{calendar.eventCount}} events from {{calendar.source}}',
   },
 
   'conflict-alert': {
@@ -131,8 +131,8 @@ We detected {{conflictCount}} scheduling conflicts that need your attention.
 Please review and resolve these conflicts in your dashboard to maintain your optimal schedule.
 
 {{#if suggestion}}💡 {{suggestion}}{{/if}}`,
-    fallback: '{{conflictCount}} scheduling conflicts detected'
-  }
+    fallback: '{{conflictCount}} scheduling conflicts detected',
+  },
 };
 
 @Injectable()
@@ -146,10 +146,10 @@ export class NotificationTemplatesService {
 
   private initializeHandlebars() {
     this.handlebars = Handlebars.create();
-    
+
     // Register helper functions
     this.registerHelpers();
-    
+
     // Precompile templates for performance
     this.precompileTemplates();
   }
@@ -163,7 +163,7 @@ export class NotificationTemplatesService {
         month: 'short',
         day: 'numeric',
         hour: 'numeric',
-        minute: '2-digit'
+        minute: '2-digit',
       }).format(new Date(date));
     });
 
@@ -173,12 +173,12 @@ export class NotificationTemplatesService {
       const now = new Date();
       const diffMs = new Date(date).getTime() - now.getTime();
       const diffHours = Math.round(diffMs / (1000 * 60 * 60));
-      
+
       if (diffHours < 0) return 'overdue';
       if (diffHours === 0) return 'in less than an hour';
       if (diffHours === 1) return 'in 1 hour';
       if (diffHours < 24) return `in ${diffHours} hours`;
-      
+
       const diffDays = Math.round(diffHours / 24);
       if (diffDays === 1) return 'tomorrow';
       return `in ${diffDays} days`;
@@ -189,7 +189,7 @@ export class NotificationTemplatesService {
       if (!timeSlot) return '';
       return new Intl.DateTimeFormat('en-US', {
         hour: 'numeric',
-        minute: '2-digit'
+        minute: '2-digit',
       }).format(new Date(timeSlot));
     });
 
@@ -197,8 +197,8 @@ export class NotificationTemplatesService {
     this.handlebars.registerHelper('formatEnergyLevel', (energyLevel: EnergyLevel) => {
       const energyMap = {
         LOW: '🔋 Low Energy',
-        MEDIUM: '⚡ Medium Energy', 
-        HIGH: '🚀 High Energy'
+        MEDIUM: '⚡ Medium Energy',
+        HIGH: '🚀 High Energy',
       };
       return energyMap[energyLevel] || energyLevel;
     });
@@ -209,7 +209,7 @@ export class NotificationTemplatesService {
         CREATIVE: '🎨 Creative Work',
         TECHNICAL: '⚙️ Technical Work',
         ADMINISTRATIVE: '📋 Administrative',
-        SOCIAL: '👥 Social/Collaborative'
+        SOCIAL: '👥 Social/Collaborative',
       };
       return focusMap[focusType] || focusType;
     });
@@ -219,18 +219,18 @@ export class NotificationTemplatesService {
       const baseGreetings = {
         morning: ['Good morning', 'Rise and shine', 'Morning'],
         afternoon: ['Good afternoon', 'Hope your day is going well', 'Afternoon'],
-        evening: ['Good evening', 'Evening', 'Hope you had a productive day']
+        evening: ['Good evening', 'Evening', 'Hope you had a productive day'],
       };
 
       const greetings = baseGreetings[timeOfDay] || baseGreetings.afternoon;
-      
+
       // Add energy-aware variations
       if (energyLevel === 'HIGH') {
         return greetings[0]; // More formal for high energy
       } else if (energyLevel === 'LOW') {
         return greetings[2] || greetings[0]; // Gentler greeting
       }
-      
+
       return greetings[0];
     });
 
@@ -242,13 +242,13 @@ export class NotificationTemplatesService {
       return '📌';
     });
 
-    // Urgency emoji helper  
+    // Urgency emoji helper
     this.handlebars.registerHelper('urgencyEmoji', (urgencyLevel: string) => {
       const urgencyMap = {
         critical: '🚨',
         high: '⚠️',
         medium: '⏰',
-        low: '📅'
+        low: '📅',
       };
       return urgencyMap[urgencyLevel] || '📅';
     });
@@ -259,7 +259,7 @@ export class NotificationTemplatesService {
         critical: 'URGENT',
         high: 'Important reminder',
         medium: 'Friendly reminder',
-        low: 'Just a heads up'
+        low: 'Just a heads up',
       };
       return urgencyGreetings[urgencyLevel] || 'Reminder';
     });
@@ -270,7 +270,7 @@ export class NotificationTemplatesService {
         TODO: 'created',
         IN_PROGRESS: 'started',
         BLOCKED: 'blocked',
-        DONE: 'completed'
+        DONE: 'completed',
       };
       return actionMap[status] || 'updated';
     });
@@ -323,10 +323,9 @@ export class NotificationTemplatesService {
       }
 
       return compiledTemplate(enrichedContext);
-
     } catch (error) {
       this.logger.error(`Error generating template for ${notificationType}:`, error);
-      
+
       // Fallback to basic template
       const template = NOTIFICATION_TEMPLATES[notificationType];
       if (template?.compiledFallback) {
@@ -336,7 +335,7 @@ export class NotificationTemplatesService {
           this.logger.error(`Fallback template also failed:`, fallbackError);
         }
       }
-      
+
       // Final fallback
       return `${notificationType} notification`;
     }
@@ -351,7 +350,7 @@ export class NotificationTemplatesService {
     // Add time-based context
     const now = new Date();
     const hour = now.getHours();
-    
+
     enriched.currentTime = now;
     enriched.timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
 
@@ -361,26 +360,26 @@ export class NotificationTemplatesService {
         // Get today's task completion stats
         const todayStart = new Date();
         todayStart.setHours(0, 0, 0, 0);
-        
+
         const todayStats = await this.prisma.task.aggregate({
           where: {
             ownerId: context.user.id,
-            updatedAt: { gte: todayStart }
+            updatedAt: { gte: todayStart },
           },
           _count: {
-            id: true
-          }
+            id: true,
+          },
         });
 
         const completedStats = await this.prisma.task.aggregate({
           where: {
             ownerId: context.user.id,
             completed: true,
-            updatedAt: { gte: todayStart }
+            updatedAt: { gte: todayStart },
           },
           _count: {
-            id: true
-          }
+            id: true,
+          },
         });
 
         enriched.user.completedTasksToday = completedStats._count.id;
@@ -401,7 +400,6 @@ export class NotificationTemplatesService {
 
         // Add contextual suggestions
         enriched.suggestion = await this.generateContextualSuggestion(context);
-
       } catch (error) {
         this.logger.error('Error enriching context with user stats:', error);
       }
@@ -413,13 +411,17 @@ export class NotificationTemplatesService {
   /**
    * Generate encouraging messages based on user progress
    */
-  private generateEncouragement(completed: number, total: number, energyLevel?: EnergyLevel): string {
+  private generateEncouragement(
+    completed: number,
+    total: number,
+    energyLevel?: EnergyLevel
+  ): string {
     const completionRate = total > 0 ? completed / total : 0;
-    
+
     if (completionRate >= 0.8) {
       return "You're crushing it today! 🚀";
     } else if (completionRate >= 0.5) {
-      return "Great progress! Keep up the momentum! 💪";
+      return 'Great progress! Keep up the momentum! 💪';
     } else if (completed > 0) {
       return "Every step counts! You're making progress! ✨";
     } else if (energyLevel === 'LOW') {
@@ -434,13 +436,13 @@ export class NotificationTemplatesService {
    */
   private generateMotivation(energyLevel?: EnergyLevel, timeOfDay?: string): string {
     if (energyLevel === 'HIGH') {
-      return "Perfect time to tackle this with your high energy! 🚀";
+      return 'Perfect time to tackle this with your high energy! 🚀';
     } else if (energyLevel === 'LOW' && timeOfDay === 'morning') {
       return "Starting gentle today? That's perfectly fine! 🌅";
     } else if (timeOfDay === 'evening') {
-      return "Planning ahead for tomorrow? Smart thinking! 🌙";
+      return 'Planning ahead for tomorrow? Smart thinking! 🌙';
     } else {
-      return "Another step towards your goals! 🎯";
+      return 'Another step towards your goals! 🎯';
     }
   }
 
@@ -449,13 +451,13 @@ export class NotificationTemplatesService {
    */
   private async generateContextualSuggestion(context: TemplateContext): Promise<string> {
     if (context.urgencyLevel === 'critical') {
-      return "Consider breaking this into smaller steps if it feels overwhelming.";
+      return 'Consider breaking this into smaller steps if it feels overwhelming.';
     } else if (context.task?.energyLevel === 'HIGH' && context.user?.currentEnergyLevel === 'LOW') {
       return "This task requires high energy - maybe save it for when you're feeling more energized?";
     } else if (context.user?.completedTasksToday >= 5) {
       return "You've been productive today! Consider taking a break if needed.";
     } else {
-      return "You can adjust the priority or timing anytime in your dashboard.";
+      return 'You can adjust the priority or timing anytime in your dashboard.';
     }
   }
 }

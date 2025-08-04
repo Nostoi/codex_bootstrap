@@ -7,8 +7,8 @@ type DeepMockify<T> = {
   [K in keyof T]: T[K] extends (...args: any[]) => infer R
     ? jest.MockInstance<R, Parameters<T[K]>>
     : T[K] extends object
-    ? DeepMockify<T[K]>
-    : T[K];
+      ? DeepMockify<T[K]>
+      : T[K];
 };
 
 /**
@@ -19,7 +19,7 @@ export type MockedPrismaService = DeepMockify<PrismaService>;
 /**
  * Creates a properly typed mock PrismaService where all model methods are Jest mocks
  * with support for mockResolvedValue, mockRejectedValue, etc.
- * 
+ *
  * @returns Fully mocked PrismaService with proper TypeScript support
  */
 export function createMockPrismaService(): MockedPrismaService {
@@ -67,14 +67,14 @@ export function createMockPrismaService(): MockedPrismaService {
     // Integration models
     integrationConfig: createModelMock(),
 
-    // Project models  
+    // Project models
     project: createModelMock(),
 
     // Notification models
     notification: createModelMock(),
 
     // Additional models can be added here as needed
-    
+
     // NestJS lifecycle methods (from PrismaService)
     onModuleInit: jest.fn().mockResolvedValue(undefined),
     onModuleDestroy: jest.fn().mockResolvedValue(undefined),
@@ -86,7 +86,7 @@ export function createMockPrismaService(): MockedPrismaService {
 /**
  * Helper function to reset all mocks in a MockedPrismaService
  * Useful for beforeEach hooks in tests
- * 
+ *
  * @param prismaService The mocked Prisma service to reset
  */
 export function resetPrismaMocks(prismaService: MockedPrismaService): void {
@@ -94,7 +94,20 @@ export function resetPrismaMocks(prismaService: MockedPrismaService): void {
   const resetModelMethods = (model: any) => {
     if (model && typeof model === 'object') {
       // Reset common Prisma model methods directly without iteration
-      const methods = ['create', 'findMany', 'findUnique', 'findFirst', 'update', 'updateMany', 'upsert', 'delete', 'deleteMany', 'count', 'aggregate', 'groupBy'];
+      const methods = [
+        'create',
+        'findMany',
+        'findUnique',
+        'findFirst',
+        'update',
+        'updateMany',
+        'upsert',
+        'delete',
+        'deleteMany',
+        'count',
+        'aggregate',
+        'groupBy',
+      ];
       methods.forEach(methodName => {
         const method = model[methodName];
         if (jest.isMockFunction(method)) {
@@ -129,7 +142,8 @@ export function resetPrismaMocks(prismaService: MockedPrismaService): void {
   if (jest.isMockFunction(prismaService.$transaction)) prismaService.$transaction.mockReset();
   if (jest.isMockFunction(prismaService.$queryRaw)) prismaService.$queryRaw.mockReset();
   if (jest.isMockFunction(prismaService.$executeRaw)) prismaService.$executeRaw.mockReset();
-  if (jest.isMockFunction(prismaService.$executeRawUnsafe)) prismaService.$executeRawUnsafe.mockReset();
+  if (jest.isMockFunction(prismaService.$executeRawUnsafe))
+    prismaService.$executeRawUnsafe.mockReset();
   if (jest.isMockFunction(prismaService.$queryRawUnsafe)) prismaService.$queryRawUnsafe.mockReset();
   if (jest.isMockFunction(prismaService.$on)) prismaService.$on.mockReset();
   if (jest.isMockFunction(prismaService.$use)) prismaService.$use.mockReset();
@@ -220,7 +234,7 @@ export const PrismaMockHelpers = {
   }),
 
   /**
-   * Creates a mock task object  
+   * Creates a mock task object
    */
   createMockTask: (overrides: Partial<any> = {}) => ({
     id: 'task-123',

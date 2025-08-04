@@ -5,14 +5,14 @@ import { TokenManagerService } from '../services/token-manager.service';
 import { SessionManagerService } from '../services/session-manager.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UserWithProvider } from '../types/auth.types';
-import { 
+import {
   createMockPrismaService,
   createMockJwtService,
   createMockConfigService,
   createMockTokenManagerService,
   createMockUserWithProvider,
   createMockSession,
-  createMockJwtPayload
+  createMockJwtPayload,
 } from '../../test-utils';
 
 describe('SessionManagerService', () => {
@@ -76,7 +76,7 @@ describe('SessionManagerService', () => {
 
       mockPrismaService.userSession.count.mockResolvedValue(2);
       mockPrismaService.userSession.create.mockResolvedValue(mockSession);
-      
+
       // Mock token generation
       jest.spyOn(tokenManager, 'generateAccessToken').mockReturnValue('mock-access-token');
       jest.spyOn(tokenManager, 'generateRefreshToken').mockReturnValue('mock-refresh-token');
@@ -94,10 +94,7 @@ describe('SessionManagerService', () => {
     });
 
     it('should enforce session limit by removing old sessions', async () => {
-      const oldSessions = [
-        { sessionId: 'old-session-1' },
-        { sessionId: 'old-session-2' },
-      ];
+      const oldSessions = [{ sessionId: 'old-session-1' }, { sessionId: 'old-session-2' }];
 
       mockPrismaService.userSession.count.mockResolvedValue(5); // At limit
       mockPrismaService.userSession.findMany.mockResolvedValue(oldSessions);
@@ -164,12 +161,13 @@ describe('SessionManagerService', () => {
     });
 
     it('should throw error for invalid refresh token', async () => {
-      jest.spyOn(tokenManager, 'verifyRefreshToken').mockRejectedValue(
-        new Error('Invalid refresh token')
-      );
+      jest
+        .spyOn(tokenManager, 'verifyRefreshToken')
+        .mockRejectedValue(new Error('Invalid refresh token'));
 
-      await expect(service.refreshSession('invalid-token'))
-        .rejects.toThrow('Session refresh failed');
+      await expect(service.refreshSession('invalid-token')).rejects.toThrow(
+        'Session refresh failed'
+      );
     });
   });
 
@@ -272,10 +270,7 @@ describe('SessionManagerService', () => {
 
       expect(mockPrismaService.userSession.deleteMany).toHaveBeenCalledWith({
         where: {
-          OR: [
-            { expiresAt: { lt: expect.any(Date) } },
-            { isActive: false },
-          ],
+          OR: [{ expiresAt: { lt: expect.any(Date) } }, { isActive: false }],
         },
       });
       expect(tokenManager.cleanupExpiredTokens).toHaveBeenCalled();

@@ -10,19 +10,19 @@ export const AI_CONNECTION_STATES = {
 } as const;
 
 export const SUGGESTED_PROMPTS = [
-  "Help me prioritize my tasks for today",
-  "Break down this large project into smaller tasks",
-  "Suggest time estimates for my tasks",
-  "What should I focus on next?",
-  "Help me plan my week",
-  "Review my completed tasks and suggest improvements",
+  'Help me prioritize my tasks for today',
+  'Break down this large project into smaller tasks',
+  'Suggest time estimates for my tasks',
+  'What should I focus on next?',
+  'Help me plan my week',
+  'Review my completed tasks and suggest improvements',
 ] as const;
 
 export const QUICK_ACTIONS = [
-  { label: "Add Task", icon: "➕", action: "add_task" },
-  { label: "Set Priority", icon: "⭐", action: "set_priority" },
-  { label: "Estimate Time", icon: "⏱️", action: "estimate_time" },
-  { label: "Plan Day", icon: "📅", action: "plan_day" },
+  { label: 'Add Task', icon: '➕', action: 'add_task' },
+  { label: 'Set Priority', icon: '⭐', action: 'set_priority' },
+  { label: 'Estimate Time', icon: '⏱️', action: 'estimate_time' },
+  { label: 'Plan Day', icon: '📅', action: 'plan_day' },
 ] as const;
 
 /**
@@ -61,22 +61,23 @@ export function createAssistantMessage(content: string): ChatMessage {
  */
 export function extractTasksFromText(text: string): ExtractedTask[] {
   const tasks: ExtractedTask[] = [];
-  
+
   // Look for numbered lists, bullet points, or task-like patterns
   const taskPatterns = [
     /(?:^|\n)\d+\.\s*(.+)$/gm, // 1. Task item
     /(?:^|\n)[-*•]\s*(.+)$/gm, // - Task item or * Task item
-    /(?:^|\n)(?:TODO|Task|Action):\s*(.+)$/gmi, // TODO: Task item
+    /(?:^|\n)(?:TODO|Task|Action):\s*(.+)$/gim, // TODO: Task item
   ];
 
   taskPatterns.forEach(pattern => {
     let match;
     while ((match = pattern.exec(text)) !== null) {
       const title = match[1].trim();
-      if (title.length > 3 && title.length < 200) { // Reasonable task title length
+      if (title.length > 3 && title.length < 200) {
+        // Reasonable task title length
         // Determine priority based on keywords
         const priority = getPriorityFromText(title);
-        
+
         tasks.push({
           title,
           priority,
@@ -86,8 +87,9 @@ export function extractTasksFromText(text: string): ExtractedTask[] {
   });
 
   // Remove duplicates
-  const uniqueTasks = tasks.filter((task, index, self) => 
-    index === self.findIndex(t => t.title.toLowerCase() === task.title.toLowerCase())
+  const uniqueTasks = tasks.filter(
+    (task, index, self) =>
+      index === self.findIndex(t => t.title.toLowerCase() === task.title.toLowerCase())
   );
 
   return uniqueTasks.slice(0, 10); // Limit to 10 tasks to avoid overwhelming
@@ -98,18 +100,18 @@ export function extractTasksFromText(text: string): ExtractedTask[] {
  */
 function getPriorityFromText(text: string): ExtractedTask['priority'] {
   const lowercaseText = text.toLowerCase();
-  
+
   const highPriorityKeywords = ['urgent', 'asap', 'critical', 'important', 'deadline', 'emergency'];
   const lowPriorityKeywords = ['later', 'eventually', 'maybe', 'consider', 'nice to have'];
-  
+
   if (highPriorityKeywords.some(keyword => lowercaseText.includes(keyword))) {
     return 'high';
   }
-  
+
   if (lowPriorityKeywords.some(keyword => lowercaseText.includes(keyword))) {
     return 'low';
   }
-  
+
   return 'medium';
 }
 
@@ -127,7 +129,7 @@ export function formatMessageTime(timestamp: Date): string {
   if (minutes < 60) return `${minutes}m ago`;
   if (hours < 24) return `${hours}h ago`;
   if (days < 7) return `${days}d ago`;
-  
+
   return timestamp.toLocaleDateString();
 }
 
@@ -138,11 +140,11 @@ export function validateMessage(content: string): { isValid: boolean; error?: st
   if (!content.trim()) {
     return { isValid: false, error: 'Message cannot be empty' };
   }
-  
+
   if (content.length > 2000) {
     return { isValid: false, error: 'Message is too long (max 2000 characters)' };
   }
-  
+
   return { isValid: true };
 }
 
@@ -151,7 +153,7 @@ export function validateMessage(content: string): { isValid: boolean; error?: st
  */
 export function generateMockAIResponse(userMessage: string): string {
   const lowercaseMessage = userMessage.toLowerCase();
-  
+
   if (lowercaseMessage.includes('help') && lowercaseMessage.includes('prioritize')) {
     return `I'd be happy to help you prioritize your tasks! Here's what I suggest:
 
@@ -161,7 +163,7 @@ export function generateMockAIResponse(userMessage: string): string {
 
 Would you like me to look at your specific tasks and suggest priorities?`;
   }
-  
+
   if (lowercaseMessage.includes('break down') || lowercaseMessage.includes('project')) {
     return `Great idea to break down large projects! Here's a suggested approach:
 
@@ -173,7 +175,7 @@ Would you like me to look at your specific tasks and suggest priorities?`;
 
 What project would you like help breaking down?`;
   }
-  
+
   if (lowercaseMessage.includes('time') && lowercaseMessage.includes('estimate')) {
     return `Time estimation is crucial for planning! Here are some tips:
 
@@ -184,7 +186,7 @@ What project would you like help breaking down?`;
 
 Would you like help estimating time for specific tasks?`;
   }
-  
+
   if (lowercaseMessage.includes('focus') || lowercaseMessage.includes('next')) {
     return `To determine what to focus on next, consider:
 
@@ -195,7 +197,7 @@ Would you like help estimating time for specific tasks?`;
 
 Based on these factors, I'd recommend tackling your highest-priority item that matches your current energy level. What tasks are you considering?`;
   }
-  
+
   // Default response
   return `I understand you'd like assistance with task management. I can help you with:
 
@@ -220,10 +222,22 @@ export function getConnectionStatusColor(status: keyof typeof AI_CONNECTION_STAT
  */
 export function isTaskRelatedMessage(content: string): boolean {
   const taskKeywords = [
-    'task', 'todo', 'deadline', 'priority', 'project', 'work', 'complete',
-    'finish', 'do', 'schedule', 'plan', 'organize', 'manage', 'focus'
+    'task',
+    'todo',
+    'deadline',
+    'priority',
+    'project',
+    'work',
+    'complete',
+    'finish',
+    'do',
+    'schedule',
+    'plan',
+    'organize',
+    'manage',
+    'focus',
   ];
-  
+
   const lowercaseContent = content.toLowerCase();
   return taskKeywords.some(keyword => lowercaseContent.includes(keyword));
 }
@@ -233,31 +247,34 @@ export function isTaskRelatedMessage(content: string): boolean {
  */
 export function generateFollowUpSuggestions(messages: ChatMessage[]): string[] {
   const recentMessages = messages.slice(-3);
-  const combinedText = recentMessages.map(m => m.content).join(' ').toLowerCase();
-  
+  const combinedText = recentMessages
+    .map(m => m.content)
+    .join(' ')
+    .toLowerCase();
+
   const suggestions: string[] = [];
-  
+
   if (combinedText.includes('priority')) {
-    suggestions.push("How do you determine task priority?");
-    suggestions.push("Can you help prioritize my other tasks?");
+    suggestions.push('How do you determine task priority?');
+    suggestions.push('Can you help prioritize my other tasks?');
   }
-  
+
   if (combinedText.includes('time') || combinedText.includes('estimate')) {
-    suggestions.push("How can I improve my time estimation?");
-    suggestions.push("What about time for breaks and interruptions?");
+    suggestions.push('How can I improve my time estimation?');
+    suggestions.push('What about time for breaks and interruptions?');
   }
-  
+
   if (combinedText.includes('project') || combinedText.includes('break down')) {
-    suggestions.push("How do I track project progress?");
-    suggestions.push("What if the project scope changes?");
+    suggestions.push('How do I track project progress?');
+    suggestions.push('What if the project scope changes?');
   }
-  
+
   if (suggestions.length === 0) {
     // Default suggestions
-    suggestions.push("What should I focus on next?");
-    suggestions.push("Help me plan my day");
-    suggestions.push("How can I be more productive?");
+    suggestions.push('What should I focus on next?');
+    suggestions.push('Help me plan my day');
+    suggestions.push('How can I be more productive?');
   }
-  
+
   return suggestions.slice(0, 3); // Limit to 3 suggestions
 }

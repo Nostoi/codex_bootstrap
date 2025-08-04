@@ -1,30 +1,30 @@
 /**
  * Accessibility React components for ADHD-friendly interfaces
- * 
+ *
  * This module provides ready-to-use React components that implement
  * WCAG 2.2 AA compliance and ADHD-optimized interaction patterns.
  */
 
-import React, { 
-  createContext, 
-  useContext, 
-  useEffect, 
-  useRef, 
-  useState, 
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
   useCallback,
   forwardRef,
   ReactNode,
   HTMLAttributes,
   ButtonHTMLAttributes,
-  InputHTMLAttributes
+  InputHTMLAttributes,
 } from 'react';
-import { 
-  FocusTrap, 
-  LiveAnnouncer, 
+import {
+  FocusTrap,
+  LiveAnnouncer,
   KeyboardNavigator,
   useAccessibilityPreferences,
   useReducedMotion,
-  useHighContrast 
+  useHighContrast,
 } from '../../lib/accessibility';
 import { useKeyboardNavigation, useGlobalShortcuts } from '../../lib/keyboard-navigation';
 import { ADHD_ARIA, srText, focusStyles } from '../../lib/aria-constants';
@@ -61,12 +61,12 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
   const highContrast = useHighContrast();
 
   return (
-    <AccessibilityContext.Provider 
-      value={{ 
-        announcer, 
-        preferences, 
-        reducedMotion, 
-        highContrast 
+    <AccessibilityContext.Provider
+      value={{
+        announcer,
+        preferences,
+        reducedMotion,
+        highContrast,
       }}
     >
       {children}
@@ -123,11 +123,11 @@ interface LiveRegionProps {
   className?: string;
 }
 
-export function LiveRegion({ 
-  level = 'polite', 
-  atomic = true, 
-  children, 
-  className = '' 
+export function LiveRegion({
+  level = 'polite',
+  atomic = true,
+  children,
+  className = '',
 }: LiveRegionProps) {
   return (
     <div
@@ -160,34 +160,40 @@ interface AccessibleButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> 
 }
 
 export const AccessibleButton = forwardRef<HTMLButtonElement, AccessibleButtonProps>(
-  ({ 
-    variant = 'primary',
-    size = 'md',
-    loading = false,
-    energyLevel,
-    cognitiveLoad,
-    announcement,
-    disabled,
-    onClick,
-    children,
-    className = '',
-    ...props 
-  }, ref) => {
+  (
+    {
+      variant = 'primary',
+      size = 'md',
+      loading = false,
+      energyLevel,
+      cognitiveLoad,
+      announcement,
+      disabled,
+      onClick,
+      children,
+      className = '',
+      ...props
+    },
+    ref
+  ) => {
     const { announcer } = useAccessibilityContext();
     const [isPressed, setIsPressed] = useState(false);
 
-    const handleClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-      if (loading || disabled) return;
+    const handleClick = useCallback(
+      (e: React.MouseEvent<HTMLButtonElement>) => {
+        if (loading || disabled) return;
 
-      setIsPressed(true);
-      setTimeout(() => setIsPressed(false), 150);
+        setIsPressed(true);
+        setTimeout(() => setIsPressed(false), 150);
 
-      if (announcement) {
-        announcer.announce(announcement);
-      }
+        if (announcement) {
+          announcer.announce(announcement);
+        }
 
-      onClick?.(e);
-    }, [loading, disabled, announcement, onClick, announcer]);
+        onClick?.(e);
+      },
+      [loading, disabled, announcement, onClick, announcer]
+    );
 
     const ariaProps = {
       ...props,
@@ -218,8 +224,8 @@ export const AccessibleButton = forwardRef<HTMLButtonElement, AccessibleButtonPr
         {...ariaProps}
       >
         {loading && (
-          <span 
-            className="accessible-button__spinner" 
+          <span
+            className="accessible-button__spinner"
             aria-hidden="true"
             style={{
               display: 'inline-block',
@@ -233,12 +239,8 @@ export const AccessibleButton = forwardRef<HTMLButtonElement, AccessibleButtonPr
             }}
           />
         )}
-        <span className={loading ? 'sr-only' : ''}>
-          {children}
-        </span>
-        {loading && (
-          <span className="sr-only">Loading</span>
-        )}
+        <span className={loading ? 'sr-only' : ''}>{children}</span>
+        {loading && <span className="sr-only">Loading</span>}
       </button>
     );
   }
@@ -258,46 +260,43 @@ interface AccessibleInputProps extends Omit<InputHTMLAttributes<HTMLInputElement
 }
 
 export const AccessibleInput = forwardRef<HTMLInputElement, AccessibleInputProps>(
-  ({ 
-    label,
-    error,
-    hint,
-    required = false,
-    size = 'md',
-    energyLevel,
-    id,
-    className = '',
-    ...props 
-  }, ref) => {
+  (
+    {
+      label,
+      error,
+      hint,
+      required = false,
+      size = 'md',
+      energyLevel,
+      id,
+      className = '',
+      ...props
+    },
+    ref
+  ) => {
     const generatedId = useRef(`input-${Math.random().toString(36).substr(2, 9)}`);
     const inputId = id || generatedId.current;
     const errorId = `${inputId}-error`;
     const hintId = `${inputId}-hint`;
 
-    const describedBy = [
-      hint && hintId,
-      error && errorId,
-    ].filter(Boolean).join(' ');
+    const describedBy = [hint && hintId, error && errorId].filter(Boolean).join(' ');
 
     return (
       <div className={`accessible-input-group accessible-input-group--${size}`}>
-        <label 
+        <label
           htmlFor={inputId}
           className={`accessible-input-label ${required ? 'accessible-input-label--required' : ''}`}
         >
           {label}
           {required && <span aria-label="required"> *</span>}
         </label>
-        
+
         {hint && (
-          <div 
-            id={hintId}
-            className="accessible-input-hint"
-          >
+          <div id={hintId} className="accessible-input-hint">
             {hint}
           </div>
         )}
-        
+
         <input
           ref={ref}
           id={inputId}
@@ -310,21 +309,18 @@ export const AccessibleInput = forwardRef<HTMLInputElement, AccessibleInputProps
             ${error ? 'accessible-input--error' : ''}
             ${className}
           `}
-          style={{
-            // TODO: Fix focusStyles to work with inline styles
-            // ...(error ? focusStyles.error : focusStyles.default),
-          }}
+          style={
+            {
+              // TODO: Fix focusStyles to work with inline styles
+              // ...(error ? focusStyles.error : focusStyles.default),
+            }
+          }
           {...(energyLevel && { 'data-energy-level': energyLevel })}
           {...props}
         />
-        
+
         {error && (
-          <div 
-            id={errorId}
-            className="accessible-input-error"
-            role="alert"
-            aria-live="polite"
-          >
+          <div id={errorId} className="accessible-input-error" role="alert" aria-live="polite">
             {error}
           </div>
         )}
@@ -344,11 +340,11 @@ interface FocusTrapProps {
   className?: string;
 }
 
-export function FocusTrapComponent({ 
-  active = true, 
-  children, 
+export function FocusTrapComponent({
+  active = true,
+  children,
   restoreFocus = true,
-  className = '' 
+  className = '',
 }: FocusTrapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const focusTrapRef = useRef<FocusTrap | null>(null);
@@ -386,14 +382,14 @@ interface ModalProps {
   className?: string;
 }
 
-export function Modal({ 
-  isOpen, 
-  onClose, 
-  title, 
-  description, 
-  children, 
+export function Modal({
+  isOpen,
+  onClose,
+  title,
+  description,
+  children,
   size = 'md',
-  className = '' 
+  className = '',
 }: ModalProps) {
   const { announcer } = useAccessibilityContext();
   const modalRef = useRef<HTMLDivElement>(null);
@@ -405,8 +401,9 @@ export function Modal({
   useEffect(() => {
     if (isOpen) {
       announcer.announce(`Modal opened: ${title}`);
-      
-      if (typeof document !== 'undefined') { // SSR check
+
+      if (typeof document !== 'undefined') {
+        // SSR check
         const handleEscape = (e: KeyboardEvent) => {
           if (e.key === 'Escape') {
             onClose();
@@ -420,7 +417,8 @@ export function Modal({
   }, [isOpen, title, onClose, announcer]);
 
   useEffect(() => {
-    if (isOpen && modalRef.current && typeof document !== 'undefined') { // SSR check
+    if (isOpen && modalRef.current && typeof document !== 'undefined') {
+      // SSR check
       modalRef.current.focus();
     }
   }, [isOpen]);
@@ -428,7 +426,7 @@ export function Modal({
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className="modal-overlay"
       style={{
         position: 'fixed',
@@ -442,7 +440,7 @@ export function Modal({
         justifyContent: 'center',
         zIndex: 1000,
       }}
-      onClick={(e) => {
+      onClick={e => {
         if (e.target === e.currentTarget) {
           onClose();
         }
@@ -492,10 +490,8 @@ export function Modal({
               ×
             </AccessibleButton>
           </header>
-          
-          <div className="modal__content">
-            {children}
-          </div>
+
+          <div className="modal__content">{children}</div>
         </div>
       </FocusTrapComponent>
     </div>
@@ -511,14 +507,14 @@ interface EnergyIndicatorProps {
   className?: string;
 }
 
-export function EnergyIndicator({ 
-  level, 
-  label, 
-  showText = true, 
-  className = '' 
+export function EnergyIndicator({
+  level,
+  label,
+  showText = true,
+  className = '',
 }: EnergyIndicatorProps) {
   const { announcer } = useAccessibilityContext();
-  
+
   const energyConfig = {
     high: { color: 'var(--color-energy-high)', icon: '⚡', text: 'High Energy' },
     medium: { color: 'var(--color-energy-medium)', icon: '🔥', text: 'Medium Energy' },
@@ -529,7 +525,7 @@ export function EnergyIndicator({
   const ariaLabel = label || srText.energyLevel(level);
 
   return (
-    <div 
+    <div
       className={`energy-indicator energy-indicator--${level} ${className}`}
       role="status"
       aria-label={ariaLabel}
@@ -563,14 +559,14 @@ interface ProgressIndicatorProps {
   className?: string;
 }
 
-export function ProgressIndicator({ 
-  current, 
-  total, 
+export function ProgressIndicator({
+  current,
+  total,
   label,
   showPercentage = true,
   showText = true,
   size = 'md',
-  className = '' 
+  className = '',
 }: ProgressIndicatorProps) {
   const percentage = Math.round((current / total) * 100);
   const progressText = srText.progress(current, total);
@@ -587,8 +583,8 @@ export function ProgressIndicator({
           )}
         </div>
       )}
-      
-      <div 
+
+      <div
         className="progress-indicator__track"
         style={{
           width: '100%',
@@ -614,10 +610,8 @@ export function ProgressIndicator({
           }}
         />
       </div>
-      
-      <LiveRegion>
-        {progressText}
-      </LiveRegion>
+
+      <LiveRegion>{progressText}</LiveRegion>
     </div>
   );
 }
@@ -630,15 +624,15 @@ interface KeyboardNavigationContainerProps extends HTMLAttributes<HTMLDivElement
   children: ReactNode;
 }
 
-export function KeyboardNavigationContainer({ 
+export function KeyboardNavigationContainer({
   direction = 'both',
   loop = true,
   children,
   className = '',
-  ...props 
+  ...props
 }: KeyboardNavigationContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   useKeyboardNavigation(containerRef, {
     direction,
     loop,
@@ -647,11 +641,7 @@ export function KeyboardNavigationContainer({
   });
 
   return (
-    <div 
-      ref={containerRef}
-      className={`keyboard-navigation-container ${className}`}
-      {...props}
-    >
+    <div ref={containerRef} className={`keyboard-navigation-container ${className}`} {...props}>
       {children}
     </div>
   );
@@ -665,10 +655,10 @@ interface CognitiveLoadIndicatorProps {
   className?: string;
 }
 
-export function CognitiveLoadIndicator({ 
-  level, 
-  label, 
-  className = '' 
+export function CognitiveLoadIndicator({
+  level,
+  label,
+  className = '',
 }: CognitiveLoadIndicatorProps) {
   const loadConfig = {
     low: { color: 'var(--color-success)', icon: '🧠', text: 'Low Cognitive Load' },
@@ -680,7 +670,7 @@ export function CognitiveLoadIndicator({
   const ariaLabel = label || `Cognitive load: ${level}`;
 
   return (
-    <div 
+    <div
       className={`cognitive-load-indicator cognitive-load-indicator--${level} ${className}`}
       role="status"
       aria-label={ariaLabel}
@@ -710,13 +700,13 @@ interface LoadingSpinnerProps {
   className?: string;
 }
 
-export function LoadingSpinner({ 
-  size = 'md', 
-  label = 'Loading', 
-  className = '' 
+export function LoadingSpinner({
+  size = 'md',
+  label = 'Loading',
+  className = '',
 }: LoadingSpinnerProps) {
   const { reducedMotion } = useAccessibilityContext();
-  
+
   const sizeMap = {
     sm: '16px',
     md: '24px',
@@ -724,7 +714,7 @@ export function LoadingSpinner({
   };
 
   return (
-    <div 
+    <div
       className={`loading-spinner loading-spinner--${size} ${className}`}
       role="status"
       aria-label={label}

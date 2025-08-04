@@ -22,22 +22,22 @@ const mockTasks: Task[] = [
 ];
 
 describe('FocusView', () => {
-  it('renders today\'s date', () => {
+  it("renders today's date", () => {
     render(<FocusView todaysTasks={mockTasks} />);
-    
-    const today = new Date().toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+
+    const today = new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
     });
-    
+
     expect(screen.getByText(today)).toBeInTheDocument();
   });
 
   it('displays task completion percentage', () => {
     render(<FocusView todaysTasks={mockTasks} />);
-    
+
     // 1 of 2 tasks completed = 50%
     expect(screen.getByText('50%')).toBeInTheDocument();
     expect(screen.getByText('1 of 2 tasks')).toBeInTheDocument();
@@ -45,71 +45,51 @@ describe('FocusView', () => {
 
   it('shows focus goal input', () => {
     render(<FocusView todaysTasks={mockTasks} />);
-    
+
     const input = screen.getByPlaceholderText(/complete user onboarding feature/i);
     expect(input).toBeInTheDocument();
   });
 
   it('calls onFocusGoalChange when focus is set', () => {
     const onFocusGoalChange = vi.fn();
-    render(
-      <FocusView 
-        todaysTasks={mockTasks} 
-        onFocusGoalChange={onFocusGoalChange}
-      />
-    );
-    
+    render(<FocusView todaysTasks={mockTasks} onFocusGoalChange={onFocusGoalChange} />);
+
     const input = screen.getByPlaceholderText(/complete user onboarding feature/i);
     const setButton = screen.getByText('Set Focus');
-    
+
     fireEvent.change(input, { target: { value: 'Test focus goal' } });
     fireEvent.click(setButton);
-    
+
     expect(onFocusGoalChange).toHaveBeenCalledWith('Test focus goal');
   });
 
   it('displays AI recommendation when provided', () => {
     const aiRecommendation = 'Focus on high priority tasks first';
-    render(
-      <FocusView 
-        todaysTasks={mockTasks} 
-        aiRecommendation={aiRecommendation}
-      />
-    );
-    
+    render(<FocusView todaysTasks={mockTasks} aiRecommendation={aiRecommendation} />);
+
     expect(screen.getByText(aiRecommendation)).toBeInTheDocument();
   });
 
   it('shows loading state for AI recommendations', () => {
-    render(
-      <FocusView 
-        todaysTasks={mockTasks} 
-        isLoadingAI={true}
-      />
-    );
-    
+    render(<FocusView todaysTasks={mockTasks} isLoadingAI={true} />);
+
     expect(screen.getByText('Analyzing your tasks...')).toBeInTheDocument();
   });
 
   it('renders empty state when no tasks', () => {
     render(<FocusView todaysTasks={[]} />);
-    
+
     expect(screen.getByText('No tasks scheduled for today')).toBeInTheDocument();
     expect(screen.getByText('+ Add Your First Task')).toBeInTheDocument();
   });
 
   it('calls onTaskClick when task is clicked', () => {
     const onTaskClick = vi.fn();
-    render(
-      <FocusView 
-        todaysTasks={mockTasks} 
-        onTaskClick={onTaskClick}
-      />
-    );
-    
+    render(<FocusView todaysTasks={mockTasks} onTaskClick={onTaskClick} />);
+
     const taskButton = screen.getByRole('button', { name: /Task: Test task/i });
     fireEvent.click(taskButton);
-    
+
     expect(onTaskClick).toHaveBeenCalledWith('1');
   });
 
@@ -120,11 +100,11 @@ describe('FocusView', () => {
       { id: '3', title: 'High priority in-progress', status: 'IN_PROGRESS', priority: 5 },
       { id: '4', title: 'Medium priority todo', status: 'TODO', priority: 3 },
     ];
-    
+
     render(<FocusView todaysTasks={tasks} />);
-    
+
     const taskButtons = screen.getAllByRole('button', { name: /Task:/ });
-    
+
     // Should be sorted: high in-progress, high done, medium todo, low todo
     expect(taskButtons[0]).toHaveAccessibleName(/High priority in-progress/);
     expect(taskButtons[1]).toHaveAccessibleName(/High priority done/);
@@ -134,7 +114,7 @@ describe('FocusView', () => {
 
   it('calculates estimated time correctly', () => {
     render(<FocusView todaysTasks={mockTasks} />);
-    
+
     // Only incomplete tasks: 60 minutes (1 task, other is done)
     expect(screen.getByText('1h')).toBeInTheDocument();
     expect(screen.getByText('0m remaining')).toBeInTheDocument();
@@ -142,10 +122,10 @@ describe('FocusView', () => {
 
   it('displays priority indicators for tasks', () => {
     render(<FocusView todaysTasks={mockTasks} />);
-    
+
     // High priority should show fire emoji
     expect(screen.getByTitle('high priority')).toBeInTheDocument();
-    // Medium priority should show lightning emoji  
+    // Medium priority should show lightning emoji
     expect(screen.getByTitle('medium priority')).toBeInTheDocument();
   });
 });

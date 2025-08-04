@@ -1,4 +1,5 @@
 ## Pre-Feature Development Project Tree
+
 ```text
     .
     ./AGENTS.md
@@ -71,8 +72,11 @@
 ```
 
 ## Relevant Files
-- Reference *existing* project files here
+
+- Reference _existing_ project files here
+
 ### Proposed New Files
+
 - `backend/src/projects/projects.module.ts` - NestJS module to manage projects
 - `backend/src/projects/projects.controller.ts` - CRUD endpoints for projects
 - `backend/src/projects/projects.service.ts` - Business logic for projects
@@ -119,18 +123,20 @@
 - `k8s/backend-deployment.yaml` - Deployment and Service for backend container
 - `k8s/frontend-deployment.yaml` - Deployment and Service for frontend container
 - `.github/workflows/ci.yml` - GitHub Actions pipeline running lint and tests
+
 ### Existing Files Modified
+
 - `dev_init.sh` - Include database and services setup commands
 - `backend/prisma/schema.prisma` - Add new tables according to PRD
 - `backend/package.json` - Add dependencies like @nestjs/jwt, @prisma/client
 - `frontend/package.json` - Add Zustand and React Query
 - `frontend/jest.config.js` - Enable coverage thresholds
- - `frontend/src/app/dashboard/page.tsx` - Display today's plan and all tasks
- - `frontend/src/components/TaskList.tsx` - Show due dates and status badges
- - `frontend/src/hooks/useApi.ts` - Add ApiTask dueDate property
- - `frontend/src/store/tasksStore.ts` - Handle tasks with due dates
- - `frontend/src/store/tasksStore.test.ts` - Unit tests for tasks store
- - `frontend/src/components/TaskList.test.tsx` - Tests for TaskList component
+- `frontend/src/app/dashboard/page.tsx` - Display today's plan and all tasks
+- `frontend/src/components/TaskList.tsx` - Show due dates and status badges
+- `frontend/src/hooks/useApi.ts` - Add ApiTask dueDate property
+- `frontend/src/store/tasksStore.ts` - Handle tasks with due dates
+- `frontend/src/store/tasksStore.test.ts` - Unit tests for tasks store
+- `frontend/src/components/TaskList.test.tsx` - Tests for TaskList component
 - `backend/src/tasks/tasks.service.ts` - Provide tasks with due dates
 - `backend/src/tasks/tasks.service.spec.ts` - Updated tests for due dates
 - `backend/src/tasks/tasks.module.ts` - Inject notifications gateway
@@ -148,12 +154,14 @@
 - `frontend/playwright.config.ts` - Restrict Playwright to e2e tests directory
 
 ### Notes
+
 - **Tech Stack**: Next.js 14+ with App Router, TypeScript, Tailwind CSS + DaisyUI, Zustand state management, React Query for API data, NestJS backend with Prisma ORM, y-websocket for collaboration.
 - **Security & Performance**: TLS, JWT/OAuth2, rate limiting for AI calls, API p95 latency <200ms under 100 RPS, Redis caching.
 - **AI Services**: ChatGPT API for task extraction, Mem0 for semantic memory, retrieval-augmented generation.
 - **Testing**: Target >80% unit test coverage using Jest for both frontend and backend with pre-commit linting.
 
 ## Tasks
+
 - [x] **1.0 Infrastructure & Setup**
   - [x] 1.1 Initialize frontend and backend repositories with GitHub Actions pipelines
   - [x] 1.2 Configure development and staging environments via `dev_init.sh` and docker-compose

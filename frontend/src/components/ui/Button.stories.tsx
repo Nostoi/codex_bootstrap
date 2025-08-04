@@ -10,13 +10,23 @@ const PlusIcon = () => (
 
 const DownloadIcon = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+    />
   </svg>
 );
 
 const TrashIcon = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+    />
   </svg>
 );
 
@@ -27,7 +37,8 @@ const meta: Meta<typeof Button> = {
     layout: 'centered',
     docs: {
       description: {
-        component: 'ADHD-friendly button component with accessibility features, loading states, and energy level theming.',
+        component:
+          'ADHD-friendly button component with accessibility features, loading states, and energy level theming.',
       },
     },
   },
@@ -121,8 +132,12 @@ export const LoadingStates: Story = {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
         <Button loading>Loading...</Button>
-        <Button variant="secondary" loading>Processing</Button>
-        <Button variant="outline" loading>Saving</Button>
+        <Button variant="secondary" loading>
+          Processing
+        </Button>
+        <Button variant="outline" loading>
+          Saving
+        </Button>
       </div>
       <div className="text-sm text-gray-600">
         Loading buttons show a spinner and are automatically disabled.
@@ -144,24 +159,43 @@ export const EnergyLevels: Story = {
     <div className="flex flex-col gap-6">
       <div className="space-y-4">
         <div className="flex items-center gap-4">
-          <Button energyLevel="high" variant="primary">High Energy Task</Button>
-          <Button energyLevel="high" variant="secondary">High Energy</Button>
-          <Button energyLevel="high" variant="outline">High Energy</Button>
+          <Button energyLevel="high" variant="primary">
+            High Energy Task
+          </Button>
+          <Button energyLevel="high" variant="secondary">
+            High Energy
+          </Button>
+          <Button energyLevel="high" variant="outline">
+            High Energy
+          </Button>
         </div>
         <div className="flex items-center gap-4">
-          <Button energyLevel="medium" variant="primary">Medium Energy Task</Button>
-          <Button energyLevel="medium" variant="secondary">Medium Energy</Button>
-          <Button energyLevel="medium" variant="outline">Medium Energy</Button>
+          <Button energyLevel="medium" variant="primary">
+            Medium Energy Task
+          </Button>
+          <Button energyLevel="medium" variant="secondary">
+            Medium Energy
+          </Button>
+          <Button energyLevel="medium" variant="outline">
+            Medium Energy
+          </Button>
         </div>
         <div className="flex items-center gap-4">
-          <Button energyLevel="low" variant="primary">Low Energy Task</Button>
-          <Button energyLevel="low" variant="secondary">Low Energy</Button>
-          <Button energyLevel="low" variant="outline">Low Energy</Button>
+          <Button energyLevel="low" variant="primary">
+            Low Energy Task
+          </Button>
+          <Button energyLevel="low" variant="secondary">
+            Low Energy
+          </Button>
+          <Button energyLevel="low" variant="outline">
+            Low Energy
+          </Button>
         </div>
       </div>
       <div className="text-sm text-gray-600 max-w-md">
-        <strong>Energy Level Theming:</strong> Buttons can be themed to match task energy requirements, 
-        helping ADHD users quickly identify appropriate actions for their current energy state.
+        <strong>Energy Level Theming:</strong> Buttons can be themed to match task energy
+        requirements, helping ADHD users quickly identify appropriate actions for their current
+        energy state.
       </div>
     </div>
   ),
@@ -180,8 +214,12 @@ export const WithIcons: Story = {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
         <Button leftIcon={<PlusIcon />}>Add Task</Button>
-        <Button rightIcon={<DownloadIcon />} variant="secondary">Download</Button>
-        <Button leftIcon={<TrashIcon />} variant="destructive">Delete</Button>
+        <Button rightIcon={<DownloadIcon />} variant="secondary">
+          Download
+        </Button>
+        <Button leftIcon={<TrashIcon />} variant="destructive">
+          Delete
+        </Button>
       </div>
       <div className="text-sm text-gray-600">
         Icons help users quickly identify button actions and reduce cognitive load.
@@ -238,7 +276,7 @@ export const ButtonGroups: Story = {
           <Button variant="outline">Right</Button>
         </ButtonGroup>
       </div>
-      
+
       <div>
         <h4 className="text-sm font-medium mb-2">Vertical Group</h4>
         <ButtonGroup orientation="vertical">
@@ -247,7 +285,7 @@ export const ButtonGroups: Story = {
           <Button variant="outline">Bottom</Button>
         </ButtonGroup>
       </div>
-      
+
       <div>
         <h4 className="text-sm font-medium mb-2">Action Group</h4>
         <ButtonGroup>

@@ -4,12 +4,12 @@ export async function GET() {
   try {
     // Check if backend is accessible
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-    
+
     let backendStatus = 'unknown';
     try {
       const response = await fetch(`${backendUrl}/health`, {
         method: 'GET',
-        headers: { 'Accept': 'application/json' },
+        headers: { Accept: 'application/json' },
         // Short timeout for health checks
         signal: AbortSignal.timeout(3000),
       });

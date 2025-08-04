@@ -43,11 +43,7 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({
   const [isActive, setIsActive] = useState(false);
 
   // Create droppable zone
-  const {
-    isOver,
-    setNodeRef,
-    active,
-  } = useDroppable({
+  const { isOver, setNodeRef, active } = useDroppable({
     id: `time-slot-${startTime.getTime()}`,
     data: {
       type: 'time-slot',
@@ -62,34 +58,37 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({
   const { conflictGroups, hasConflicts } = useMemo(() => {
     const conflicts = new Map<string, CalendarEventType[]>();
     const processed = new Set<string>();
-    
+
     events.forEach(event => {
       if (processed.has(event.id)) return;
-      
+
       const eventStart = new Date(event.startTime);
       const eventEnd = new Date(event.endTime);
-      
+
       // Find overlapping events
       const overlapping = events.filter(otherEvent => {
         if (otherEvent.id === event.id) return true;
-        
+
         const otherStart = new Date(otherEvent.startTime);
         const otherEnd = new Date(otherEvent.endTime);
-        
+
         // Check for overlap
         return (
           (eventStart < otherEnd && eventEnd > otherStart) ||
           (otherStart < eventEnd && otherEnd > eventStart)
         );
       });
-      
+
       if (overlapping.length > 1) {
-        const groupKey = overlapping.map(e => e.id).sort().join('-');
+        const groupKey = overlapping
+          .map(e => e.id)
+          .sort()
+          .join('-');
         conflicts.set(groupKey, overlapping);
         overlapping.forEach(e => processed.add(e.id));
       }
     });
-    
+
     return {
       conflictGroups: Array.from(conflicts.values()),
       hasConflicts: conflicts.size > 0,
@@ -101,7 +100,7 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({
     return events.filter(event => {
       const eventStart = new Date(event.startTime);
       const eventEnd = new Date(event.endTime);
-      
+
       // Event overlaps with this time slot
       return (
         (eventStart < endTime && eventEnd > startTime) ||
@@ -112,23 +111,29 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({
   }, [events, startTime, endTime]);
 
   // Handle time slot click
-  const handleClick = useCallback((e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClick?.(startTime);
-    }
-  }, [onClick, startTime]);
+  const handleClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.target === e.currentTarget) {
+        onClick?.(startTime);
+      }
+    },
+    [onClick, startTime]
+  );
 
   // Handle event interactions
-  const handleEventClick = useCallback((event: CalendarEventType) => {
-    onEventClick?.(event);
-  }, [onEventClick]);
+  const handleEventClick = useCallback(
+    (event: CalendarEventType) => {
+      onEventClick?.(event);
+    },
+    [onEventClick]
+  );
 
   // Format time for display
   const formatTime = useCallback((date: Date) => {
-    return date.toLocaleTimeString([], { 
-      hour: '2-digit', 
+    return date.toLocaleTimeString([], {
+      hour: '2-digit',
       minute: '2-digit',
-      hour12: false 
+      hour12: false,
     });
   }, []);
 
@@ -140,20 +145,23 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({
   // Determine if this is a focus time slot (based on events)
   const getFocusType = useCallback(() => {
     if (slotEvents.length === 0) return null;
-    
+
     // Get most common focus type in this slot
-    const focusTypeCounts = slotEvents.reduce((acc, event) => {
-      if (event.focusType) {
-        acc[event.focusType] = (acc[event.focusType] || 0) + 1;
-      }
-      return acc;
-    }, {} as Record<string, number>);
-    
-    const mostCommonFocus = Object.keys(focusTypeCounts).reduce((a, b) =>
-      focusTypeCounts[a] > focusTypeCounts[b] ? a : b, 
+    const focusTypeCounts = slotEvents.reduce(
+      (acc, event) => {
+        if (event.focusType) {
+          acc[event.focusType] = (acc[event.focusType] || 0) + 1;
+        }
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+
+    const mostCommonFocus = Object.keys(focusTypeCounts).reduce(
+      (a, b) => (focusTypeCounts[a] > focusTypeCounts[b] ? a : b),
       Object.keys(focusTypeCounts)[0]
     );
-    
+
     return mostCommonFocus || null;
   }, [slotEvents]);
 
@@ -161,40 +169,39 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({
   const visualProps = useMemo(() => {
     const duration = getDurationMinutes();
     const focusType = getFocusType();
-    
+
     // Base height calculation (minimum 40px, scale with duration)
     const height = Math.max(40, Math.min(120, duration * 1.2));
-    
+
     // Color based on availability and working hours
-    let backgroundColor = isWorkingHours 
-      ? 'rgba(255, 255, 255, 0.8)' 
-      : 'rgba(248, 250, 252, 0.6)';
-    
-    let borderColor = isWorkingHours 
-      ? 'rgba(203, 213, 225, 0.5)' 
-      : 'rgba(203, 213, 225, 0.3)';
-    
+    let backgroundColor = isWorkingHours ? 'rgba(255, 255, 255, 0.8)' : 'rgba(248, 250, 252, 0.6)';
+
+    let borderColor = isWorkingHours ? 'rgba(203, 213, 225, 0.5)' : 'rgba(203, 213, 225, 0.3)';
+
     // Highlight if dragging over
     if (isOver) {
       backgroundColor = 'rgba(59, 130, 246, 0.1)';
       borderColor = 'rgba(59, 130, 246, 0.4)';
     }
-    
+
     // Focus type coloring
     if (focusType && slotEvents.length > 0) {
-      const focusColors = calendarTokens.colors.focusTypes[focusType as keyof typeof calendarTokens.colors.focusTypes];
+      const focusColors =
+        calendarTokens.colors.focusTypes[
+          focusType as keyof typeof calendarTokens.colors.focusTypes
+        ];
       if (focusColors) {
         backgroundColor = focusColors.secondary;
         borderColor = focusColors.primary;
       }
     }
-    
+
     // Conflict indication
     if (hasConflicts) {
       borderColor = '#EF4444'; // Red for conflicts
       backgroundColor = 'rgba(239, 68, 68, 0.05)';
     }
-    
+
     return {
       height: `${height}px`,
       backgroundColor,
@@ -220,7 +227,9 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({
     !isWorkingHours ? 'opacity-60' : '',
     compact ? 'text-xs' : 'text-sm',
     className,
-  ].filter(Boolean).join(' ');
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   // Display events (limit to maxEventsPerSlot)
   const displayEvents = slotEvents.slice(0, maxEventsPerSlot);
@@ -253,28 +262,22 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({
       )}
 
       {/* Working hours indicator */}
-      {!isWorkingHours && (
-        <div className="absolute top-1 right-1 text-xs text-gray-400">
-          💤
-        </div>
-      )}
+      {!isWorkingHours && <div className="absolute top-1 right-1 text-xs text-gray-400">💤</div>}
 
       {/* Drop zone indicator */}
       {isOver && active && (
         <div className="absolute inset-0 bg-blue-500 bg-opacity-10 border-2 border-blue-500 border-dashed rounded-md flex items-center justify-center">
-          <span className="text-blue-600 font-medium">
-            Drop here
-          </span>
+          <span className="text-blue-600 font-medium">Drop here</span>
         </div>
       )}
 
       {/* Events container */}
       <div className="events-container mt-6 space-y-1">
         {displayEvents.map((event, index) => {
-          const isConflicting = conflictGroups.some(group => 
+          const isConflicting = conflictGroups.some(group =>
             group.some(conflictEvent => conflictEvent.id === event.id)
           );
-          const conflictCount = isConflicting 
+          const conflictCount = isConflicting
             ? conflictGroups.find(group => group.some(e => e.id === event.id))?.length || 0
             : 0;
 
@@ -307,7 +310,7 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({
 
       {/* Conflict indicator */}
       {hasConflicts && (
-        <div 
+        <div
           id={`conflicts-${startTime.getTime()}`}
           className="absolute bottom-1 right-1 text-red-500 text-xs font-bold"
           title={`${conflictGroups.length} conflict${conflictGroups.length === 1 ? '' : 's'} detected`}
