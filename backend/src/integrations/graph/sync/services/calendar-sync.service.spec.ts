@@ -55,8 +55,8 @@ describe('CalendarSyncService', () => {
     id: 'graph-event-123',
     subject: 'Test Event',
     body: { content: 'Test Description' },
-    start: { dateTime: '2025-01-15T10:00:00Z' },
-    end: { dateTime: '2025-01-15T11:00:00Z' },
+    start: { dateTime: '2025-01-15T10:00:00Z', timeZone: 'UTC' },
+    end: { dateTime: '2025-01-15T11:00:00Z', timeZone: 'UTC' },
     location: { displayName: 'Test Location' },
     isAllDay: false,
     recurrence: null,
@@ -128,7 +128,11 @@ describe('CalendarSyncService', () => {
       graphAuthService.isTokenValid.mockResolvedValue(true);
 
       // Act
-      const jobId = await service.startSync(mockUser.id, 'bidirectional');
+      const syncOptions = {
+        direction: 'BIDIRECTIONAL' as any,
+        trigger: 'MANUAL' as any
+      };
+      const jobId = await service.startSync(mockUser.id, syncOptions);
 
       // Assert
       expect(jobId).toBeDefined();
@@ -146,8 +150,12 @@ describe('CalendarSyncService', () => {
       graphAuthService.isTokenValid.mockResolvedValue(false);
 
       // Act & Assert
+      const syncOptions = {
+        direction: 'BIDIRECTIONAL' as any,
+        trigger: 'MANUAL' as any
+      };
       await expect(
-        service.startSync(mockUser.id, 'bidirectional')
+        service.startSync(mockUser.id, syncOptions)
       ).rejects.toThrow('Invalid or expired access token');
     });
   });
@@ -195,8 +203,25 @@ describe('CalendarSyncService', () => {
       deltaSyncManager.getDeltaChanges.mockResolvedValue(mockDeltaResult);
       prismaService.calendarEvent.upsert.mockResolvedValue({
         id: 'local-event-123',
-        ...mockGraphEvent,
-      });
+        userId: 'test-user-123',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        description: 'Test Description',
+        graphId: 'graph-event-123',
+        graphCalendarId: 'calendar-123',
+        graphEtag: 'etag-123',
+        subject: 'Test Event',
+        location: 'Test Location',
+        startDateTime: new Date('2025-01-15T10:00:00Z'),
+        endDateTime: new Date('2025-01-15T11:00:00Z'),
+        isAllDay: false,
+        isRecurring: false,
+        recurrencePattern: null,
+        calendarEventId: 'local-event-123',
+        syncStatus: 'SYNCED',
+        lastSyncAt: new Date(),
+        conflictData: null,
+      } as any);
 
       // Act
       const result = await service['performPullSync'](
@@ -220,7 +245,11 @@ describe('CalendarSyncService', () => {
       deltaSyncManager.getDeltaChanges.mockRejectedValue(
         new Error('DELTA_TOKEN_INVALID')
       );
-      graphService.getCalendarEvents.mockResolvedValue([mockGraphEvent]);
+      graphService.getCalendarEvents.mockResolvedValue({
+        value: [mockGraphEvent],
+        '@odata.nextLink': null,
+        totalCount: 1,
+      });
 
       // Act
       const result = await service['performPullSync'](
@@ -248,19 +277,24 @@ describe('CalendarSyncService', () => {
 
       const conflictInfo = {
         eventId: localEvent.id,
-        conflictTypes: ['TITLE'],
-        localModified: new Date('2025-01-15T10:00:00Z'),
-        remoteModified: new Date('2025-01-15T09:00:00Z'),
-        details: {},
-        suggestedResolution: 'prefer_latest',
+        conflictType: 'TITLE',
+        localVersion: {
+          subject: 'Local Subject',
+          description: 'Local Description',
+          startTime: new Date('2025-01-15T10:00:00Z'),
+          endTime: new Date('2025-01-15T11:00:00Z')
+        },
+        remoteVersion: {
+          subject: 'Remote Subject',
+          description: 'Remote Description',
+          startTime: new Date('2025-01-15T10:00:00Z'),
+          endTime: new Date('2025-01-15T11:00:00Z')
+        },
+        autoResolvable: true,
       };
 
       conflictResolver.detectConflicts.mockResolvedValue(conflictInfo);
-      conflictResolver.autoResolveConflict.mockResolvedValue({
-        resolvedEvent: localEvent,
-        resolution: CalendarConflictResolution.PREFER_LOCAL,
-        details: { reason: 'Local event modified more recently' },
-      });
+      conflictResolver.resolveConflict.mockResolvedValue();
 
       // Act
       const result = await service['detectAndResolveConflicts'](
@@ -274,7 +308,7 @@ describe('CalendarSyncService', () => {
       expect(result.hasConflict).toBe(true);
       expect(result.resolution).toBe(CalendarConflictResolution.PREFER_LOCAL);
       expect(conflictResolver.detectConflicts).toHaveBeenCalled();
-      expect(conflictResolver.autoResolveConflict).toHaveBeenCalled();
+      expect(conflictResolver.resolveConflict).toHaveBeenCalled();
     });
 
     it('should handle no conflicts scenario', async () => {
