@@ -7,6 +7,18 @@
 
 import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import { PerformanceErrorBoundary } from './PerformanceErrorBoundary';
+import {
+  usePerformanceMonitor,
+  useRenderPerformance,
+  useInteractionTracking,
+  useBundleMonitor,
+} from '@/hooks/usePerformanceMonitor';
+import { useMemoryMonitor } from '@/lib/performance';
+import {
+  useServiceWorker,
+  useNetworkStatus,
+  useServiceWorkerPerformance,
+} from '@/hooks/useServiceWorker';
 
 interface RenderMetrics {
   slowRenders: number;
@@ -39,6 +51,15 @@ interface PerformanceContextType {
   enableDebugMode: () => void;
   disableDebugMode: () => void;
   isDebugMode: boolean;
+  performanceScore: number;
+  violations: any[];
+  bundleInfo: any;
+  serviceWorker: {
+    isRegistered: boolean;
+    isOffline: boolean;
+    updateAvailable: boolean;
+    cacheHitRatio: number;
+  };
 }
 
 const PerformanceContext = createContext<PerformanceContextType | null>(null);
@@ -56,16 +77,104 @@ interface PerformanceProviderProps {
 }
 
 export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({ children }) => {
-  // Simple state management without complex hook dependencies
+  // Use real performance monitoring hooks
+  const performanceData = usePerformanceMonitor();
+  const renderData = useRenderPerformance('PerformanceProvider');
+  const interactionData = useInteractionTracking();
+  const memoryData = useMemoryMonitor();
+  const bundleData = useBundleMonitor();
+
+  // Service worker monitoring
+  const serviceWorkerState = useServiceWorker();
+  const isOnline = useNetworkStatus();
+  const swPerformance = useServiceWorkerPerformance();
+
+  // State management for UI features
   const [showPerformanceWarning, setShowPerformanceWarning] = useState(false);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isDebugMode, setIsDebugMode] = useState(false);
 
-  // Provide safe default values
-  const metrics = null; // Keep it simple for now
-  const renderMetrics = { slowRenders: 0, averageTime: 0, count: 0 };
-  const interactionMetrics = { avgResponseTime: 0, slowInteractions: 0, totalInteractions: 0 };
-  const isSlowDevice = false;
+  // Real metrics from monitoring hooks - stabilized dependencies
+  const metrics: PerformanceMetrics = useMemo(() => {
+    if (!performanceData.metrics) return {};
+
+    return {
+      lcp: performanceData.metrics.lcp,
+      fid: performanceData.metrics.fid,
+      cls: performanceData.metrics.cls,
+      memoryInfo: memoryData,
+    };
+  }, [
+    performanceData.metrics?.lcp,
+    performanceData.metrics?.fid,
+    performanceData.metrics?.cls,
+    memoryData?.usedJSHeapSize, // Use specific memory property instead of full object
+    memoryData?.isHigh,
+  ]);
+
+  // Real render metrics - stabilized dependencies
+  const renderMetrics: RenderMetrics = useMemo(() => {
+    if (!renderData) return { slowRenders: 0, averageTime: 0, count: 0 };
+
+    return {
+      slowRenders: renderData.slowRenders || 0,
+      averageTime: renderData.averageTime || 0,
+      count: renderData.count || 0,
+    };
+  }, [renderData?.slowRenders, renderData?.averageTime, renderData?.count]);
+
+  // Real interaction metrics - stabilized dependencies
+  const interactionMetrics: InteractionMetrics = useMemo(() => {
+    if (!interactionData) return { avgResponseTime: 0, slowInteractions: 0, totalInteractions: 0 };
+
+    return {
+      avgResponseTime: interactionData.averageLatency || 0,
+      slowInteractions: interactionData.slowInteractions || 0,
+      totalInteractions: interactionData.totalInteractions || 0,
+    };
+  }, [
+    interactionData?.averageLatency,
+    interactionData?.slowInteractions,
+    interactionData?.totalInteractions,
+  ]);
+
+  // Determine if device is slow based on real metrics - stabilized
+  const isSlowDevice = useMemo(() => {
+    const overallScore = performanceData.score?.overall || 100;
+    const isHighMemory = memoryData?.isHigh || false;
+    return overallScore < 50 || isHighMemory;
+  }, [performanceData.score?.overall, memoryData?.isHigh]);
+
+  // Generate real suggestions from monitoring data - stabilized
+  const suggestions = useMemo(() => {
+    const performanceRecommendations = performanceData.score?.recommendations || [];
+    const bundleRecommendations = bundleData?.recommendations || [];
+
+    return [...performanceRecommendations, ...bundleRecommendations];
+  }, [
+    performanceData.score?.recommendations?.length,
+    bundleData?.recommendations?.length,
+    // Use stable string representation for content changes
+    (performanceData.score?.recommendations || []).join('|'),
+    (bundleData?.recommendations || []).join('|'),
+  ]);
+
+  // Show warning when performance issues are detected - stabilized
+  useEffect(() => {
+    const overallScore = performanceData.score?.overall || 100;
+    const violationsCount = performanceData.violations?.length || 0;
+    const exceedsBudget = bundleData?.exceedsBudget || false;
+
+    const hasPerformanceIssues = overallScore < 70 || violationsCount > 0 || exceedsBudget;
+
+    if (hasPerformanceIssues && suggestions.length > 0) {
+      setShowPerformanceWarning(true);
+    }
+  }, [
+    performanceData.score?.overall,
+    performanceData.violations?.length,
+    bundleData?.exceedsBudget,
+    suggestions.length,
+  ]);
 
   // Auto-dismiss warning after 10 seconds (ADHD-friendly)
   useEffect(() => {
@@ -97,7 +206,8 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({ childr
   }, []);
 
   const clearMetrics = useCallback(() => {
-    setSuggestions([]);
+    // Clear suggestions - metrics are managed by hooks
+    setShowPerformanceWarning(false);
   }, []);
 
   const enableDebugMode = useCallback(() => {
@@ -108,7 +218,7 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({ childr
     setIsDebugMode(false);
   }, []);
 
-  // Memoize context value to prevent unnecessary re-renders
+  // Memoize context value to prevent unnecessary re-renders - stabilized dependencies
   const contextValue: PerformanceContextType = useMemo(
     () => ({
       metrics,
@@ -122,6 +232,15 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({ childr
       enableDebugMode,
       disableDebugMode,
       isDebugMode,
+      performanceScore: performanceData.score?.overall || 0,
+      violations: performanceData.violations || [],
+      bundleInfo: bundleData || {},
+      serviceWorker: {
+        isRegistered: serviceWorkerState?.isRegistered || false,
+        isOffline: !isOnline,
+        updateAvailable: serviceWorkerState?.updateAvailable || false,
+        cacheHitRatio: swPerformance?.cacheHitRatio || 0,
+      },
     }),
     [
       metrics,
@@ -135,6 +254,14 @@ export const PerformanceProvider: React.FC<PerformanceProviderProps> = ({ childr
       enableDebugMode,
       disableDebugMode,
       isDebugMode,
+      performanceData.score?.overall,
+      performanceData.violations?.length, // Use length instead of array reference
+      bundleData?.exceedsBudget,
+      bundleData?.totalSize,
+      serviceWorkerState?.isRegistered,
+      serviceWorkerState?.updateAvailable,
+      isOnline,
+      swPerformance?.cacheHitRatio,
     ]
   );
 

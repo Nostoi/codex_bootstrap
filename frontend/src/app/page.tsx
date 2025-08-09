@@ -1,7 +1,13 @@
+'use client';
+
 import Link from 'next/link';
+import { useState } from 'react';
+import { Menu, X } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 export default function Home() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <main className="min-h-screen bg-background">
       {/* Navigation Header */}
@@ -18,6 +24,7 @@ export default function Home() {
             </div>
 
             <div className="flex items-center space-x-4">
+              {/* Desktop Navigation */}
               <nav className="hidden md:flex space-x-1">
                 <Link
                   href="/dashboard"
@@ -46,8 +53,53 @@ export default function Home() {
               </nav>
 
               <ThemeToggle />
+
+              {/* Mobile menu button */}
+              <button
+                className="md:hidden p-2 rounded-md text-text-secondary hover:text-text-primary hover:bg-background-muted"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label="Toggle mobile menu"
+              >
+                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
             </div>
           </div>
+
+          {/* Mobile Navigation Menu */}
+          {mobileMenuOpen && (
+            <div className="md:hidden border-t border-border-primary">
+              <nav className="px-2 pt-2 pb-3 space-y-1">
+                <Link
+                  href="/dashboard"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-text-secondary hover:text-text-primary hover:bg-background-muted transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/projects"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-text-secondary hover:text-text-primary hover:bg-background-muted transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Projects
+                </Link>
+                <Link
+                  href="/reflection"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-text-secondary hover:text-text-primary hover:bg-background-muted transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Reflection
+                </Link>
+                <Link
+                  href="/settings"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-text-secondary hover:text-text-primary hover:bg-background-muted transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Settings
+                </Link>
+              </nav>
+            </div>
+          )}
         </div>
       </nav>
 

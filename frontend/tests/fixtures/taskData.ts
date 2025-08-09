@@ -238,70 +238,141 @@ export const mockAIExtractionTexts = [
 export const mockDailyPlans = [
   {
     date: '2025-01-15',
-    userEnergyPattern: {
-      morning: 'high' as EnergyLevel,
-      afternoon: 'medium' as EnergyLevel,
-      evening: 'low' as EnergyLevel,
-    },
-    scheduledTasks: [
+    scheduleBlocks: [
       {
-        taskId: 'task-1',
-        timeSlot: '09:00-11:00',
-        energyMatch: 'optimal',
+        startTime: '09:00',
+        endTime: '11:00',
+        task: {
+          id: 'task-1',
+          title: 'High Priority Task',
+          description: 'Important morning task',
+          energyLevel: 'HIGH' as const,
+          focusType: 'TECHNICAL' as const,
+          estimatedMinutes: 120,
+          priority: 5,
+        },
+        energyMatch: 0.9,
+        focusMatch: 0.85,
+        reasoning: 'Optimal energy level match for high-priority technical work',
       },
       {
-        taskId: 'task-2',
-        timeSlot: '14:00-15:30',
-        energyMatch: 'good',
-      },
-      {
-        taskId: 'task-3',
-        timeSlot: '16:00-16:45',
-        energyMatch: 'optimal',
+        startTime: '14:00',
+        endTime: '15:30',
+        task: {
+          id: 'task-2',
+          title: 'Medium Priority Task',
+          description: 'Afternoon administrative work',
+          energyLevel: 'MEDIUM' as const,
+          focusType: 'ADMINISTRATIVE' as const,
+          estimatedMinutes: 90,
+          priority: 3,
+        },
+        energyMatch: 0.8,
+        focusMatch: 0.9,
+        reasoning: 'Good energy match for administrative tasks',
       },
     ],
+    unscheduledTasks: [
+      {
+        id: 'task-3',
+        title: 'Low Priority Task',
+        description: 'Can be done anytime',
+        energyLevel: 'LOW' as const,
+        focusType: 'CREATIVE' as const,
+        estimatedMinutes: 45,
+        priority: 1,
+      },
+    ],
+    totalEstimatedMinutes: 255,
+    energyOptimization: 0.85,
+    focusOptimization: 0.87,
+    deadlineRisk: 0.15,
   },
 ];
 
 export const testSelectors = {
   dashboard: {
-    title: '[data-testid="dashboard-title"]',
-    filterBar: '[data-testid="filter-bar"]',
-    taskGrid: '[data-testid="task-grid"]',
-    taskCard: '[data-testid="task-card"]',
-    focusView: '[data-testid="focus-view"]',
-    calendarEvents: '[data-testid="calendar-events"]',
+    title: 'h1:has-text("Helmsman Dashboard")',
+    subtitle: 'text="AI-powered productivity workspace"',
+    mainContent: '.p-6', // Main content wrapper
+    gridView: '.grid.grid-cols-1.lg\\:grid-cols-12', // Main grid layout
+    tasksGrid: '[data-testid="main-task-grid"]', // Task cards grid with unique selector
+    taskGrid: '[data-testid="main-task-grid"]', // Alias for tasksGrid for test compatibility
+    sidebar: '.lg\\:col-span-4.space-y-6', // Right sidebar
+    stats: '.stats.stats-horizontal.shadow', // Task statistics
+    viewModeToggle: '.join', // Grid/Focus toggle buttons
+    refreshButton: 'button:has-text("� Refresh Plan")',
+    aiStatus: '.badge.gap-2', // AI connection status
   },
   taskCard: {
-    title: '[data-testid="task-title"]',
-    description: '[data-testid="task-description"]',
-    priority: '[data-testid="task-priority"]',
-    energyLevel: '[data-testid="energy-level"]',
-    focusType: '[data-testid="focus-type"]',
-    deadline: '[data-testid="task-deadline"]',
-    complexity: '[data-testid="task-complexity"]',
-    duration: '[data-testid="estimated-duration"]',
+    container: '.card.h-fit', // TaskCard container
+    title: '[data-testid="task-title"]', // Task title element
+    description: '[data-testid="task-description"]', // Task description
+    status: '[data-testid="task-status"]', // Task status badge
+    priority: '[data-testid="task-priority"]', // Priority indicator
+    energyLevel: '[data-testid="task-energy"]', // Energy level badge
+    focusType: '[data-testid="task-focus-type"]', // Focus type badge
+    deadline: '[data-testid="task-deadline"]', // Deadline display
+    estimatedTime: '[data-testid="task-estimated-time"]', // Time estimate
+    actions: '[data-testid="task-actions"]', // Action buttons
+    // Dependency Management Elements
+    dependencyIndicator: 'span:has-text("dependencies")', // Dependency indicator
+    blockedIndicator: 'span:has-text("Blocked")', // Blocked status indicator
+    dependencyCount: 'span:has-text("dependencies")', // Dependency count display
   },
   filterBar: {
-    searchInput: '[data-testid="search-input"]',
-    energyFilter: '[data-testid="energy-filter"]',
-    focusFilter: '[data-testid="focus-filter"]',
-    statusFilter: '[data-testid="status-filter"]',
-    priorityFilter: '[data-testid="priority-filter"]',
-    clearFilters: '[data-testid="clear-filters"]',
+    container: '.sticky.top-0.z-10', // FilterBar container
+    searchInput: '#task-search', // Updated to use actual id
+    energyFilters: '[data-testid="energy-filter-group"]',
+    focusFilters: '[data-testid="focus-filter-group"]',
+    statusFilters: '[data-testid="status-filter-group"]',
+    priorityRange: '[data-testid="priority-range"]',
+    clearButton: 'button:has-text("Clear")',
+    resetButton: 'button:has-text("Reset")',
+    // Individual energy level buttons
+    highEnergyFilter: 'button:has-text("⚡")',
+    mediumEnergyFilter: 'button:has-text("⚖️")',
+    lowEnergyFilter: 'button:has-text("🌱")',
+    // Individual focus type buttons
+    creativeFilter: 'button:has-text("🎨")',
+    technicalFilter: 'button:has-text("⚙️")',
+    administrativeFilter: 'button:has-text("📋")',
+    socialFilter: 'button:has-text("👥")',
   },
   dailyPlanning: {
-    planHeader: '[data-testid="plan-header"]',
-    timeSlot: '[data-testid="time-slot"]',
-    energyIndicator: '[data-testid="energy-indicator"]',
-    scheduledTask: '[data-testid="scheduled-task"]',
-    generatePlan: '[data-testid="generate-plan"]',
+    planHeader: 'h1:has-text("Helmsman Dashboard")', // Main dashboard header
+    loadingAlert: '.alert.alert-info:has-text("Loading your daily plan")',
+    errorAlert: '.alert.alert-warning',
+    optimizationStats: '.grid.grid-cols-1.md\\:grid-cols-3.gap-4',
+    energyOptimization: '.stat:has-text("Energy Optimization")',
+    focusOptimization: '.stat:has-text("Focus Optimization")',
+    deadlineRisk: '.stat:has-text("Deadline Risk")',
+    refreshPlanButton: 'button:has-text("Retry")', // The refresh plan button in error state
+    generatePlan: 'button:has-text("Retry")', // Same as refresh plan for now
+  },
+  viewModes: {
+    gridViewButton: 'button:has-text("📋 Grid")',
+    focusViewButton: 'button:has-text("🎯 Focus")',
+    focusViewContainer: '.lg\\:col-span-6', // Focus view main area
   },
   aiIntegration: {
-    textInput: '[data-testid="ai-text-input"]',
-    extractButton: '[data-testid="extract-tasks"]',
-    suggestedTasks: '[data-testid="suggested-tasks"]',
-    acceptSuggestion: '[data-testid="accept-suggestion"]',
-    rejectSuggestion: '[data-testid="reject-suggestion"]',
+    chatContainer: '.card', // ChatGPT integration card
+    textInput: 'textarea[placeholder*="AI Assistant"]', // Works for both connected and disconnected states
+    sendButton: 'button[type="submit"]',
+    extractButton: 'button:has-text("📋 Extract Tasks")',
+    clearButton: 'button:has-text("Clear Chat")',
+    messagesContainer: '.messages',
+    aiStatus: '.badge:has-text("AI")',
+  },
+  calendarEvents: {
+    container: '.card:has(.card-title:has-text("📅"))',
+    eventsList: '[data-testid="calendar-events-list"]',
+    noEventsMessage: 'text="No calendar events"',
+  },
+  emailIntegration: {
+    container: '.card:has(.card-title:has-text("📧"))',
+    providerSelect: 'select',
+    scanButton: 'button:has-text("Scan")',
+    extractedTasks: '[data-testid="extracted-email-tasks"]',
   },
 };

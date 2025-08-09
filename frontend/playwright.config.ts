@@ -11,7 +11,7 @@ const config: PlaywrightTestConfig = {
   //   reuseExistingServer: true,
   // },
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:3002',
     headless: true,
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

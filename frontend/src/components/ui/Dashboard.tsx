@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import FocusView from './FocusView';
 import ChatGPTIntegration, { ChatMessage, ExtractedTask } from './ChatGPTIntegration';
+import EmailIntegration from './EmailIntegration';
 import CalendarEvents from './CalendarEvents';
 import FilterBar, { FilterValues } from './FilterBar';
 import TaskCard, { EnhancedTask } from './TaskCard';
@@ -592,6 +593,14 @@ const Dashboard: React.FC<DashboardProps> = ({
             </div>
 
             <div className="lg:col-span-3">
+              <EmailIntegration
+                userId="current-user" // TODO: Get from auth context
+                onTasksExtracted={handleExtractTasks}
+                onError={error => console.error('Email integration error:', error)}
+              />
+            </div>
+
+            <div className="lg:col-span-3">
               <ChatGPTIntegration
                 messages={messages}
                 onSendMessage={handleSendMessage}
@@ -600,7 +609,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 isLoading={isAiLoading}
                 isConnected={isAiConnected}
                 placeholder="Ask AI to help plan your day, extract tasks, or optimize your workflow..."
-                maxHeight="600px"
+                maxHeight="400px"
                 showTaskExtraction={true}
               />
             </div>
@@ -658,7 +667,10 @@ const Dashboard: React.FC<DashboardProps> = ({
                     )}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div
+                    className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                    data-testid="main-task-grid"
+                  >
                     {sortedFilteredTasks.map(task => (
                       <TaskCard
                         key={task.id}
@@ -712,6 +724,13 @@ const Dashboard: React.FC<DashboardProps> = ({
                   </div>
                 </div>
               )}
+
+              {/* Email Integration */}
+              <EmailIntegration
+                userId="current-user" // TODO: Get from auth context
+                onTasksExtracted={handleExtractTasks}
+                onError={error => console.error('Email integration error:', error)}
+              />
 
               {/* Chat Integration */}
               <ChatGPTIntegration

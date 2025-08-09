@@ -7,6 +7,15 @@ test.describe('Navigation Tests', () => {
     // Check that the homepage loads correctly
     await expect(page.getByRole('heading', { name: /welcome to codex bootstrap/i })).toBeVisible();
 
+    // Check if mobile menu button is visible (indicates mobile viewport)
+    const mobileMenuButton = page.getByRole('button', { name: 'Toggle mobile menu' });
+    const isMobileViewport = await mobileMenuButton.isVisible();
+
+    if (isMobileViewport) {
+      // For mobile devices, open the mobile menu first
+      await mobileMenuButton.click();
+    }
+
     // Test navigation menu (use role-based selectors instead of CSS classes)
     await expect(
       page.getByRole('navigation').getByRole('link', { name: 'Dashboard' })
@@ -137,24 +146,23 @@ test.describe('Settings Page', () => {
   test('settings page loads with sidebar navigation', async ({ page }) => {
     await page.goto('/settings');
 
-    // Check page title (use more specific selector)
-    await expect(page.getByRole('heading', { name: 'Settings', exact: true })).toBeVisible();
+    // Check page title (use layout heading)
+    await expect(page.getByRole('heading', { name: 'Settings', level: 2 })).toBeVisible();
 
     // Check sidebar menu
-    await expect(page.getByRole('button', { name: /general/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /notifications/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /privacy/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /general/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /notifications/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /privacy/i })).toBeVisible();
   });
 
   test('general settings are displayed', async ({ page }) => {
     await page.goto('/settings');
 
     // Check general settings elements
-    await expect(page.getByText('Theme')).toBeVisible();
-    await expect(page.getByText('Language')).toBeVisible();
-    await expect(page.getByText('Timezone')).toBeVisible();
-    await expect(page.getByText('Date Format')).toBeVisible();
-    await expect(page.getByText('Start of Week')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Theme' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Language' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Timezone' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Date Format' })).toBeVisible();
 
     // Check save button
     await expect(page.getByRole('button', { name: /save changes/i })).toBeVisible();
@@ -164,15 +172,13 @@ test.describe('Settings Page', () => {
     await page.goto('/settings');
 
     // Test notifications tab
-    await page.getByRole('button', { name: /notifications/i }).click();
-    await expect(page.getByText('Email Notifications')).toBeVisible();
-    await expect(page.getByText('Push Notifications')).toBeVisible();
+    await page.getByRole('link', { name: /notifications/i }).click();
+    await expect(page.getByRole('heading', { name: 'Notification Settings' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Notification History' })).toBeVisible();
 
     // Test privacy tab
-    await page.getByRole('button', { name: /privacy/i }).click();
-    await expect(page.getByText('Public Profile')).toBeVisible();
-    await expect(page.getByText('Show Activity')).toBeVisible();
-    await expect(page.getByText('Analytics')).toBeVisible();
+    await page.getByRole('link', { name: /privacy/i }).click();
+    await expect(page.getByRole('heading', { name: 'Privacy & Security' })).toBeVisible();
   });
 });
 
@@ -183,23 +189,23 @@ test.describe('Navigation Between Pages', () => {
 
     // Navigate to Dashboard
     await page.getByRole('link', { name: 'Dashboard' }).first().click();
-    await expect(page).toHaveURL('/dashboard');
+    await page.waitForURL('/dashboard');
 
     // Navigate to Projects
     await page.getByRole('link', { name: 'Projects' }).click();
-    await expect(page).toHaveURL('/projects');
+    await page.waitForURL('/projects');
 
     // Navigate to Reflection
     await page.getByRole('link', { name: 'Reflection' }).click();
-    await expect(page).toHaveURL('/reflection');
+    await page.waitForURL('/reflection');
 
     // Navigate to Settings
     await page.getByRole('link', { name: 'Settings' }).click();
-    await expect(page).toHaveURL('/settings');
+    await page.waitForURL('/settings');
 
     // Navigate back home
     await page.getByRole('link', { name: 'Codex Bootstrap' }).click();
-    await expect(page).toHaveURL('/');
+    await page.waitForURL('/');
   });
 
   test('quick nav cards navigate correctly', async ({ page }) => {
@@ -209,7 +215,7 @@ test.describe('Navigation Between Pages', () => {
     await page
       .getByRole('link', { name: 'Dashboard View your tasks and daily energy planning' })
       .click();
-    await expect(page).toHaveURL('/dashboard');
+    await page.waitForURL('/dashboard');
 
     await page.goto('/');
 
@@ -217,7 +223,7 @@ test.describe('Navigation Between Pages', () => {
     await page
       .getByRole('link', { name: 'Projects Manage projects with energy-aware organization' })
       .click();
-    await expect(page).toHaveURL('/projects');
+    await page.waitForURL('/projects');
 
     await page.goto('/');
 

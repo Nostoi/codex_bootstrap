@@ -38,41 +38,88 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
   const pathname = usePathname();
 
   return (
-    <div className="flex h-screen bg-background">
-      {/* Sidebar */}
-      <div className="w-64 border-r bg-muted/10">
-        <div className="p-6">
-          <h2 className="text-lg font-semibold">Settings</h2>
+    <div className="min-h-screen bg-background">
+      {/* Top Navigation Bar */}
+      <nav className="bg-background-secondary border-b border-border-primary">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex items-center">
+              <Link
+                href="/"
+                className="text-xl font-bold text-text-primary hover:text-interactive-primary transition-colors"
+              >
+                Codex Bootstrap
+              </Link>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <nav className="hidden md:flex space-x-1">
+                <Link
+                  href="/dashboard"
+                  className="px-3 py-2 rounded-md text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-background-muted transition-colors"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/projects"
+                  className="px-3 py-2 rounded-md text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-background-muted transition-colors"
+                >
+                  Projects
+                </Link>
+                <Link
+                  href="/reflection"
+                  className="px-3 py-2 rounded-md text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-background-muted transition-colors"
+                >
+                  Reflection
+                </Link>
+                <Link
+                  href="/settings"
+                  className="px-3 py-2 rounded-md text-sm font-medium text-text-primary bg-background-muted transition-colors"
+                >
+                  Settings
+                </Link>
+              </nav>
+            </div>
+          </div>
         </div>
-        <nav className="px-3">
-          <ul className="space-y-1">
-            {settingsNavigation.map(item => {
-              const IconComponent = item.icon;
-              const isActive = pathname === item.href;
+      </nav>
 
-              return (
-                <li key={item.name}>
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                      isActive
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                    )}
-                  >
-                    <IconComponent className="h-4 w-4" />
-                    {item.name}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+      <div className="flex">
+        {/* Sidebar */}
+        <div className="w-64 border-r bg-muted/10">
+          <div className="p-6">
+            <h2 className="text-lg font-semibold">Settings</h2>
+          </div>
+          <nav className="px-3">
+            <ul className="space-y-1">
+              {settingsNavigation.map(item => {
+                const IconComponent = item.icon;
+                const isActive = pathname === item.href;
+
+                return (
+                  <li key={item.name}>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                        isActive
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                      )}
+                    >
+                      <IconComponent className="h-4 w-4" />
+                      {item.name}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+        </div>
+
+        {/* Main content */}
+        <div className="flex-1 overflow-auto">{children}</div>
       </div>
-
-      {/* Main content */}
-      <div className="flex-1 overflow-auto">{children}</div>
     </div>
   );
 }

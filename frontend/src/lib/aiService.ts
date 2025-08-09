@@ -118,4 +118,135 @@ export const aiService = {
       return false;
     }
   },
+
+  /**
+   * Extract tasks from email content
+   */
+  async extractTasksFromEmails(
+    emails: Array<{
+      id: string;
+      subject: string;
+      from: string;
+      date: string;
+      content: string;
+      snippet?: string;
+    }>
+  ): Promise<ExtractedTask[]> {
+    try {
+      const response = await api.post<TaskExtractionResponse>('/api/email-ai/extract-tasks', {
+        emails,
+      });
+
+      // Convert backend Task format to frontend ExtractedTask format
+      return response.data.map(convertBackendTaskToExtractedTask);
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw new Error(`Email task extraction error: ${error.message}`);
+      }
+      throw new Error('Failed to extract tasks from emails');
+    }
+  },
+
+  /**
+   * Get Gmail messages for task extraction
+   */
+  async getGmailMessagesForTasks(userId: string, daysBack: number = 7): Promise<any[]> {
+    try {
+      const response = await api.get<any[]>(`/api/integrations/google/gmail/${userId}/tasks`, {
+        params: { daysBack },
+      });
+      return response;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw new Error(`Gmail integration error: ${error.message}`);
+      }
+      throw new Error('Failed to get Gmail messages');
+    }
+  },
+
+  /**
+   * Get Outlook messages for task extraction
+   */
+  async getOutlookMessagesForTasks(userId: string, daysBack: number = 7): Promise<any[]> {
+    try {
+      const response = await api.get<any[]>(`/api/integrations/microsoft/mail/${userId}/tasks`, {
+        params: { daysBack },
+      });
+      return response;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw new Error(`Outlook integration error: ${error.message}`);
+      }
+      throw new Error('Failed to get Outlook messages');
+    }
+  },
+
+  /**
+   * Extract tasks from both Gmail and Outlook emails
+   */
+  async extractTasksFromAllEmails(
+    userId: string,
+    daysBack: number = 7,
+    provider: 'google' | 'microsoft' | 'both' = 'both'
+  ): Promise<{
+    tasks: ExtractedTask[];
+    emailsProcessed: number;
+    tasksExtracted: number;
+    usage?: any;
+    processingTimeMs?: number;
+  }> {
+    try {
+      const response = await api.get<any>(`/api/email-ai/${userId}/extract-tasks`, {
+        params: { daysBack, provider },
+      });
+
+      // Convert backend response format
+      const tasks = response.data.tasks?.map(convertBackendTaskToExtractedTask) || [];
+
+      return {
+        tasks,
+        emailsProcessed: response.data.emailsProcessed || 0,
+        tasksExtracted: response.data.tasksExtracted || 0,
+        usage: response.data.usage,
+        processingTimeMs: response.data.processingTimeMs,
+      };
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw new Error(`Email task extraction error: ${error.message}`);
+      }
+      throw new Error('Failed to extract tasks from emails');
+    }
+  },
+
+  /**
+   * Classify email for task extraction relevance
+   */
+  async classifyEmailForTasks(email: {
+    subject: string;
+    from: string;
+    content: string;
+    snippet?: string;
+  }): Promise<{
+    hasActionableContent: boolean;
+    confidence: number;
+    categories: string[];
+    urgency: 'high' | 'medium' | 'low';
+  }> {
+    try {
+      const response = await api.post<any>(`/api/email-ai/classify-email`, email);
+      return (
+        response.data || {
+          hasActionableContent: false,
+          confidence: 0,
+          categories: [],
+          urgency: 'low',
+        }
+      );
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw new Error(`Email classification error: ${error.message}`);
+      }
+      throw new Error('Failed to classify email');
+    }
+  },
 };

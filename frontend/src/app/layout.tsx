@@ -96,22 +96,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="color-scheme" content="light dark" />
       </head>
       <body className={`${inter.className} antialiased`}>
-        <PerformanceProvider>
-          <ServiceWorkerProvider>
-            <Providers>
-              {/* Skip to main content for accessibility */}
-              <a
-                href="#main-content"
-                className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50"
-              >
-                Skip to main content
-              </a>
-              <main id="main-content" className="min-h-screen">
-                {children}
-              </main>
-            </Providers>
-          </ServiceWorkerProvider>
-        </PerformanceProvider>
+        {/* <PerformanceProvider> */}
+        <ServiceWorkerProvider>
+          <Providers>
+            {/* Skip to main content for accessibility */}
+            <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50"
+            >
+              Skip to main content
+            </a>
+            <main id="main-content" className="min-h-screen">
+              {children}
+            </main>
+          </Providers>
+        </ServiceWorkerProvider>
+        {/* </PerformanceProvider> */}
 
         {/* Service Worker registration script */}
         <script

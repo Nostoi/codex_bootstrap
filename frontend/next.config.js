@@ -96,7 +96,7 @@ const nextConfig = {
     return config;
   },
 
-  // Headers for performance and security
+  // Headers for performance and security with CDN optimization
   async headers() {
     return [
       {
@@ -140,6 +140,36 @@ const nextConfig = {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
           },
+          {
+            key: 'CDN-Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/images/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, stale-while-revalidate=3600',
+          },
+          {
+            key: 'CDN-Cache-Control',
+            value: 'public, max-age=2592000', // 30 days for CDN
+          },
+        ],
+      },
+      {
+        source: '/fonts/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+          {
+            key: 'CDN-Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
         ],
       },
       {
@@ -148,6 +178,10 @@ const nextConfig = {
           {
             key: 'Cache-Control',
             value: 'public, max-age=300, stale-while-revalidate=60',
+          },
+          {
+            key: 'CDN-Cache-Control',
+            value: 'public, max-age=60', // Shorter CDN cache for API
           },
         ],
       },
@@ -164,13 +198,18 @@ const nextConfig = {
     ];
   },
 
-  // Image optimization for faster loading
+  // Image optimization for faster loading with CDN support
   images: {
-    domains: ['localhost', 'codex-bootstrap.com'],
+    domains: ['localhost', 'codex-bootstrap.com', 'cdn.codex-bootstrap.com'],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 86400, // 24 hours
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // CDN-optimized image settings for ADHD-friendly fast loading
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    loader: process.env.NODE_ENV === 'production' ? 'custom' : 'default',
+    loaderFile: process.env.NODE_ENV === 'production' ? './lib/cdn-image-loader.js' : undefined,
   },
 
   // Redirects for better UX

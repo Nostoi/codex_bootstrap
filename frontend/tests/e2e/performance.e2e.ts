@@ -20,7 +20,7 @@ test.describe('Performance Testing', () => {
 
     // Measure filter response time
     const filterTime = await perfHelper.measureFilterResponseTime(async () => {
-      await page.locator('[data-testid="search-input"]').fill('test');
+      await page.locator('#task-search').fill('test');
     });
 
     // Filter should respond in under 500ms
@@ -63,7 +63,7 @@ test.describe('Performance Testing', () => {
 
     // Perform memory-intensive operations
     for (let i = 0; i < 10; i++) {
-      await page.locator('[data-testid="search-input"]').fill(`search ${i}`);
+      await page.locator('#task-search').fill(`search ${i}`);
       await page.waitForTimeout(100);
     }
 
