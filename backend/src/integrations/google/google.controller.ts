@@ -111,4 +111,44 @@ export class GoogleController {
       config.scopes
     );
   }
+
+  @Get('gmail/:userId/messages')
+  @ApiOperation({ summary: 'Get Gmail messages' })
+  @ApiQuery({
+    name: 'query',
+    required: false,
+    description: 'Gmail search query',
+  })
+  @ApiQuery({
+    name: 'maxResults',
+    required: false,
+    description: 'Maximum number of results',
+  })
+  @ApiResponse({ status: 200, description: 'Gmail messages retrieved' })
+  getGmailMessages(
+    @Param('userId') userId: string,
+    @Query('query') query?: string,
+    @Query('maxResults') maxResults?: number
+  ) {
+    return this.googleService.getGmailMessages(userId, query, maxResults || 50);
+  }
+
+  @Get('gmail/:userId/messages/:messageId')
+  @ApiOperation({ summary: 'Get specific Gmail message' })
+  @ApiResponse({ status: 200, description: 'Gmail message retrieved' })
+  getGmailMessage(@Param('userId') userId: string, @Param('messageId') messageId: string) {
+    return this.googleService.getGmailMessage(userId, messageId);
+  }
+
+  @Get('gmail/:userId/tasks')
+  @ApiOperation({ summary: 'Get Gmail messages for AI task extraction' })
+  @ApiQuery({
+    name: 'daysBack',
+    required: false,
+    description: 'Number of days to look back for emails (default: 7)',
+  })
+  @ApiResponse({ status: 200, description: 'Gmail messages for task extraction retrieved' })
+  getGmailMessagesForTasks(@Param('userId') userId: string, @Query('daysBack') daysBack?: number) {
+    return this.googleService.getGmailMessagesForTaskExtraction(userId, daysBack || 7);
+  }
 }

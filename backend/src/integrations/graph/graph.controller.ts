@@ -172,4 +172,57 @@ export class GraphController {
 
     return this.graphService.getCalendarEventsByCalendarId(userId, calendarId, options);
   }
+
+  @Get('mail/:userId/messages')
+  @ApiOperation({ summary: 'Get Outlook mail messages' })
+  @ApiQuery({
+    name: 'folderId',
+    required: false,
+    description: 'Mail folder ID (default: inbox)',
+  })
+  @ApiQuery({
+    name: 'filter',
+    required: false,
+    description: 'OData filter expression',
+  })
+  @ApiQuery({
+    name: 'top',
+    required: false,
+    description: 'Maximum number of results',
+  })
+  @ApiResponse({ status: 200, description: 'Mail messages retrieved' })
+  getMailMessages(
+    @Param('userId') userId: string,
+    @Query('folderId') folderId?: string,
+    @Query('filter') filter?: string,
+    @Query('top') top?: number
+  ) {
+    return this.graphService.getMailMessages(userId, folderId || 'inbox', filter, top || 50);
+  }
+
+  @Get('mail/:userId/messages/:messageId')
+  @ApiOperation({ summary: 'Get specific mail message' })
+  @ApiResponse({ status: 200, description: 'Mail message retrieved' })
+  getMailMessage(@Param('userId') userId: string, @Param('messageId') messageId: string) {
+    return this.graphService.getMailMessage(userId, messageId);
+  }
+
+  @Get('mail/:userId/tasks')
+  @ApiOperation({ summary: 'Get mail messages for AI task extraction' })
+  @ApiQuery({
+    name: 'daysBack',
+    required: false,
+    description: 'Number of days to look back for emails (default: 7)',
+  })
+  @ApiResponse({ status: 200, description: 'Mail messages for task extraction retrieved' })
+  getMailMessagesForTasks(@Param('userId') userId: string, @Query('daysBack') daysBack?: number) {
+    return this.graphService.getMailMessagesForTaskExtraction(userId, daysBack || 7);
+  }
+
+  @Get('mail/:userId/folders')
+  @ApiOperation({ summary: 'Get mail folders' })
+  @ApiResponse({ status: 200, description: 'Mail folders retrieved' })
+  getMailFolders(@Param('userId') userId: string) {
+    return this.graphService.getMailFolders(userId);
+  }
 }

@@ -1019,4 +1019,146 @@ export class GraphService {
       throw error;
     }
   }
+
+  /**
+   * Get mail messages from Outlook
+   */
+  async getMailMessages(
+    userId: string,
+    folderId: string = 'inbox',
+    filter?: string,
+    top: number = 50,
+    select?: string[]
+  ) {
+    try {
+      const graphClient = await this.createGraphClient(userId);
+
+      let query = graphClient.api(`/me/mailFolders/${folderId}/messages`);
+
+      if (top) {
+        query = query.top(top);
+      }
+
+      if (filter) {
+        query = query.filter(filter);
+      }
+
+      if (select) {
+        query = query.select(select.join(','));
+      } else {
+        // Default select for task extraction
+        query = query.select(
+          'id,subject,from,receivedDateTime,body,bodyPreview,hasAttachments,importance,isRead'
+        );
+      }
+
+      const response = await query.get();
+      return response.value;
+    } catch (error) {
+      this.logger.error(`Failed to get mail messages for user ${userId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get a specific mail message
+   */
+  async getMailMessage(userId: string, messageId: string) {
+    try {
+      const graphClient = await this.createGraphClient(userId);
+
+      const message = await graphClient
+        .api(`/me/messages/${messageId}`)
+        .select(
+          'id,subject,from,receivedDateTime,body,bodyPreview,hasAttachments,importance,isRead,toRecipients,ccRecipients'
+        )
+        .get();
+
+      return message;
+    } catch (error) {
+      this.logger.error(`Failed to get mail message ${messageId} for user ${userId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get mail messages for task extraction
+   */
+  async getMailMessagesForTaskExtraction(userId: string, daysBack: number = 7) {
+    try {
+      const dateFilter = new Date();
+      dateFilter.setDate(dateFilter.getDate() - daysBack);
+      const filterString = `receivedDateTime ge ${dateFilter.toISOString()}`;
+
+      const messages = await this.getMailMessages(userId, 'inbox', filterString, 20, [
+        'id',
+        'subject',
+        'from',
+        'receivedDateTime',
+        'body',
+        'bodyPreview',
+        'importance',
+      ]);
+
+      const emailsWithContent = messages.map((message: any) => {
+        // Extract text content from body
+        let content = '';
+        if (message.body?.content) {
+          if (message.body.contentType === 'text') {
+            content = message.body.content;
+          } else if (message.body.contentType === 'html') {
+            // Basic HTML to text conversion
+            content = message.body.content
+              .replace(/<[^>]*>/g, ' ')
+              .replace(/\s+/g, ' ')
+              .trim();
+          }
+        }
+
+        // Use bodyPreview as fallback
+        if (!content && message.bodyPreview) {
+          content = message.bodyPreview;
+        }
+
+        return {
+          id: message.id,
+          subject: message.subject || '',
+          from: message.from?.emailAddress?.address || '',
+          fromName: message.from?.emailAddress?.name || '',
+          date: message.receivedDateTime,
+          content: content,
+          snippet: message.bodyPreview || '',
+          importance: message.importance || 'normal',
+        };
+      });
+
+      // Filter out emails with minimal content
+      return emailsWithContent.filter(email => email.content.length > 50);
+    } catch (error) {
+      this.logger.error(
+        `Failed to get mail messages for task extraction for user ${userId}:`,
+        error
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Get mail folders
+   */
+  async getMailFolders(userId: string) {
+    try {
+      const graphClient = await this.createGraphClient(userId);
+
+      const response = await graphClient
+        .api('/me/mailFolders')
+        .select('id,displayName,totalItemCount,unreadItemCount,parentFolderId')
+        .get();
+
+      return response.value;
+    } catch (error) {
+      this.logger.error(`Failed to get mail folders for user ${userId}:`, error);
+      throw error;
+    }
+  }
 }

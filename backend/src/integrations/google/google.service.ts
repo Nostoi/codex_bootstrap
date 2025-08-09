@@ -311,6 +311,142 @@ export class GoogleService {
   }
 
   /**
+   * Get Gmail messages
+   */
+  async getGmailMessages(
+    userId: string,
+    query?: string,
+    maxResults: number = 50,
+    labelIds?: string[]
+  ) {
+    try {
+      const auth = await this.createOAuth2Client(userId);
+      const gmail = google.gmail({ version: 'v1', auth });
+
+      const params: any = {
+        userId: 'me',
+        maxResults,
+      };
+
+      if (query) {
+        params.q = query;
+      }
+
+      if (labelIds) {
+        params.labelIds = labelIds;
+      }
+
+      const response = await gmail.users.messages.list(params);
+      return response.data;
+    } catch (error) {
+      this.logger.error(`Failed to get Gmail messages for user ${userId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get Gmail message content
+   */
+  async getGmailMessage(userId: string, messageId: string) {
+    try {
+      const auth = await this.createOAuth2Client(userId);
+      const gmail = google.gmail({ version: 'v1', auth });
+
+      const response = await gmail.users.messages.get({
+        userId: 'me',
+        id: messageId,
+        format: 'full',
+      });
+
+      return response.data;
+    } catch (error) {
+      this.logger.error(`Failed to get Gmail message ${messageId} for user ${userId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Extract text content from Gmail message
+   */
+  private extractGmailTextContent(message: any): string {
+    let content = '';
+
+    const extractFromPart = (part: any): string => {
+      if (part.mimeType === 'text/plain' && part.body?.data) {
+        return Buffer.from(part.body.data, 'base64').toString('utf-8');
+      }
+
+      if (part.mimeType === 'text/html' && part.body?.data) {
+        const htmlContent = Buffer.from(part.body.data, 'base64').toString('utf-8');
+        // Basic HTML to text conversion - strip tags
+        return htmlContent
+          .replace(/<[^>]*>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+
+      if (part.parts) {
+        return part.parts.map(extractFromPart).join('\n');
+      }
+
+      return '';
+    };
+
+    if (message.payload) {
+      content = extractFromPart(message.payload);
+    }
+
+    return content;
+  }
+
+  /**
+   * Get Gmail messages with task extraction potential
+   */
+  async getGmailMessagesForTaskExtraction(userId: string, daysBack: number = 7) {
+    try {
+      const dateFilter = new Date();
+      dateFilter.setDate(dateFilter.getDate() - daysBack);
+      const query = `after:${Math.floor(dateFilter.getTime() / 1000)}`;
+
+      const messages = await this.getGmailMessages(userId, query, 20);
+
+      if (!messages.messages) {
+        return [];
+      }
+
+      const emailsWithContent = await Promise.all(
+        messages.messages.map(async msg => {
+          const fullMessage = await this.getGmailMessage(userId, msg.id!);
+          const textContent = this.extractGmailTextContent(fullMessage);
+
+          // Extract basic email metadata
+          const headers = fullMessage.payload?.headers || [];
+          const subject = headers.find(h => h.name === 'Subject')?.value || '';
+          const from = headers.find(h => h.name === 'From')?.value || '';
+          const date = headers.find(h => h.name === 'Date')?.value || '';
+
+          return {
+            id: msg.id,
+            subject,
+            from,
+            date,
+            content: textContent,
+            snippet: fullMessage.snippet || '',
+          };
+        })
+      );
+
+      return emailsWithContent.filter(email => email.content.length > 50);
+    } catch (error) {
+      this.logger.error(
+        `Failed to get Gmail messages for task extraction for user ${userId}:`,
+        error
+      );
+      throw error;
+    }
+  }
+
+  /**
    * Store or update Google integration configuration
    */
   async saveIntegrationConfig(

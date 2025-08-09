@@ -131,8 +131,8 @@ export class TasksService {
       id: task.id,
       title: task.title,
       status: task.status,
-      priority: task.priority,
-      dueDate: task.dueDate,
+      priority: task.priority ?? 1,
+      dueDate: task.dueDate ?? undefined,
       updatedBy: ownerId,
     });
 
@@ -191,8 +191,8 @@ export class TasksService {
       id: updatedTask.id,
       title: updatedTask.title,
       status: updatedTask.status,
-      priority: updatedTask.priority,
-      dueDate: updatedTask.dueDate,
+      priority: updatedTask.priority ?? 1,
+      dueDate: updatedTask.dueDate ?? undefined,
       updatedBy: updatedBy || updatedTask.ownerId,
     });
 

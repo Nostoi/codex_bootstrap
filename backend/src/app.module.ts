@@ -11,7 +11,8 @@ import { TasksModule } from './tasks/tasks.module';
 import { NotificationsModule } from './notifications/notifications.module';
 // import { ProjectsModule } from "./projects/projects.module"; // Temporarily disabled for WebSocket testing
 import { AuthModule } from './auth/auth.module';
-// import { AiModule } from "./ai/ai.module"; // Temporarily disabled for WebSocket testing
+import { AiModule } from './ai/ai.module'; // Re-enabled for email integration
+import { EmailAiModule } from './integrations/email-ai.module'; // Email integration module
 // import { MetricsModule } from "./metrics/metrics.module"; // Temporarily disabled for WebSocket testing
 // import { SecurityModule } from "./security/security.module"; // Re-enabled security services
 import { SecurityModule } from './security/security.module';
@@ -32,7 +33,8 @@ import { PlanningModule } from './planning/planning.module';
     TasksModule,
     NotificationsModule,
     AuthModule,
-    // AiModule, // Temporarily disabled for WebSocket testing
+    AiModule, // Re-enabled for email integration
+    EmailAiModule, // Email integration module
     // MetricsModule, // Temporarily disabled for WebSocket testing
     // SecurityModule, // Re-enabled security services
     SecurityModule,

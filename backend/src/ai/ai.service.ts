@@ -753,4 +753,191 @@ Return only valid JSON in this format:
     // Generic error
     return new OpenAIException(error.message || 'Unknown error', undefined, 'UNKNOWN_ERROR', error);
   }
+
+  /**
+   * Extract tasks from email content
+   */
+  async extractTasksFromEmails(
+    emails: Array<{
+      id: string;
+      subject: string;
+      from: string;
+      date: string;
+      content: string;
+      snippet?: string;
+    }>
+  ): Promise<OpenAIResponse<Task[]>> {
+    const emailContent = emails.map(email => ({
+      ...email,
+      // Truncate very long content to avoid token limits
+      content:
+        email.content.length > 4000 ? email.content.substring(0, 4000) + '...' : email.content,
+    }));
+
+    const prompt = this.buildEmailTaskExtractionPrompt(emailContent);
+    const messages: ChatMessage[] = [
+      {
+        role: 'system',
+        content: `You are an AI assistant specialized in extracting actionable tasks from email content. 
+        Analyze the provided emails and identify specific, actionable tasks mentioned or implied. 
+        Focus on:
+        - Action items mentioned in the email
+        - Deadlines or time-sensitive requests
+        - Follow-up actions required
+        - Meeting preparation tasks
+        - Deliverables or commitments mentioned
+        
+        Return results in valid JSON format as an array of tasks.`,
+      },
+      {
+        role: 'user',
+        content: prompt,
+      },
+    ];
+
+    try {
+      const startTime = Date.now();
+      const response = await this.chatCompletion({
+        messages,
+        model: this.config.defaultModel,
+        temperature: 0.3,
+        maxTokens: 2500,
+        jsonMode: true,
+      });
+
+      const tasks = this.parseTasksResponse(response.data);
+
+      // Store context in memory
+      await this.mem0Service.storeInteraction(
+        `Task extraction from ${emails.length} emails. Extracted ${tasks.length} tasks.`
+      );
+
+      return {
+        data: tasks,
+        usage: response.usage,
+        model: response.model,
+        requestId: response.requestId,
+        processingTimeMs: Date.now() - startTime,
+      };
+    } catch (error) {
+      this.logger.error('Error extracting tasks from emails:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Build email-specific task extraction prompt
+   */
+  private buildEmailTaskExtractionPrompt(
+    emails: Array<{
+      id: string;
+      subject: string;
+      from: string;
+      date: string;
+      content: string;
+      snippet?: string;
+    }>
+  ): string {
+    const emailSummaries = emails
+      .map((email, index) => {
+        return `
+EMAIL ${index + 1}:
+Subject: ${email.subject}
+From: ${email.from}
+Date: ${email.date}
+Content:
+${email.content}
+
+---`;
+      })
+      .join('\n');
+
+    return `
+Please analyze the following emails and extract actionable tasks. 
+For each task found, provide:
+- title: A clear, concise title for the task
+- description: Detailed description of what needs to be done
+- priority: high, medium, or low based on email context and urgency
+- dueDate: If mentioned or implied in the email (format: YYYY-MM-DD)
+- category: The type of task (meeting, follow-up, deliverable, etc.)
+- source: Which email this task came from (use email subject)
+
+${emailSummaries}
+
+Return the tasks as a JSON array in this format:
+{
+  "tasks": [
+    {
+      "title": "Task title",
+      "description": "Detailed description",
+      "priority": "high|medium|low",
+      "dueDate": "YYYY-MM-DD or null",
+      "category": "meeting|follow-up|deliverable|other",
+      "source": "Email subject this task came from"
+    }
+  ]
+}`;
+  }
+
+  /**
+   * Classify email content for task extraction relevance
+   */
+  async classifyEmailForTasks(email: {
+    subject: string;
+    from: string;
+    content: string;
+    snippet?: string;
+  }): Promise<{
+    hasActionableContent: boolean;
+    confidence: number;
+    categories: string[];
+    urgency: 'high' | 'medium' | 'low';
+  }> {
+    const prompt = `
+Analyze this email and determine if it contains actionable tasks or requests:
+
+Subject: ${email.subject}
+From: ${email.from}
+Content: ${email.content.length > 1000 ? email.content.substring(0, 1000) + '...' : email.content}
+
+Respond with JSON containing:
+- hasActionableContent: boolean (true if email contains tasks/requests)
+- confidence: number 0-1 (how confident you are)
+- categories: array of strings (types of actions: meeting, deadline, follow-up, etc.)
+- urgency: string (high/medium/low based on language and context)
+`;
+
+    const messages: ChatMessage[] = [
+      {
+        role: 'system',
+        content:
+          'You are an email classifier that determines if emails contain actionable content. Respond only with valid JSON.',
+      },
+      {
+        role: 'user',
+        content: prompt,
+      },
+    ];
+
+    try {
+      const response = await this.chatCompletion({
+        messages,
+        model: this.config.defaultModel,
+        temperature: 0.2,
+        maxTokens: 500,
+        jsonMode: true,
+      });
+
+      return JSON.parse(response.data);
+    } catch (error) {
+      this.logger.error('Error classifying email for tasks:', error);
+      // Return safe default
+      return {
+        hasActionableContent: false,
+        confidence: 0,
+        categories: [],
+        urgency: 'low',
+      };
+    }
+  }
 }

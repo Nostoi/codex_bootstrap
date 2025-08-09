@@ -40,6 +40,9 @@ GOOGLE_DEFAULT_SCOPES=https://www.googleapis.com/auth/userinfo.profile,https://w
 
 # Google Calendar Scopes (for calendar integration)
 GOOGLE_CALENDAR_SCOPES=https://www.googleapis.com/auth/calendar,https://www.googleapis.com/auth/calendar.events
+
+# Google Gmail Scopes (for email integration and AI task extraction)
+GOOGLE_GMAIL_SCOPES=https://www.googleapis.com/auth/gmail.readonly
 ```
 
 ### Microsoft OAuth Configuration
@@ -62,6 +65,9 @@ MICROSOFT_DEFAULT_SCOPES=https://graph.microsoft.com/User.Read offline_access
 
 # Microsoft Calendar Scopes (for calendar integration)
 MICROSOFT_CALENDAR_SCOPES=https://graph.microsoft.com/Calendars.ReadWrite https://graph.microsoft.com/Calendars.Read
+
+# Microsoft Mail Scopes (for email integration and AI task extraction)
+MICROSOFT_MAIL_SCOPES=https://graph.microsoft.com/Mail.Read
 ```
 
 ### Encryption Configuration
