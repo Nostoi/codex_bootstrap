@@ -99,16 +99,12 @@ export const EmailIntegration: React.FC<EmailIntegrationProps> = ({
 
           {/* Days Back */}
           <div>
-            <label htmlFor="days-back-select" className="block text-sm font-medium mb-2">
-              Days to Scan
-            </label>
+            <label className="block text-sm font-medium mb-2">Days to Scan</label>
             <select
-              id="days-back-select"
               value={daysBack}
               onChange={e => setDaysBack(Number(e.target.value))}
               className="select select-bordered w-full"
               disabled={isExtracting}
-              aria-label="Select number of days to scan for email tasks"
             >
               <option value={1}>Last 24 hours</option>
               <option value={3}>Last 3 days</option>
