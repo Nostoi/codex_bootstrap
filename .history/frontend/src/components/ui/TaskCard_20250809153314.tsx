@@ -271,7 +271,7 @@ export default function TaskCard({
       {(task.estimatedMinutes || task.hardDeadline || task.softDeadline) && (
         <div className="flex items-center gap-4 mb-3 text-sm">
           {task.estimatedMinutes && (
-            <span data-testid="task-estimated-time" className="flex items-center text-gray-600">
+            <span className="flex items-center text-gray-600">
               <span className="mr-1" aria-hidden="true">
                 ⏱️
               </span>
@@ -280,7 +280,7 @@ export default function TaskCard({
           )}
 
           {task.hardDeadline && (
-            <span data-testid="task-deadline" className={`flex items-center ${getUrgencyStyle()}`}>
+            <span className={`flex items-center ${getUrgencyStyle()}`}>
               <span className="mr-1" aria-hidden="true">
                 🚨
               </span>
@@ -289,7 +289,7 @@ export default function TaskCard({
           )}
 
           {task.softDeadline && !task.hardDeadline && (
-            <span data-testid="task-deadline" className="flex items-center text-blue-600">
+            <span className="flex items-center text-blue-600">
               <span className="mr-1" aria-hidden="true">
                 📅
               </span>
@@ -331,7 +331,7 @@ export default function TaskCard({
       {/* Quick Actions (visible on hover or focus) */}
       {interactive && !compact && (
         <div className="opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200">
-          <div data-testid="task-actions" className="flex gap-2 pt-3 border-t border-gray-200">
+          <div className="flex gap-2 pt-3 border-t border-gray-200">
             {task.status === 'TODO' && onQuickStart && (
               <button
                 className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-md hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500"

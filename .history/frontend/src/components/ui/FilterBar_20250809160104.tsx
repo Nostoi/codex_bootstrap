@@ -450,7 +450,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             {/* Priority Range Filter */}
             <div className="space-y-2">
               <h3 className="text-sm font-medium text-text-primary">Priority Range</h3>
-              <div data-testid="priority-range" className="space-y-2">
+              <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <label htmlFor="priority-min" className="text-xs text-text-secondary">
                     Min:

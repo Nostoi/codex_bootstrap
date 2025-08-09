@@ -378,7 +378,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             <div className="space-y-2">
               <h3 className="text-sm font-medium text-text-primary">Focus Type</h3>
               <div
-                data-testid="focus-filter-group"
                 className="flex flex-wrap gap-2"
                 role="group"
                 aria-labelledby="focus-filter-label"
@@ -416,7 +415,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             <div className="space-y-2">
               <h3 className="text-sm font-medium text-text-primary">Status</h3>
               <div
-                data-testid="status-filter-group"
                 className="flex flex-wrap gap-2"
                 role="group"
                 aria-labelledby="status-filter-label"
@@ -450,7 +448,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             {/* Priority Range Filter */}
             <div className="space-y-2">
               <h3 className="text-sm font-medium text-text-primary">Priority Range</h3>
-              <div data-testid="priority-range" className="space-y-2">
+              <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <label htmlFor="priority-min" className="text-xs text-text-secondary">
                     Min:

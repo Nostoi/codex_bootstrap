@@ -331,7 +331,7 @@ export default function TaskCard({
       {/* Quick Actions (visible on hover or focus) */}
       {interactive && !compact && (
         <div className="opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200">
-          <div data-testid="task-actions" className="flex gap-2 pt-3 border-t border-gray-200">
+          <div className="flex gap-2 pt-3 border-t border-gray-200">
             {task.status === 'TODO' && onQuickStart && (
               <button
                 className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-md hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500"

@@ -2443,7 +2443,7 @@
       "parentId": "4d09c003-4da0-4d77-8edd-1a738df66fa0",
       "completed": false,
       "createdAt": "2025-08-09T16:15:46.919Z",
-      "updatedAt": "2025-08-09T16:15:46.919Z",
+      "updatedAt": "2025-08-09T20:06:02.177Z",
       "dependsOn": [
         "eb45ed24-2b6c-4d1d-8a65-47a9008e2d03",
         "c4206ae7-00ea-4d63-a60d-9f05e2d2a28d",
@@ -2451,10 +2451,11 @@
       ],
       "priority": 8,
       "complexity": 5,
-      "status": "pending",
+      "status": "done",
       "tags": ["cipher", "validation", "best-practices", "guidance"],
       "estimatedHours": 1,
-      "level": 1
+      "level": 1,
+      "actualHours": 1
     },
     {
       "id": "dd67c674-f7c4-4f55-ae0b-3281dcb9cf5c",
@@ -2464,14 +2465,15 @@
       "parentId": "4d09c003-4da0-4d77-8edd-1a738df66fa0",
       "completed": false,
       "createdAt": "2025-08-09T16:15:55.851Z",
-      "updatedAt": "2025-08-09T16:15:55.851Z",
+      "updatedAt": "2025-08-09T20:06:07.731Z",
       "dependsOn": ["a0333829-1b2a-4f32-88bd-059ebb43889b"],
       "priority": 8,
       "complexity": 4,
-      "status": "pending",
+      "status": "done",
       "tags": ["analysis", "prioritization", "planning", "scope"],
       "estimatedHours": 2,
-      "level": 1
+      "level": 1,
+      "actualHours": 2
     },
     {
       "id": "c998e89d-33c8-458b-9f75-7968a238faff",
@@ -2481,14 +2483,15 @@
       "parentId": "4d09c003-4da0-4d77-8edd-1a738df66fa0",
       "completed": false,
       "createdAt": "2025-08-09T16:16:05.777Z",
-      "updatedAt": "2025-08-09T16:16:05.777Z",
+      "updatedAt": "2025-08-09T20:12:08.081Z",
       "dependsOn": ["dd67c674-f7c4-4f55-ae0b-3281dcb9cf5c"],
       "priority": 9,
       "complexity": 5,
-      "status": "pending",
+      "status": "done",
       "tags": ["design", "selectors", "strategy", "reliability"],
       "estimatedHours": 3,
-      "level": 1
+      "level": 1,
+      "actualHours": 3
     },
     {
       "id": "31949d73-3ca3-44c0-abe8-22852b5c38c7",
