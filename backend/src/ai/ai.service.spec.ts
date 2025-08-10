@@ -22,7 +22,7 @@ describe('AiService', () => {
           OPENAI_MAX_DELAY: 10000,
           OPENAI_BACKOFF_MULTIPLIER: 2,
         };
-        return config[key] || defaultValue;
+        return config[key as keyof typeof config] || defaultValue;
       }),
     };
 

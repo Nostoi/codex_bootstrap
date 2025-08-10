@@ -58,8 +58,13 @@ export class AiService {
   }
 
   private loadConfig(): OpenAIConfig {
+    const apiKey = this.configService.get<string>('OPENAI_API_KEY');
+    if (!apiKey) {
+      throw new Error('OPENAI_API_KEY is required but not configured');
+    }
+
     return {
-      apiKey: this.configService.get<string>('OPENAI_API_KEY'),
+      apiKey,
       baseURL: this.configService.get<string>('OPENAI_BASE_URL'),
       organization: this.configService.get<string>('OPENAI_ORGANIZATION'),
       project: this.configService.get<string>('OPENAI_PROJECT'),
@@ -267,7 +272,7 @@ export class AiService {
         messages,
         model: this.config.defaultModel,
         temperature: 0.3,
-        maxTokens: dto.maxLength * 2 || 400,
+        maxTokens: (dto.maxLength ?? 200) * 2 || 400,
         jsonMode: true,
       });
 
@@ -354,7 +359,10 @@ export class AiService {
         version: '1.0.0',
       };
     } catch (error) {
-      this.logger.error('Health check failed:', error.message);
+      this.logger.error(
+        'Health check failed:',
+        error instanceof Error ? error.message : String(error)
+      );
       return {
         status: 'unhealthy',
         timestamp: new Date(),
@@ -564,7 +572,10 @@ Return only valid JSON in this format:
 
       return parsed;
     } catch (error) {
-      this.logger.warn('Failed to parse task classification response as JSON:', error.message);
+      this.logger.warn(
+        'Failed to parse task classification response as JSON:',
+        error instanceof Error ? error.message : String(error)
+      );
 
       // Return defaults if parsing fails
       return {
@@ -604,9 +615,12 @@ Return only valid JSON in this format:
         return [];
       }
 
-      return parsed.tasks || [];
+      return (parsed as any)?.tasks || [];
     } catch (error) {
-      this.logger.warn('Failed to parse tasks response as JSON:', error.message);
+      this.logger.warn(
+        'Failed to parse tasks response as JSON:',
+        error instanceof Error ? error.message : String(error)
+      );
       return [];
     }
   }
@@ -624,7 +638,10 @@ Return only valid JSON in this format:
         .map((task: any) => this.repairSingleTask(task))
         .filter((task: Task | null) => task !== null);
     } catch (error) {
-      this.logger.warn('Failed to repair tasks response:', error.message);
+      this.logger.warn(
+        'Failed to repair tasks response:',
+        error instanceof Error ? error.message : String(error)
+      );
       return [];
     }
   }
@@ -652,7 +669,10 @@ Return only valid JSON in this format:
 
       return repairedTask;
     } catch (error) {
-      this.logger.warn('Failed to repair single task:', error.message);
+      this.logger.warn(
+        'Failed to repair single task:',
+        error instanceof Error ? error.message : String(error)
+      );
       return null;
     }
   }
