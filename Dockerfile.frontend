@@ -97,7 +97,7 @@ USER nextjs
 # Set environment variables for security and performance
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
-    PORT=3000 \
+    PORT=${NEXT_PUBLIC_FRONTEND_PORT:-3500} \
     HOSTNAME="0.0.0.0" \
     NODE_OPTIONS="--max-old-space-size=512 --no-warnings" \
     NPM_CONFIG_UPDATE_NOTIFIER=false \
@@ -114,12 +114,12 @@ ENV NODE_TLS_REJECT_UNAUTHORIZED=1
 
 # Enhanced health check with proper timing
 HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=3 \
-  CMD curl -f http://localhost:3000/api/health || exit 1
+  CMD curl -f http://localhost:${NEXT_PUBLIC_FRONTEND_PORT:-3500}/api/health || exit 1
 
 # Expose port with documentation
-EXPOSE 3000/tcp
-LABEL exposed.ports="3000" \
-      exposed.3000.description="HTTP Frontend"
+EXPOSE ${NEXT_PUBLIC_FRONTEND_PORT:-3500}/tcp
+LABEL exposed.ports="${NEXT_PUBLIC_FRONTEND_PORT:-3500}" \
+      exposed.${NEXT_PUBLIC_FRONTEND_PORT:-3500}.description="HTTP Frontend"
 
 # Use tini as init system for proper signal handling
 ENTRYPOINT ["/sbin/tini", "--"]

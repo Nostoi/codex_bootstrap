@@ -7,7 +7,9 @@
 
 const http = require('http');
 
-const BASE_URL = 'http://localhost:3001';
+const BASE_URL = process.env.BACKEND_PORT
+  ? `http://localhost:${process.env.BACKEND_PORT}`
+  : 'http://localhost:3501';
 
 async function makeRequest(path) {
   return new Promise((resolve, reject) => {

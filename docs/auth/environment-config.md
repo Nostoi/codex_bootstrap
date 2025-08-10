@@ -33,7 +33,7 @@ GOOGLE_CLIENT_ID=123456789012-abcdefghijklmnopqrstuvwxyz123456.apps.googleuserco
 GOOGLE_CLIENT_SECRET=GOCSPX-abcdefghijklmnopqrstuvwxyz123456
 
 # Google OAuth Redirect URI
-GOOGLE_REDIRECT_URI=http://localhost:3001/api/auth/google/callback
+GOOGLE_REDIRECT_URI=http://localhost:3501/api/auth/google/callback
 
 # Google OAuth Scopes (comma-separated)
 GOOGLE_DEFAULT_SCOPES=https://www.googleapis.com/auth/userinfo.profile,https://www.googleapis.com/auth/userinfo.email
@@ -58,7 +58,7 @@ MICROSOFT_CLIENT_SECRET=abc123def456ghi789jkl012mno345pqr678stu~
 MICROSOFT_TENANT_ID=common
 
 # Microsoft OAuth Redirect URI
-MICROSOFT_REDIRECT_URI=http://localhost:3001/api/auth/microsoft/callback
+MICROSOFT_REDIRECT_URI=http://localhost:3501/api/auth/microsoft/callback
 
 # Microsoft OAuth Scopes (space-separated)
 MICROSOFT_DEFAULT_SCOPES=https://graph.microsoft.com/User.Read offline_access
@@ -84,7 +84,7 @@ ENCRYPTION_KEY=abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
 
 ```bash
 # Frontend Base URL
-FRONTEND_URL=http://localhost:3000
+FRONTEND_URL=http://localhost:5500
 
 # Frontend Auth Success Redirect
 FRONTEND_AUTH_SUCCESS_URL=/dashboard

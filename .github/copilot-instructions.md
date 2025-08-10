@@ -655,12 +655,12 @@ export const HighContrast: Story = {
 
 ```bash
 # Development services
-Frontend (Next.js):       http://localhost:3000
-Backend (NestJS):         http://localhost:8000
-API Documentation:        http://localhost:8000/api/docs
+Frontend (Next.js):       http://localhost:3500
+Backend (NestJS):         http://localhost:3501
+API Documentation:        http://localhost:3501/api/docs
 Storybook:               http://localhost:6006
 PostgreSQL:              localhost:5432 (container) / 5487 (dev)
-WebSocket (y-websocket): ws://localhost:8001/collaboration
+WebSocket (y-websocket): ws://localhost:3502/collaboration
 
 # Docker Compose services
 docker-compose up         # All services
@@ -674,14 +674,14 @@ docker-compose build frontend # Rebuild frontend image
 # Backend (.env)
 DATABASE_URL="postgresql://user:pass@localhost:5432/helmsman"
 OPENAI_API_KEY="sk-..."
-CORS_ORIGIN="http://localhost:3000"
+CORS_ORIGIN="http://localhost:3500"
 JWT_SECRET="your-secret-key"
 MICROSOFT_CLIENT_ID="..."
 GOOGLE_CLIENT_ID="..."
 
 # Frontend (.env.local)
-NEXT_PUBLIC_API_URL="http://localhost:8000"
-NEXT_PUBLIC_WS_URL="ws://localhost:8001"
+NEXT_PUBLIC_API_URL="http://localhost:3501"
+NEXT_PUBLIC_WS_URL="ws://localhost:3501"
 ```
 
 ### File Structure & Key Locations

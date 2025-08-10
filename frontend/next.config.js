@@ -190,10 +190,15 @@ const nextConfig = {
 
   // API rewrites
   async rewrites() {
+    const backendUrl =
+      process.env.NODE_ENV === 'production'
+        ? 'http://backend:8000' // Docker container name for production
+        : process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:3501'; // Development
+
     return [
       {
         source: '/api/:path*',
-        destination: 'http://backend:8000/api/:path*',
+        destination: `${backendUrl}/api/:path*`,
       },
     ];
   },

@@ -1,18 +1,20 @@
 import { PlaywrightTestConfig } from '@playwright/test';
 
+const FRONTEND_PORT = process.env.NEXT_PUBLIC_FRONTEND_PORT || '3500';
+
 const config: PlaywrightTestConfig = {
   testDir: './tests',
   testMatch: /.*\.e2e\.ts$/,
   testIgnore: /.*\.spec\.ts$/,
   // webServer: {
   //   command: 'npm run dev',
-  //   port: 3000,
+  //   port: Number(FRONTEND_PORT),
   //   timeout: 120 * 1000,
   //   reuseExistingServer: true,
   // },
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:3000',
+    baseURL: `http://localhost:${FRONTEND_PORT}`,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',

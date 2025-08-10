@@ -28,6 +28,7 @@ export interface TaskCardProps {
   onStatusChange?: (status: EnhancedTask['status']) => void;
   onEdit?: () => void;
   onQuickStart?: () => void;
+  onAISuggestions?: () => void;
   compact?: boolean;
   interactive?: boolean;
   className?: string;
@@ -121,6 +122,7 @@ export default function TaskCard({
   onStatusChange,
   onEdit,
   onQuickStart,
+  onAISuggestions,
   compact = false,
   interactive = true,
   className = '',
@@ -365,6 +367,18 @@ export default function TaskCard({
                 }}
               >
                 Edit
+              </button>
+            )}
+
+            {onAISuggestions && (
+              <button
+                className="px-3 py-1 text-xs font-medium text-purple-700 bg-purple-100 rounded-md hover:bg-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                onClick={e => {
+                  e.stopPropagation();
+                  onAISuggestions();
+                }}
+              >
+                AI Suggestions
               </button>
             )}
           </div>

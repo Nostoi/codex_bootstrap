@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TasksService } from './tasks.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { NotificationsService } from '../notifications/notifications.service'; // Re-enabled
+import { NotificationsService } from '../notifications/notifications.service';
 import { NotFoundException } from '@nestjs/common';
 
 describe('TasksService', () => {

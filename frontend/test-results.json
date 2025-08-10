@@ -1,0 +1,1173 @@
+{
+  "config": {
+    "configFile": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/playwright.config.ts",
+    "rootDir": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [["json"]],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests",
+        "testIgnore": ["/.*\\.spec\\.ts$/"],
+        "testMatch": ["/.*\\.e2e\\.ts$/"],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests",
+        "testIgnore": ["/.*\\.spec\\.ts$/"],
+        "testMatch": ["/.*\\.e2e\\.ts$/"],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests",
+        "testIgnore": ["/.*\\.spec\\.ts$/"],
+        "testMatch": ["/.*\\.e2e\\.ts$/"],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-chrome",
+        "name": "mobile-chrome",
+        "testDir": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests",
+        "testIgnore": ["/.*\\.spec\\.ts$/"],
+        "testMatch": ["/.*\\.e2e\\.ts$/"],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.54.1",
+    "workers": 4,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "e2e/ai-integration.e2e.ts",
+      "file": "e2e/ai-integration.e2e.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "AI Integration Features",
+          "file": "e2e/ai-integration.e2e.ts",
+          "line": 6,
+          "column": 6,
+          "specs": [
+            {
+              "title": "extracts tasks from natural language text",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 13194,
+                      "error": {
+                        "message": "Error: No extracted tasks appeared after extraction",
+                        "stack": "Error: No extracted tasks appeared after extraction\n    at AIIntegrationPageObject.extractTasksFromText (/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts:273:15)\n    at /Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/e2e/ai-integration.e2e.ts:171:5",
+                        "location": {
+                          "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts",
+                          "column": 15,
+                          "line": 273
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/pageObjects.ts:273\n\n  271 |         console.log('✅ Found alternative selector: .bg-base-50');\n  272 |       } else {\n> 273 |         throw new Error('No extracted tasks appeared after extraction');\n      |               ^\n  274 |       }\n  275 |     }\n  276 |   }"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts",
+                            "column": 15,
+                            "line": 273
+                          },
+                          "message": "Error: No extracted tasks appeared after extraction\n\n   at fixtures/pageObjects.ts:273\n\n  271 |         console.log('✅ Found alternative selector: .bg-base-50');\n  272 |       } else {\n> 273 |         throw new Error('No extracted tasks appeared after extraction');\n      |               ^\n  274 |       }\n  275 |     }\n  276 |   }\n    at AIIntegrationPageObject.extractTasksFromText (/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts:273:15)\n    at /Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/e2e/ai-integration.e2e.ts:171:5"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "Browser [error]: Refused to apply style from 'http://localhost:3500/_next/static/css/app/layout.css?v=1754813256732' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Refused to execute script from 'http://localhost:3500/_next/static/chunks/main-app.js?v=1754813256732' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Refused to execute script from 'http://localhost:3500/_next/static/chunks/app-pages-internals.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.\n"
+                        },
+                        {
+                          "text": "🔍 Starting extractTasksFromText with: I need to finish the project documentation by Friday and also schedule a team meeting for next week to discuss the quarterly review.\n"
+                        },
+                        {
+                          "text": "🧹 Step 0: Clearing form state for fresh extraction\n"
+                        },
+                        {
+                          "text": "📝 Step 1: Filling textarea\n"
+                        },
+                        {
+                          "text": "✅ Step 2: Text filled, value: I need to finish the project documentation by Frid...\n"
+                        },
+                        {
+                          "text": "👁️ Step 3: Checking if extract button is visible\n"
+                        },
+                        {
+                          "text": "👁️ Extract button visible: true (attempt 1)\n"
+                        },
+                        {
+                          "text": "🖱️ Step 4: Clicking extract button\n"
+                        },
+                        {
+                          "text": "🖱️ Attempting to click extract tasks button...\n"
+                        },
+                        {
+                          "text": "✅ Successfully clicked extract tasks button (normal click)\n"
+                        },
+                        {
+                          "text": "⏳ Step 5: Waiting for processing...\n"
+                        },
+                        {
+                          "text": "🔍 Step 6: Waiting for extracted tasks to appear\n"
+                        },
+                        {
+                          "text": "Browser [warning]: The resource http://localhost:3500/fonts/inter-var.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.\n"
+                        },
+                        {
+                          "text": "Browser [warning]: The resource http://localhost:3500/_next/static/media/e4af272ccee01ff0-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.\n"
+                        },
+                        {
+                          "text": "❌ Timeout waiting for extracted tasks, trying alternative selector...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-10T08:07:36.544Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/test-results/e2e-ai-integration.e2e.ts--ca0e3--from-natural-language-text-mobile-chrome/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts",
+                        "column": 15,
+                        "line": 273
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2e50794074f9acc8e28e-5f36bf1ec035a24f47b7",
+              "file": "e2e/ai-integration.e2e.ts",
+              "line": 166,
+              "column": 7
+            },
+            {
+              "title": "handles complex technical task extraction",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 13181,
+                      "error": {
+                        "message": "Error: No extracted tasks appeared after extraction",
+                        "stack": "Error: No extracted tasks appeared after extraction\n    at AIIntegrationPageObject.extractTasksFromText (/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts:273:15)\n    at /Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/e2e/ai-integration.e2e.ts:187:5",
+                        "location": {
+                          "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts",
+                          "column": 15,
+                          "line": 273
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/pageObjects.ts:273\n\n  271 |         console.log('✅ Found alternative selector: .bg-base-50');\n  272 |       } else {\n> 273 |         throw new Error('No extracted tasks appeared after extraction');\n      |               ^\n  274 |       }\n  275 |     }\n  276 |   }"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts",
+                            "column": 15,
+                            "line": 273
+                          },
+                          "message": "Error: No extracted tasks appeared after extraction\n\n   at fixtures/pageObjects.ts:273\n\n  271 |         console.log('✅ Found alternative selector: .bg-base-50');\n  272 |       } else {\n> 273 |         throw new Error('No extracted tasks appeared after extraction');\n      |               ^\n  274 |       }\n  275 |     }\n  276 |   }\n    at AIIntegrationPageObject.extractTasksFromText (/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts:273:15)\n    at /Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/e2e/ai-integration.e2e.ts:187:5"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "Browser [error]: Refused to apply style from 'http://localhost:3500/_next/static/css/app/layout.css?v=1754813270429' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Refused to execute script from 'http://localhost:3500/_next/static/chunks/main-app.js?v=1754813270429' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Refused to execute script from 'http://localhost:3500/_next/static/chunks/app-pages-internals.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.\n"
+                        },
+                        {
+                          "text": "🔍 Starting extractTasksFromText with: Debug the authentication system - it's critical and blocking other work. High complexity task that requires deep focus.\n"
+                        },
+                        {
+                          "text": "🧹 Step 0: Clearing form state for fresh extraction\n"
+                        },
+                        {
+                          "text": "📝 Step 1: Filling textarea\n"
+                        },
+                        {
+                          "text": "✅ Step 2: Text filled, value: Debug the authentication system - it's critical an...\n"
+                        },
+                        {
+                          "text": "👁️ Step 3: Checking if extract button is visible\n"
+                        },
+                        {
+                          "text": "👁️ Extract button visible: true (attempt 1)\n"
+                        },
+                        {
+                          "text": "🖱️ Step 4: Clicking extract button\n"
+                        },
+                        {
+                          "text": "🖱️ Attempting to click extract tasks button...\n"
+                        },
+                        {
+                          "text": "✅ Successfully clicked extract tasks button (normal click)\n"
+                        },
+                        {
+                          "text": "⏳ Step 5: Waiting for processing...\n"
+                        },
+                        {
+                          "text": "🔍 Step 6: Waiting for extracted tasks to appear\n"
+                        },
+                        {
+                          "text": "Browser [warning]: The resource http://localhost:3500/fonts/inter-var.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.\n"
+                        },
+                        {
+                          "text": "Browser [warning]: The resource http://localhost:3500/_next/static/media/e4af272ccee01ff0-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.\n"
+                        },
+                        {
+                          "text": "❌ Timeout waiting for extracted tasks, trying alternative selector...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-10T08:07:50.262Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/test-results/e2e-ai-integration.e2e.ts--7d5bb-x-technical-task-extraction-mobile-chrome/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts",
+                        "column": 15,
+                        "line": 273
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2e50794074f9acc8e28e-b86a9139dc1ebb677333",
+              "file": "e2e/ai-integration.e2e.ts",
+              "line": 182,
+              "column": 7
+            },
+            {
+              "title": "provides task classification and metadata suggestions",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 30022,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/e2e/ai-integration.e2e.ts",
+                            "column": 42,
+                            "line": 226
+                          },
+                          "message": "Error: locator.fill: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel(/task title/i)\u001b[22m\n\n\n  224 |     }\n  225 |     \n> 226 |     await page.getByLabel(/task title/i).fill('Analyze user feedback data');\n      |                                          ^\n  227 |     await page.getByLabel('Task description in dialog').fill('Review customer surveys and identify trends');\n  228 |\n  229 |     // Click AI classify button\n    at /Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/e2e/ai-integration.e2e.ts:226:42"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "Browser [error]: Refused to apply style from 'http://localhost:3500/_next/static/css/app/layout.css?v=1754813284130' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Refused to execute script from 'http://localhost:3500/_next/static/chunks/main-app.js?v=1754813284130' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Refused to execute script from 'http://localhost:3500/_next/static/chunks/app-pages-internals.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.\n"
+                        },
+                        {
+                          "text": "Browser [warning]: The resource http://localhost:3500/fonts/inter-var.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.\n"
+                        },
+                        {
+                          "text": "Browser [warning]: The resource http://localhost:3500/_next/static/media/e4af272ccee01ff0-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-10T08:08:03.953Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/test-results/e2e-ai-integration.e2e.ts--70101-on-and-metadata-suggestions-mobile-chrome/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2e50794074f9acc8e28e-f741493fa92173d54777",
+              "file": "e2e/ai-integration.e2e.ts",
+              "line": 200,
+              "column": 7
+            },
+            {
+              "title": "accepts and rejects task suggestions",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 13167,
+                      "error": {
+                        "message": "Error: No extracted tasks appeared after extraction",
+                        "stack": "Error: No extracted tasks appeared after extraction\n    at AIIntegrationPageObject.extractTasksFromText (/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts:273:15)\n    at /Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/e2e/ai-integration.e2e.ts:246:5",
+                        "location": {
+                          "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts",
+                          "column": 15,
+                          "line": 273
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/pageObjects.ts:273\n\n  271 |         console.log('✅ Found alternative selector: .bg-base-50');\n  272 |       } else {\n> 273 |         throw new Error('No extracted tasks appeared after extraction');\n      |               ^\n  274 |       }\n  275 |     }\n  276 |   }"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts",
+                            "column": 15,
+                            "line": 273
+                          },
+                          "message": "Error: No extracted tasks appeared after extraction\n\n   at fixtures/pageObjects.ts:273\n\n  271 |         console.log('✅ Found alternative selector: .bg-base-50');\n  272 |       } else {\n> 273 |         throw new Error('No extracted tasks appeared after extraction');\n      |               ^\n  274 |       }\n  275 |     }\n  276 |   }\n    at AIIntegrationPageObject.extractTasksFromText (/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts:273:15)\n    at /Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/e2e/ai-integration.e2e.ts:246:5"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "Browser [error]: Refused to apply style from 'http://localhost:3500/_next/static/css/app/layout.css?v=1754813314697' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Refused to execute script from 'http://localhost:3500/_next/static/chunks/app-pages-internals.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Refused to execute script from 'http://localhost:3500/_next/static/chunks/main-app.js?v=1754813314697' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.\n"
+                        },
+                        {
+                          "text": "🔍 Starting extractTasksFromText with: I need to finish the project documentation by Friday and also schedule a team meeting for next week to discuss the quarterly review.\n"
+                        },
+                        {
+                          "text": "🧹 Step 0: Clearing form state for fresh extraction\n"
+                        },
+                        {
+                          "text": "📝 Step 1: Filling textarea\n"
+                        },
+                        {
+                          "text": "✅ Step 2: Text filled, value: I need to finish the project documentation by Frid...\n"
+                        },
+                        {
+                          "text": "👁️ Step 3: Checking if extract button is visible\n"
+                        },
+                        {
+                          "text": "👁️ Extract button visible: true (attempt 1)\n"
+                        },
+                        {
+                          "text": "🖱️ Step 4: Clicking extract button\n"
+                        },
+                        {
+                          "text": "🖱️ Attempting to click extract tasks button...\n"
+                        },
+                        {
+                          "text": "✅ Successfully clicked extract tasks button (normal click)\n"
+                        },
+                        {
+                          "text": "⏳ Step 5: Waiting for processing...\n"
+                        },
+                        {
+                          "text": "🔍 Step 6: Waiting for extracted tasks to appear\n"
+                        },
+                        {
+                          "text": "Browser [warning]: The resource http://localhost:3500/fonts/inter-var.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.\n"
+                        },
+                        {
+                          "text": "Browser [warning]: The resource http://localhost:3500/_next/static/media/e4af272ccee01ff0-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.\n"
+                        },
+                        {
+                          "text": "❌ Timeout waiting for extracted tasks, trying alternative selector...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-10T08:08:34.510Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/test-results/e2e-ai-integration.e2e.ts--5267f-nd-rejects-task-suggestions-mobile-chrome/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts",
+                        "column": 15,
+                        "line": 273
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2e50794074f9acc8e28e-019ee923741a66947edd",
+              "file": "e2e/ai-integration.e2e.ts",
+              "line": 242,
+              "column": 7
+            },
+            {
+              "title": "provides AI-powered task improvement suggestions",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 13187,
+                      "error": {
+                        "message": "Error: No extracted tasks appeared after extraction",
+                        "stack": "Error: No extracted tasks appeared after extraction\n    at AIIntegrationPageObject.extractTasksFromText (/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts:273:15)\n    at /Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/e2e/ai-integration.e2e.ts:269:5",
+                        "location": {
+                          "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts",
+                          "column": 15,
+                          "line": 273
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/pageObjects.ts:273\n\n  271 |         console.log('✅ Found alternative selector: .bg-base-50');\n  272 |       } else {\n> 273 |         throw new Error('No extracted tasks appeared after extraction');\n      |               ^\n  274 |       }\n  275 |     }\n  276 |   }"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts",
+                            "column": 15,
+                            "line": 273
+                          },
+                          "message": "Error: No extracted tasks appeared after extraction\n\n   at fixtures/pageObjects.ts:273\n\n  271 |         console.log('✅ Found alternative selector: .bg-base-50');\n  272 |       } else {\n> 273 |         throw new Error('No extracted tasks appeared after extraction');\n      |               ^\n  274 |       }\n  275 |     }\n  276 |   }\n    at AIIntegrationPageObject.extractTasksFromText (/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts:273:15)\n    at /Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/e2e/ai-integration.e2e.ts:269:5"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "Browser [error]: Refused to apply style from 'http://localhost:3500/_next/static/css/app/layout.css?v=1754813328319' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Refused to execute script from 'http://localhost:3500/_next/static/chunks/main-app.js?v=1754813328319' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Refused to execute script from 'http://localhost:3500/_next/static/chunks/app-pages-internals.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.\n"
+                        },
+                        {
+                          "text": "🔍 Starting extractTasksFromText with: I need to finish the project documentation by Friday\n"
+                        },
+                        {
+                          "text": "🧹 Step 0: Clearing form state for fresh extraction\n"
+                        },
+                        {
+                          "text": "📝 Step 1: Filling textarea\n"
+                        },
+                        {
+                          "text": "✅ Step 2: Text filled, value: I need to finish the project documentation by Frid...\n"
+                        },
+                        {
+                          "text": "👁️ Step 3: Checking if extract button is visible\n"
+                        },
+                        {
+                          "text": "👁️ Extract button visible: true (attempt 1)\n"
+                        },
+                        {
+                          "text": "🖱️ Step 4: Clicking extract button\n"
+                        },
+                        {
+                          "text": "🖱️ Attempting to click extract tasks button...\n"
+                        },
+                        {
+                          "text": "✅ Successfully clicked extract tasks button (normal click)\n"
+                        },
+                        {
+                          "text": "⏳ Step 5: Waiting for processing...\n"
+                        },
+                        {
+                          "text": "🔍 Step 6: Waiting for extracted tasks to appear\n"
+                        },
+                        {
+                          "text": "Browser [warning]: The resource http://localhost:3500/fonts/inter-var.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.\n"
+                        },
+                        {
+                          "text": "Browser [warning]: The resource http://localhost:3500/_next/static/media/e4af272ccee01ff0-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.\n"
+                        },
+                        {
+                          "text": "❌ Timeout waiting for extracted tasks, trying alternative selector...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-10T08:08:48.169Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/test-results/e2e-ai-integration.e2e.ts--46c53-ask-improvement-suggestions-mobile-chrome/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts",
+                        "column": 15,
+                        "line": 273
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2e50794074f9acc8e28e-ca4166f330a938497e6c",
+              "file": "e2e/ai-integration.e2e.ts",
+              "line": 265,
+              "column": 7
+            },
+            {
+              "title": "handles AI service timeouts and errors",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 24127,
+                      "error": {
+                        "message": "Error: Expected AI integration error UI did not appear",
+                        "stack": "Error: Expected AI integration error UI did not appear\n    at AIIntegrationPageObject.extractTasksFromTextWithError (/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts:372:13)\n    at /Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/e2e/ai-integration.e2e.ts:302:5",
+                        "location": {
+                          "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts",
+                          "column": 13,
+                          "line": 372
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/pageObjects.ts:372\n\n  370 |       }\n  371 |       \n> 372 |       throw new Error('Expected AI integration error UI did not appear');\n      |             ^\n  373 |     }\n  374 |   }\n  375 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts",
+                            "column": 13,
+                            "line": 372
+                          },
+                          "message": "Error: Expected AI integration error UI did not appear\n\n   at fixtures/pageObjects.ts:372\n\n  370 |       }\n  371 |       \n> 372 |       throw new Error('Expected AI integration error UI did not appear');\n      |             ^\n  373 |     }\n  374 |   }\n  375 |\n    at AIIntegrationPageObject.extractTasksFromTextWithError (/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts:372:13)\n    at /Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/e2e/ai-integration.e2e.ts:302:5"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "Browser [error]: Refused to apply style from 'http://localhost:3500/_next/static/css/app/layout.css?v=1754813342377' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Refused to execute script from 'http://localhost:3500/_next/static/chunks/main-app.js?v=1754813342377' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Refused to execute script from 'http://localhost:3500/_next/static/chunks/app-pages-internals.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.\n"
+                        },
+                        {
+                          "text": "🔍 Starting extractTasksFromText with error expected: Test timeout scenario\n"
+                        },
+                        {
+                          "text": "📝 Step 1: Filling textarea\n"
+                        },
+                        {
+                          "text": "✅ Step 2: Text filled, value: Test timeout scenario...\n"
+                        },
+                        {
+                          "text": "👁️ Step 3: Checking if extract button is visible\n"
+                        },
+                        {
+                          "text": "✅ Extract button visible on attempt 1\n"
+                        },
+                        {
+                          "text": "🖱️ Step 4: Clicking extract button\n"
+                        },
+                        {
+                          "text": "⏳ Step 5: Waiting for processing...\n"
+                        },
+                        {
+                          "text": "Browser [warning]: The resource http://localhost:3500/fonts/inter-var.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.\n"
+                        },
+                        {
+                          "text": "Browser [warning]: The resource http://localhost:3500/_next/static/media/e4af272ccee01ff0-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.\n"
+                        },
+                        {
+                          "text": "🔍 Step 6: Waiting for error UI to appear...\n"
+                        },
+                        {
+                          "text": "❌ AI Integration error UI did not appear, taking screenshot for debugging\n"
+                        },
+                        {
+                          "text": "🔍 Total error alerts on page: \u001b[33m0\u001b[39m\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-10T08:09:01.977Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/test-results/e2e-ai-integration.e2e.ts--4966c-service-timeouts-and-errors-mobile-chrome/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts",
+                        "column": 13,
+                        "line": 372
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2e50794074f9acc8e28e-ff8bfd2c45a37201ec4b",
+              "file": "e2e/ai-integration.e2e.ts",
+              "line": 300,
+              "column": 7
+            },
+            {
+              "title": "handles AI service errors gracefully",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 23750,
+                      "error": {
+                        "message": "Error: Expected AI integration error UI did not appear",
+                        "stack": "Error: Expected AI integration error UI did not appear\n    at AIIntegrationPageObject.extractTasksFromTextWithError (/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts:372:13)\n    at /Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/e2e/ai-integration.e2e.ts:315:5",
+                        "location": {
+                          "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts",
+                          "column": 13,
+                          "line": 372
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/pageObjects.ts:372\n\n  370 |       }\n  371 |       \n> 372 |       throw new Error('Expected AI integration error UI did not appear');\n      |             ^\n  373 |     }\n  374 |   }\n  375 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts",
+                            "column": 13,
+                            "line": 372
+                          },
+                          "message": "Error: Expected AI integration error UI did not appear\n\n   at fixtures/pageObjects.ts:372\n\n  370 |       }\n  371 |       \n> 372 |       throw new Error('Expected AI integration error UI did not appear');\n      |             ^\n  373 |     }\n  374 |   }\n  375 |\n    at AIIntegrationPageObject.extractTasksFromTextWithError (/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts:372:13)\n    at /Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/e2e/ai-integration.e2e.ts:315:5"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "Browser [error]: Refused to apply style from 'http://localhost:3500/_next/static/css/app/layout.css?v=1754813367068' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Refused to execute script from 'http://localhost:3500/_next/static/chunks/app-pages-internals.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Refused to execute script from 'http://localhost:3500/_next/static/chunks/main-app.js?v=1754813367068' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.\n"
+                        },
+                        {
+                          "text": "🔍 Starting extractTasksFromText with error expected: Test error scenario\n"
+                        },
+                        {
+                          "text": "📝 Step 1: Filling textarea\n"
+                        },
+                        {
+                          "text": "✅ Step 2: Text filled, value: Test error scenario...\n"
+                        },
+                        {
+                          "text": "👁️ Step 3: Checking if extract button is visible\n"
+                        },
+                        {
+                          "text": "✅ Extract button visible on attempt 1\n"
+                        },
+                        {
+                          "text": "🖱️ Step 4: Clicking extract button\n"
+                        },
+                        {
+                          "text": "⏳ Step 5: Waiting for processing...\n"
+                        },
+                        {
+                          "text": "Browser [warning]: The resource http://localhost:3500/fonts/inter-var.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.\n"
+                        },
+                        {
+                          "text": "Browser [warning]: The resource http://localhost:3500/_next/static/media/e4af272ccee01ff0-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.\n"
+                        },
+                        {
+                          "text": "🔍 Step 6: Waiting for error UI to appear...\n"
+                        },
+                        {
+                          "text": "❌ AI Integration error UI did not appear, taking screenshot for debugging\n"
+                        },
+                        {
+                          "text": "🔍 Total error alerts on page: \u001b[33m0\u001b[39m\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-10T08:09:26.873Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/test-results/e2e-ai-integration.e2e.ts--fec6e-I-service-errors-gracefully-mobile-chrome/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts",
+                        "column": 13,
+                        "line": 372
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2e50794074f9acc8e28e-09b30e25ad77f2cb8d99",
+              "file": "e2e/ai-integration.e2e.ts",
+              "line": 313,
+              "column": 7
+            },
+            {
+              "title": "respects AI usage limits and quotas",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "interrupted",
+                      "duration": 8660,
+                      "error": {
+                        "message": "Error: page.screenshot: Target page, context or browser has been closed",
+                        "stack": "Error: page.screenshot: Target page, context or browser has been closed\n    at AIIntegrationPageObject.extractTasksFromTextWithError (/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts:359:23)\n    at /Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/e2e/ai-integration.e2e.ts:328:5",
+                        "location": {
+                          "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts",
+                          "column": 23,
+                          "line": 359
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mfixtures/pageObjects.ts:359\n\n  357 |     } catch (error) {\n  358 |       console.log('❌ AI Integration error UI did not appear, taking screenshot for debugging');\n> 359 |       await this.page.screenshot({ path: 'debug-no-ai-error-ui.png' });\n      |                       ^\n  360 |       \n  361 |       // Debug: check if any error UI exists on the page\n  362 |       const allErrors = await this.page.locator('.alert-error').count();"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts",
+                            "column": 23,
+                            "line": 359
+                          },
+                          "message": "Error: page.screenshot: Target page, context or browser has been closed\n\n   at fixtures/pageObjects.ts:359\n\n  357 |     } catch (error) {\n  358 |       console.log('❌ AI Integration error UI did not appear, taking screenshot for debugging');\n> 359 |       await this.page.screenshot({ path: 'debug-no-ai-error-ui.png' });\n      |                       ^\n  360 |       \n  361 |       // Debug: check if any error UI exists on the page\n  362 |       const allErrors = await this.page.locator('.alert-error').count();\n    at AIIntegrationPageObject.extractTasksFromTextWithError (/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts:359:23)\n    at /Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/e2e/ai-integration.e2e.ts:328:5"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "Browser [error]: Refused to apply style from 'http://localhost:3500/_next/static/css/app/layout.css?v=1754813391310' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Refused to execute script from 'http://localhost:3500/_next/static/chunks/main-app.js?v=1754813391310' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.\n"
+                        },
+                        {
+                          "text": "Browser [error]: Failed to load resource: the server responded with a status of 404 (Not Found)\n"
+                        },
+                        {
+                          "text": "Browser [error]: Refused to execute script from 'http://localhost:3500/_next/static/chunks/app-pages-internals.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.\n"
+                        },
+                        {
+                          "text": "🔍 Starting extractTasksFromText with error expected: Test quota limits\n"
+                        },
+                        {
+                          "text": "📝 Step 1: Filling textarea\n"
+                        },
+                        {
+                          "text": "✅ Step 2: Text filled, value: Test quota limits...\n"
+                        },
+                        {
+                          "text": "👁️ Step 3: Checking if extract button is visible\n"
+                        },
+                        {
+                          "text": "✅ Extract button visible on attempt 1\n"
+                        },
+                        {
+                          "text": "🖱️ Step 4: Clicking extract button\n"
+                        },
+                        {
+                          "text": "⏳ Step 5: Waiting for processing...\n"
+                        },
+                        {
+                          "text": "Browser [warning]: The resource http://localhost:3500/fonts/inter-var.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.\n"
+                        },
+                        {
+                          "text": "Browser [warning]: The resource http://localhost:3500/_next/static/media/e4af272ccee01ff0-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.\n"
+                        },
+                        {
+                          "text": "🔍 Step 6: Waiting for error UI to appear...\n"
+                        },
+                        {
+                          "text": "❌ AI Integration error UI did not appear, taking screenshot for debugging\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-10T08:09:51.152Z",
+                      "annotations": [],
+                      "attachments": [],
+                      "errorLocation": {
+                        "file": "/Users/markjedrzejczyk/projects/codex_bootstrap/frontend/tests/fixtures/pageObjects.ts",
+                        "column": 23,
+                        "line": 359
+                      }
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2e50794074f9acc8e28e-13cc96ff2b294ae2df4b",
+              "file": "e2e/ai-integration.e2e.ts",
+              "line": 326,
+              "column": 7
+            },
+            {
+              "title": "AI batch processing for multiple tasks",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2e50794074f9acc8e28e-2f23973f3dce131f89a5",
+              "file": "e2e/ai-integration.e2e.ts",
+              "line": 339,
+              "column": 7
+            },
+            {
+              "title": "AI task prioritization and scheduling suggestions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2e50794074f9acc8e28e-82e43ba31c2c130c8083",
+              "file": "e2e/ai-integration.e2e.ts",
+              "line": 367,
+              "column": 7
+            },
+            {
+              "title": "natural language date and time parsing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2e50794074f9acc8e28e-7975bc78775e09e0f784",
+              "file": "e2e/ai-integration.e2e.ts",
+              "line": 388,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "AI Integration Performance and Security",
+          "file": "e2e/ai-integration.e2e.ts",
+          "line": 412,
+          "column": 6,
+          "specs": [
+            {
+              "title": "AI response time meets performance targets",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2e50794074f9acc8e28e-37996726bf6b65d98f58",
+              "file": "e2e/ai-integration.e2e.ts",
+              "line": 419,
+              "column": 7
+            },
+            {
+              "title": "handles sensitive data appropriately",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2e50794074f9acc8e28e-52b884ca879c4eb970dd",
+              "file": "e2e/ai-integration.e2e.ts",
+              "line": 434,
+              "column": 7
+            },
+            {
+              "title": "maintains data privacy and security",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2e50794074f9acc8e28e-55e48e8b5e0702b2a14e",
+              "file": "e2e/ai-integration.e2e.ts",
+              "line": 461,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-08-10T08:07:36.170Z",
+    "duration": 143763.439,
+    "expected": 0,
+    "skipped": 7,
+    "unexpected": 7,
+    "flaky": 0
+  }
+}

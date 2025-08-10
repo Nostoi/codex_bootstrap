@@ -3,7 +3,8 @@ const { io } = require('socket.io-client');
 
 console.log('🔌 Testing Socket.IO connection to backend...');
 
-const socket = io('http://localhost:3001/notifications', {
+const BACKEND_PORT = process.env.BACKEND_PORT || '3501';
+const socket = io(`http://localhost:${BACKEND_PORT}/notifications`, {
   transports: ['websocket', 'polling'],
   timeout: 5000,
 });
@@ -33,4 +34,4 @@ setTimeout(() => {
   console.log('🔚 Closing connection...');
   socket.disconnect();
   process.exit(0);
-}, 3000);
+}, 3500);

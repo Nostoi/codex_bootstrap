@@ -14,14 +14,14 @@ import {
   CreateUserSettingsDto,
   UpdateUserSettingsDto,
 } from './dto';
-import { NotificationsService } from '../notifications/notifications.service'; // Re-enabled
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class TasksService {
   constructor(
     private prisma: PrismaService,
-    @Inject(forwardRef(() => NotificationsService)) // Re-enabled
-    private notificationsService: NotificationsService // Re-enabled
+    @Inject(forwardRef(() => NotificationsService))
+    private notificationsService: NotificationsService
   ) {}
 
   async findAll(ownerId?: string): Promise<Task[]> {
@@ -128,14 +128,13 @@ export class TasksService {
 
     // Send real-time notification for task creation
     await this.notificationsService.notifyTaskCreated(ownerId, {
-      // Re-enabled
       id: task.id,
       title: task.title,
       status: task.status,
       priority: task.priority ?? 1,
       dueDate: task.dueDate ?? undefined,
       updatedBy: ownerId,
-    }); // Re-enabled
+    });
 
     return task;
   }
@@ -189,14 +188,13 @@ export class TasksService {
 
     // Send real-time notification for task update
     await this.notificationsService.notifyTaskUpdate(updatedTask.ownerId, {
-      // Re-enabled
       id: updatedTask.id,
       title: updatedTask.title,
       status: updatedTask.status,
       priority: updatedTask.priority ?? 1,
       dueDate: updatedTask.dueDate ?? undefined,
       updatedBy: updatedBy || updatedTask.ownerId,
-    }); // Re-enabled
+    });
 
     return updatedTask;
   }
@@ -218,11 +216,10 @@ export class TasksService {
 
     // Send real-time notification for task deletion
     await this.notificationsService.notifyTaskDeleted(
-      // Re-enabled
       existingTask.ownerId,
       existingTask.id,
       existingTask.title
-    ); // Re-enabled
+    );
   }
 
   async toggle(id: string): Promise<Task> {

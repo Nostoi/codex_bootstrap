@@ -3,20 +3,20 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
-// import { UsersModule } from "./users/users.module"; // Temporarily disabled for WebSocket testing
+import { UsersModule } from './users/users.module'; // Re-enabled for production readiness
 // import { CollaborationModule } from "./collaboration/collaboration.module"; // Temporarily disabled for WebSocket testing
-// import { GraphModule } from './integrations/graph/graph.module';  // Temporarily disabled - compilation errors
-// import { GoogleModule } from './integrations/google/google.module';  // Temporarily disabled - compilation errors
+import { GraphModule } from './integrations/graph/graph.module';
+import { GoogleModule } from './integrations/google/google.module';
 import { TasksModule } from './tasks/tasks.module';
 import { NotificationsModule } from './notifications/notifications.module';
-// import { ProjectsModule } from "./projects/projects.module"; // Temporarily disabled for WebSocket testing
-import { AuthModule } from './auth/auth.module'; // Re-enabled as requested
+import { ProjectsModule } from './projects/projects.module'; // Re-enabled for production readiness
+import { AuthModule } from './auth/auth.module';
 import { AiModule } from './ai/ai.module'; // Re-enabled for email integration
-// import { EmailAiModule } from './integrations/email-ai.module'; // Temporarily disabled - compilation errors
+import { EmailAiModule } from './integrations/email-ai.module'; // Email integration module
 // import { MetricsModule } from "./metrics/metrics.module"; // Temporarily disabled for WebSocket testing
-// import { SecurityModule } from "./security/security.module"; // Temporarily disabled - compilation errors
-// import { SecurityModule } from './security/security.module';  // Temporarily disabled - compilation errors
-// import { PlanningModule } from './planning/planning.module';  // Temporarily disabled - compilation errors
+// import { SecurityModule } from "./security/security.module"; // Re-enabled security services
+import { SecurityModule } from './security/security.module';
+import { PlanningModule } from './planning/planning.module';
 // import { FeatureFlagsModule } from "./features/feature-flags.module"; // Temporarily disabled for WebSocket testing
 
 @Module({
@@ -25,20 +25,20 @@ import { AiModule } from './ai/ai.module'; // Re-enabled for email integration
       isGlobal: true,
     }),
     PrismaModule,
-    // UsersModule, // Temporarily disabled for WebSocket testing
+    UsersModule, // Re-enabled for production readiness
     // CollaborationModule, // Temporarily disabled for WebSocket testing
-    // GraphModule,  // Temporarily disabled - compilation errors
-    // GoogleModule,  // Temporarily disabled - compilation errors
-    // ProjectsModule, // Temporarily disabled for WebSocket testing
+    GraphModule,
+    GoogleModule,
+    ProjectsModule, // Re-enabled for production readiness
     TasksModule,
-    NotificationsModule, // Re-enabled
-    // AuthModule, // Temporarily disabled due to compilation errors
+    NotificationsModule,
+    AuthModule,
     AiModule, // Re-enabled for email integration
-    // EmailAiModule, // Temporarily disabled - compilation errors
+    EmailAiModule, // Email integration module
     // MetricsModule, // Temporarily disabled for WebSocket testing
-    // SecurityModule, // Temporarily disabled - compilation errors
-    // SecurityModule,  // Temporarily disabled - compilation errors
-    // PlanningModule,  // Temporarily disabled - compilation errors
+    // SecurityModule, // Re-enabled security services
+    SecurityModule,
+    PlanningModule,
     // FeatureFlagsModule, // Temporarily disabled for WebSocket testing
   ],
   controllers: [AppController],

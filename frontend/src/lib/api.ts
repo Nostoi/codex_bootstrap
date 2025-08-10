@@ -28,8 +28,16 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
     ...options,
   };
 
+  // Add timeout to API requests (15 seconds default)
+  const timeoutMs = 15000;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  config.signal = controller.signal;
+
   try {
     const response = await fetch(url, config);
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -42,8 +50,13 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
 
     return await response.json();
   } catch (error) {
+    clearTimeout(timeoutId);
     if (error instanceof ApiError) {
       throw error;
+    }
+    // Handle timeout specifically
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new ApiError('Request timed out', 408);
     }
     throw new ApiError(error instanceof Error ? error.message : 'Network error', 0);
   }

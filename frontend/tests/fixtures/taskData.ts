@@ -205,6 +205,65 @@ export const mockAIExtractionTexts = [
   },
   {
     input:
+      'I need to finish the project documentation by Friday, schedule a team meeting for next week, debug the authentication system, update the user interface design, write unit tests for the new features, and prepare the quarterly review presentation.',
+    expectedTasks: [
+      {
+        title: 'Finish project documentation',
+        priority: 'medium' as Priority,
+        metadata: {
+          deadline: 'Friday',
+          energyLevel: 'medium' as EnergyLevel,
+          focusType: 'administrative' as FocusType,
+        },
+      },
+      {
+        title: 'Schedule team meeting for quarterly review',
+        priority: 'low' as Priority,
+        metadata: {
+          energyLevel: 'low' as EnergyLevel,
+          focusType: 'collaborative' as FocusType,
+        },
+      },
+      {
+        title: 'Debug authentication system',
+        priority: 'high' as Priority,
+        metadata: {
+          energyLevel: 'high' as EnergyLevel,
+          focusType: 'technical' as FocusType,
+          complexity: 8,
+        },
+      },
+      {
+        title: 'Update user interface design',
+        priority: 'medium' as Priority,
+        metadata: {
+          energyLevel: 'medium' as EnergyLevel,
+          focusType: 'creative' as FocusType,
+          complexity: 6,
+        },
+      },
+      {
+        title: 'Write unit tests for new features',
+        priority: 'medium' as Priority,
+        metadata: {
+          energyLevel: 'high' as EnergyLevel,
+          focusType: 'technical' as FocusType,
+          complexity: 7,
+        },
+      },
+      {
+        title: 'Prepare quarterly review presentation',
+        priority: 'medium' as Priority,
+        metadata: {
+          energyLevel: 'medium' as EnergyLevel,
+          focusType: 'administrative' as FocusType,
+          complexity: 5,
+        },
+      },
+    ],
+  },
+  {
+    input:
       "Debug the authentication system - it's critical and blocking other work. High complexity task that requires deep focus.",
     expectedTasks: [
       {

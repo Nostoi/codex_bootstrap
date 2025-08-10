@@ -35,6 +35,7 @@ export interface BackendTask {
   estimatedHours: number;
   dependencies: string[];
   tags: string[];
+  flags?: string[]; // For sensitive data detection and other flags
 }
 
 export interface TaskExtractionResponse {
@@ -54,9 +55,14 @@ function convertBackendTaskToExtractedTask(backendTask: BackendTask): ExtractedT
   return {
     title: backendTask.name,
     priority: backendTask.priority >= 8 ? 'high' : backendTask.priority >= 5 ? 'medium' : 'low',
-    dueDate: undefined, // Backend doesn't provide due dates for extracted tasks
+    dueDate: (backendTask as any).dueDate || undefined, // Include dueDate if provided by AI
     project: backendTask.tags.find(tag => tag.includes('project')) || undefined,
     estimatedDuration: backendTask.estimatedHours * 60, // Convert hours to minutes
+    // Include AI classification metadata if present
+    energyLevel: (backendTask as any).energyLevel,
+    focusType: (backendTask as any).focusType,
+    complexity: (backendTask as any).complexity,
+    flags: backendTask.flags, // Pass through flags for sensitive data detection
   };
 }
 
@@ -101,6 +107,11 @@ export const aiService = {
       return response.data.map(convertBackendTaskToExtractedTask);
     } catch (error) {
       if (error instanceof ApiError) {
+        if (error.status === 408) {
+          throw new Error('Request timed out');
+        } else if (error.status === 429) {
+          throw new Error('API quota limit exceeded');
+        }
         throw new Error(`Task extraction error: ${error.message}`);
       }
       throw new Error('Failed to extract tasks');
