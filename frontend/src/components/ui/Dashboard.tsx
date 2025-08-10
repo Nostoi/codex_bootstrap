@@ -289,6 +289,39 @@ const Dashboard: React.FC<DashboardProps> = ({
     }, 1500);
   }, [tasks]);
 
+  // Handle creating a new task - matches E2E test expectations
+  const handleCreateNewTask = useCallback(() => {
+    const newTask: Task = {
+      id: generateTaskId(),
+      title: 'New Task',
+      description: '',
+      priority: 3,
+      status: 'TODO',
+      energyLevel: 'MEDIUM',
+      focusType: 'ADMINISTRATIVE',
+      estimatedMinutes: 30,
+      completed: false,
+      dueDate: undefined,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    setTasks(prev => [newTask, ...prev]);
+    onTaskAdd?.(newTask);
+
+    // Add AI suggestion for new task
+    setAiRecommendations(prev => [
+      ...prev,
+      {
+        id: `ai-new-task-${Date.now()}`,
+        type: 'suggestion',
+        message:
+          "I see you've added a new task! Don't forget to set its priority and energy level for better planning.",
+        action: 'Customize task details',
+      },
+    ]);
+  }, [onTaskAdd]);
+
   // Handle messages from ChatGPT Integration
   const handleSendMessage = useCallback(
     async (content: string) => {
@@ -453,6 +486,15 @@ const Dashboard: React.FC<DashboardProps> = ({
             {refreshPlanMutation.isPending ? 'Refreshing...' : '🔄 Refresh Plan'}
           </button>
 
+          {/* New Task Button - Primary CTA as per wireframes */}
+          <button
+            className="btn btn-primary btn-lg"
+            onClick={handleCreateNewTask}
+            aria-label="Create new task"
+          >
+            ➕ New Task
+          </button>
+
           <div className="stats stats-horizontal shadow">
             <div className="stat">
               <div className="stat-title">Tasks</div>
@@ -608,7 +650,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 onClearChat={handleClearChat}
                 isLoading={isAiLoading}
                 isConnected={isAiConnected}
-                placeholder="Ask AI to help plan your day, extract tasks, or optimize your workflow..."
+                placeholder="Ask AI Assistant to help plan your day, extract tasks, or optimize your workflow..."
                 maxHeight="400px"
                 showTaskExtraction={true}
               />
@@ -740,7 +782,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 onClearChat={handleClearChat}
                 isLoading={isAiLoading}
                 isConnected={isAiConnected}
-                placeholder="Ask AI to help plan your day, extract tasks, or optimize your workflow..."
+                placeholder="Ask AI Assistant to help plan your day, extract tasks, or optimize your workflow..."
                 maxHeight="400px"
                 showTaskExtraction={true}
               />

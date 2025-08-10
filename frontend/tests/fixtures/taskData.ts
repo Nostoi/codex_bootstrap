@@ -363,6 +363,11 @@ export const testSelectors = {
     clearButton: 'button:has-text("Clear Chat")',
     messagesContainer: '.messages',
     aiStatus: '.badge:has-text("AI")',
+    suggestedTasks: '.bg-base-50:has-text("📋 Extracted Tasks")', // Task extraction results container
+    taskExtractionResults: '.space-y-2', // Container for individual extracted tasks
+    extractedTaskItem: '.bg-base-100.p-2.rounded.border', // Individual extracted task item
+    acceptSuggestion: 'button:has-text("➕ Add")', // Add task button
+    rejectSuggestion: 'button:has-text("Remove")', // Remove task button (if exists)
   },
   calendarEvents: {
     container: '.card:has(.card-title:has-text("📅"))',

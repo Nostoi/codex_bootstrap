@@ -24,8 +24,22 @@ test.describe('AI Integration Features', () => {
           status: 200,
           contentType: 'application/json',
           body: JSON.stringify({
-            success: true,
-            tasks: mockResponse.expectedTasks,
+            data: mockResponse.expectedTasks.map(task => ({
+              id: `extracted-${Date.now()}-${Math.random()}`,
+              name: task.title,
+              description: '',
+              priority: task.priority === 'high' ? 8 : task.priority === 'medium' ? 5 : 2,
+              estimatedHours: 1,
+              dependencies: [],
+              tags: [],
+            })),
+            usage: {
+              promptTokens: 100,
+              completionTokens: 50,
+              totalTokens: 150,
+            },
+            model: 'gpt-4o-mini',
+            processingTimeMs: 1000,
           }),
         });
       } else {
@@ -33,8 +47,14 @@ test.describe('AI Integration Features', () => {
           status: 200,
           contentType: 'application/json',
           body: JSON.stringify({
-            success: true,
-            tasks: [],
+            data: [],
+            usage: {
+              promptTokens: 50,
+              completionTokens: 10,
+              totalTokens: 60,
+            },
+            model: 'gpt-4o-mini',
+            processingTimeMs: 500,
           }),
         });
       }
