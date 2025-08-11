@@ -1,14 +1,35 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import FocusView from './FocusView';
-import ChatGPTIntegration, { ChatMessage, ExtractedTask } from './ChatGPTIntegration';
-import EmailIntegration from './EmailIntegration';
-import CalendarEvents from './CalendarEvents';
+import React, { useState, useCallback, useMemo, Suspense, lazy } from 'react';
+import { Loader2 } from 'lucide-react';
+
+// Lazy load heavy components for better performance
+const FocusView = lazy(() => import('./FocusView'));
+const ChatGPTIntegration = lazy(() =>
+  import('./ChatGPTIntegration').then(mod => ({ default: mod.default }))
+);
+const EmailIntegration = lazy(() => import('./EmailIntegration'));
+const CalendarEvents = lazy(() => import('./CalendarEvents'));
+const AISuggestionsPanel = lazy(() => import('./AISuggestionsPanel'));
+
+// Immediately load critical components
 import FilterBar, { FilterValues } from './FilterBar';
 import TaskCard, { EnhancedTask } from './TaskCard';
 import TaskCreationDialog from './TaskCreationDialog';
-import AISuggestionsPanel from './AISuggestionsPanel';
+// import TimeSlotView from '../calendar/TimeSlotView';
 import { useDailyPlan, useRefreshDailyPlan } from '../../hooks/useApi';
 import { aiService } from '../../lib/aiService';
+
+// Re-export for backward compatibility
+export type { ChatMessage, ExtractedTask } from './ChatGPTIntegration';
+
+// Performance-optimized loading component
+const ComponentLoader = ({ name }: { name: string }) => (
+  <div className="flex items-center justify-center p-6 bg-base-100 rounded-lg border border-base-300">
+    <div className="flex items-center gap-2">
+      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+      <span className="text-sm text-base-content/70">Loading {name}...</span>
+    </div>
+  </div>
+);
 
 // Enhanced Task interface matching TaskCard component
 export interface Task extends EnhancedTask {}
@@ -831,40 +852,54 @@ const Dashboard: React.FC<DashboardProps> = ({
           /* Focus View - Traditional layout */
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-6">
-              <FocusView
-                todaysTasks={sortedFilteredTasks}
-                focusGoal="AI-optimized daily productivity"
-                aiRecommendation={aiRecommendations[0]?.message}
-                onTaskClick={handleTaskClick}
-                onRefreshAI={handleRequestAISuggestions}
-                isLoadingAI={isAiLoading}
-              />
+              <Suspense fallback={<ComponentLoader name="Focus View" />}>
+                <FocusView
+                  todaysTasks={sortedFilteredTasks}
+                  focusGoal="AI-optimized daily productivity"
+                  aiRecommendation={aiRecommendations[0]?.message}
+                  onTaskClick={handleTaskClick}
+                  onRefreshAI={handleRequestAISuggestions}
+                  isLoadingAI={isAiLoading}
+                />
+              </Suspense>
             </div>
 
             <div className="lg:col-span-3">
-              <CalendarEvents date={dailyPlan?.date} maxEvents={5} className="h-fit" />
+              <Suspense fallback={<ComponentLoader name="Calendar Events" />}>
+                <CalendarEvents
+                  date={dailyPlan?.date}
+                  maxEvents={5}
+                  className="h-fit"
+                  enableRealTimeUpdates={true}
+                  adhdOptimized={true}
+                />
+              </Suspense>
             </div>
 
             <div className="lg:col-span-3">
-              <EmailIntegration
-                userId="current-user" // TODO: Get from auth context
-                onTasksExtracted={handleExtractTasks}
-                onError={error => console.error('Email integration error:', error)}
-              />
+              <Suspense fallback={<ComponentLoader name="Email Integration" />}>
+                <EmailIntegration
+                  userId="current-user" // TODO: Get from auth context
+                  onTasksExtracted={handleExtractTasks}
+                  onError={error => console.error('Email integration error:', error)}
+                />
+              </Suspense>
             </div>
 
             <div className="lg:col-span-3">
-              <ChatGPTIntegration
-                messages={messages}
-                onSendMessage={handleSendMessage}
-                onExtractTasks={handleExtractTasks}
-                onClearChat={handleClearChat}
-                isLoading={isAiLoading}
-                isConnected={isAiConnected}
-                placeholder="Ask AI Assistant to help plan your day, extract tasks, or optimize your workflow..."
-                maxHeight="400px"
-                showTaskExtraction={true}
-              />
+              <Suspense fallback={<ComponentLoader name="AI Assistant" />}>
+                <ChatGPTIntegration
+                  messages={messages}
+                  onSendMessage={handleSendMessage}
+                  onExtractTasks={handleExtractTasks}
+                  onClearChat={handleClearChat}
+                  isLoading={isAiLoading}
+                  isConnected={isAiConnected}
+                  placeholder="Ask AI Assistant to help plan your day, extract tasks, or optimize your workflow..."
+                  maxHeight="400px"
+                  showTaskExtraction={true}
+                />
+              </Suspense>
             </div>
           </div>
         ) : (
@@ -943,8 +978,30 @@ const Dashboard: React.FC<DashboardProps> = ({
 
             {/* Sidebar */}
             <div className="lg:col-span-4 space-y-6">
+              {/* Energy-Optimized Schedule - Temporarily disabled for build */}
+              {/* <TimeSlotView 
+                date={dailyPlan?.date} 
+                className="h-fit"
+                onTaskMove={(taskId, newTimeSlot) => {
+                  console.log('Move task:', taskId, 'to slot:', newTimeSlot);
+                  // TODO: Integrate with task rescheduling API
+                }}
+                onSlotClick={(slot) => {
+                  console.log('Slot clicked:', slot);
+                  // TODO: Open quick task creation for empty slots
+                }}
+                adhdOptimized={true}
+                showEnergyIndicators={true}
+              /> */}
+
               {/* Calendar Events */}
-              <CalendarEvents date={dailyPlan?.date} maxEvents={5} className="h-fit" />
+              <CalendarEvents
+                date={dailyPlan?.date}
+                maxEvents={5}
+                className="h-fit"
+                enableRealTimeUpdates={true}
+                adhdOptimized={true}
+              />
 
               {/* AI Recommendations */}
               {aiRecommendations.length > 0 && (
@@ -1013,13 +1070,17 @@ const Dashboard: React.FC<DashboardProps> = ({
       />
 
       {/* AI Suggestions Panel */}
-      <AISuggestionsPanel
-        isVisible={aiSuggestionsPanel.isVisible}
-        isLoading={aiSuggestionsPanel.isLoading}
-        suggestions={aiSuggestionsPanel.suggestions}
-        onApplySuggestion={handleApplySuggestion}
-        onClose={handleCloseAISuggestions}
-      />
+      {aiSuggestionsPanel.isVisible && (
+        <Suspense fallback={<ComponentLoader name="AI Suggestions" />}>
+          <AISuggestionsPanel
+            isVisible={aiSuggestionsPanel.isVisible}
+            isLoading={aiSuggestionsPanel.isLoading}
+            suggestions={aiSuggestionsPanel.suggestions}
+            onApplySuggestion={handleApplySuggestion}
+            onClose={handleCloseAISuggestions}
+          />
+        </Suspense>
+      )}
 
       {/* AI Schedule Analysis Modal */}
       {scheduleAnalysis.isVisible && (

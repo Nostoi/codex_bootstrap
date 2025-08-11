@@ -21,7 +21,9 @@ export interface UseDragAndDropOptions {
   adhdSettings?: ADHDCalendarSettings;
   onEventMove?: (eventId: string, newStartTime: Date, newEndTime: Date) => Promise<void>;
   onTaskSchedule?: (taskId: string, scheduledTime: Date, duration: number) => Promise<void>;
-  onConflictDetected?: (conflicts: Array<{ id: string; title: string }>) => void;
+  onConflictDetected?: (
+    conflicts: Array<{ id: string; title: string; severity: 'minor' | 'major' | 'critical' }>
+  ) => void;
 }
 
 export const useDragAndDrop = (options: UseDragAndDropOptions = {}) => {
@@ -94,7 +96,11 @@ export const useDragAndDrop = (options: UseDragAndDropOptions = {}) => {
       excludeId: string,
       existingEvents: CalendarEvent[] = []
     ) => {
-      const conflicts: Array<{ id: string; title: string }> = [];
+      const conflicts: Array<{
+        id: string;
+        title: string;
+        severity: 'minor' | 'major' | 'critical';
+      }> = [];
 
       for (const event of existingEvents) {
         if (event.id === excludeId) continue;
@@ -107,7 +113,28 @@ export const useDragAndDrop = (options: UseDragAndDropOptions = {}) => {
           (newStartTime < eventEnd && newEndTime > eventStart) ||
           (eventStart < newEndTime && eventEnd > newStartTime)
         ) {
-          conflicts.push({ id: event.id, title: event.title });
+          // Calculate conflict severity based on overlap percentage
+          const overlapStart = new Date(Math.max(newStartTime.getTime(), eventStart.getTime()));
+          const overlapEnd = new Date(Math.min(newEndTime.getTime(), eventEnd.getTime()));
+          const overlapDuration = overlapEnd.getTime() - overlapStart.getTime();
+          const eventDuration = eventEnd.getTime() - eventStart.getTime();
+          const newEventDuration = newEndTime.getTime() - newStartTime.getTime();
+
+          const overlapPercentage = Math.max(
+            overlapDuration / eventDuration,
+            overlapDuration / newEventDuration
+          );
+
+          let severity: 'minor' | 'major' | 'critical';
+          if (overlapPercentage >= 0.8) severity = 'critical';
+          else if (overlapPercentage >= 0.5) severity = 'major';
+          else severity = 'minor';
+
+          conflicts.push({
+            id: event.id,
+            title: event.title,
+            severity,
+          });
         }
       }
 

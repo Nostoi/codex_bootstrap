@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   Bell,
   BellOff,
@@ -11,6 +11,8 @@ import {
   AlertTriangle,
   Calendar,
   Target,
+  Zap,
+  Activity,
 } from 'lucide-react';
 import {
   useNotifications,
@@ -18,6 +20,9 @@ import {
   useCalendarConflicts,
 } from '../../hooks/useNotifications';
 import { NotificationData } from '../../contexts/WebSocketContext';
+import { useEnergyAwareNotifications } from '../../lib/energyAwareNotificationScheduler';
+import { useEnhancedFocusDetection } from '../../lib/enhancedFocusDetection';
+import { useNotificationConflictPrevention } from '../../lib/notificationConflictPrevention';
 
 interface NotificationsPanelProps {
   className?: string;
@@ -40,9 +45,14 @@ export function NotificationsPanel({ className = '' }: NotificationsPanelProps) 
 
   const { criticalDeadlines } = useDeadlineReminders();
   const { conflictNotifications, resolveConflict } = useCalendarConflicts();
+  const { setFocusMode, setEnergyLevel, getStats } = useEnergyAwareNotifications();
+  const { currentSession: enhancedFocusSession } = useEnhancedFocusDetection();
+  const { conflicts: notificationConflicts } = useNotificationConflictPrevention();
 
   const [isOpen, setIsOpen] = useState(false);
   const [filter, setFilter] = useState<'all' | 'unread' | 'urgent'>('all');
+  const [currentEnergyLevel, setCurrentEnergyLevel] = useState<'LOW' | 'MEDIUM' | 'HIGH'>('MEDIUM');
+  const [schedulerStats, setSchedulerStats] = useState<any>(null);
 
   const filteredNotifications = notifications.filter(notification => {
     switch (filter) {
@@ -98,6 +108,51 @@ export function NotificationsPanel({ className = '' }: NotificationsPanelProps) 
     if (diffDays < 7) return `${diffDays}d ago`;
     return time.toLocaleDateString();
   }, []);
+
+  // Enhanced focus mode integration with energy-aware scheduler
+  useEffect(() => {
+    setFocusMode(focusMode);
+  }, [focusMode, setFocusMode]);
+
+  // Energy level synchronization
+  useEffect(() => {
+    setEnergyLevel(currentEnergyLevel);
+  }, [currentEnergyLevel, setEnergyLevel]);
+
+  // Update scheduler stats periodically
+  useEffect(() => {
+    const updateStats = () => {
+      setSchedulerStats(getStats());
+    };
+
+    updateStats();
+    const interval = setInterval(updateStats, 10000); // Update every 10s
+
+    return () => clearInterval(interval);
+  }, [getStats]);
+
+  // Enhanced energy level controls
+  const handleEnergyLevelChange = useCallback(
+    (level: 'LOW' | 'MEDIUM' | 'HIGH') => {
+      setCurrentEnergyLevel(level);
+      setEnergyLevel(level);
+    },
+    [setEnergyLevel]
+  );
+
+  // Get energy level color for UI
+  const getEnergyLevelColor = (level: string) => {
+    switch (level) {
+      case 'HIGH':
+        return 'text-red-600 bg-red-50';
+      case 'MEDIUM':
+        return 'text-yellow-600 bg-yellow-50';
+      case 'LOW':
+        return 'text-green-600 bg-green-50';
+      default:
+        return 'text-gray-600 bg-gray-50';
+    }
+  };
 
   const handleNotificationClick = useCallback(
     (notification: NotificationData) => {
@@ -214,6 +269,138 @@ export function NotificationsPanel({ className = '' }: NotificationsPanelProps) 
                   )}
                 </button>
               ))}
+            </div>
+
+            {/* Energy-Aware Controls */}
+            <div className="mt-3 p-2 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-medium text-gray-700 flex items-center gap-1">
+                  <Activity className="w-3 h-3" />
+                  Energy Level
+                </span>
+                {schedulerStats && (
+                  <span className="text-xs text-gray-500">
+                    {schedulerStats.pendingNotifications} queued
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-1">
+                {(['LOW', 'MEDIUM', 'HIGH'] as const).map(level => (
+                  <button
+                    key={level}
+                    onClick={() => handleEnergyLevelChange(level)}
+                    className={`px-2 py-1 text-xs rounded-md transition-colors ${
+                      currentEnergyLevel === level
+                        ? getEnergyLevelColor(level)
+                        : 'text-gray-500 hover:text-gray-700 bg-white'
+                    }`}
+                    title={`Set energy level to ${level.toLowerCase()}`}
+                  >
+                    {level === 'HIGH' && '🚀'} {level === 'MEDIUM' && '⚡'}{' '}
+                    {level === 'LOW' && '🔋'}
+                    {level}
+                  </button>
+                ))}
+              </div>
+              {focusMode && (
+                <div className="mt-2 text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded">
+                  <Zap className="w-3 h-3 inline mr-1" />
+                  Focus mode: Energy-aware batching active
+                </div>
+              )}
+            </div>
+
+            {/* Enhanced Focus Mode Status with Conflict Prevention */}
+            {(focusMode || enhancedFocusSession) && (
+              <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm font-medium text-blue-800">Focus Session Active</span>
+                  {enhancedFocusSession && (
+                    <span className="text-xs text-blue-600 bg-blue-100 px-2 py-0.5 rounded">
+                      {enhancedFocusSession.activityType}
+                    </span>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs text-blue-700 mb-2">
+                  <div className="flex justify-between">
+                    <span>Duration:</span>
+                    <span className="font-medium">
+                      {enhancedFocusSession
+                        ? Math.round(
+                            (Date.now() - enhancedFocusSession.startTime.getTime()) / 60000
+                          )
+                        : '-'}
+                      m
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Energy:</span>
+                    <span className="font-medium">
+                      {enhancedFocusSession?.energyLevel || currentEnergyLevel}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Interruptions:</span>
+                    <span className="font-medium">{enhancedFocusSession?.interruptions || 0}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Protection:</span>
+                    <span className="font-medium text-green-600">On</span>
+                  </div>
+                </div>
+                <div className="text-xs text-blue-600">
+                  <Target className="w-3 h-3 inline mr-1" />
+                  Notifications are being intelligently scheduled to minimize interruptions
+                </div>
+              </div>
+            )}
+
+            {/* Conflict Prevention Status */}
+            <div className="mt-3 p-2 bg-gray-50 border border-gray-200 rounded-lg">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-medium text-gray-700 flex items-center gap-1">
+                  <Calendar className="w-3 h-3" />
+                  Conflict Prevention
+                </span>
+                <div className="flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                  <span className="text-xs text-green-600">Active</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                <div className="flex justify-between">
+                  <span>Calendar:</span>
+                  <span className="font-medium text-green-600">Protected</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Focus:</span>
+                  <span className="font-medium text-green-600">Protected</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Energy Match:</span>
+                  <span className="font-medium text-green-600">On</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Hyperfocus:</span>
+                  <span className="font-medium text-green-600">Guarded</span>
+                </div>
+              </div>
+
+              {schedulerStats && schedulerStats.conflictsDetected > 0 && (
+                <div className="mt-2 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
+                  <AlertTriangle className="w-3 h-3 inline mr-1" />
+                  {schedulerStats.conflictsDetected} conflicts resolved
+                </div>
+              )}
+
+              {notificationConflicts.length > 0 && (
+                <div className="mt-2 text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
+                  <AlertTriangle className="w-3 h-3 inline mr-1" />
+                  {notificationConflicts.length} active conflicts detected
+                </div>
+              )}
             </div>
 
             {/* Actions */}

@@ -44,35 +44,79 @@ const nextConfig = {
       );
     }
 
-    // Optimize chunk splitting for better caching
+    // Optimize chunk splitting for better caching and ADHD performance
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
         chunks: 'all',
+        maxSize: 300000, // 300KB max chunk size for ADHD-friendly loading
         cacheGroups: {
+          // Critical path - core ADHD functionality
+          critical: {
+            test: /[\\/]src[\\/](components[\\/](ui[\\/](Button|Input|Select|Badge)|layout)|hooks[\\/](useTask|useApi|useAuth))[\\/]/,
+            name: 'critical',
+            priority: 30,
+            chunks: 'all',
+            enforce: true,
+          },
+          // React framework - separate for caching
+          react: {
+            test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+            name: 'react',
+            priority: 25,
+            chunks: 'all',
+            enforce: true,
+          },
+          // Zustand state management - separate for frequent updates
+          state: {
+            test: /[\\/]node_modules[\\/](zustand|immer)[\\/]/,
+            name: 'state',
+            priority: 24,
+            chunks: 'all',
+          },
+          // UI libraries - icons, animations, etc
+          ui: {
+            test: /[\\/]node_modules[\\/](lucide-react|@radix-ui|tailwind|daisyui)[\\/]/,
+            name: 'ui',
+            priority: 23,
+            chunks: 'all',
+          },
+          // Analytics and advanced features - lazy load
+          analytics: {
+            test: /[\\/]src[\\/](components[\\/](analytics|insights)|lib[\\/](analytics|tracking))[\\/]/,
+            name: 'analytics',
+            priority: 15,
+            chunks: 'async',
+          },
+          // Calendar and integrations - lazy load
+          calendar: {
+            test: /[\\/]src[\\/](components[\\/]calendar|lib[\\/](calendar|google|microsoft))[\\/]/,
+            name: 'calendar',
+            priority: 14,
+            chunks: 'async',
+          },
+          // AI features - lazy load
+          ai: {
+            test: /[\\/](src[\\/](components[\\/]ai|lib[\\/]ai)|node_modules[\\/](@openai|openai))[\\/]/,
+            name: 'ai',
+            priority: 13,
+            chunks: 'async',
+          },
+          // Main vendor bundle - remaining third party
           vendor: {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',
             priority: 10,
             chunks: 'all',
+            maxSize: 200000, // 200KB max for vendor chunks
           },
+          // Common app code
           common: {
+            test: /[\\/]src[\\/]/,
             name: 'common',
             minChunks: 2,
             priority: 5,
             chunks: 'all',
-            enforce: true,
-          },
-          react: {
-            test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
-            name: 'react',
-            priority: 20,
-            chunks: 'all',
-          },
-          ui: {
-            test: /[\\/]src[\\/]components[\\/]/,
-            name: 'ui',
-            priority: 15,
-            chunks: 'all',
+            maxSize: 150000, // 150KB max for common chunks
           },
         },
       };

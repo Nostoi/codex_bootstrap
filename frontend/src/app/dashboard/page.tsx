@@ -1,10 +1,32 @@
 'use client';
 
-import { useEffect } from 'react';
-import Link from 'next/link';
-import Dashboard from '@/components/ui/Dashboard';
+import { useEffect, Suspense } from 'react';
+import dynamic from 'next/dynamic';
+import ResponsiveLayout from '@/components/layout/ResponsiveLayout';
 import { useTasksStore } from '@/store/tasksStore';
 import { useTasks } from '@/hooks/useApi';
+import { Loader2, Brain } from 'lucide-react';
+
+// Lazy load the dashboard for better initial page performance
+const Dashboard = dynamic(() => import('@/components/ui/Dashboard'), {
+  loading: () => (
+    <div className="flex items-center justify-center min-h-[600px] bg-base-100 rounded-lg border border-base-300">
+      <div className="flex flex-col items-center gap-4">
+        <div className="relative">
+          <Brain className="w-12 h-12 text-primary" />
+          <Loader2 className="w-6 h-6 absolute -top-1 -right-1 animate-spin text-secondary" />
+        </div>
+        <div className="text-center">
+          <p className="text-base-content/70 font-medium">Setting up your ADHD dashboard...</p>
+          <p className="text-xs text-base-content/50 mt-1">
+            Optimizing for focus and energy management
+          </p>
+        </div>
+      </div>
+    </div>
+  ),
+  ssr: false, // Client-side only for better performance
+});
 
 export default function DashboardPage() {
   const { tasks, setTasks } = useTasksStore();
@@ -27,43 +49,45 @@ export default function DashboardPage() {
   }));
 
   return (
-    <main className="min-h-screen bg-base-100">
-      {/* Navigation */}
-      <div className="navbar bg-primary text-primary-content">
-        <div className="flex-1">
-          <Link href="/" className="btn btn-ghost text-xl">
-            Codex Bootstrap
-          </Link>
+    <ResponsiveLayout maxWidth="2xl">
+      {/* ADHD-Optimized Dashboard with Mobile Support */}
+      <div className="space-y-4 sm:space-y-6">
+        {/* Mobile-Optimized Header */}
+        <div className="text-center lg:text-left">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-base-content mb-2">
+            🧠 Your ADHD Dashboard
+          </h1>
+          <p className="text-base-content/70 text-sm sm:text-base">
+            Optimized for focus, energy, and productivity
+          </p>
         </div>
-        <div className="flex-none">
-          <ul className="menu menu-horizontal px-1">
-            <li>
-              <Link href="/dashboard" className="text-accent">
-                Dashboard
-              </Link>
-            </li>
-            <li>
-              <Link href="/projects">Projects</Link>
-            </li>
-            <li>
-              <Link href="/reflection">Reflection</Link>
-            </li>
-            <li>
-              <Link href="/settings">Settings</Link>
-            </li>
-          </ul>
-        </div>
-      </div>
 
-      {/* AI-Powered Dashboard */}
-      <div className="container mx-auto px-4 py-8">
-        <Dashboard
-          initialTasks={convertedTasks}
-          onTaskUpdate={(taskId: string, updates) => console.log('Task updated:', taskId, updates)}
-          onTaskAdd={task => console.log('Create task:', task)}
-          onTaskDelete={(taskId: string) => console.log('Delete task:', taskId)}
-        />
+        {/* AI-Powered Dashboard with Lazy Loading */}
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center min-h-[600px] bg-base-100 rounded-lg border border-base-300">
+              <div className="flex flex-col items-center gap-4">
+                <Brain className="w-12 h-12 text-primary animate-pulse" />
+                <div className="text-center">
+                  <p className="text-base-content/70 font-medium">Preparing your workspace...</p>
+                  <p className="text-xs text-base-content/50 mt-1">
+                    ADHD-optimized interface loading
+                  </p>
+                </div>
+              </div>
+            </div>
+          }
+        >
+          <Dashboard
+            initialTasks={convertedTasks}
+            onTaskUpdate={(taskId: string, updates) =>
+              console.log('Task updated:', taskId, updates)
+            }
+            onTaskAdd={task => console.log('Create task:', task)}
+            onTaskDelete={(taskId: string) => console.log('Delete task:', taskId)}
+          />
+        </Suspense>
       </div>
-    </main>
+    </ResponsiveLayout>
   );
 }
