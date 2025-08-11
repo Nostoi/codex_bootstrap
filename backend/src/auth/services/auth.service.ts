@@ -4,6 +4,7 @@ import { TokenManagerService } from './token-manager.service';
 import { SessionManagerService } from './session-manager.service';
 import { OAuthProfile } from '../strategies/google.strategy';
 import { User, OAuthProvider } from '@prisma/client';
+import { getErrorMessage } from '../../common/utils/error.utils';
 
 export interface LoginResult {
   user: User;
@@ -51,15 +52,16 @@ export class AuthService {
         this.logger.debug(`Existing user found: ${user.email}`);
       } else {
         // Try to find user by email (to link accounts)
-        user = await this.prisma.user.findUnique({
+        const existingUser = await this.prisma.user.findUnique({
           where: { email: oauthProfile.email },
         });
 
-        if (!user) {
+        if (!existingUser) {
           // Create new user
           user = await this.createUserFromOAuth(oauthProfile);
           this.logger.log(`New user created: ${user.email}`);
         } else {
+          user = existingUser;
           this.logger.debug(`Linking OAuth provider to existing user: ${user.email}`);
         }
 
@@ -73,7 +75,10 @@ export class AuthService {
       this.logger.log(`OAuth login successful for user: ${user.email}`);
       return { user, accessToken, refreshToken, expiresAt };
     } catch (error) {
-      this.logger.error(`OAuth login failed: ${error.message}`, error.stack);
+      this.logger.error(
+        `OAuth login failed: ${getErrorMessage(error)}`,
+        error instanceof Error ? error.stack : undefined
+      );
       throw new UnauthorizedException('Authentication failed');
     }
   }
@@ -94,7 +99,10 @@ export class AuthService {
         },
       });
     } catch (error) {
-      this.logger.error(`Failed to find user by ID: ${userId}`, error.stack);
+      this.logger.error(
+        `Failed to find user by ID: ${userId}`,
+        error instanceof Error ? error.stack : undefined
+      );
       return null;
     }
   }
@@ -109,7 +117,10 @@ export class AuthService {
       });
       return !!blacklistedToken;
     } catch (error) {
-      this.logger.error(`Failed to check blacklisted token: ${tokenId}`, error.stack);
+      this.logger.error(
+        `Failed to check blacklisted token: ${tokenId}`,
+        error instanceof Error ? error.stack : undefined
+      );
       return false;
     }
   }
@@ -128,7 +139,10 @@ export class AuthService {
       });
       return !!session;
     } catch (error) {
-      this.logger.error(`Failed to check active session for user: ${userId}`, error.stack);
+      this.logger.error(
+        `Failed to check active session for user: ${userId}`,
+        error instanceof Error ? error.stack : undefined
+      );
       return false;
     }
   }
@@ -142,7 +156,7 @@ export class AuthService {
     const tokenPayload = {
       sub: user.id,
       email: user.email,
-      name: user.name,
+      name: user.name || undefined,
     };
 
     const accessToken = await this.tokenManager.generateAccessToken(tokenPayload);
@@ -190,7 +204,10 @@ export class AuthService {
 
       return tokens;
     } catch (error) {
-      this.logger.error(`Token refresh failed: ${error.message}`, error.stack);
+      this.logger.error(
+        `Token refresh failed: ${getErrorMessage(error)}`,
+        error instanceof Error ? error.stack : undefined
+      );
       throw new UnauthorizedException('Token refresh failed');
     }
   }
@@ -208,7 +225,10 @@ export class AuthService {
 
       this.logger.log(`User logged out: ${userId}`);
     } catch (error) {
-      this.logger.error(`Logout failed for user: ${userId}`, error.stack);
+      this.logger.error(
+        `Logout failed for user: ${userId}`,
+        error instanceof Error ? error.stack : undefined
+      );
       throw error;
     }
   }

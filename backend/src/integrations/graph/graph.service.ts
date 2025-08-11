@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Client } from '@microsoft/microsoft-graph-client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { GraphAuthService } from './auth/graph-auth.service';
+import { getErrorMessage } from '../../common/utils/error.utils';
 import {
   CalendarEvent,
   CalendarListOptions,
@@ -253,23 +254,33 @@ export class GraphService {
       this.logger.error(`Error fetching Microsoft Graph calendar events for user ${userId}:`, {
         userId,
         calendarId,
-        error: error.message,
-        errorCode: error.code,
+        error: getErrorMessage(error),
+        errorCode: error && typeof error === 'object' && 'code' in error ? error.code : 'Unknown',
         responseTimeMs: responseTime,
       });
 
       // Handle specific Microsoft Graph API errors
-      if (error.code === 'Forbidden' || error.code === 'Unauthorized') {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        (error.code === 'Forbidden' || error.code === 'Unauthorized')
+      ) {
         throw new Error(
           `Calendar access denied. Please check permissions for calendar: ${calendarId}`
         );
       }
 
-      if (error.code === 'TooManyRequests' || error.code === 'ThrottledRequest') {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        (error.code === 'TooManyRequests' || error.code === 'ThrottledRequest')
+      ) {
         throw new Error('Calendar API rate limit exceeded. Please try again later.');
       }
 
-      if (error.code === 'NotFound') {
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'NotFound') {
         throw new Error(`Calendar not found: ${calendarId}`);
       }
 
@@ -388,22 +399,32 @@ export class GraphService {
       this.logger.error(`Error creating calendar event for user ${userId}:`, {
         userId,
         calendarId,
-        error: error.message,
-        errorCode: error.code,
+        error: getErrorMessage(error),
+        errorCode: error && typeof error === 'object' && 'code' in error ? error.code : 'Unknown',
         responseTimeMs: responseTime,
       });
 
       // Handle specific Microsoft Graph API errors
-      if (error.code === 'Forbidden' || error.code === 'Unauthorized') {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        (error.code === 'Forbidden' || error.code === 'Unauthorized')
+      ) {
         throw new Error('Calendar write access denied. Please check permissions.');
       }
 
-      if (error.code === 'TooManyRequests' || error.code === 'ThrottledRequest') {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        (error.code === 'TooManyRequests' || error.code === 'ThrottledRequest')
+      ) {
         throw new Error('Calendar API rate limit exceeded. Please try again later.');
       }
 
-      if (error.code === 'BadRequest') {
-        throw new Error(`Invalid event data: ${error.message}`);
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'BadRequest') {
+        throw new Error(`Invalid event data: ${getErrorMessage(error)}`);
       }
 
       throw error;
@@ -590,7 +611,7 @@ export class GraphService {
         userId,
         calendarId,
         eventCount: events.length,
-        error: error.message,
+        error: getErrorMessage(error),
         responseTimeMs: responseTime,
       });
 
@@ -631,7 +652,7 @@ export class GraphService {
       // Send invitation by updating the event with a comment
       const response = await graphClient.api(`${eventEndpoint}/forward`).post({
         comment: message || 'Meeting invitation',
-        toRecipients: event.attendees.map(attendee => ({
+        toRecipients: event.attendees.map((attendee: any) => ({
           emailAddress: attendee.emailAddress,
         })),
       });
@@ -649,7 +670,7 @@ export class GraphService {
         userId,
         eventId,
         calendarId,
-        error: error.message,
+        error: getErrorMessage(error),
       });
       throw error;
     }
@@ -679,11 +700,16 @@ export class GraphService {
       this.logger.error(`Error getting calendar permissions for calendar ${calendarId}:`, {
         userId,
         calendarId,
-        error: error.message,
+        error: getErrorMessage(error),
       });
 
       // Handle case where permissions endpoint is not available
-      if (error.code === 'NotFound' || error.code === 'BadRequest') {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        (error.code === 'NotFound' || error.code === 'BadRequest')
+      ) {
         this.logger.warn(
           'Calendar permissions endpoint not available, returning empty permissions'
         );
@@ -744,7 +770,7 @@ export class GraphService {
         calendarId,
         recipientEmail,
         permission,
-        error: error.message,
+        error: getErrorMessage(error),
       });
 
       throw error;
@@ -785,7 +811,7 @@ export class GraphService {
         tentative: 0,
         noResponse: 0,
         attendees:
-          event.attendees?.map(attendee => ({
+          event.attendees?.map((attendee: any) => ({
             email: attendee.emailAddress.address,
             name: attendee.emailAddress.name,
             response: attendee.status?.response || 'none',
@@ -816,7 +842,7 @@ export class GraphService {
         userId,
         eventId,
         calendarId,
-        error: error.message,
+        error: getErrorMessage(error),
       });
       throw error;
     }
@@ -881,7 +907,7 @@ export class GraphService {
         userId,
         attendees: attendees.length,
         duration,
-        error: error.message,
+        error: getErrorMessage(error),
       });
       throw error;
     }
@@ -932,7 +958,7 @@ export class GraphService {
       this.logger.error(`Error getting free/busy info:`, {
         userId,
         attendees: attendees.length,
-        error: error.message,
+        error: getErrorMessage(error),
       });
       throw error;
     }
@@ -1014,7 +1040,7 @@ export class GraphService {
         userId,
         startTime,
         endTime,
-        error: error.message,
+        error: getErrorMessage(error),
       });
       throw error;
     }
@@ -1133,7 +1159,7 @@ export class GraphService {
       });
 
       // Filter out emails with minimal content
-      return emailsWithContent.filter(email => email.content.length > 50);
+      return emailsWithContent.filter((email: any) => email.content.length > 50);
     } catch (error) {
       this.logger.error(
         `Failed to get mail messages for task extraction for user ${userId}:`,

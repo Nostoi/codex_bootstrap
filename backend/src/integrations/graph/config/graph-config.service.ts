@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MicrosoftGraphConfig, ALL_CALENDAR_SCOPES } from '../types/calendar.types';
+import { getErrorMessage } from '../../../common/utils/error.utils';
 
 /**
  * Configuration service for Microsoft Graph integration
@@ -86,7 +87,7 @@ export class GraphConfigService {
     try {
       this.getMicrosoftGraphConfig();
     } catch (error) {
-      errors.push(error.message);
+      errors.push(getErrorMessage(error));
     }
 
     // Additional validation for optional but recommended settings
@@ -120,7 +121,7 @@ export class GraphConfigService {
       };
     } catch (error) {
       return {
-        error: error.message,
+        error: getErrorMessage(error),
       };
     }
   }

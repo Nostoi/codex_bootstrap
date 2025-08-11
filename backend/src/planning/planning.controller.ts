@@ -3,6 +3,7 @@ import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { DailyPlannerService } from './daily-planner.service';
 import { DailyPlanResponseDto } from './dto/planning.dto';
 import { TimeSlot } from './types';
+import { getErrorMessage } from '../common/utils/error.utils';
 
 @ApiTags('Planning')
 @Controller('plans')
@@ -135,8 +136,8 @@ export class PlanningController {
       };
     } catch (error) {
       this.logger.error(
-        `Failed to retrieve calendar events for user ${userId}: ${error.message}`,
-        error.stack
+        `Failed to retrieve calendar events for user ${userId}: ${getErrorMessage(error)}`,
+        error instanceof Error ? error.stack : undefined
       );
       throw error;
     }

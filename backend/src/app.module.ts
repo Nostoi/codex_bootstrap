@@ -13,11 +13,11 @@ import { ProjectsModule } from './projects/projects.module'; // Re-enabled for p
 import { AuthModule } from './auth/auth.module';
 import { AiModule } from './ai/ai.module'; // Re-enabled for email integration
 import { EmailAiModule } from './integrations/email-ai.module'; // Email integration module
-// import { MetricsModule } from "./metrics/metrics.module"; // Temporarily disabled for WebSocket testing
-// import { SecurityModule } from "./security/security.module"; // Re-enabled security services
+import { MetricsModule } from './metrics/metrics.module'; // Re-enabled for Phase 3
 import { SecurityModule } from './security/security.module';
 import { PlanningModule } from './planning/planning.module';
-// import { FeatureFlagsModule } from "./features/feature-flags.module"; // Temporarily disabled for WebSocket testing
+import { FeatureFlagsModule } from './features/feature-flags.module'; // Re-enabled for Phase 3
+import { AnalyticsModule } from './analytics/analytics.module'; // Phase 3 Item 11: Analytics
 
 @Module({
   imports: [
@@ -35,11 +35,11 @@ import { PlanningModule } from './planning/planning.module';
     AuthModule,
     AiModule, // Re-enabled for email integration
     EmailAiModule, // Email integration module
-    // MetricsModule, // Temporarily disabled for WebSocket testing
-    // SecurityModule, // Re-enabled security services
+    MetricsModule, // Re-enabled for Phase 3
     SecurityModule,
     PlanningModule,
-    // FeatureFlagsModule, // Temporarily disabled for WebSocket testing
+    FeatureFlagsModule, // Re-enabled for Phase 3
+    AnalyticsModule, // Phase 3 Item 11: Advanced Analytics & Insights
   ],
   controllers: [AppController],
   providers: [AppService],

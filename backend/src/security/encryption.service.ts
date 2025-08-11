@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { createCipheriv, createDecipheriv, randomBytes, scrypt } from 'crypto';
 import { promisify } from 'util';
+import { getErrorMessage } from '../common/utils/error.utils';
 
 const scryptAsync = promisify(scrypt);
 
@@ -63,7 +64,7 @@ export class EncryptionService {
         authTag: authTag.toString('hex'),
       };
     } catch (error) {
-      this.logger.error('Failed to encrypt data', error.stack);
+      this.logger.error('Failed to encrypt data', getErrorMessage(error));
       // Re-throw the original error if it's from our validation
       if (error instanceof Error && error.message.includes('ENCRYPTION_KEY')) {
         throw error;
@@ -104,7 +105,7 @@ export class EncryptionService {
 
       return decrypted;
     } catch (error) {
-      this.logger.error('Failed to decrypt data', error.stack);
+      this.logger.error('Failed to decrypt data', getErrorMessage(error));
       // Re-throw specific errors for better debugging
       if (error instanceof Error && error.message.includes('Invalid encrypted data format')) {
         throw error;

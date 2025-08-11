@@ -15,7 +15,7 @@ interface QueryMetrics {
   rowsAffected?: number;
 }
 
-interface DatabasePerformanceMetrics {
+export interface DatabasePerformanceMetrics {
   averageQueryTime: number;
   slowQueries: QueryMetrics[];
   queryCount: number;

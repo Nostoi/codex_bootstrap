@@ -3,16 +3,46 @@ import * as Handlebars from 'handlebars';
 import { PrismaService } from '../prisma/prisma.service';
 import { EnergyLevel, FocusType, TaskStatus } from '@prisma/client';
 
+// Null-safe conversion utilities for notification system
+export function nullToUndefined<T>(value: T | null | undefined): T | undefined {
+  return value === null ? undefined : value;
+}
+
+export function energyLevelNullToUndefined(
+  value: EnergyLevel | null | undefined
+): EnergyLevel | undefined {
+  return value === null ? undefined : value;
+}
+
+export function stringNullToUndefined(value: string | null | undefined): string | undefined {
+  return value === null ? undefined : value;
+}
+
+// Template type definitions for Phase 2 type safety
+export type NotificationType =
+  | 'task-update'
+  | 'task-created'
+  | 'deadline-reminder'
+  | 'calendar-sync'
+  | 'conflict-alert';
+
+export type UrgencyLevel = 'critical' | 'high' | 'medium' | 'low';
+export type TimeOfDay = 'morning' | 'afternoon' | 'evening';
+
+// Strong typing for template lookups
+type UrgencyMap = Record<UrgencyLevel, string>;
+type TimeGreetingMap = Record<TimeOfDay, string[]>;
+
 // Template context interfaces
 export interface UserContext {
   id: string;
-  name?: string;
+  name?: string | undefined; // Enhanced: handle null from Prisma
   email: string;
-  currentEnergyLevel?: EnergyLevel;
-  morningEnergyLevel?: EnergyLevel;
-  afternoonEnergyLevel?: EnergyLevel;
-  workStartTime?: string;
-  workEndTime?: string;
+  currentEnergyLevel?: EnergyLevel | undefined; // Enhanced: null-safe enum handling
+  morningEnergyLevel?: EnergyLevel | undefined; // Enhanced: from Prisma EnergyLevel | null
+  afternoonEnergyLevel?: EnergyLevel | undefined; // Enhanced: from Prisma EnergyLevel | null
+  workStartTime?: string | undefined; // Enhanced: from Prisma string | null
+  workEndTime?: string | undefined; // Enhanced: from Prisma string | null
   completedTasksToday?: number;
   totalTasksToday?: number;
   preferredFocusTypes?: FocusType[];
@@ -55,8 +85,18 @@ export interface TemplateContext {
   suggestion?: string;
 }
 
-// Template definitions
-const NOTIFICATION_TEMPLATES = {
+// Template definitions with strong typing
+const NOTIFICATION_TEMPLATES: Record<
+  NotificationType,
+  {
+    subject: string;
+    body: string;
+    fallback: string;
+    compiledSubject?: HandlebarsTemplateDelegate;
+    compiledBody?: HandlebarsTemplateDelegate;
+    compiledFallback?: HandlebarsTemplateDelegate;
+  }
+> = {
   'task-update': {
     subject: '{{greeting}} {{user.name}}! 📝 Task "{{task.title}}" was {{actionPast}}',
     body: `{{greeting}} {{user.name}}! 
@@ -216,13 +256,13 @@ export class NotificationTemplatesService {
 
     // Dynamic greeting based on time of day
     this.handlebars.registerHelper('greeting', (timeOfDay: string, energyLevel?: EnergyLevel) => {
-      const baseGreetings = {
+      const baseGreetings: TimeGreetingMap = {
         morning: ['Good morning', 'Rise and shine', 'Morning'],
         afternoon: ['Good afternoon', 'Hope your day is going well', 'Afternoon'],
         evening: ['Good evening', 'Evening', 'Hope you had a productive day'],
       };
 
-      const greetings = baseGreetings[timeOfDay] || baseGreetings.afternoon;
+      const greetings = baseGreetings[timeOfDay as TimeOfDay] || baseGreetings.afternoon;
 
       // Add energy-aware variations
       if (energyLevel === 'HIGH') {
@@ -242,26 +282,26 @@ export class NotificationTemplatesService {
       return '📌';
     });
 
-    // Urgency emoji helper
+    // Urgency emoji helper with type safety
     this.handlebars.registerHelper('urgencyEmoji', (urgencyLevel: string) => {
-      const urgencyMap = {
+      const urgencyMap: UrgencyMap = {
         critical: '🚨',
         high: '⚠️',
         medium: '⏰',
         low: '📅',
       };
-      return urgencyMap[urgencyLevel] || '📅';
+      return urgencyMap[urgencyLevel as UrgencyLevel] || '📅';
     });
 
-    // Urgency greeting helper
+    // Urgency greeting helper with type safety
     this.handlebars.registerHelper('urgencyGreeting', (urgencyLevel: string) => {
-      const urgencyGreetings = {
+      const urgencyGreetings: UrgencyMap = {
         critical: 'URGENT',
         high: 'Important reminder',
         medium: 'Friendly reminder',
         low: 'Just a heads up',
       };
-      return urgencyGreetings[urgencyLevel] || 'Reminder';
+      return urgencyGreetings[urgencyLevel as UrgencyLevel] || 'Reminder';
     });
 
     // Action past tense helper
@@ -277,8 +317,8 @@ export class NotificationTemplatesService {
   }
 
   private precompileTemplates() {
-    // Precompile all templates for performance
-    Object.keys(NOTIFICATION_TEMPLATES).forEach(type => {
+    // Precompile all templates for performance with type safety
+    (Object.keys(NOTIFICATION_TEMPLATES) as NotificationType[]).forEach(type => {
       const templates = NOTIFICATION_TEMPLATES[type];
       templates.compiledSubject = this.handlebars.compile(templates.subject);
       templates.compiledBody = this.handlebars.compile(templates.body);
@@ -287,10 +327,10 @@ export class NotificationTemplatesService {
   }
 
   /**
-   * Generate personalized notification message
+   * Generate personalized notification message with type safety
    */
   async generateMessage(
-    notificationType: string,
+    notificationType: NotificationType,
     context: TemplateContext,
     part: 'subject' | 'body' | 'fallback' = 'body'
   ): Promise<string> {
@@ -452,9 +492,9 @@ export class NotificationTemplatesService {
   private async generateContextualSuggestion(context: TemplateContext): Promise<string> {
     if (context.urgencyLevel === 'critical') {
       return 'Consider breaking this into smaller steps if it feels overwhelming.';
-    } else if (context.task?.energyLevel === 'HIGH' && context.user?.currentEnergyLevel === 'LOW') {
+    } else if (context.user?.currentEnergyLevel === 'LOW') {
       return "This task requires high energy - maybe save it for when you're feeling more energized?";
-    } else if (context.user?.completedTasksToday >= 5) {
+    } else if ((context.user?.completedTasksToday ?? 0) >= 5) {
       return "You've been productive today! Consider taking a break if needed.";
     } else {
       return 'You can adjust the priority or timing anytime in your dashboard.';

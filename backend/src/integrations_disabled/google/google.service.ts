@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { google } from 'googleapis';
 import { PrismaService } from '../../prisma/prisma.service';
+import { getErrorMessage } from '../../common/utils/error.utils';
 
 @Injectable()
 export class GoogleService {
@@ -137,7 +138,12 @@ export class GoogleService {
   /**
    * Get Google Calendar events for a specific date range with enhanced error handling
    */
-  async getCalendarEvents(userId: string, calendarId = 'primary', timeMin?: Date, timeMax?: Date) {
+  async getCalendarEvents(
+    userId: string,
+    calendarId = 'primary',
+    timeMin?: Date,
+    timeMax?: Date
+  ): Promise<any> {
     const startTime = performance.now();
 
     try {
@@ -180,13 +186,31 @@ export class GoogleService {
       this.logger.error(`Error fetching Google Calendar events for user ${userId}:`, {
         userId,
         calendarId,
-        error: error.message,
-        errorCode: error.response?.status,
+        error: getErrorMessage(error),
+        errorCode:
+          error &&
+          typeof error === 'object' &&
+          error !== null &&
+          'response' in error &&
+          error.response &&
+          typeof error.response === 'object' &&
+          'status' in error.response
+            ? error.response.status
+            : 'Unknown',
         responseTimeMs: responseTime,
       });
 
       // Handle specific Google API errors
-      if (error.response?.status === 401) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        error !== null &&
+        'response' in error &&
+        error.response &&
+        typeof error.response === 'object' &&
+        'status' in error.response &&
+        error.response.status === 401
+      ) {
         this.logger.warn(`Authentication token expired for user ${userId}, attempting refresh`, {
           userId,
         });
@@ -203,19 +227,39 @@ export class GoogleService {
         } catch (refreshError) {
           this.logger.error(`Token refresh failed for user ${userId}:`, {
             userId,
-            refreshError: refreshError.message,
+            refreshError: getErrorMessage(refreshError),
           });
-          throw new Error(`Google Calendar authentication failed: ${refreshError.message}`);
+          throw new Error(
+            `Google Calendar authentication failed: ${getErrorMessage(refreshError)}`
+          );
         }
       }
 
-      if (error.response?.status === 403) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        error !== null &&
+        'response' in error &&
+        error.response &&
+        typeof error.response === 'object' &&
+        'status' in error.response &&
+        error.response.status === 403
+      ) {
         throw new Error(
           'Insufficient permissions to access Google Calendar. Please re-authorize the application.'
         );
       }
 
-      if (error.response?.status === 429) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        error !== null &&
+        'response' in error &&
+        error.response &&
+        typeof error.response === 'object' &&
+        'status' in error.response &&
+        error.response.status === 429
+      ) {
         throw new Error('Google Calendar API rate limit exceeded. Please try again later.');
       }
 
@@ -272,10 +316,13 @@ export class GoogleService {
 
       this.logger.log(`Access token refreshed successfully for user ${userId}`, { userId });
     } catch (error) {
-      this.logger.error(`Failed to refresh access token for user ${userId}: ${error.message}`, {
-        userId,
-        error: error.message,
-      });
+      this.logger.error(
+        `Failed to refresh access token for user ${userId}: ${getErrorMessage(error)}`,
+        {
+          userId,
+          error: getErrorMessage(error),
+        }
+      );
       throw error;
     }
   }

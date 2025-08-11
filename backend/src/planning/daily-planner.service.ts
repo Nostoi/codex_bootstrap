@@ -4,6 +4,7 @@ import { TasksService } from '../tasks/tasks.service';
 import { GoogleService } from '../integrations/google/google.service';
 import { GraphService } from '../integrations/graph/graph.service';
 import { Task, UserSettings, EnergyLevel, FocusType, TaskStatus } from '@prisma/client';
+import { getErrorMessage } from '../common/utils/error.utils';
 import {
   PlanningInput,
   TimeSlot,
@@ -72,8 +73,11 @@ export class DailyPlannerService {
 
       return this.transformToDto(plan);
     } catch (error) {
-      this.logger.error(`Failed to generate plan: ${error.message}`, error.stack);
-      throw new BadRequestException(`Plan generation failed: ${error.message}`);
+      this.logger.error(
+        `Failed to generate plan: ${getErrorMessage(error)}`,
+        error instanceof Error ? error.stack : undefined
+      );
+      throw new BadRequestException(`Plan generation failed: ${getErrorMessage(error)}`);
     }
   }
 
@@ -107,10 +111,10 @@ export class DailyPlannerService {
       return calendarEvents;
     } catch (error) {
       this.logger.error(
-        `Failed to retrieve calendar events for user ${userId}: ${error.message}`,
-        error.stack
+        `Failed to retrieve calendar events for user ${userId}: ${getErrorMessage(error)}`,
+        error instanceof Error ? error.stack : undefined
       );
-      throw new BadRequestException(`Calendar events retrieval failed: ${error.message}`);
+      throw new BadRequestException(`Calendar events retrieval failed: ${getErrorMessage(error)}`);
     }
   }
 
@@ -271,7 +275,7 @@ export class DailyPlannerService {
         this.detectCircularDependencies(dependencyGraph);
       } catch (error) {
         // If circular dependency detected, mark all involved tasks as blocked
-        return this.handleCircularDependencyError(tasks, error.message);
+        return this.handleCircularDependencyError(tasks, getErrorMessage(error));
       }
 
       const readyTasks: Task[] = [];
@@ -303,8 +307,11 @@ export class DailyPlannerService {
       );
       return result;
     } catch (error) {
-      this.logger.error(`Failed to resolve task dependencies: ${error.message}`, error.stack);
-      throw new BadRequestException(`Dependency resolution failed: ${error.message}`);
+      this.logger.error(
+        `Failed to resolve task dependencies: ${getErrorMessage(error)}`,
+        error instanceof Error ? error.stack : undefined
+      );
+      throw new BadRequestException(`Dependency resolution failed: ${getErrorMessage(error)}`);
     }
   }
 
@@ -344,12 +351,14 @@ export class DailyPlannerService {
 
       return reasons;
     } catch (error) {
-      this.logger.error(`Failed to get blocking reasons for task ${task.id}: ${error.message}`);
+      this.logger.error(
+        `Failed to get blocking reasons for task ${task.id}: ${getErrorMessage(error)}`
+      );
 
       // Return a generic error reason if we can't determine specific blocking reasons
       reasons.push({
         type: 'missing_dependency',
-        message: `Unable to verify dependencies: ${error.message}`,
+        message: `Unable to verify dependencies: ${getErrorMessage(error)}`,
       });
 
       return reasons;
@@ -529,7 +538,9 @@ export class DailyPlannerService {
 
       return { hour, minute };
     } catch (error) {
-      this.logger.warn(`Failed to parse time ${timeString}: ${error.message}, using defaults`);
+      this.logger.warn(
+        `Failed to parse time ${timeString}: ${getErrorMessage(error)}, using defaults`
+      );
       return { hour: 9, minute: 0 };
     }
   }
@@ -946,11 +957,11 @@ export class DailyPlannerService {
         task: {
           id: block.task.id,
           title: block.task.title,
-          description: block.task.description,
-          energyLevel: block.task.energyLevel,
-          focusType: block.task.focusType,
-          estimatedMinutes: block.task.estimatedMinutes,
-          priority: block.task.priority,
+          description: block.task.description || undefined,
+          energyLevel: block.task.energyLevel || undefined,
+          focusType: block.task.focusType || undefined,
+          estimatedMinutes: block.task.estimatedMinutes || undefined,
+          priority: block.task.priority || undefined,
           hardDeadline: block.task.hardDeadline?.toISOString(),
         },
         energyMatch: block.energyMatch,
@@ -960,11 +971,11 @@ export class DailyPlannerService {
       unscheduledTasks: plan.unscheduledTasks.map(task => ({
         id: task.id,
         title: task.title,
-        description: task.description,
-        energyLevel: task.energyLevel,
-        focusType: task.focusType,
-        estimatedMinutes: task.estimatedMinutes,
-        priority: task.priority,
+        description: task.description || undefined,
+        energyLevel: task.energyLevel || undefined,
+        focusType: task.focusType || undefined,
+        estimatedMinutes: task.estimatedMinutes || undefined,
+        priority: task.priority || undefined,
         hardDeadline: task.hardDeadline?.toISOString(),
       })),
       totalEstimatedMinutes: plan.totalEstimatedMinutes,
@@ -1048,13 +1059,16 @@ export class DailyPlannerService {
     } catch (error) {
       const totalTime = performance.now() - startTime;
 
-      this.logger.error(`Multi-calendar integration failed for user ${userId}: ${error.message}`, {
-        userId,
-        date: date.toISOString(),
-        errorType: error.constructor.name,
-        timeElapsed: totalTime,
-        originalError: error.message,
-      });
+      this.logger.error(
+        `Multi-calendar integration failed for user ${userId}: ${getErrorMessage(error)}`,
+        {
+          userId,
+          date: date.toISOString(),
+          errorType: error instanceof Error ? error.constructor.name : 'Unknown',
+          timeElapsed: totalTime,
+          originalError: getErrorMessage(error),
+        }
+      );
 
       // Return empty array to allow planning to continue without calendar data
       return [];
@@ -1071,7 +1085,7 @@ export class DailyPlannerService {
     timeMax: Date,
     maxRetries = 3
   ): Promise<any> {
-    let lastError: Error;
+    let lastError: Error = new Error('Calendar API failed');
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
@@ -1090,7 +1104,7 @@ export class DailyPlannerService {
 
         return response;
       } catch (error) {
-        lastError = error;
+        lastError = error instanceof Error ? error : new Error(getErrorMessage(error));
         const errorDetails = this.categorizeCalendarError(error);
 
         this.logger.warn(
@@ -1438,12 +1452,12 @@ export class DailyPlannerService {
         } catch (error) {
           parseFailureCount++;
           this.logger.warn(
-            `Failed to parse Google Calendar event ${event.id || 'unknown'}: ${error.message}`,
+            `Failed to parse Google Calendar event ${event.id || 'unknown'}: ${getErrorMessage(error)}`,
             {
               userId,
               eventId: event.id,
               eventSummary: event.summary,
-              errorType: error.constructor.name,
+              errorType: error instanceof Error ? error.constructor.name : 'Unknown',
             }
           );
           continue;
@@ -1456,7 +1470,9 @@ export class DailyPlannerService {
 
       return timeSlots;
     } catch (error) {
-      this.logger.error(`Google Calendar integration failed for user ${userId}: ${error.message}`);
+      this.logger.error(
+        `Google Calendar integration failed for user ${userId}: ${getErrorMessage(error)}`
+      );
       throw error; // Re-throw to be handled by Promise.allSettled
     }
   }
@@ -1503,12 +1519,12 @@ export class DailyPlannerService {
         } catch (error) {
           parseFailureCount++;
           this.logger.warn(
-            `Failed to parse Outlook Calendar event ${event.id || 'unknown'}: ${error.message}`,
+            `Failed to parse Outlook Calendar event ${event.id || 'unknown'}: ${getErrorMessage(error)}`,
             {
               userId,
               eventId: event.id,
               eventSubject: event.subject,
-              errorType: error.constructor.name,
+              errorType: error instanceof Error ? error.constructor.name : 'Unknown',
             }
           );
           continue;
@@ -1521,7 +1537,9 @@ export class DailyPlannerService {
 
       return timeSlots;
     } catch (error) {
-      this.logger.error(`Outlook Calendar integration failed for user ${userId}: ${error.message}`);
+      this.logger.error(
+        `Outlook Calendar integration failed for user ${userId}: ${getErrorMessage(error)}`
+      );
       throw error; // Re-throw to be handled by Promise.allSettled
     }
   }
@@ -1537,7 +1555,7 @@ export class DailyPlannerService {
     timeMax: Date,
     maxRetries = 3
   ): Promise<any> {
-    let lastError: Error;
+    let lastError: Error = new Error('Outlook Calendar API failed');
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
@@ -1560,7 +1578,7 @@ export class DailyPlannerService {
 
         return response;
       } catch (error) {
-        lastError = error;
+        lastError = error instanceof Error ? error : new Error(getErrorMessage(error));
         const errorDetails = this.categorizeOutlookCalendarError(error);
 
         this.logger.warn(
@@ -1814,7 +1832,7 @@ export class DailyPlannerService {
       content.match(
         /\b(code|tech|review|development|engineering|system|architecture|debug|api|technical)\b/
       ) ||
-      categories.some(cat => cat.toLowerCase().includes('technical'))
+      categories.some((cat: any) => cat.toLowerCase().includes('technical'))
     ) {
       focusTypes.push(FocusType.TECHNICAL);
     }
@@ -1822,7 +1840,7 @@ export class DailyPlannerService {
     // Creative focus indicators
     if (
       content.match(/\b(design|creative|brainstorm|ideation|workshop|innovation|strategy)\b/) ||
-      categories.some(cat => cat.toLowerCase().includes('creative'))
+      categories.some((cat: any) => cat.toLowerCase().includes('creative'))
     ) {
       focusTypes.push(FocusType.CREATIVE);
     }
@@ -1830,7 +1848,7 @@ export class DailyPlannerService {
     // Administrative focus indicators
     if (
       content.match(/\b(admin|expense|report|compliance|hr|legal|budget|planning)\b/) ||
-      categories.some(cat => cat.toLowerCase().includes('admin'))
+      categories.some((cat: any) => cat.toLowerCase().includes('admin'))
     ) {
       focusTypes.push(FocusType.ADMINISTRATIVE);
     }

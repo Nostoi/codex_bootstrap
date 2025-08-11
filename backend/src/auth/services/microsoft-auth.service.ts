@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Client } from '@microsoft/microsoft-graph-client';
 import { AuthenticationProvider } from '@microsoft/microsoft-graph-client';
+import { getErrorMessage } from '../../common/utils/error.utils';
 
 export interface MicrosoftCalendarEvent {
   id: string;
@@ -52,7 +53,10 @@ export class MicrosoftAuthService {
         authProvider,
       });
     } catch (error) {
-      this.logger.error(`Failed to get Microsoft Graph client for user: ${userId}`, error.stack);
+      this.logger.error(
+        `Failed to get Microsoft Graph client for user: ${userId}`,
+        error instanceof Error ? error.stack : undefined
+      );
       throw error;
     }
   }
@@ -96,7 +100,7 @@ export class MicrosoftAuthService {
         throw new Error(`Token refresh failed: ${response.statusText}`);
       }
 
-      const tokens = await response.json();
+      const tokens = (await response.json()) as any;
 
       await this.prisma.oAuthProvider.updateMany({
         where: {
@@ -116,7 +120,10 @@ export class MicrosoftAuthService {
       this.logger.log(`Microsoft tokens refreshed for user: ${userId}`);
       return true;
     } catch (error) {
-      this.logger.error(`Failed to refresh Microsoft tokens for user: ${userId}`, error.stack);
+      this.logger.error(
+        `Failed to refresh Microsoft tokens for user: ${userId}`,
+        error instanceof Error ? error.stack : undefined
+      );
       return false;
     }
   }
@@ -163,10 +170,18 @@ export class MicrosoftAuthService {
         location: event.location,
       }));
     } catch (error) {
-      this.logger.error(`Failed to get Microsoft Calendar events for user: ${userId}`, error.stack);
+      this.logger.error(
+        `Failed to get Microsoft Calendar events for user: ${userId}`,
+        error instanceof Error ? error.stack : undefined
+      );
 
       // Try to refresh tokens if unauthorized
-      if (error.code === 401 || error.statusCode === 401) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        (('code' in error && error.code === 401) ||
+          ('statusCode' in error && error.statusCode === 401))
+      ) {
         const refreshed = await this.refreshMicrosoftTokens(userId);
         if (refreshed) {
           // Retry the request once
@@ -202,7 +217,10 @@ export class MicrosoftAuthService {
 
       return true;
     } catch (error) {
-      this.logger.error(`Failed to check Microsoft auth validity for user: ${userId}`, error.stack);
+      this.logger.error(
+        `Failed to check Microsoft auth validity for user: ${userId}`,
+        error instanceof Error ? error.stack : undefined
+      );
       return false;
     }
   }
@@ -223,7 +241,10 @@ export class MicrosoftAuthService {
       this.logger.log(`Microsoft OAuth revoked for user: ${userId}`);
       return true;
     } catch (error) {
-      this.logger.error(`Failed to revoke Microsoft OAuth for user: ${userId}`, error.stack);
+      this.logger.error(
+        `Failed to revoke Microsoft OAuth for user: ${userId}`,
+        error instanceof Error ? error.stack : undefined
+      );
       return false;
     }
   }
@@ -240,10 +261,18 @@ export class MicrosoftAuthService {
       this.logger.debug(`Retrieved Microsoft profile for user: ${userId}`);
       return profile;
     } catch (error) {
-      this.logger.error(`Failed to get Microsoft profile for user: ${userId}`, error.stack);
+      this.logger.error(
+        `Failed to get Microsoft profile for user: ${userId}`,
+        error instanceof Error ? error.stack : undefined
+      );
 
       // Try to refresh tokens if unauthorized
-      if (error.code === 401 || error.statusCode === 401) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        (('code' in error && error.code === 401) ||
+          ('statusCode' in error && error.statusCode === 401))
+      ) {
         const refreshed = await this.refreshMicrosoftTokens(userId);
         if (refreshed) {
           // Retry the request once

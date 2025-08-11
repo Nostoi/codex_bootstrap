@@ -3,6 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy } from 'passport-google-oauth20';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../services/auth.service';
+import { getErrorMessage } from '../../common/utils/error.utils';
 
 export interface OAuthProfile {
   provider: 'google' | 'microsoft';
@@ -24,9 +25,9 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     private readonly configService: ConfigService
   ) {
     super({
-      clientID: configService.get<string>('GOOGLE_CLIENT_ID'),
-      clientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET'),
-      callbackURL: configService.get<string>('GOOGLE_CALLBACK_URL'),
+      clientID: configService.get<string>('GOOGLE_CLIENT_ID') || '',
+      clientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET') || '',
+      callbackURL: configService.get<string>('GOOGLE_CALLBACK_URL') || '',
       scope: ['email', 'profile', 'https://www.googleapis.com/auth/calendar.readonly'],
     });
   }
@@ -67,7 +68,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       this.logger.log(`Google OAuth validation successful for user: ${loginResult.user.email}`);
       done(null, loginResult);
     } catch (error) {
-      this.logger.error(`Google OAuth validation failed: ${error.message}`, error.stack);
+      this.logger.error(`Google OAuth validation failed: `, getErrorMessage(error));
       done(error, false);
     }
   }

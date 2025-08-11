@@ -231,7 +231,10 @@ export class AuditLoggerService {
       // Store detailed audit entry (in production: database, secure file, or audit service)
       await this.storeAuditEntry(entry);
     } catch (error) {
-      this.logger.error('Failed to write audit log', error.stack);
+      this.logger.error(
+        'Failed to write audit log',
+        error instanceof Error ? error.stack : String(error)
+      );
       // Don't throw - audit logging failures shouldn't break the application
     }
   }

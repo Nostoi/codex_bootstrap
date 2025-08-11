@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { FeatureFlags, FeatureFlagConfig } from './feature-flags.types';
+import { getErrorMessage } from '../common/utils/error.utils';
 
 @Injectable()
 export class FeatureFlagsService {
@@ -211,7 +212,7 @@ export class FeatureFlagsService {
       return {
         status: 'unhealthy',
         flags: 0,
-        errors: [error.message],
+        errors: [getErrorMessage(error)],
       };
     }
   }

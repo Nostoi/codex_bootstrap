@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { getErrorMessage } from '../common/utils/error.utils';
 
 @Injectable()
 export class DatabasePerformanceService {
@@ -42,7 +43,7 @@ export class DatabasePerformanceService {
         passed: false,
         duration: Date.now() - queryStart,
         threshold: 100,
-        details: `Query failed: ${error.message}`,
+        details: `Query failed: ${getErrorMessage(error)}`,
       });
     }
 
@@ -78,7 +79,7 @@ export class DatabasePerformanceService {
         passed: false,
         duration: Date.now() - concurrentStart,
         threshold: 1000,
-        details: `Concurrent test failed: ${error.message}`,
+        details: `Concurrent test failed: ${getErrorMessage(error)}`,
       });
     }
 
@@ -145,7 +146,7 @@ export class DatabasePerformanceService {
         passed: false,
         duration: 0,
         threshold: 50,
-        details: `Index test failed: ${error.message}`,
+        details: `Index test failed: ${getErrorMessage(error)}`,
       });
     }
 

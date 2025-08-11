@@ -3,6 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../services/auth.service';
+import { getErrorMessage } from '../../common/utils/error.utils';
 
 export interface JwtPayload {
   sub: string; // User ID
@@ -24,7 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET'),
+      secretOrKey: configService.get<string>('JWT_SECRET') || 'default-secret',
       issuer: configService.get<string>('JWT_ISSUER', 'helmsman-api'),
       audience: configService.get<string>('JWT_AUDIENCE', 'helmsman-app'),
     });
@@ -66,7 +67,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         tokenId: payload.jti,
       };
     } catch (error) {
-      this.logger.error(`JWT validation failed: ${error.message}`, error.stack);
+      this.logger.error(`JWT validation failed: `, getErrorMessage(error));
       throw new UnauthorizedException('Invalid token');
     }
   }

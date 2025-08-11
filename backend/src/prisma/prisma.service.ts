@@ -17,15 +17,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         process.env.NODE_ENV === 'production'
           ? ['warn', 'error']
           : ['query', 'info', 'warn', 'error'],
-      // Connection pool configuration
-      __internal: {
-        engine: {
-          // Connection timeout settings
-          connectTimeout: parseInt(process.env.DATABASE_CONNECTION_TIMEOUT || '30000'),
-          // Pool timeout settings
-          poolTimeout: parseInt(process.env.DATABASE_POOL_TIMEOUT || '10000'),
-        },
-      },
+      // Connection timeout can be configured via DATABASE_URL if needed
     });
   }
 

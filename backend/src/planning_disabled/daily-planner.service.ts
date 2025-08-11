@@ -19,6 +19,7 @@ import {
   CalendarEvent,
 } from '../planning/types';
 import { DailyPlanResponseDto } from '../planning/dto';
+import { getErrorMessage } from '../common/utils/error.utils';
 
 @Injectable()
 export class DailyPlannerService {
@@ -72,8 +73,8 @@ export class DailyPlannerService {
 
       return this.transformToDto(plan);
     } catch (error) {
-      this.logger.error(`Failed to generate plan: ${error.message}`, error.stack);
-      throw new BadRequestException(`Plan generation failed: ${error.message}`);
+      this.logger.error(`Failed to generate plan: `, getErrorMessage(error));
+      throw new BadRequestException(`Plan generation failed: ${getErrorMessage(error)}`);
     }
   }
 
@@ -1647,7 +1648,7 @@ export class DailyPlannerService {
           return {
             type: 'API_ERROR',
             code,
-            message: error.message || 'Unknown Microsoft Graph API error',
+            message: getErrorMessage(error) || 'Unknown Microsoft Graph API error',
             retryable: false,
           };
       }

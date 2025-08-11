@@ -1,10 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../../../prisma/prisma.service';
-import { ConflictInfo, GraphCalendarEvent, CalendarEventData } from '../types/calendar-sync.types';
+import {
+  ConflictInfo,
+  GraphCalendarEvent,
+  CalendarEventData,
+  LocalCalendarEvent,
+} from '../types/calendar-sync.types';
 import { CalendarConflictType, CalendarConflictResolution } from '@prisma/client';
-
-// Type alias for local calendar event (using CalendarEventData)
-type LocalCalendarEvent = CalendarEventData & { id: string };
 
 /**
  * Conflict Resolver
@@ -17,36 +19,36 @@ export class ConflictResolver {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Convert local calendar event to CalendarEventData format
+   * Convert local calendar event to CalendarEventData format (null-safe)
    */
   private convertLocalEventToData(localEvent: LocalCalendarEvent): CalendarEventData {
     return {
       subject: localEvent.subject,
-      description: localEvent.description,
-      location: localEvent.location,
+      description: localEvent.description ?? null,
+      location: localEvent.location ?? null,
       startTime: localEvent.startTime,
       endTime: localEvent.endTime,
-      timeZone: localEvent.timeZone,
-      isAllDay: localEvent.isAllDay,
-      isRecurring: localEvent.isRecurring,
-      recurrencePattern: localEvent.recurrencePattern,
+      timeZone: localEvent.timeZone ?? null,
+      isAllDay: localEvent.isAllDay ?? false,
+      isRecurring: localEvent.isRecurring ?? false,
+      recurrencePattern: localEvent.recurrencePattern ?? null,
     };
   }
 
   /**
-   * Convert Graph calendar event to CalendarEventData format
+   * Convert Graph calendar event to CalendarEventData format (null-safe)
    */
   private convertGraphEventToData(graphEvent: GraphCalendarEvent): CalendarEventData {
     return {
       subject: graphEvent.subject,
-      description: graphEvent.body?.content,
-      location: graphEvent.location?.displayName,
+      description: graphEvent.body?.content ?? null,
+      location: graphEvent.location?.displayName ?? null,
       startTime: new Date(graphEvent.start.dateTime),
       endTime: new Date(graphEvent.end.dateTime),
-      timeZone: graphEvent.start.timeZone,
-      isAllDay: graphEvent.isAllDay,
+      timeZone: graphEvent.start.timeZone ?? null,
+      isAllDay: graphEvent.isAllDay ?? false,
       isRecurring: !!graphEvent.recurrence,
-      recurrencePattern: graphEvent.recurrence ? JSON.stringify(graphEvent.recurrence) : undefined,
+      recurrencePattern: graphEvent.recurrence ? JSON.stringify(graphEvent.recurrence) : null,
     };
   }
 

@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
+import { getErrorMessage } from '../common/utils/error.utils';
 import { Mem0Service } from './mem0.service';
 import { RetryService } from './services/retry.service';
 import {
@@ -59,7 +60,7 @@ export class AiService {
 
   private loadConfig(): OpenAIConfig {
     return {
-      apiKey: this.configService.get<string>('OPENAI_API_KEY'),
+      apiKey: this.configService.get<string>('OPENAI_API_KEY') || '',
       baseURL: this.configService.get<string>('OPENAI_BASE_URL'),
       organization: this.configService.get<string>('OPENAI_ORGANIZATION'),
       project: this.configService.get<string>('OPENAI_PROJECT'),
@@ -126,7 +127,7 @@ export class AiService {
       {
         role: 'system',
         content:
-          'You are an AI assistant that extracts actionable tasks from conversational text. Analyze the provided text and identify specific, actionable tasks mentioned or implied. Return results in valid JSON format.',
+          'You are an AI assistant specialized in extracting actionable tasks for ADHD users. Focus on creating clear, specific tasks that reduce cognitive load and support executive function. Break complex work into manageable chunks (15-90 minutes), provide clear completion criteria, and consider energy levels and focus types for optimal scheduling.',
       },
       {
         role: 'user',
@@ -170,7 +171,7 @@ export class AiService {
       {
         role: 'system',
         content:
-          'You are a task classification assistant. Analyze the task and predict metadata in valid JSON format.',
+          'You are an ADHD-aware task classification assistant. Analyze tasks and predict metadata that optimizes for ADHD executive function: appropriate energy levels for scheduling, focus types for batching, realistic time estimates considering time perception challenges, and helpful completion strategies.',
       },
       {
         role: 'user',
@@ -267,7 +268,7 @@ export class AiService {
         messages,
         model: this.config.defaultModel,
         temperature: 0.3,
-        maxTokens: dto.maxLength * 2 || 400,
+        maxTokens: (dto.maxLength || 200) * 2,
         jsonMode: true,
       });
 
@@ -354,7 +355,7 @@ export class AiService {
         version: '1.0.0',
       };
     } catch (error) {
-      this.logger.error('Health check failed:', error.message);
+      this.logger.error('Health check failed:', getErrorMessage(error));
       return {
         status: 'unhealthy',
         timestamp: new Date(),
@@ -413,37 +414,43 @@ Example format:
 
   private buildTaskExtractionPrompt(dto: TaskExtractionDto): string {
     return `
-Analyze the following text and extract up to ${dto.maxTasks || 10} actionable tasks that are mentioned or implied:
+Analyze the following text and extract up to ${dto.maxTasks || 10} actionable tasks for an ADHD-optimized task management system:
 
 Text: ${dto.text}
 
-Instructions:
-- Identify specific tasks, action items, or to-dos mentioned in the text
-- Extract tasks that have clear actionable outcomes
-- Include tasks that are implied but not explicitly stated
-- Prioritize tasks based on urgency and importance mentioned in context
-- Estimate time based on task complexity and context clues
+ADHD-Focused Instructions:
+- Identify specific, concrete tasks with clear completion criteria
+- Break down complex tasks into manageable subtasks (15-90 minute chunks)
+- Extract tasks that have clear actionable outcomes to prevent overwhelm
+- Include implied tasks but make them explicit and specific
+- Consider energy levels: HIGH (creative/strategic), MEDIUM (analysis/planning), LOW (routine/administrative)
+- Prioritize based on urgency and importance, noting hard vs. soft deadlines
+- Estimate realistic time considering ADHD time perception challenges
 
 Return as a JSON object with a "tasks" array containing objects with:
 - id: unique identifier (string)
-- name: concise task name (string)
-- description: detailed description including context (string)
+- name: concise, action-oriented task name (string)
+- description: detailed description with clear success criteria and context (string)
 - priority: priority level 1-10 based on urgency/importance (number)
-- estimatedHours: estimated time in hours (number)
+- estimatedHours: realistic time estimate in hours (number)
+- energyLevel: "LOW", "MEDIUM", or "HIGH" (predicted energy requirement)
+- focusType: "CREATIVE", "TECHNICAL", "ADMINISTRATIVE", or "SOCIAL" (predicted focus type)
 - dependencies: array of task IDs this depends on (string[])
-- tags: relevant tags for categorization (string[])
+- tags: relevant tags for categorization and filtering (string[])
 
 Example format:
 {
   "tasks": [
     {
       "id": "extracted-1",
-      "name": "Call team meeting",
-      "description": "Schedule and conduct team sync to discuss project status",
+      "name": "Schedule team sync meeting",
+      "description": "Set up 1-hour team meeting to discuss project status and next steps by end of week",
       "priority": 7,
-      "estimatedHours": 1,
+      "estimatedHours": 0.25,
+      "energyLevel": "LOW",
+      "focusType": "ADMINISTRATIVE",
       "dependencies": [],
-      "tags": ["meeting", "communication"]
+      "tags": ["meeting", "communication", "team"]
     }
   ]
 }
@@ -508,19 +515,19 @@ Example format:
 
   private buildTaskClassificationPrompt(taskDescription: string): string {
     return `
-Analyze the following task and predict its metadata characteristics:
+Analyze the following task and predict its metadata characteristics for an ADHD-optimized task management system:
 
 Task: ${taskDescription}
 
 Based on the task description, predict the following metadata in JSON format:
-- energyLevel: "LOW", "MEDIUM", or "HIGH" (mental energy required)
-- focusType: "CREATIVE", "TECHNICAL", "ADMINISTRATIVE", or "SOCIAL" 
-- estimatedMinutes: estimated time in minutes (number)
-- priority: priority level 1-5 (number, where 5 is highest)
+- energyLevel: "LOW" (routine/administrative work, best when tired), "MEDIUM" (focused analysis/planning), or "HIGH" (creative/strategic work requiring peak mental energy)
+- focusType: "CREATIVE" (writing/design/brainstorming), "TECHNICAL" (coding/debugging/analysis), "ADMINISTRATIVE" (email/reports/data entry), or "SOCIAL" (meetings/calls/collaboration)
+- estimatedMinutes: realistic time estimate in minutes (consider ADHD time perception challenges)
+- priority: priority level 1-5 (number, where 5 is urgent/critical with hard deadlines)
 - softDeadline: suggested deadline if applicable (ISO date string or null)
 - hardDeadline: absolute deadline if applicable (ISO date string or null)
 - source: "SELF", "BOSS", "TEAM", or "AI_GENERATED"
-- aiSuggestion: helpful tip or suggestion for completing this task (string)
+- aiSuggestion: ADHD-friendly tip for completing this task (consider energy management, focus strategies, or breaking down complexity)
 
 Return only valid JSON in this format:
 {
@@ -564,7 +571,10 @@ Return only valid JSON in this format:
 
       return parsed;
     } catch (error) {
-      this.logger.warn('Failed to parse task classification response as JSON:', error.message);
+      this.logger.warn(
+        'Failed to parse task classification response as JSON:',
+        getErrorMessage(error)
+      );
 
       // Return defaults if parsing fails
       return {
@@ -582,7 +592,7 @@ Return only valid JSON in this format:
 
   private parseTasksResponse(response: string): Task[] {
     try {
-      const parsed = JSON.parse(response);
+      const parsed = JSON.parse(response) as any;
 
       // Validate against JSON schema
       const isValid = this.taskExtractionValidator(parsed);
@@ -604,9 +614,9 @@ Return only valid JSON in this format:
         return [];
       }
 
-      return parsed.tasks || [];
+      return (parsed as any).tasks || [];
     } catch (error) {
-      this.logger.warn('Failed to parse tasks response as JSON:', error.message);
+      this.logger.warn('Failed to parse tasks response as JSON:', getErrorMessage(error));
       return [];
     }
   }
@@ -624,7 +634,7 @@ Return only valid JSON in this format:
         .map((task: any) => this.repairSingleTask(task))
         .filter((task: Task | null) => task !== null);
     } catch (error) {
-      this.logger.warn('Failed to repair tasks response:', error.message);
+      this.logger.warn('Failed to repair tasks response:', getErrorMessage(error));
       return [];
     }
   }
@@ -652,7 +662,7 @@ Return only valid JSON in this format:
 
       return repairedTask;
     } catch (error) {
-      this.logger.warn('Failed to repair single task:', error.message);
+      this.logger.warn('Failed to repair single task:', getErrorMessage(error));
       return null;
     }
   }
@@ -706,16 +716,16 @@ Return only valid JSON in this format:
         case 'rate_limit_exceeded':
           return new OpenAIRateLimitException(error.headers?.['retry-after'], error);
         case 'invalid_request_error':
-          return new OpenAIInvalidRequestException(error.message, error);
+          return new OpenAIInvalidRequestException(getErrorMessage(error), error);
         case 'authentication_error':
           return new OpenAIUnauthorizedException(error);
         case 'server_error':
-          return new OpenAIServerException(error.message, error);
+          return new OpenAIServerException(getErrorMessage(error), error);
         case 'timeout':
           return new OpenAITimeoutException(error);
         default:
           return new OpenAIException(
-            error.message || 'Unknown OpenAI error',
+            getErrorMessage(error) || 'Unknown OpenAI error',
             undefined,
             error.type,
             error
@@ -734,7 +744,7 @@ Return only valid JSON in this format:
           return new OpenAIQuotaExceededException(error);
         case 400:
         case 422:
-          return new OpenAIInvalidRequestException(error.message, error);
+          return new OpenAIInvalidRequestException(getErrorMessage(error), error);
         case 500:
         case 502:
         case 503:

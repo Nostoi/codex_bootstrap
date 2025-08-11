@@ -148,7 +148,7 @@ export class GraphAuthService {
         }
       }
 
-      return config.accessToken;
+      return config.accessToken || '';
     } catch (error) {
       this.logger.error(`Failed to get access token for user ${userId}:`, error);
       throw error;

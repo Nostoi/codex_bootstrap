@@ -7,6 +7,9 @@ import {
   TemplateContext,
   UserContext,
   TaskContext,
+  nullToUndefined,
+  energyLevelNullToUndefined,
+  stringNullToUndefined,
 } from './notification-templates.service';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -453,13 +456,13 @@ export class NotificationsService {
 
       return {
         id: user.id,
-        name: user.name,
+        name: nullToUndefined(user.name),
         email: user.email,
         currentEnergyLevel,
-        morningEnergyLevel: user.settings?.morningEnergyLevel,
-        afternoonEnergyLevel: user.settings?.afternoonEnergyLevel,
-        workStartTime: user.settings?.workStartTime,
-        workEndTime: user.settings?.workEndTime,
+        morningEnergyLevel: energyLevelNullToUndefined(user.settings?.morningEnergyLevel),
+        afternoonEnergyLevel: energyLevelNullToUndefined(user.settings?.afternoonEnergyLevel),
+        workStartTime: stringNullToUndefined(user.settings?.workStartTime),
+        workEndTime: stringNullToUndefined(user.settings?.workEndTime),
         preferredFocusTypes: user.settings?.preferredFocusTypes as any[],
       };
     } catch (error) {

@@ -5,7 +5,11 @@ import {
   GraphCalendarEvent,
   GraphDeltaResponse,
   DeltaSyncOptions,
+  GraphDeltaEvent,
+  isRemovedEvent,
+  isActiveEvent,
 } from '../types/calendar-sync.types';
+import { getErrorMessage } from '../../../../common/utils/error.utils';
 
 /**
  * Delta Sync Manager
@@ -27,7 +31,7 @@ export class DeltaSyncManager {
     userId: string,
     deltaToken: string,
     options: DeltaSyncOptions = {}
-  ): Promise<{ events: GraphCalendarEvent[]; deltaToken?: string }> {
+  ): Promise<{ events: GraphDeltaEvent[]; deltaToken?: string }> {
     this.logger.log(`Getting delta changes for user ${userId} with token: ${deltaToken}`);
 
     try {
@@ -87,7 +91,7 @@ export class DeltaSyncManager {
             break;
           }
 
-          nextLink = nextResponse['@odata.nextLink'];
+          nextLink = nextResponse['@odata.nextLink'] || '';
         }
 
         return {
@@ -157,7 +161,7 @@ export class DeltaSyncManager {
       await this.initializeDeltaSync(userId);
       return true;
     } catch (error) {
-      this.logger.warn(`Delta sync not supported for user ${userId}:`, error.message);
+      this.logger.warn(`Delta sync not supported for user ${userId}:`, getErrorMessage(error));
       return false;
     }
   }
@@ -165,20 +169,20 @@ export class DeltaSyncManager {
   /**
    * Parse delta response to identify change types
    */
-  parseDeltaChanges(events: GraphCalendarEvent[]): {
-    created: GraphCalendarEvent[];
-    updated: GraphCalendarEvent[];
+  parseDeltaChanges(events: GraphDeltaEvent[]): {
+    created: GraphDeltaEvent[];
+    updated: GraphDeltaEvent[];
     deleted: string[]; // Only IDs for deleted events
   } {
-    const created: GraphCalendarEvent[] = [];
-    const updated: GraphCalendarEvent[] = [];
+    const created: GraphDeltaEvent[] = [];
+    const updated: GraphDeltaEvent[] = [];
     const deleted: string[] = [];
 
     for (const event of events) {
-      if (event['@removed']) {
-        // Event was deleted
+      if (isRemovedEvent(event)) {
+        // Event was deleted - type-safe access to '@removed' property
         deleted.push(event.id);
-      } else if (event.createdDateTime === event.lastModifiedDateTime) {
+      } else if (isActiveEvent(event) && event.createdDateTime === event.lastModifiedDateTime) {
         // Event was created (created and modified times are the same)
         created.push(event);
       } else {
@@ -219,13 +223,13 @@ export class DeltaSyncManager {
    * Filter delta events based on options
    */
   private filterDeltaEvents(
-    events: GraphCalendarEvent[],
+    events: GraphDeltaEvent[],
     options: DeltaSyncOptions
-  ): GraphCalendarEvent[] {
+  ): GraphDeltaEvent[] {
     let filteredEvents = events;
 
     if (options.skipDeleted) {
-      filteredEvents = filteredEvents.filter(event => !event['@removed']);
+      filteredEvents = filteredEvents.filter(event => isActiveEvent(event));
     }
 
     return filteredEvents;
@@ -280,7 +284,7 @@ export class DeltaSyncManager {
     startDate: Date,
     endDate: Date,
     options: DeltaSyncOptions = {}
-  ): Promise<{ events: GraphCalendarEvent[]; deltaToken?: string }> {
+  ): Promise<{ events: GraphDeltaEvent[]; deltaToken?: string }> {
     this.logger.log(
       `Getting delta changes for user ${userId} between ${startDate.toISOString()} and ${endDate.toISOString()}`
     );
@@ -289,15 +293,19 @@ export class DeltaSyncManager {
 
     // Filter events by date range
     const filteredEvents = result.events.filter(event => {
-      if (event['@removed']) {
+      if (isRemovedEvent(event)) {
         return true; // Include deleted events regardless of date
       }
 
-      const eventStart = new Date(event.start.dateTime);
-      const eventEnd = new Date(event.end.dateTime);
+      if (isActiveEvent(event)) {
+        const eventStart = new Date(event.start.dateTime);
+        const eventEnd = new Date(event.end.dateTime);
 
-      // Include event if it overlaps with the window
-      return eventStart <= endDate && eventEnd >= startDate;
+        // Include event if it overlaps with the window
+        return eventStart <= endDate && eventEnd >= startDate;
+      }
+
+      return false; // Fallback for unknown event types
     });
 
     return {

@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
 import * as crypto from 'crypto';
+import { getErrorMessage } from '../../common/utils/error.utils';
 
 export interface TokenPayload {
   sub: string; // User ID
@@ -67,7 +68,7 @@ export class TokenManagerService {
         audience: this.configService.get<string>('JWT_AUDIENCE', 'helmsman-app'),
       });
     } catch (error) {
-      this.logger.warn(`Token verification failed: ${error.message}`);
+      this.logger.warn(`Token verification failed: ${getErrorMessage(error)}`);
       throw new Error('Invalid token');
     }
   }
@@ -82,7 +83,7 @@ export class TokenManagerService {
         audience: this.configService.get<string>('JWT_AUDIENCE', 'helmsman-app'),
       });
     } catch (error) {
-      this.logger.warn(`Refresh token verification failed: ${error.message}`);
+      this.logger.warn(`Refresh token verification failed: ${getErrorMessage(error)}`);
       throw new Error('Invalid refresh token');
     }
   }
@@ -98,7 +99,7 @@ export class TokenManagerService {
       }
       throw new Error('Token does not contain expiration');
     } catch (error) {
-      this.logger.error(`Failed to get token expiration: ${error.message}`);
+      this.logger.error(`Failed to get token expiration: ${getErrorMessage(error)}`);
       throw new Error('Invalid token format');
     }
   }
@@ -128,7 +129,10 @@ export class TokenManagerService {
         this.logger.debug(`Token blacklisted: ${decoded.jti}`);
       }
     } catch (error) {
-      this.logger.error(`Failed to blacklist token: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to blacklist token: ${getErrorMessage(error)}`,
+        getErrorMessage(error)
+      );
       // Don't throw - blacklisting failure shouldn't break logout
     }
   }
@@ -144,7 +148,7 @@ export class TokenManagerService {
 
       return !!blacklistedToken && blacklistedToken.expiresAt > new Date();
     } catch (error) {
-      this.logger.error(`Failed to check blacklisted token: ${tokenId}`, error.stack);
+      this.logger.error(`Failed to check blacklisted token: ${tokenId}`, getErrorMessage(error));
       return false;
     }
   }
@@ -163,7 +167,7 @@ export class TokenManagerService {
       this.logger.log(`Cleaned up ${result.count} expired blacklisted tokens`);
       return result.count;
     } catch (error) {
-      this.logger.error('Failed to cleanup expired blacklisted tokens', error.stack);
+      this.logger.error('Failed to cleanup expired blacklisted tokens', getErrorMessage(error));
       return 0;
     }
   }
@@ -175,7 +179,7 @@ export class TokenManagerService {
     try {
       return this.jwtService.decode(token) as TokenPayload;
     } catch (error) {
-      this.logger.error(`Failed to decode token: ${error.message}`);
+      this.logger.error(`Failed to decode token: ${getErrorMessage(error)}`);
       return null;
     }
   }

@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
 import { google } from 'googleapis';
+import { getErrorMessage } from '../../common/utils/error.utils';
 
 export interface GoogleCalendarEvent {
   id: string;
@@ -50,7 +51,10 @@ export class GoogleAuthService {
 
       return oauth2Client;
     } catch (error) {
-      this.logger.error(`Failed to get Google OAuth client for user: ${userId}`, error.stack);
+      this.logger.error(
+        `Failed to get Google OAuth client for user: ${userId}`,
+        error instanceof Error ? error.stack : undefined
+      );
       throw error;
     }
   }
@@ -84,7 +88,10 @@ export class GoogleAuthService {
 
       return false;
     } catch (error) {
-      this.logger.error(`Failed to refresh Google tokens for user: ${userId}`, error.stack);
+      this.logger.error(
+        `Failed to refresh Google tokens for user: ${userId}`,
+        error instanceof Error ? error.stack : undefined
+      );
       return false;
     }
   }
@@ -117,16 +124,25 @@ export class GoogleAuthService {
       return events.map(event => ({
         id: event.id!,
         summary: event.summary || 'No title',
-        start: event.start!,
-        end: event.end!,
-        description: event.description,
-        location: event.location,
+        start: {
+          dateTime: event.start?.dateTime || undefined,
+          date: event.start?.date || undefined,
+        },
+        end: {
+          dateTime: event.end?.dateTime || undefined,
+          date: event.end?.date || undefined,
+        },
+        description: event.description || undefined,
+        location: event.location || undefined,
       }));
     } catch (error) {
-      this.logger.error(`Failed to get Google Calendar events for user: ${userId}`, error.stack);
+      this.logger.error(
+        `Failed to get Google Calendar events for user: ${userId}`,
+        error instanceof Error ? error.stack : undefined
+      );
 
       // Try to refresh tokens if unauthorized
-      if (error.code === 401) {
+      if (error && typeof error === 'object' && 'code' in error && error.code === 401) {
         const refreshed = await this.refreshGoogleTokens(userId);
         if (refreshed) {
           // Retry the request once
@@ -162,7 +178,10 @@ export class GoogleAuthService {
 
       return true;
     } catch (error) {
-      this.logger.error(`Failed to check Google auth validity for user: ${userId}`, error.stack);
+      this.logger.error(
+        `Failed to check Google auth validity for user: ${userId}`,
+        error instanceof Error ? error.stack : undefined
+      );
       return false;
     }
   }
@@ -188,7 +207,10 @@ export class GoogleAuthService {
       this.logger.log(`Google OAuth revoked for user: ${userId}`);
       return true;
     } catch (error) {
-      this.logger.error(`Failed to revoke Google OAuth for user: ${userId}`, error.stack);
+      this.logger.error(
+        `Failed to revoke Google OAuth for user: ${userId}`,
+        error instanceof Error ? error.stack : undefined
+      );
       return false;
     }
   }

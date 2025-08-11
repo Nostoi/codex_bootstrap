@@ -4,6 +4,7 @@ import { Strategy } from 'passport-microsoft';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../services/auth.service';
 import { OAuthProfile } from './google.strategy';
+import { getErrorMessage } from '../../common/utils/error.utils';
 
 // Define Microsoft profile interface
 interface MicrosoftProfile {
@@ -25,9 +26,9 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy, 'microsoft') {
     private readonly configService: ConfigService
   ) {
     super({
-      clientID: configService.get<string>('MICROSOFT_CLIENT_ID'),
-      clientSecret: configService.get<string>('MICROSOFT_CLIENT_SECRET'),
-      callbackURL: configService.get<string>('MICROSOFT_CALLBACK_URL'),
+      clientID: configService.get<string>('MICROSOFT_CLIENT_ID') || '',
+      clientSecret: configService.get<string>('MICROSOFT_CLIENT_SECRET') || '',
+      callbackURL: configService.get<string>('MICROSOFT_CALLBACK_URL') || '',
       scope: ['user.read', 'calendars.read', 'offline_access'],
       tenant: configService.get<string>('MICROSOFT_TENANT_ID', 'common'),
     });
@@ -69,7 +70,7 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy, 'microsoft') {
       this.logger.log(`Microsoft OAuth validation successful for user: ${loginResult.user.email}`);
       done(null, loginResult);
     } catch (error) {
-      this.logger.error(`Microsoft OAuth validation failed: ${error.message}`, error.stack);
+      this.logger.error(`Microsoft OAuth validation failed: `, getErrorMessage(error));
       done(error, false);
     }
   }

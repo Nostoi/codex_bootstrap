@@ -2,15 +2,21 @@ import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { GraphService } from '../../graph.service';
 import { GraphAuthService } from '../../auth/graph-auth.service';
+import { getErrorMessage } from '../../../../common/utils/error.utils';
 import {
   SyncResult,
   SyncOptions,
   SyncDirection,
   CalendarEventData,
   GraphCalendarEvent,
+  LocalCalendarEvent,
   DeltaSyncOptions,
   SyncJob,
   SyncStatistics,
+  NullableString,
+  GraphDeltaEvent,
+  isRemovedEvent,
+  isActiveEvent,
 } from '../types/calendar-sync.types';
 import { CalendarSyncStatus, CalendarConflictType } from '@prisma/client';
 import { DeltaSyncManager } from './delta-sync.manager';
@@ -187,14 +193,14 @@ export class CalendarSyncService {
       this.logger.log(`Sync job ${job.id} completed successfully:`, result);
     } catch (error) {
       job.status = 'FAILED';
-      job.error = error.message;
+      job.error = getErrorMessage(error);
       job.progress = 0;
 
       // Update sync state
       await this.updateSyncState(job.userId, {
         syncInProgress: false,
         lastSyncStatus: CalendarSyncStatus.FAILED,
-        lastSyncError: error.message,
+        lastSyncError: getErrorMessage(error),
       });
 
       this.logger.error(`Sync job ${job.id} failed:`, error);
@@ -234,7 +240,7 @@ export class CalendarSyncService {
       const needsFullSync =
         job.options.fullSync || !syncState?.deltaToken || !syncState?.lastDeltaSync;
 
-      let events: GraphCalendarEvent[];
+      let events: GraphCalendarEvent[] | GraphDeltaEvent[];
 
       if (needsFullSync) {
         this.logger.log('Performing full sync');
@@ -265,6 +271,23 @@ export class CalendarSyncService {
       for (let i = 0; i < events.length; i++) {
         try {
           const graphEvent = events[i];
+
+          // Handle removed events separately
+          if (isRemovedEvent(graphEvent)) {
+            // Delete the local event if it exists
+            const localEvent = await this.findLocalEvent(job.userId, graphEvent.id);
+            if (localEvent) {
+              await this.deleteLocalEvent(localEvent.id);
+              syncedCount++;
+            }
+            continue;
+          }
+
+          // Handle active events
+          if (!isActiveEvent(graphEvent)) {
+            continue; // Skip unknown event types
+          }
+
           const localEvent = await this.findLocalEvent(job.userId, graphEvent.id);
 
           if (localEvent) {
@@ -297,7 +320,7 @@ export class CalendarSyncService {
         } catch (error) {
           this.logger.error(`Error processing event ${events[i]?.id}:`, error);
           errorCount++;
-          errors.push(`Event ${events[i]?.id}: ${error.message}`);
+          errors.push(`Event ${events[i]?.id}: ${getErrorMessage(error)}`);
         }
       }
 
@@ -385,7 +408,7 @@ export class CalendarSyncService {
       } catch (error) {
         this.logger.error(`Error pushing event ${localEvents[i].id}:`, error);
         errorCount++;
-        errors.push(`Event ${localEvents[i].id}: ${error.message}`);
+        errors.push(`Event ${localEvents[i].id}: ${getErrorMessage(error)}`);
       }
     }
 
@@ -430,31 +453,46 @@ export class CalendarSyncService {
 
   // Helper methods
 
+  /**
+   * Get synchronization state with null-safe calendarId handling
+   */
   private async getSyncState(userId: string) {
     return await this.prisma.calendarSyncState.findFirst({
-      where: { userId, calendarId: null }, // Default calendar
+      where: {
+        userId,
+        calendarId: null, // Direct null for default calendar
+      },
     });
   }
 
+  /**
+   * Update synchronization state with null-safe calendarId handling
+   */
   private async updateSyncState(userId: string, updates: any) {
     await this.prisma.calendarSyncState.upsert({
       where: {
         userId_calendarId: {
           userId,
-          calendarId: null,
+          calendarId: undefined as any, // Workaround for Prisma unique constraint typing
         },
       },
       update: updates,
       create: {
         userId,
-        calendarId: null,
+        calendarId: null, // Direct null for default calendar
         ...updates,
       },
     });
   }
 
-  private async findLocalEvent(userId: string, graphId: string) {
-    return await this.prisma.calendarEvent.findUnique({
+  /**
+   * Find local calendar event by user ID and Graph ID (returns null-safe LocalCalendarEvent)
+   */
+  private async findLocalEvent(
+    userId: string,
+    graphId: string
+  ): Promise<LocalCalendarEvent | null> {
+    const prismaEvent = await this.prisma.calendarEvent.findUnique({
       where: {
         userId_graphId: {
           userId,
@@ -462,6 +500,12 @@ export class CalendarSyncService {
         },
       },
     });
+
+    if (!prismaEvent) {
+      return null;
+    }
+
+    return this.convertPrismaToLocal(prismaEvent);
   }
 
   private async countUserEvents(userId: string): Promise<number> {
@@ -470,17 +514,43 @@ export class CalendarSyncService {
     });
   }
 
+  /**
+   * Convert Graph calendar event to LocalCalendarEvent (null-safe)
+   */
   private convertGraphEventToLocal(graphEvent: GraphCalendarEvent): CalendarEventData {
     return {
       subject: graphEvent.subject,
-      description: graphEvent.body?.content,
-      location: graphEvent.location?.displayName,
+      description: graphEvent.body?.content ?? null,
+      location: graphEvent.location?.displayName ?? null,
       startTime: new Date(graphEvent.start.dateTime),
       endTime: new Date(graphEvent.end.dateTime),
-      timeZone: graphEvent.start.timeZone,
-      isAllDay: graphEvent.isAllDay,
+      timeZone: graphEvent.start.timeZone ?? null,
+      isAllDay: graphEvent.isAllDay ?? false,
       isRecurring: !!graphEvent.recurrence,
-      recurrencePattern: graphEvent.recurrence ? JSON.stringify(graphEvent.recurrence) : undefined,
+      recurrencePattern: graphEvent.recurrence ? JSON.stringify(graphEvent.recurrence) : null,
+    };
+  }
+
+  /**
+   * Convert Prisma CalendarEvent to LocalCalendarEvent (null-safe)
+   */
+  private convertPrismaToLocal(prismaEvent: any): LocalCalendarEvent {
+    return {
+      id: prismaEvent.id,
+      userId: prismaEvent.userId,
+      graphId: prismaEvent.graphId ?? null, // Convert undefined to null for consistency
+      subject: prismaEvent.subject,
+      description: prismaEvent.description ?? null,
+      location: prismaEvent.location ?? null,
+      startTime: prismaEvent.startTime,
+      endTime: prismaEvent.endTime,
+      timeZone: prismaEvent.timeZone ?? null,
+      isAllDay: prismaEvent.isAllDay ?? false,
+      isRecurring: prismaEvent.isRecurring ?? false,
+      recurrencePattern: prismaEvent.recurrencePattern ?? null,
+      createdAt: prismaEvent.createdAt,
+      updatedAt: prismaEvent.updatedAt,
+      syncStatus: prismaEvent.syncStatus,
     };
   }
 
@@ -560,6 +630,14 @@ export class CalendarSyncService {
     });
   }
 
+  private async deleteLocalEvent(localEventId: string) {
+    this.logger.log(`Deleting local event ${localEventId} due to remote deletion`);
+
+    return await this.prisma.calendarEvent.delete({
+      where: { id: localEventId },
+    });
+  }
+
   private async createConflictRecord(localEventId: string, conflictResult: any) {
     return await this.prisma.calendarSyncConflict.create({
       data: {
@@ -608,7 +686,7 @@ export class CalendarSyncService {
         const calendarData = await this.graphService.getCalendars(userId);
         calendars = calendarData || [];
       } catch (error) {
-        this.logger.warn(`Could not fetch calendars for user ${userId}:`, error.message);
+        this.logger.warn(`Could not fetch calendars for user ${userId}:`, getErrorMessage(error));
         calendars = [];
       }
 

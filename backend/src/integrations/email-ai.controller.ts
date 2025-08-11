@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { GoogleService } from './google/google.service';
 import { GraphService } from './graph/graph.service';
 import { AiService } from '../ai/ai.service';
+import { getErrorMessage } from '../common/utils/error.utils';
 
 @ApiTags('email-ai')
 @Controller('email-ai')
@@ -45,7 +46,10 @@ export class EmailAiController {
           );
           allEmails.push(...gmailEmails.map(email => ({ ...email, provider: 'gmail' })));
         } catch (error) {
-          console.warn(`Gmail integration not available for user ${userId}:`, error.message);
+          console.warn(
+            `Gmail integration not available for user ${userId}:`,
+            getErrorMessage(error)
+          );
         }
       }
 
@@ -55,9 +59,12 @@ export class EmailAiController {
             userId,
             days
           );
-          allEmails.push(...outlookEmails.map(email => ({ ...email, provider: 'outlook' })));
+          allEmails.push(...outlookEmails.map((email: any) => ({ ...email, provider: 'outlook' })));
         } catch (error) {
-          console.warn(`Outlook integration not available for user ${userId}:`, error.message);
+          console.warn(
+            `Outlook integration not available for user ${userId}:`,
+            getErrorMessage(error)
+          );
         }
       }
 
@@ -89,7 +96,7 @@ export class EmailAiController {
     } catch (error) {
       return {
         success: false,
-        error: error.message,
+        error: getErrorMessage(error),
         data: {
           tasks: [],
           emailsProcessed: allEmails.length,
@@ -115,8 +122,14 @@ export class EmailAiController {
 
     try {
       const emails = await this.googleService.getGmailMessagesForTaskExtraction(userId, days);
+      // Ensure proper typing for AI service
+      const typedEmails = emails.map(email => ({
+        ...email,
+        id: email.id || '',
+        snippet: email.snippet || '',
+      }));
 
-      if (emails.length === 0) {
+      if (typedEmails.length === 0) {
         return {
           success: true,
           message: 'No Gmail emails found',
@@ -124,13 +137,13 @@ export class EmailAiController {
         };
       }
 
-      const aiResponse = await this.aiService.extractTasksFromEmails(emails);
+      const aiResponse = await this.aiService.extractTasksFromEmails(typedEmails);
 
       return {
         success: true,
         data: {
           tasks: aiResponse.data,
-          emailsProcessed: emails.length,
+          emailsProcessed: typedEmails.length,
           tasksExtracted: aiResponse.data.length,
           usage: aiResponse.usage,
           processingTimeMs: aiResponse.processingTimeMs,
@@ -139,7 +152,7 @@ export class EmailAiController {
     } catch (error) {
       return {
         success: false,
-        error: error.message,
+        error: getErrorMessage(error),
         data: { tasks: [], emailsProcessed: 0, tasksExtracted: 0 },
       };
     }
@@ -185,7 +198,7 @@ export class EmailAiController {
     } catch (error) {
       return {
         success: false,
-        error: error.message,
+        error: getErrorMessage(error),
         data: { tasks: [], emailsProcessed: 0, tasksExtracted: 0 },
       };
     }
@@ -214,7 +227,7 @@ export class EmailAiController {
     } catch (error) {
       return {
         success: false,
-        error: error.message,
+        error: getErrorMessage(error),
         data: {
           hasActionableContent: false,
           confidence: 0,

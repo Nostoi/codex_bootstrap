@@ -11,6 +11,7 @@ import { Server, WebSocket } from 'ws';
 import { Logger } from '@nestjs/common';
 import { CollaborationService } from './collaboration.service';
 import * as Y from 'yjs';
+// @ts-ignore - y-websocket utils doesn't have type definitions
 import { setupWSConnection } from 'y-websocket/bin/utils';
 
 @WebSocketGateway({

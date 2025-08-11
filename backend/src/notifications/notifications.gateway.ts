@@ -229,7 +229,9 @@ export class NotificationsGateway
       client.emit('notification', payload);
       this.logger.debug(`Sent notification to client: ${payload.type}`);
     } catch (error) {
-      this.logger.error(`Failed to send notification to client: ${error.message}`);
+      this.logger.error(
+        `Failed to send notification to client: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 

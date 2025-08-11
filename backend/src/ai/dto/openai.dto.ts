@@ -2,7 +2,7 @@ import { IsString, IsOptional, IsArray, IsNumber, Min, Max, IsBoolean } from 'cl
 
 export class OpenAICompletionDto {
   @IsString()
-  prompt: string;
+  prompt!: string;
 
   @IsOptional()
   @IsString()

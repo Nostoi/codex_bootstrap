@@ -167,7 +167,7 @@ export class PerformanceController {
       recommendations,
       totalRecommendations: recommendations.length,
       implementationPriority: recommendations.sort((a, b) => {
-        const priority = { high: 3, medium: 2, low: 1 };
+        const priority: Record<string, number> = { high: 3, medium: 2, low: 1 };
         return priority[b.priority] - priority[a.priority];
       }),
       timestamp: new Date().toISOString(),

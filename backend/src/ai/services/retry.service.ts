@@ -5,6 +5,7 @@ import {
   OpenAIUnauthorizedException,
 } from '../exceptions/openai.exceptions';
 import { RetryConfig } from '../interfaces/openai.interfaces';
+import { getErrorMessage } from '../../common/utils/error.utils';
 
 @Injectable()
 export class RetryService {
@@ -15,7 +16,7 @@ export class RetryService {
     config: RetryConfig,
     context: string = 'Operation'
   ): Promise<T> {
-    let lastError: Error;
+    let lastError: Error = new Error('Operation failed');
 
     for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
       try {
@@ -25,11 +26,11 @@ export class RetryService {
 
         return await operation();
       } catch (error) {
-        lastError = error;
+        lastError = error instanceof Error ? error : new Error(getErrorMessage(error));
 
         // Don't retry for certain error types
         if (this.shouldNotRetry(error)) {
-          this.logger.error(`${context} - Non-retryable error: ${error.message}`);
+          this.logger.error(`${context} - Non-retryable error: ${getErrorMessage(error)}`);
           throw error;
         }
 
@@ -43,7 +44,7 @@ export class RetryService {
         const delay = this.calculateDelay(attempt, config);
 
         this.logger.warn(
-          `${context} - Attempt ${attempt + 1} failed: ${error.message}. Retrying in ${delay}ms`
+          `${context} - Attempt ${attempt + 1} failed: ${getErrorMessage(error)}. Retrying in ${delay}ms`
         );
 
         await this.sleep(delay);

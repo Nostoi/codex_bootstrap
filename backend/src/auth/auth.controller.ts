@@ -16,6 +16,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { AuthService, LoginResult } from './services/auth.service';
 import { SessionManagerService } from './services/session-manager.service';
+import { getErrorMessage } from '../common/utils/error.utils';
 import { Request, Response } from 'express';
 
 interface AuthenticatedRequest extends Request {
@@ -80,7 +81,10 @@ export class AuthController {
       this.logger.debug(`Redirecting to frontend: ${frontendUrl}/auth/success`);
       return res.redirect(redirectUrl);
     } catch (error) {
-      this.logger.error(`Google OAuth callback failed: ${error.message}`, error.stack);
+      this.logger.error(
+        `Google OAuth callback failed: ${getErrorMessage(error)}`,
+        error instanceof Error ? error.stack : undefined
+      );
       const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:3000');
       return res.redirect(`${frontendUrl}/auth/error?error=oauth_failed`);
     }
@@ -119,7 +123,10 @@ export class AuthController {
       this.logger.debug(`Redirecting to frontend: ${frontendUrl}/auth/success`);
       return res.redirect(redirectUrl);
     } catch (error) {
-      this.logger.error(`Microsoft OAuth callback failed: ${error.message}`, error.stack);
+      this.logger.error(
+        `Microsoft OAuth callback failed: ${getErrorMessage(error)}`,
+        error instanceof Error ? error.stack : undefined
+      );
       const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:3000');
       return res.redirect(`${frontendUrl}/auth/error?error=oauth_failed`);
     }
@@ -149,7 +156,10 @@ export class AuthController {
         expiresAt: tokens.expiresAt,
       };
     } catch (error) {
-      this.logger.error(`Token refresh failed: ${error.message}`, error.stack);
+      this.logger.error(
+        `Token refresh failed: ${getErrorMessage(error)}`,
+        error instanceof Error ? error.stack : undefined
+      );
       throw new UnauthorizedException('Token refresh failed');
     }
   }
@@ -179,7 +189,10 @@ export class AuthController {
       this.logger.log(`User logged out successfully: ${user.email}`);
       return { message: 'Logout successful' };
     } catch (error) {
-      this.logger.error(`Logout failed: ${error.message}`, error.stack);
+      this.logger.error(
+        `Logout failed: ${getErrorMessage(error)}`,
+        error instanceof Error ? error.stack : undefined
+      );
       // Don't throw error for logout - return success even if cleanup fails
       return { message: 'Logout completed' };
     }
@@ -214,7 +227,10 @@ export class AuthController {
           })) || [],
       };
     } catch (error) {
-      this.logger.error(`Get profile failed: ${error.message}`, error.stack);
+      this.logger.error(
+        `Get profile failed: ${getErrorMessage(error)}`,
+        error instanceof Error ? error.stack : undefined
+      );
       throw new UnauthorizedException('Unable to retrieve profile');
     }
   }
@@ -242,7 +258,10 @@ export class AuthController {
         stats,
       };
     } catch (error) {
-      this.logger.error(`Get sessions failed: ${error.message}`, error.stack);
+      this.logger.error(
+        `Get sessions failed: ${getErrorMessage(error)}`,
+        error instanceof Error ? error.stack : undefined
+      );
       throw new UnauthorizedException('Unable to retrieve sessions');
     }
   }
@@ -271,7 +290,10 @@ export class AuthController {
         throw new BadRequestException('Session not found or already revoked');
       }
     } catch (error) {
-      this.logger.error(`Session revocation failed: ${error.message}`, error.stack);
+      this.logger.error(
+        `Session revocation failed: ${getErrorMessage(error)}`,
+        error instanceof Error ? error.stack : undefined
+      );
       throw new BadRequestException('Session revocation failed');
     }
   }

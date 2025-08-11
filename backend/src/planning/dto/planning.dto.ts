@@ -7,7 +7,7 @@ export class GeneratePlanDto {
     example: '2025-07-28',
   })
   @IsDateString()
-  date: string;
+  date!: string;
 
   @ApiProperty({ description: 'User ID to generate plan for', required: false })
   @IsOptional()
@@ -17,33 +17,33 @@ export class GeneratePlanDto {
 
 export class DailyPlanResponseDto {
   @ApiProperty({ description: 'Date of the plan' })
-  date: string;
+  date!: string;
 
   @ApiProperty({ description: 'Scheduled task blocks' })
-  scheduleBlocks: ScheduleBlockDto[];
+  scheduleBlocks!: ScheduleBlockDto[];
 
   @ApiProperty({ description: 'Tasks that could not be scheduled' })
-  unscheduledTasks: TaskSummaryDto[];
+  unscheduledTasks!: TaskSummaryDto[];
 
   @ApiProperty({ description: 'Total estimated minutes for scheduled tasks' })
-  totalEstimatedMinutes: number;
+  totalEstimatedMinutes!: number;
 
   @ApiProperty({ description: 'Energy optimization score (0-1)' })
-  energyOptimization: number;
+  energyOptimization!: number;
 
   @ApiProperty({ description: 'Focus optimization score (0-1)' })
-  focusOptimization: number;
+  focusOptimization!: number;
 
   @ApiProperty({ description: 'Deadline risk score (0-1)' })
-  deadlineRisk: number;
+  deadlineRisk!: number;
 }
 
 export class TaskSummaryDto {
   @ApiProperty({ description: 'Task ID' })
-  id: string;
+  id!: string;
 
   @ApiProperty({ description: 'Task title' })
-  title: string;
+  title!: string;
 
   @ApiProperty({ description: 'Task description' })
   description?: string;
@@ -66,20 +66,20 @@ export class TaskSummaryDto {
 
 export class ScheduleBlockDto {
   @ApiProperty({ description: 'Block start time' })
-  startTime: string;
+  startTime!: string;
 
   @ApiProperty({ description: 'Block end time' })
-  endTime: string;
+  endTime!: string;
 
   @ApiProperty({ description: 'Scheduled task' })
-  task: TaskSummaryDto;
+  task!: TaskSummaryDto;
 
   @ApiProperty({ description: 'Energy match score (0-1)' })
-  energyMatch: number;
+  energyMatch!: number;
 
   @ApiProperty({ description: 'Focus type match score (0-1)' })
-  focusMatch: number;
+  focusMatch!: number;
 
   @ApiProperty({ description: 'Reasoning for scheduling decision' })
-  reasoning: string;
+  reasoning!: string;
 }

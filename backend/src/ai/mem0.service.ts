@@ -22,7 +22,7 @@ export class Mem0Service {
       },
       body: JSON.stringify({ query }),
     });
-    const data = await res.json();
+    const data = (await res.json()) as any;
     return data.results || [];
   }
 }

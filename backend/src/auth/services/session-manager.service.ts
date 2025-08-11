@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UserSession } from '@prisma/client';
+import { getErrorMessage } from '../../common/utils/error.utils';
 
 export interface CreateSessionData {
   userId: string;
@@ -54,7 +55,10 @@ export class SessionManagerService {
       );
       return session;
     } catch (error) {
-      this.logger.error(`Failed to create session for user: ${sessionData.userId}`, error.stack);
+      this.logger.error(
+        `Failed to create session for user: ${sessionData.userId}`,
+        getErrorMessage(error)
+      );
       throw error;
     }
   }
@@ -72,7 +76,7 @@ export class SessionManagerService {
         },
       });
     } catch (error) {
-      this.logger.error('Failed to find session by refresh token', error.stack);
+      this.logger.error('Failed to find session by refresh token', getErrorMessage(error));
       return null;
     }
   }
@@ -86,7 +90,7 @@ export class SessionManagerService {
         where: { sessionId },
       });
     } catch (error) {
-      this.logger.error(`Failed to find session by ID: ${sessionId}`, error.stack);
+      this.logger.error(`Failed to find session by ID: ${sessionId}`, getErrorMessage(error));
       return null;
     }
   }
@@ -105,7 +109,10 @@ export class SessionManagerService {
         orderBy: { createdAt: 'desc' },
       });
     } catch (error) {
-      this.logger.error(`Failed to get active sessions for user: ${userId}`, error.stack);
+      this.logger.error(
+        `Failed to get active sessions for user: ${userId}`,
+        getErrorMessage(error)
+      );
       return [];
     }
   }
@@ -121,7 +128,7 @@ export class SessionManagerService {
       });
       return true;
     } catch (error) {
-      this.logger.error(`Failed to touch session: ${sessionId}`, error.stack);
+      this.logger.error(`Failed to touch session: ${sessionId}`, getErrorMessage(error));
       return false;
     }
   }
@@ -142,7 +149,7 @@ export class SessionManagerService {
       this.logger.debug(`Session invalidated: ${sessionId}`);
       return true;
     } catch (error) {
-      this.logger.error(`Failed to invalidate session: ${sessionId}`, error.stack);
+      this.logger.error(`Failed to invalidate session: ${sessionId}`, getErrorMessage(error));
       return false;
     }
   }
@@ -166,7 +173,10 @@ export class SessionManagerService {
       this.logger.log(`Invalidated ${result.count} sessions for user: ${userId}`);
       return result.count;
     } catch (error) {
-      this.logger.error(`Failed to invalidate sessions for user: ${userId}`, error.stack);
+      this.logger.error(
+        `Failed to invalidate sessions for user: ${userId}`,
+        getErrorMessage(error)
+      );
       return 0;
     }
   }
@@ -187,7 +197,7 @@ export class SessionManagerService {
       this.logger.debug(`Sessions invalidated by refresh token: ${result.count}`);
       return result.count > 0;
     } catch (error) {
-      this.logger.error('Failed to invalidate session by refresh token', error.stack);
+      this.logger.error('Failed to invalidate session by refresh token', getErrorMessage(error));
       return false;
     }
   }
@@ -212,7 +222,7 @@ export class SessionManagerService {
       this.logger.log(`Cleaned up ${result.count} expired sessions`);
       return result.count;
     } catch (error) {
-      this.logger.error('Failed to cleanup expired sessions', error.stack);
+      this.logger.error('Failed to cleanup expired sessions', getErrorMessage(error));
       return 0;
     }
   }
@@ -249,7 +259,7 @@ export class SessionManagerService {
         expiredSessions: expired,
       };
     } catch (error) {
-      this.logger.error(`Failed to get session stats for user: ${userId}`, error.stack);
+      this.logger.error(`Failed to get session stats for user: ${userId}`, getErrorMessage(error));
       return { totalSessions: 0, activeSessions: 0, expiredSessions: 0 };
     }
   }
@@ -276,7 +286,10 @@ export class SessionManagerService {
         );
       }
     } catch (error) {
-      this.logger.error(`Failed to enforce session limit for user: ${userId}`, error.stack);
+      this.logger.error(
+        `Failed to enforce session limit for user: ${userId}`,
+        getErrorMessage(error)
+      );
       // Don't throw - session limit enforcement failure shouldn't break login
     }
   }

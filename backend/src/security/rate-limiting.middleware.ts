@@ -4,6 +4,7 @@ import * as rateLimit from 'express-rate-limit';
 import Redis from 'ioredis';
 import { User } from '@prisma/client';
 import { AuditLoggerService, AuditAction } from './audit-logger.service';
+import { getErrorMessage } from '../common/utils/error.utils';
 
 interface RateLimitConfig {
   windowMs: number;
@@ -50,7 +51,7 @@ export class RateLimitingMiddleware implements NestMiddleware {
         this.logger.error('Redis connection error', error.stack);
       });
     } catch (error) {
-      this.logger.error('Failed to initialize Redis', error.stack);
+      this.logger.error('Failed to initialize Redis', getErrorMessage(error));
     }
   }
 
@@ -250,7 +251,10 @@ export class RateLimitingMiddleware implements NestMiddleware {
           resetTime,
         });
       } catch (error) {
-        this.logger.error(`Failed to get rate limit status for ${category}`, error.stack);
+        this.logger.error(
+          `Failed to get rate limit status for ${category}`,
+          getErrorMessage(error)
+        );
       }
     }
 
@@ -296,7 +300,7 @@ export class RateLimitingMiddleware implements NestMiddleware {
         }
       }
     } catch (error) {
-      this.logger.error('Failed to reset rate limit', error.stack);
+      this.logger.error('Failed to reset rate limit', getErrorMessage(error));
       throw new Error('Failed to reset rate limit');
     }
   }
