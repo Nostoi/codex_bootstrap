@@ -161,7 +161,7 @@ export class NotificationsService {
       message,
       userId,
       taskId: taskData.id,
-      notificationType: 'task-created',
+      notificationType: 'SYSTEM_UPDATE', // Use valid NotificationType enum value
       metadata: {
         status: taskData.status,
         priority: taskData.priority,

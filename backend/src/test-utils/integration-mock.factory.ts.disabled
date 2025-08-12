@@ -1,0 +1,297 @@
+import { GoogleService } from '../integrations_disabled/google/google.service';
+import { GraphAuthService } from '../integrations_disabled/graph/auth/graph-auth.service';
+// Temporarily removed imports for disabled modules
+// TODO: Re-add when modules are re-enabled
+// import { CalendarSyncService } from '../integrations/graph/sync/services/calendar-sync.service';
+// import { ConflictResolver } from '../integrations/graph/sync/services/conflict-resolver.service';
+// import { GraphConfigService } from '../integrations/graph/config/graph-config.service';
+import {
+  SyncJob,
+  SyncResult,
+  SyncOptions,
+  ConflictInfo,
+  SyncStatistics,
+  SyncDirection,
+} from '../integrations/graph/sync/types/calendar-sync.types';
+import { MicrosoftGraphConfig } from '../integrations/graph/types/calendar.types';
+import { CalendarSyncStatus } from '@prisma/client';
+
+/**
+ * Creates a mock GoogleService for testing
+ */
+export function createMockGoogleService(): jest.Mocked<GoogleService> {
+  return {
+    getDriveFiles: jest.fn(),
+    createDriveFile: jest.fn(),
+    getSheetData: jest.fn(),
+    createSheet: jest.fn(),
+    getCalendarEvents: jest.fn(),
+    createCalendarEvent: jest.fn(),
+    updateCalendarEvent: jest.fn(),
+    deleteCalendarEvent: jest.fn(),
+    getAuthUrl: jest.fn(),
+    exchangeCodeForTokens: jest.fn(),
+    refreshAccessToken: jest.fn(),
+    getUserInfo: jest.fn(),
+    saveIntegrationConfig: jest.fn(),
+  } as unknown as jest.Mocked<GoogleService>;
+}
+
+/**
+ * Creates a mock GraphAuthService for testing
+ */
+export function createMockGraphAuthService(): jest.Mocked<GraphAuthService> {
+  return {
+    getAuthorizationUrl: jest.fn(),
+    exchangeCodeForTokens: jest.fn(),
+    getAccessToken: jest.fn(),
+    refreshAccessToken: jest.fn(),
+    clearTokens: jest.fn(),
+    isUserAuthenticated: jest.fn(),
+    getUserInfo: jest.fn(),
+    revokeAuthentication: jest.fn(),
+  } as unknown as jest.Mocked<GraphAuthService>;
+}
+
+/**
+ * Creates mock Google Calendar events for testing
+ */
+export function createMockGoogleCalendarEvent(overrides: Partial<any> = {}) {
+  return {
+    id: 'google-event-123',
+    summary: 'Test Meeting',
+    description: 'A test calendar event',
+    start: {
+      dateTime: '2025-01-15T10:00:00Z',
+      timeZone: 'UTC',
+    },
+    end: {
+      dateTime: '2025-01-15T11:00:00Z',
+      timeZone: 'UTC',
+    },
+    location: 'Test Location',
+    attendees: [{ email: 'user1@example.com' }, { email: 'user2@example.com' }],
+    status: 'confirmed',
+    created: '2025-01-15T08:00:00Z',
+    updated: '2025-01-15T09:00:00Z',
+    ...overrides,
+  };
+}
+
+/**
+ * Creates mock Google Calendar API response for testing
+ */
+export function createMockGoogleCalendarResponse(events: any[] = []) {
+  return {
+    kind: 'calendar#events',
+    etag: 'test-etag',
+    summary: 'Test Calendar',
+    updated: new Date().toISOString(),
+    timeZone: 'UTC',
+    accessRole: 'owner',
+    defaultReminders: [],
+    nextPageToken: undefined,
+    items: events.length > 0 ? events : [createMockGoogleCalendarEvent()],
+  };
+}
+
+/**
+ * Creates mock Microsoft Graph calendar event for testing
+ */
+export function createMockGraphCalendarEvent(overrides: Partial<any> = {}) {
+  return {
+    id: 'graph-event-123',
+    subject: 'Test Meeting',
+    body: {
+      content: 'A test calendar event',
+      contentType: 'text',
+    },
+    start: {
+      dateTime: '2025-01-15T10:00:00Z',
+      timeZone: 'UTC',
+    },
+    end: {
+      dateTime: '2025-01-15T11:00:00Z',
+      timeZone: 'UTC',
+    },
+    location: {
+      displayName: 'Test Location',
+    },
+    attendees: [
+      { emailAddress: { address: 'user1@example.com', name: 'User 1' } },
+      { emailAddress: { address: 'user2@example.com', name: 'User 2' } },
+    ],
+    isAllDay: false,
+    recurrence: null,
+    '@odata.etag': 'test-etag',
+    createdDateTime: '2025-01-15T08:00:00Z',
+    lastModifiedDateTime: '2025-01-15T09:00:00Z',
+    ...overrides,
+  };
+}
+
+/**
+ * Creates mock OAuth token response for testing
+ */
+export function createMockOAuthTokens(overrides: Partial<any> = {}) {
+  return {
+    access_token: 'test-access-token',
+    refresh_token: 'test-refresh-token',
+    expires_in: 3600,
+    token_type: 'Bearer',
+    scope: 'https://graph.microsoft.com/User.Read',
+    ...overrides,
+  };
+}
+
+/**
+ * Creates mock user info response for testing
+ */
+export function createMockUserInfo(overrides: Partial<any> = {}) {
+  return {
+    id: 'test-user-external-id',
+    email: 'test@example.com',
+    name: 'Test User',
+    given_name: 'Test',
+    family_name: 'User',
+    picture: 'https://example.com/avatar.jpg',
+    locale: 'en',
+    verified_email: true,
+    ...overrides,
+  };
+}
+
+/**
+ * Creates a mock CalendarSyncService for testing
+ */
+export function createMockCalendarSyncService(): jest.Mocked<CalendarSyncService> {
+  return {
+    startSync: jest.fn(),
+    getSyncStatus: jest.fn(),
+    getSyncJob: jest.fn(),
+    cancelSync: jest.fn(),
+    getSyncHistory: jest.fn(),
+    testSyncCapabilities: jest.fn(),
+    getSyncMetrics: jest.fn(),
+  } as unknown as jest.Mocked<CalendarSyncService>;
+}
+
+/**
+ * Creates a mock ConflictResolver for testing
+ */
+export function createMockConflictResolver(): jest.Mocked<ConflictResolver> {
+  return {
+    detectConflicts: jest.fn(),
+    resolveConflict: jest.fn(),
+    storeConflict: jest.fn(),
+    getPendingConflicts: jest.fn(),
+  } as unknown as jest.Mocked<ConflictResolver>;
+}
+
+/**
+ * Creates a mock GraphConfigService for testing
+ */
+export function createMockGraphConfigService(): jest.Mocked<GraphConfigService> {
+  return {
+    getMicrosoftGraphConfig: jest.fn(),
+    getAuthorizationUrl: jest.fn(),
+    getTokenEndpoint: jest.fn(),
+    validateConfiguration: jest.fn(),
+    getConfigSummary: jest.fn(),
+  } as unknown as jest.Mocked<GraphConfigService>;
+}
+
+/**
+ * Creates mock SyncJob for testing
+ */
+export function createMockSyncJob(overrides: Partial<SyncJob> = {}): SyncJob {
+  return {
+    id: 'sync_test_user_123456789',
+    userId: 'test-user-id',
+    status: 'PENDING',
+    progress: 0,
+    startTime: new Date('2025-01-15T10:00:00Z'),
+    endTime: undefined,
+    error: undefined,
+    options: {
+      direction: SyncDirection.BIDIRECTIONAL,
+      trigger: 'MANUAL' as any,
+      fullSync: false,
+      conflictResolution: 'MANUAL',
+    },
+    ...overrides,
+  };
+}
+
+/**
+ * Creates mock SyncResult for testing
+ */
+export function createMockSyncResult(overrides: Partial<SyncResult> = {}): SyncResult {
+  return {
+    success: true,
+    syncedCount: 25,
+    conflictCount: 5,
+    errorCount: 0,
+    errors: [],
+    conflicts: [],
+    ...overrides,
+  };
+}
+
+/**
+ * Creates mock SyncStatistics for testing
+ */
+export function createMockSyncStatistics(overrides: Partial<SyncStatistics> = {}): SyncStatistics {
+  return {
+    totalSyncs: 10,
+    successfulSyncs: 8,
+    failedSyncs: 2,
+    totalEvents: 250,
+    totalConflicts: 15,
+    averageSyncTime: 45000, // 45 seconds
+    lastSyncTime: new Date('2025-01-15T10:00:00Z'),
+    ...overrides,
+  };
+}
+
+/**
+ * Creates mock ConflictInfo for testing
+ */
+export function createMockConflictInfo(overrides: Partial<ConflictInfo> = {}): ConflictInfo {
+  return {
+    eventId: 'conflict-event-123',
+    conflictType: 'TITLE_MISMATCH',
+    localVersion: {
+      subject: 'Team Meeting',
+      startTime: new Date('2025-01-15T10:00:00Z'),
+      endTime: new Date('2025-01-15T11:00:00Z'),
+    },
+    remoteVersion: {
+      subject: 'Weekly Team Sync',
+      startTime: new Date('2025-01-15T10:00:00Z'),
+      endTime: new Date('2025-01-15T11:00:00Z'),
+    },
+    autoResolvable: true,
+    ...overrides,
+  };
+}
+
+/**
+ * Creates mock MicrosoftGraphConfig for testing
+ */
+export function createMockMicrosoftGraphConfig(
+  overrides: Partial<MicrosoftGraphConfig> = {}
+): MicrosoftGraphConfig {
+  return {
+    clientId: 'test-client-id-123',
+    clientSecret: 'test-client-secret-456',
+    redirectUri: 'http://localhost:3000/auth/callback',
+    tenantId: 'test-tenant-id-789',
+    scopes: [
+      'https://graph.microsoft.com/User.Read',
+      'https://graph.microsoft.com/Calendars.ReadWrite',
+      'https://graph.microsoft.com/Calendars.Read.Shared',
+    ],
+    ...overrides,
+  };
+}

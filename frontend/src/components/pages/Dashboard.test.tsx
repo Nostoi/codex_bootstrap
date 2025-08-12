@@ -85,8 +85,8 @@ vi.mock('../ui/CalendarEvents', () => ({
   default: () => <div data-testid="calendar-events">Calendar Events</div>,
 }));
 
-vi.mock('../ui/FilterBar', () => ({
-  FilterBar: ({ filters, onFiltersChange, onClear }: any) => (
+vi.mock('../ui/FilterBar', () => {
+  const MockFilterBar = ({ filters, onFiltersChange, onClear }: any) => (
     <div data-testid="filter-bar">
       Filter Bar
       <input
@@ -112,8 +112,13 @@ vi.mock('../ui/FilterBar', () => ({
         High Energy ({filters.energyLevels.includes('HIGH') ? 'ON' : 'OFF'})
       </button>
     </div>
-  ),
-}));
+  );
+
+  return {
+    FilterBar: MockFilterBar,
+    default: MockFilterBar,
+  };
+});
 
 vi.mock('../ui/TaskCard', () => ({
   default: ({ task, onClick, onStatusChange }: any) => (

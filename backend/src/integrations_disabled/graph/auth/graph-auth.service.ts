@@ -148,6 +148,10 @@ export class GraphAuthService {
         }
       }
 
+      if (!config.accessToken) {
+        throw new UnauthorizedException('Access token not available, re-authentication required');
+      }
+
       return config.accessToken;
     } catch (error) {
       this.logger.error(`Failed to get access token for user ${userId}:`, error);

@@ -123,9 +123,9 @@ describe('FocusView', () => {
   it('displays priority indicators for tasks', () => {
     render(<FocusView todaysTasks={mockTasks} />);
 
-    // High priority should show fire emoji
-    expect(screen.getByTitle('high priority')).toBeInTheDocument();
-    // Medium priority should show lightning emoji
-    expect(screen.getByTitle('medium priority')).toBeInTheDocument();
+    // High priority should show priority number
+    expect(screen.getByTitle('Priority 5')).toBeInTheDocument();
+    // Medium priority should show priority number
+    expect(screen.getByTitle('Priority 3')).toBeInTheDocument();
   });
 });

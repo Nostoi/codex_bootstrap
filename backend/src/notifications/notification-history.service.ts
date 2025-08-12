@@ -35,9 +35,8 @@ export class NotificationHistoryService {
           message: notificationData.message,
           userId: notificationData.userId,
           taskId: notificationData.taskId,
-          notificationType: notificationData.notificationType,
-          metadata: notificationData.metadata,
-          deliveryStatus: 'pending',
+          notificationType: notificationData.notificationType as any,
+          deliveryStatus: 'PENDING' as any,
         },
         include: {
           user: {

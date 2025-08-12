@@ -168,24 +168,8 @@ export function resetMockPrismaService(mockPrisma: jest.Mocked<PrismaService>): 
     }
   });
 
-  // Reset calendar sync mocks
-  Object.values(mockPrisma.calendarSyncState).forEach(mock => {
-    if (jest.isMockFunction(mock)) {
-      mock.mockReset();
-    }
-  });
-
-  Object.values(mockPrisma.calendarEvent).forEach(mock => {
-    if (jest.isMockFunction(mock)) {
-      mock.mockReset();
-    }
-  });
-
-  Object.values(mockPrisma.calendarSyncConflict).forEach(mock => {
-    if (jest.isMockFunction(mock)) {
-      mock.mockReset();
-    }
-  });
+  // Reset calendar sync mocks - removed as calendar models not in current schema
+  // TODO: Re-add when calendar modules are re-enabled
 
   // Reset other model mocks
   Object.values(mockPrisma.user).forEach(mock => {

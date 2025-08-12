@@ -2,7 +2,8 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { FilterBar, type FilterValues } from './FilterBar';
+import { FilterBar } from './FilterBar';
+import type { FilterValues } from './FilterBar';
 
 // Default filter values for testing
 const defaultFilters: FilterValues = {
@@ -426,7 +427,7 @@ describe('FilterBar', () => {
         'aria-pressed',
         'true'
       );
-      expect(screen.getByLabelText('Filter by Done status')).toHaveAttribute(
+      expect(screen.getByLabelText('Filter by Complete status')).toHaveAttribute(
         'aria-pressed',
         'false'
       );

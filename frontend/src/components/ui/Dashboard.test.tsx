@@ -1,8 +1,11 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import Dashboard from './Dashboard';
 import type { Task } from './Dashboard';
+
+// Import renderWithProviders from utils
+import { renderWithProviders } from '../../lib/test-utils';
 
 // Mock component props interfaces
 interface MockFocusViewProps {
@@ -81,7 +84,7 @@ describe('Dashboard', () => {
   });
 
   it('renders the dashboard with both components', () => {
-    render(<Dashboard initialTasks={mockTasks} />);
+    renderWithProviders(<Dashboard initialTasks={mockTasks} />);
 
     expect(screen.getByTestId('focus-view')).toBeInTheDocument();
     expect(screen.getByTestId('chatgpt-integration')).toBeInTheDocument();
@@ -89,7 +92,7 @@ describe('Dashboard', () => {
   });
 
   it('displays initial tasks in FocusView', () => {
-    render(<Dashboard initialTasks={mockTasks} />);
+    renderWithProviders(<Dashboard initialTasks={mockTasks} />);
 
     expect(screen.getByTestId('task-1')).toBeInTheDocument();
     expect(screen.getByTestId('task-2')).toBeInTheDocument();
@@ -98,7 +101,7 @@ describe('Dashboard', () => {
   });
 
   it('handles task status changes', async () => {
-    render(<Dashboard initialTasks={mockTasks} />);
+    renderWithProviders(<Dashboard initialTasks={mockTasks} />);
 
     const completeButton = screen.getByTestId('complete-1');
     fireEvent.click(completeButton);
@@ -110,7 +113,7 @@ describe('Dashboard', () => {
   });
 
   it('handles task deletion', async () => {
-    render(<Dashboard initialTasks={mockTasks} />);
+    renderWithProviders(<Dashboard initialTasks={mockTasks} />);
 
     const deleteButton = screen.getByTestId('delete-1');
     fireEvent.click(deleteButton);
@@ -122,7 +125,7 @@ describe('Dashboard', () => {
   });
 
   it('handles task extraction from ChatGPT', async () => {
-    render(<Dashboard initialTasks={[]} />);
+    renderWithProviders(<Dashboard initialTasks={[]} />);
 
     const extractButton = screen.getByTestId('extract-tasks');
     fireEvent.click(extractButton);
@@ -135,7 +138,7 @@ describe('Dashboard', () => {
 
   it('handles chat layout toggle', async () => {
     const user = userEvent.setup();
-    render(<Dashboard initialTasks={mockTasks} chatPosition="right" />);
+    renderWithProviders(<Dashboard initialTasks={mockTasks} chatPosition="right" />);
 
     const layoutSelect = screen.getByDisplayValue('right');
     await user.selectOptions(layoutSelect, 'bottom');
@@ -144,7 +147,9 @@ describe('Dashboard', () => {
   });
 
   it('applies correct CSS classes for different chat layouts', () => {
-    const { rerender } = render(<Dashboard initialTasks={mockTasks} chatPosition="left" />);
+    const { rerender } = renderWithProviders(
+      <Dashboard initialTasks={mockTasks} chatPosition="left" />
+    );
     let container = screen.getByTestId('dashboard-container');
     expect(container).toHaveClass('lg:flex-row');
 
@@ -158,14 +163,14 @@ describe('Dashboard', () => {
   });
 
   it('shows loading state initially', () => {
-    render(<Dashboard initialTasks={mockTasks} />);
+    renderWithProviders(<Dashboard initialTasks={mockTasks} />);
 
     // Should show some loading or initialization content
     expect(screen.getByText('AI-Powered Productivity Dashboard')).toBeInTheDocument();
   });
 
   it('maintains state consistency between components', async () => {
-    render(<Dashboard initialTasks={mockTasks} />);
+    renderWithProviders(<Dashboard initialTasks={mockTasks} />);
 
     // Complete a task
     fireEvent.click(screen.getByTestId('complete-1'));
@@ -181,7 +186,7 @@ describe('Dashboard', () => {
   });
 
   it('handles empty initial tasks', () => {
-    render(<Dashboard initialTasks={[]} />);
+    renderWithProviders(<Dashboard initialTasks={[]} />);
 
     expect(screen.getByTestId('focus-view')).toBeInTheDocument();
     expect(screen.getByTestId('chatgpt-integration')).toBeInTheDocument();
@@ -189,7 +194,7 @@ describe('Dashboard', () => {
   });
 
   it('renders with default props when none provided', () => {
-    render(<Dashboard />);
+    renderWithProviders(<Dashboard />);
 
     expect(screen.getByTestId('focus-view')).toBeInTheDocument();
     expect(screen.getByTestId('chatgpt-integration')).toBeInTheDocument();

@@ -8,6 +8,19 @@ import { useRenderPerformance } from '../hooks/useRenderPerformance';
 import { useMemoryMonitor } from '../hooks/useMemoryMonitor';
 import { useBundleMonitor } from '../hooks/useBundleMonitor';
 
+/**
+ * Safely extract error message from unknown error type
+ */
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  return 'Unknown error occurred';
+}
+
 export class PerformanceIntegrationValidator {
   /**
    * Validate all performance monitoring components are working together
@@ -34,9 +47,9 @@ export class PerformanceIntegrationValidator {
       results.push({
         name: 'Core Web Vitals Collection',
         status: 'ERROR',
-        details: { error: error.message },
+        details: { error: getErrorMessage(error) },
       });
-      issues.push(`Web Vitals error: ${error.message}`);
+      issues.push(`Web Vitals error: ${getErrorMessage(error)}`);
     }
 
     // Test 2: Render Performance Tracking
@@ -54,9 +67,9 @@ export class PerformanceIntegrationValidator {
       results.push({
         name: 'Render Performance Tracking',
         status: 'ERROR',
-        details: { error: error.message },
+        details: { error: getErrorMessage(error) },
       });
-      issues.push(`Render tracking error: ${error.message}`);
+      issues.push(`Render tracking error: ${getErrorMessage(error)}`);
     }
 
     // Test 3: Memory Monitoring
@@ -74,9 +87,9 @@ export class PerformanceIntegrationValidator {
       results.push({
         name: 'Memory Monitoring',
         status: 'ERROR',
-        details: { error: error.message },
+        details: { error: getErrorMessage(error) },
       });
-      issues.push(`Memory monitoring error: ${error.message}`);
+      issues.push(`Memory monitoring error: ${getErrorMessage(error)}`);
     }
 
     // Test 4: Bundle Performance Analysis
@@ -94,9 +107,9 @@ export class PerformanceIntegrationValidator {
       results.push({
         name: 'Bundle Performance Analysis',
         status: 'ERROR',
-        details: { error: error.message },
+        details: { error: getErrorMessage(error) },
       });
-      issues.push(`Bundle monitoring error: ${error.message}`);
+      issues.push(`Bundle monitoring error: ${getErrorMessage(error)}`);
     }
 
     // Test 5: Performance Provider Integration
@@ -114,9 +127,9 @@ export class PerformanceIntegrationValidator {
       results.push({
         name: 'Performance Provider Integration',
         status: 'ERROR',
-        details: { error: error.message },
+        details: { error: getErrorMessage(error) },
       });
-      issues.push(`Provider integration error: ${error.message}`);
+      issues.push(`Provider integration error: ${getErrorMessage(error)}`);
     }
 
     // Calculate overall score
@@ -144,7 +157,7 @@ export class PerformanceIntegrationValidator {
     adhdOptimized: boolean;
   }> {
     return new Promise(resolve => {
-      let collectedMetrics = {};
+      let collectedMetrics: Record<string, { value: number; timestamp: number }> = {};
       let timeout: NodeJS.Timeout;
 
       // Mock performance observer for testing
@@ -158,7 +171,7 @@ export class PerformanceIntegrationValidator {
                 )
               ) {
                 collectedMetrics[entry.entryType] = {
-                  value: entry.value || entry.startTime,
+                  value: (entry as any).value || entry.startTime,
                   timestamp: Date.now(),
                 };
               }
@@ -184,7 +197,7 @@ export class PerformanceIntegrationValidator {
         } catch (error) {
           resolve({
             working: false,
-            metrics: { error: error.message },
+            metrics: { error: getErrorMessage(error) },
             adhdOptimized: false,
           });
         }
@@ -350,7 +363,7 @@ export class PerformanceIntegrationValidator {
     } catch (error) {
       return {
         working: false,
-        providerData: { error: error.message },
+        providerData: { error: getErrorMessage(error) },
       };
     }
   }

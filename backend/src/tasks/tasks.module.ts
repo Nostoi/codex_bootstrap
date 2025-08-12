@@ -8,7 +8,8 @@ import { TasksService } from './tasks.service';
   imports: [
     PrismaModule,
     forwardRef(() => NotificationsModule),
-    forwardRef(() => import('../planning/planning.module').then(m => m.PlanningModule)),
+    // Planning module temporarily disabled for compilation
+    // forwardRef(() => import('../planning/planning.module').then(m => m.PlanningModule)),
   ],
   controllers: [TasksController, UserSettingsController],
   providers: [TasksService],

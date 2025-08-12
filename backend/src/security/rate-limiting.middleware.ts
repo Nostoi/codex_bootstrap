@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import * as rateLimit from 'express-rate-limit';
+import rateLimit from 'express-rate-limit';
 import Redis from 'ioredis';
 import { User } from '@prisma/client';
 import { AuditLoggerService, AuditAction } from './audit-logger.service';

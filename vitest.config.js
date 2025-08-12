@@ -19,7 +19,7 @@ export default defineConfig({
           name: 'component-tests',
           include: ['frontend/src/**/*.test.{ts,tsx}'],
           environment: 'jsdom',
-          setupFiles: ['./vitest.setup.ts'],
+          setupFiles: ['./vitest.setup.tsx'],
         },
       },
       // Storybook tests project

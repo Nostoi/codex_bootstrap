@@ -1,18 +1,54 @@
 import { test, expect } from '@playwright/test';
-import { PerformanceHelper } from '../fixtures/pageObjects';
+import { PerformanceHelper, ADHDPerformanceMetrics } from '../fixtures/pageObjects';
 
-test.describe('Performance Testing', () => {
+test.describe('Performance Testing - ADHD Optimized', () => {
   let perfHelper: PerformanceHelper;
+  let adhdMetrics: ADHDPerformanceMetrics;
 
   test.beforeEach(async ({ page }) => {
     perfHelper = new PerformanceHelper(page);
+    adhdMetrics = new ADHDPerformanceMetrics(page);
   });
 
-  test('dashboard loads within performance targets', async ({ page }) => {
+  test.describe('Core Web Vitals - ADHD Targets', () => {
+    test('dashboard meets ADHD-optimized Core Web Vitals', async ({ page }) => {
+      const metrics = await adhdMetrics.measureCoreWebVitals('/dashboard');
+
+      // ADHD-specific performance targets (stricter than standard)
+      expect(metrics.LCP).toBeLessThan(2000); // 2s instead of 2.5s
+      expect(metrics.FID).toBeLessThan(50); // 50ms instead of 100ms
+      expect(metrics.CLS).toBeLessThan(0.05); // 0.05 instead of 0.1
+      expect(metrics.TTI).toBeLessThan(3000); // 3s time to interactive
+    });
+
+    test('task creation performance reduces cognitive load', async ({ page }) => {
+      await page.goto('/dashboard');
+
+      const taskCreationMetrics = await adhdMetrics.measureTaskCreationPerformance();
+
+      // ADHD-friendly task creation should be near-instantaneous
+      expect(taskCreationMetrics.buttonClickToModal).toBeLessThan(200); // Modal opens quickly
+      expect(taskCreationMetrics.formInteraction).toBeLessThan(100); // Form responds immediately
+      expect(taskCreationMetrics.submitToFeedback).toBeLessThan(1500); // Save feedback quickly
+    });
+
+    test('focus session startup meets ADHD flow requirements', async ({ page }) => {
+      await page.goto('/dashboard');
+
+      const focusMetrics = await adhdMetrics.measureFocusSessionStartup();
+
+      // Focus sessions must start quickly to maintain ADHD attention
+      expect(focusMetrics.focusButtonClick).toBeLessThan(300); // Focus mode activates fast
+      expect(focusMetrics.taskFiltering).toBeLessThan(500); // Tasks filter quickly
+      expect(focusMetrics.visualTransition).toBeLessThan(800); // UI transitions smoothly
+    });
+  });
+
+  test('dashboard loads within ADHD performance targets', async ({ page }) => {
     const loadTime = await perfHelper.measurePageLoadTime('/dashboard');
 
-    // Dashboard should load in under 3 seconds
-    expect(loadTime).toBeLessThan(3000);
+    // ADHD users need faster loading to prevent task abandonment
+    expect(loadTime).toBeLessThan(2000); // Reduced from 3s to 2s for ADHD users
   });
 
   test('task filtering response times are acceptable', async ({ page }) => {

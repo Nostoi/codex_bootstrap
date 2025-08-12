@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,7 +7,171 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Helmsman enums for ADHD-optimized task management
+model User {
+  id              String                 @id @default(cuid())
+  email           String                 @unique
+  name            String?
+  avatar          String?
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  sessions        CollaborationSession[]
+  documents       Document[]
+  interactionLogs InteractionLog[]
+  notifications   Notification[]
+  projects        Project[]
+  tasks           Task[]
+  settings        UserSettings?
+
+  @@map("users")
+}
+
+model Document {
+  id        String                 @id @default(cuid())
+  title     String
+  content   String?
+  yjsState  Bytes?
+  createdAt DateTime               @default(now())
+  updatedAt DateTime               @updatedAt
+  ownerId   String
+  sessions  CollaborationSession[]
+  owner     User                   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
+}
+
+model CollaborationSession {
+  id         String    @id @default(cuid())
+  userId     String
+  documentId String
+  joinedAt   DateTime  @default(now())
+  leftAt     DateTime?
+  isActive   Boolean   @default(true)
+  document   Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, documentId])
+  @@map("collaboration_sessions")
+}
+
+model IntegrationConfig {
+  id           String    @id @default(cuid())
+  provider     String
+  userId       String
+  accessToken  String?
+  refreshToken String?
+  expiresAt    DateTime?
+  scopes       String[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([provider, userId])
+  @@map("integration_configs")
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  ownerId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  tasks       Task[]
+
+  @@map("projects")
+}
+
+model Task {
+  id               String           @id @default(cuid())
+  title            String
+  description      String?
+  completed        Boolean          @default(false)
+  status           TaskStatus       @default(TODO)
+  dueDate          DateTime?
+  energyLevel      EnergyLevel?
+  focusType        FocusType?
+  estimatedMinutes Int?
+  priority         Int              @default(3)
+  softDeadline     DateTime?
+  hardDeadline     DateTime?
+  source           TaskSource       @default(MANUAL)
+  aiSuggestion     String?
+  projectId        String?
+  ownerId          String
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  notifications    Notification[]
+  dependents       TaskDependency[] @relation("TaskDependents")
+  dependencies     TaskDependency[] @relation("TaskDependencies")
+  owner            User             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  project          Project?         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tags             Tag[]            @relation("TagToTask")
+
+  @@map("tasks")
+}
+
+model TaskDependency {
+  id        String @id @default(cuid())
+  taskId    String
+  dependsOn String
+  depends   Task   @relation("TaskDependents", fields: [dependsOn], references: [id], onDelete: Cascade)
+  task      Task   @relation("TaskDependencies", fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, dependsOn])
+  @@map("task_dependencies")
+}
+
+model Notification {
+  id               String              @id @default(cuid())
+  message          String
+  read             Boolean             @default(false)
+  readAt           DateTime?
+  notificationType NotificationType?
+  deliveryStatus   DeliveryStatus?
+  userId           String
+  taskId           String?
+  createdAt        DateTime            @default(now())
+  task             Task?               @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model InteractionLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("interaction_logs")
+}
+
+model UserSettings {
+  id                        String        @id @default(cuid())
+  userId                    String        @unique
+  theme                     String?       @default("light")
+  notificationPreferences   Json?
+  morningEnergyLevel        EnergyLevel?
+  afternoonEnergyLevel      EnergyLevel?
+  workStartTime             String?
+  workEndTime               String?
+  preferredFocusTypes       FocusType[]
+  createdAt                 DateTime      @default(now())
+  updatedAt                 DateTime      @updatedAt
+  user                      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+model Tag {
+  id    String @id @default(cuid())
+  name  String
+  tasks Task[] @relation("TagToTask")
+
+  @@map("tags")
+}
+
 enum TaskStatus {
   TODO
   IN_PROGRESS
@@ -32,423 +193,26 @@ enum FocusType {
 }
 
 enum TaskSource {
-  SELF
-  BOSS
-  TEAM
-  AI_GENERATED
-}
-
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  avatar    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // OAuth authentication relationships
-  oauthProviders OAuthProvider[]
-  userSessions   UserSession[]
-
-  // Collaboration relationships
-  documents Document[]
-  sessions  CollaborationSession[]
-  projects  Project[]
-  tasks     Task[]
-  notifications Notification[]
-  interactionLogs InteractionLog[]
-  settings  UserSettings?
-  
-  // Calendar sync relationships
-  calendarEvents    CalendarEvent[]
-  calendarSyncStates CalendarSyncState[]
-
-  @@map("users")
-}
-
-model Document {
-  id          String   @id @default(cuid())
-  title       String
-  content     String?
-  yjsState    Bytes?   // Store Yjs document state
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // Relationships
-  ownerId     String
-  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  sessions    CollaborationSession[]
-
-  @@map("documents")
-}
-
-model CollaborationSession {
-  id         String   @id @default(cuid())
-  userId     String
-  documentId String
-  joinedAt   DateTime @default(now())
-  leftAt     DateTime?
-  isActive   Boolean  @default(true)
-
-  // Relationships
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, documentId])
-  @@map("collaboration_sessions")
-}
-
-model IntegrationConfig {
-  id          String   @id @default(cuid())
-  provider    String   // 'microsoft' | 'google'
-  userId      String
-  accessToken String?
-  refreshToken String?
-  expiresAt   DateTime?
-  scopes      String[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@unique([provider, userId])
-  @@map("integration_configs")
-}
-
-model Project {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  ownerId     String
-  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  tasks       Task[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@map("projects")
-}
-
-model Task {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  completed   Boolean  @default(false)
-  status      TaskStatus @default(TODO)
-  dueDate     DateTime?
-  
-  // Helmsman metadata fields for ADHD-optimized scheduling
-  energyLevel     EnergyLevel?
-  focusType      FocusType?
-  estimatedMinutes Int?
-  priority       Int? @default(3)
-  softDeadline   DateTime?
-  hardDeadline   DateTime?
-  source         TaskSource? @default(SELF)
-  aiSuggestion   String?
-  
-  // Relationships
-  projectId   String?
-  project     Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  ownerId     String
-  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  dependencies TaskDependency[] @relation("TaskDependencies")
-  dependents   TaskDependency[] @relation("TaskDependents")
-  tags        Tag[]
-  notifications Notification[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@map("tasks")
-}
-
-model TaskDependency {
-  id        String @id @default(cuid())
-  taskId    String
-  dependsOn String
-  task      Task   @relation("TaskDependencies", fields: [taskId], references: [id], onDelete: Cascade)
-  depends    Task  @relation("TaskDependents", fields: [dependsOn], references: [id], onDelete: Cascade)
-
-  @@unique([taskId, dependsOn])
-  @@map("task_dependencies")
-}
-
-model Notification {
-  id        String   @id @default(cuid())
-  message   String
-  read      Boolean  @default(false)
-  readAt    DateTime?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  taskId    String?
-  task      Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  
-  // Enhanced fields for notification persistence and tracking
-  deliveryStatus   String @default("pending") // 'pending', 'delivered', 'failed', 'acknowledged'
-  retryCount       Int    @default(0)
-  lastRetryAt      DateTime?
-  notificationType String // 'task-update', 'calendar-sync', 'deadline-reminder', 'conflict-alert'
-  metadata         Json?  // Additional notification-specific data
-  
-  createdAt DateTime @default(now())
-
-  @@map("notifications")
-}
-
-model InteractionLog {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  // Enhanced for Mem0 integration and contextual AI
-  action          String   // Legacy field for backward compatibility
-  interactionType String?  // 'task_creation', 'ai_query', 'plan_generation', etc.
-  input          String?  // User input or query
-  output         String?  // AI response or result
-  metadata       Json?    // Additional context for semantic memory
-  confidence     Float?   // AI confidence score (0-1)
-  
-  createdAt DateTime @default(now())
-
-  @@map("interaction_logs")
-}
-
-model UserSettings {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  // ADHD-optimized user preferences
-  theme               String?  @default("light")
-  morningEnergyLevel  EnergyLevel? @default(HIGH)
-  afternoonEnergyLevel EnergyLevel? @default(MEDIUM)
-  workStartTime       String? @default("09:00")
-  workEndTime         String? @default("17:00")
-  focusSessionLength  Int? @default(90) // minutes
-  preferredFocusTypes String[] // JSON array of focus types
-  
-  // Notification preferences
-  notificationPreferences Json? // JSONB field for granular notification settings
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("user_settings")
-}
-
-model Tag {
-  id    String @id @default(cuid())
-  name  String
-  tasks Task[]
-
-  @@map("tags")
-}
-
-// Calendar Synchronization Models
-
-model CalendarEvent {
-  id                String    @id @default(cuid())
-  
-  // Microsoft Graph identifiers
-  graphId           String?   // Microsoft Graph event ID
-  graphCalendarId   String?   // Microsoft Graph calendar ID
-  graphEtag         String?   // ETag for conflict detection
-  
-  // Event details
-  subject           String
-  description       String?
-  location          String?
-  startTime         DateTime
-  endTime           DateTime
-  timeZone          String?   @default("UTC")
-  isAllDay          Boolean   @default(false)
-  
-  // Recurrence
-  isRecurring       Boolean   @default(false)
-  recurrencePattern String?   // JSON string of recurrence rule
-  
-  // Sync metadata
-  lastSyncedAt      DateTime?
-  locallyModified   Boolean   @default(false)
-  remotelyModified  Boolean   @default(false)
-  syncStatus        CalendarSyncStatus @default(PENDING)
-  conflictData      Json?     // JSON object for conflict resolution
-  
-  // Relationships
-  userId            String
-  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  conflicts         CalendarSyncConflict[]
-  
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-
-  @@unique([userId, graphId])
-  @@map("calendar_events")
-}
-
-model CalendarSyncState {
-  id                String    @id @default(cuid())
-  
-  // User and calendar identification
-  userId            String
-  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  calendarId        String?   // Microsoft Graph calendar ID (null for default calendar)
-  
-  // Sync state tracking
-  lastFullSync      DateTime?
-  lastDeltaSync     DateTime?
-  lastSyncTime      DateTime?  // Add lastSyncTime field for tests
-  deltaToken        String?   // Microsoft Graph delta token
-  syncInProgress    Boolean   @default(false)
-  lastSyncStatus    CalendarSyncStatus @default(PENDING)
-  status            CalendarSyncStatus @default(PENDING)  // Add status field for tests
-  direction         String?   // Add direction field for tests (bidirectional, one-way, etc.)
-  lastSyncError     String?
-  
-  // Sync statistics
-  totalEvents       Int       @default(0)
-  syncedEvents      Int       @default(0)
-  conflictedEvents  Int       @default(0)
-  failedEvents      Int       @default(0)
-  processedEvents   Int       @default(0)  // Add processedEvents field for tests
-  conflictsDetected Int       @default(0)  // Add conflictsDetected field for tests
-  createdEvents     Int       @default(0)  // Add createdEvents field for tests
-  updatedEvents     Int       @default(0)  // Add updatedEvents field for tests
-  deletedEvents     Int       @default(0)  // Add deletedEvents field for tests
-  
-  // Error tracking
-  error             String?   // Add error field for tests
-  
-  // Timing tracking
-  startedAt         DateTime?  // Add startedAt field for tests
-  completedAt       DateTime?  // Add completedAt field for tests
-  
-  // Relations
-  conflicts         CalendarSyncConflict[]
-  
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-
-  @@unique([userId, calendarId])
-  @@map("calendar_sync_states")
-}
-
-model CalendarSyncConflict {
-  id                String    @id @default(cuid())
-  
-  // Event identification
-  eventId           String?   // Add eventId field for tests
-  calendarEventId   String
-  calendarEvent     CalendarEvent @relation(fields: [calendarEventId], references: [id], onDelete: Cascade)
-  
-  // Sync state reference for tests
-  syncStateId       String?
-  syncState         CalendarSyncState? @relation(fields: [syncStateId], references: [id], onDelete: Cascade)
-  
-  // Conflict details
-  conflictType      CalendarConflictType
-  localVersion      String    // JSON string of local event data
-  remoteVersion     String    // JSON string of remote event data
-  conflictData      Json?     // JSON object for conflict resolution (supports objects directly)
-  resolution        CalendarConflictResolution? @default(PENDING)
-  resolvedBy        String?   // User ID who resolved the conflict
-  resolvedAt        DateTime?
-  
-  // Metadata
-  detectedAt        DateTime  @default(now())
-  autoResolvable    Boolean   @default(false)
-  resolutionNotes   String?
-  
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-
-  @@map("calendar_sync_conflicts")
-}
-
-// Calendar Sync Enums
-
-enum CalendarSyncStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-  FAILED
-  CONFLICT
-}
-
-enum CalendarConflictType {
-  TITLE_MISMATCH
-  TIME_MISMATCH
-  LOCATION_MISMATCH
-  DESCRIPTION_MISMATCH
-  DELETED_REMOTELY
-  DELETED_LOCALLY
-  BOTH_MODIFIED
-  TITLE
-  START_TIME
-  DESCRIPTION
-  END_TIME
-  LOCATION
-  ALL_DAY
-  RECURRENCE
-}
-
-enum CalendarConflictResolution {
-  PENDING
-  USE_LOCAL
-  USE_REMOTE
-  MERGE
   MANUAL
-  SKIP
-  PREFER_LOCAL
-  PREFER_REMOTE
+  AI_EXTRACTED
+  CALENDAR
+  EMAIL
+  PRD
 }
 
-// OAuth2 Authentication Models
-
-model OAuthProvider {
-  id           String   @id @default(cuid())
-  provider     String   // 'google' | 'microsoft'
-  providerId   String   // OAuth provider's user ID
-  email        String
-  accessToken  String?  // Encrypted at application level
-  refreshToken String?  // Encrypted at application level
-  tokenExpiry  DateTime?
-  scopes       String[] // Requested permissions
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  
-  // Relationships
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@unique([provider, providerId])
-  @@unique([provider, userId]) // One provider per user
-  @@map("oauth_providers")
+enum NotificationType {
+  TASK_REMINDER
+  TASK_OVERDUE
+  ENERGY_SUGGESTION
+  FOCUS_BREAK
+  DAILY_PLANNING
+  SYSTEM_UPDATE
 }
 
-model UserSession {
-  id           String   @id @default(cuid())
-  sessionId    String   @unique @default(cuid())
-  accessToken  String   // JWT for API access
-  refreshToken String   // For token rotation
-  expiresAt    DateTime
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  
-  // Session metadata
-  userAgent    String?
-  ipAddress    String?
-  isActive     Boolean  @default(true)
-  
-  // Relationships
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@map("user_sessions")
-}
-
-model BlacklistedToken {
-  id        String   @id @default(cuid())
-  tokenId   String   @unique // JWT 'jti' claim
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-  
-  @@map("blacklisted_tokens")
+enum DeliveryStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+  READ
 }

@@ -874,3 +874,209 @@ export class TaskCardPageObject {
     await expect(statusBadge).toBeVisible();
   }
 }
+
+/**
+ * ADHD-optimized performance metrics helper
+ * Measures Core Web Vitals with ADHD-specific thresholds
+ */
+export class ADHDPerformanceMetrics {
+  constructor(private page: Page) {}
+
+  /**
+   * Measure Core Web Vitals with ADHD-optimized thresholds
+   * LCP <2.0s, FID <50ms, CLS <0.05, TTI <3.0s
+   */
+  async measureCoreWebVitals(url: string) {
+    // Navigate to page and measure Web Vitals
+    const navigationStart = Date.now();
+    await this.page.goto(url);
+
+    // Measure First Contentful Paint and Largest Contentful Paint
+    const paintMetrics = await this.page.evaluate(() => {
+      return new Promise(resolve => {
+        if ('PerformanceObserver' in window) {
+          const observer = new PerformanceObserver(list => {
+            const entries = list.getEntries();
+            const metrics = {
+              FCP: 0,
+              LCP: 0,
+            };
+
+            entries.forEach(entry => {
+              if (entry.name === 'first-contentful-paint') {
+                metrics.FCP = entry.startTime;
+              }
+              if (entry.entryType === 'largest-contentful-paint') {
+                metrics.LCP = entry.startTime;
+              }
+            });
+
+            if (metrics.LCP > 0) {
+              observer.disconnect();
+              resolve(metrics);
+            }
+          });
+
+          observer.observe({ entryTypes: ['paint', 'largest-contentful-paint'] });
+
+          // Fallback timeout
+          setTimeout(() => {
+            observer.disconnect();
+            resolve({ FCP: 0, LCP: Date.now() - performance.timeOrigin });
+          }, 10000);
+        } else {
+          resolve({ FCP: 0, LCP: Date.now() - performance.timeOrigin });
+        }
+      });
+    });
+
+    // Measure Time to Interactive (TTI)
+    await this.page.waitForLoadState('networkidle');
+    const interactiveTime = Date.now() - navigationStart;
+
+    // Measure Cumulative Layout Shift (CLS)
+    const clsScore = await this.page.evaluate(() => {
+      return new Promise(resolve => {
+        let cls = 0;
+
+        if ('PerformanceObserver' in window) {
+          const observer = new PerformanceObserver(list => {
+            const entries = list.getEntries();
+            entries.forEach((entry: any) => {
+              if (!entry.hadRecentInput) {
+                cls += entry.value;
+              }
+            });
+          });
+
+          observer.observe({ entryTypes: ['layout-shift'] });
+
+          // Measure for 5 seconds then resolve
+          setTimeout(() => {
+            observer.disconnect();
+            resolve(cls);
+          }, 5000);
+        } else {
+          resolve(0);
+        }
+      });
+    });
+
+    // Simulate First Input Delay by measuring click response
+    const fidStart = Date.now();
+    await this.page.click('body');
+    const fid = Date.now() - fidStart;
+
+    return {
+      LCP: (paintMetrics as any).LCP,
+      FID: fid,
+      CLS: clsScore as number,
+      TTI: interactiveTime,
+      FCP: (paintMetrics as any).FCP,
+    };
+  }
+
+  /**
+   * Measure task creation performance for ADHD flow optimization
+   */
+  async measureTaskCreationPerformance() {
+    // Button click to modal open
+    const buttonClickStart = Date.now();
+    await this.page.click('[data-testid="new-task-button"]');
+    await this.page.waitForSelector('[data-testid="task-modal"]', { state: 'visible' });
+    const buttonClickToModal = Date.now() - buttonClickStart;
+
+    // Form interaction responsiveness
+    const formInteractionStart = Date.now();
+    await this.page.fill('[data-testid="task-title"]', 'Test Task');
+    const formInteraction = Date.now() - formInteractionStart;
+
+    // Submit to feedback
+    const submitStart = Date.now();
+    await this.page.click('[data-testid="save-task"]');
+    await this.page.waitForSelector('[data-testid="task-saved-feedback"]', { state: 'visible' });
+    const submitToFeedback = Date.now() - submitStart;
+
+    return {
+      buttonClickToModal,
+      formInteraction,
+      submitToFeedback,
+    };
+  }
+
+  /**
+   * Measure focus session startup performance for ADHD attention management
+   */
+  async measureFocusSessionStartup() {
+    // Focus button click response
+    const focusClickStart = Date.now();
+    await this.page.click('[data-testid="focus-view-button"]');
+    const focusButtonClick = Date.now() - focusClickStart;
+
+    // Task filtering performance
+    const filterStart = Date.now();
+    await this.page.waitForSelector('[data-testid="focus-task-list"]', { state: 'visible' });
+    const taskFiltering = Date.now() - filterStart;
+
+    // Visual transition completion
+    const transitionStart = Date.now();
+    await this.page.waitForSelector('[data-testid="focus-timer"]', { state: 'visible' });
+    const visualTransition = Date.now() - transitionStart;
+
+    return {
+      focusButtonClick,
+      taskFiltering,
+      visualTransition,
+    };
+  }
+
+  /**
+   * Measure energy level switching performance for ADHD workflow optimization
+   */
+  async measureEnergyLevelSwitching() {
+    const energyStart = Date.now();
+
+    // Switch to high energy tasks
+    await this.page.click('[data-testid="energy-filter-high"]');
+    await this.page.waitForSelector('[data-testid="task-card"]:has([data-energy="HIGH"])', {
+      state: 'visible',
+    });
+    const highEnergySwitch = Date.now() - energyStart;
+
+    const mediumStart = Date.now();
+    // Switch to medium energy tasks
+    await this.page.click('[data-testid="energy-filter-medium"]');
+    await this.page.waitForSelector('[data-testid="task-card"]:has([data-energy="MEDIUM"])', {
+      state: 'visible',
+    });
+    const mediumEnergySwitch = Date.now() - mediumStart;
+
+    return {
+      highEnergySwitch,
+      mediumEnergySwitch,
+    };
+  }
+
+  /**
+   * Measure memory usage for ADHD cognitive load assessment
+   */
+  async measureMemoryUsage() {
+    const memoryUsage = await this.page.evaluate(() => {
+      const perf = performance as any;
+      if (perf.memory) {
+        return {
+          usedJSHeapSize: perf.memory.usedJSHeapSize,
+          totalJSHeapSize: perf.memory.totalJSHeapSize,
+          jsHeapSizeLimit: perf.memory.jsHeapSizeLimit,
+        };
+      }
+      return {
+        usedJSHeapSize: 0,
+        totalJSHeapSize: 0,
+        jsHeapSizeLimit: 0,
+      };
+    });
+
+    return memoryUsage;
+  }
+}

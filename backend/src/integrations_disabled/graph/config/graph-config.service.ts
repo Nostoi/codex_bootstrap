@@ -86,7 +86,7 @@ export class GraphConfigService {
     try {
       this.getMicrosoftGraphConfig();
     } catch (error) {
-      errors.push(error.message);
+      errors.push(error instanceof Error ? error.message : String(error));
     }
 
     // Additional validation for optional but recommended settings
@@ -120,7 +120,7 @@ export class GraphConfigService {
       };
     } catch (error) {
       return {
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }
