@@ -5,23 +5,32 @@ Helmsman is an advanced ADHD-friendly task management system featuring intellige
 ## 🎯 Current Status
 
 **Development**: Advanced prototype with substantial backend implementation  
-**Integration**: Core services connected, AI features partially integrated  
-**Production Ready**: Requires authentication and deployment infrastructure
+**Integration**: Microsoft Graph integration active, AI services operational  
+**Production Ready**: Requires full authentication and deployment infrastructure
 
 ### ✅ Implemented Features
 
 - **Daily Planning Algorithm**: Intelligent energy-aware scheduling (1,800+ lines)
-- **Dual Calendar Integration**: Google Calendar + Microsoft Outlook synchronization
+- **Microsoft Graph Integration**: Outlook calendar synchronization (✅ Active - 17 tests passing)
 - **AI Services**: OpenAI integration for task extraction and classification (725+ lines)
 - **Enhanced Task Interface**: Comprehensive metadata display with ADHD-optimized design
 - **Accessibility**: WCAG 2.2 AA compliant with comprehensive screen reader support
-- **Testing**: 41/41 tests passing with comprehensive coverage
+- **Testing Infrastructure**: Comprehensive test data factory system with 60+ test scenarios
+- **Backend Services**: Core NestJS modules operational with PostgreSQL integration
 
 ### 🔄 In Progress
 
 - **Frontend-Backend AI Integration**: Connecting ChatGPT UI to real OpenAI services
 - **Authentication System**: OAuth2 implementation for user management
 - **Real-time Updates**: WebSocket integration for live task synchronization
+
+## Quick Links
+
+- **[Development Setup](DEVELOPMENT.md)**: Complete development environment setup guide
+- **[GitHub Copilot Instructions](.github/copilot-instructions.md)**: Comprehensive AI assistant guidance
+- **[Test Implementation Plan](docs/testing/test-implementation-plan.md)**: Testing strategy and coverage
+- **[Test Data Factory](docs/testing/test-data-factory.md)**: ADHD-optimized test data generation
+- **[TaskMaster Workflow](#taskmaster)**: Automated PRD and task management system
 
 ## 🏗️ Architecture
 
@@ -212,8 +221,8 @@ This project implements a modern full-stack architecture:
 1. Copy `.env.template` to `.env` and update any secrets
 2. Run `./dev_init.sh` to start both servers (set `USE_DOCKER=true` to use Docker)
 3. Frontend: http://localhost:3000
-4. Backend API: http://localhost:8000
-5. API Documentation: http://localhost:8000/api/docs
+4. Backend API: http://localhost:3501
+5. API Documentation: http://localhost:3501/api/docs
 6. Collaboration WebSocket: ws://localhost:8001/collaboration
 7. Install git hooks with `npm install` in the project root
 

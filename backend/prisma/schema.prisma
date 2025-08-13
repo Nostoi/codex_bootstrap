@@ -21,6 +21,8 @@ model User {
   projects        Project[]
   tasks           Task[]
   settings        UserSettings?
+  calendarEvents  CalendarEvent[]
+  calendarSyncStates CalendarSyncState[]
 
   @@map("users")
 }
@@ -215,4 +217,141 @@ enum DeliveryStatus {
   DELIVERED
   FAILED
   READ
+}
+
+// Calendar sync models and enums
+model CalendarEvent {
+  id                String                   @id @default(cuid())
+  graphId           String                   @unique
+  subject           String
+  body              String?
+  bodyPreview       String?
+  start             DateTime
+  end               DateTime
+  location          String?
+  isAllDay          Boolean                  @default(false)
+  importance        String?
+  sensitivity       String?
+  showAs            String?
+  attendees         Json[]
+  categories        String[]
+  organizer         Json?
+  recurrence        Json?
+  rawData           Json
+  lastModified      DateTime
+  syncedAt          DateTime                 @default(now())
+  userId            String?
+  user              User?                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  syncConflicts     CalendarSyncConflict[]
+  
+  // Additional fields needed by GraphModule
+  locallyModified   Boolean                  @default(false)
+  remotelyModified  Boolean                  @default(false)
+  graphEtag         String?
+  graphCalendarId   String?
+  description       String?
+  lastSyncedAt      DateTime?
+  syncStatus        CalendarSyncStatus?
+  startTime         DateTime?
+  endTime           DateTime?
+  timeZone          String?
+  isRecurring       Boolean                  @default(false)
+  recurrencePattern String?
+
+  @@map("calendar_events")
+  @@index([graphId])
+  @@index([userId])
+  @@index([start, end])
+  @@unique([userId, graphId])
+}
+
+model CalendarSyncState {
+  id                String              @id @default(cuid())
+  userId            String
+  calendarId        String
+  lastSyncToken     String?
+  lastSyncTime      DateTime?
+  lastSyncStatus    CalendarSyncStatus  @default(PENDING)
+  errorMessage      String?
+  syncedCount       Int                 @default(0)
+  conflictCount     Int                 @default(0)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Additional fields needed by GraphModule
+  status            CalendarSyncStatus  @default(PENDING)
+  direction         SyncDirection       @default(BIDIRECTIONAL)
+  totalEvents       Int?
+  processedEvents   Int?
+  deltaToken        String?
+  lastDeltaSync     DateTime?
+  lastFullSync      DateTime?
+  syncedEvents      Int                 @default(0)
+  conflictedEvents  Int                 @default(0)
+  failedEvents      Int                 @default(0)
+  
+  @@map("calendar_sync_states")
+  @@unique([userId, calendarId])
+  @@index([userId])
+  @@index([lastSyncStatus])
+}
+
+model CalendarSyncConflict {
+  id                String                     @id @default(cuid())
+  eventId           String
+  conflictType      CalendarConflictType
+  description       String
+  localData         Json
+  remoteData        Json
+  resolution        CalendarConflictResolution @default(PENDING)
+  resolvedAt        DateTime?
+  resolvedBy        String?
+  autoResolved      Boolean                    @default(false)
+  createdAt         DateTime                   @default(now())
+  updatedAt         DateTime                   @updatedAt
+  event             CalendarEvent              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  // Additional fields needed by GraphModule
+  calendarEventId   String?
+  conflictData      Json?
+  syncStateId       String?
+  localVersion      String?
+  remoteVersion     String?
+  autoResolvable    Boolean                    @default(false)
+  
+  @@map("calendar_sync_conflicts")
+  @@index([eventId])
+  @@index([conflictType])
+  @@index([resolution])
+}
+
+enum CalendarSyncStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+enum CalendarConflictType {
+  TITLE
+  DESCRIPTION_MISMATCH
+  START_TIME
+  TIME_MISMATCH
+  LOCATION_MISMATCH
+  BOTH_MODIFIED
+}
+
+enum CalendarConflictResolution {
+  PENDING
+  USE_LOCAL
+  USE_REMOTE
+  MERGE
+  MANUAL
+}
+
+enum SyncDirection {
+  UPLOAD
+  DOWNLOAD
+  BIDIRECTIONAL
 }

@@ -11,6 +11,11 @@ npm-debug.log*
 .env
 .env.local
 
+# Cipher database files (contain secrets)
+data/cipher-sessions.db
+data/cipher-sessions.db-shm
+data/cipher-sessions.db-wal
+
 backend/uploads/
 backend/node_modules/
 backend/pnpm-lock.yaml
